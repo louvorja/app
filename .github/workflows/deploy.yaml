@@ -23,6 +23,10 @@ jobs:
           echo "https://${access_token}:x-oauth-basic@github.com" > ~/.git-credentials
           git config --global user.email $email
           git config --global user.name $username
+      - name: fetch CNAME from dist branch
+        run: |
+          git fetch origin dist:dist
+          git show dist:CNAME > CNAME || echo "CNAME not found, skipping"
       - name: install dependencies
         run: npm install
       - name: build project
@@ -30,6 +34,11 @@ jobs:
         env:
           NODE_ENV: production
           VITE_BASE_URL: /
+      - name: copy CNAME to dist (if exists)
+        run: |
+          if [ -f CNAME ]; then
+            cp CNAME dist/CNAME
+          fi
       - name: deploy to dist
         run: |
           cd dist
