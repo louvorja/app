@@ -39,6 +39,9 @@ jobs:
           if [ -f CNAME ]; then
             cp CNAME dist/CNAME
           fi
+      - name: copy index.html to 404.html
+        run: |
+          cp dist/index.html dist/404.html
       - name: deploy to dist
         run: |
           cd dist
