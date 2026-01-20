@@ -1,0 +1,1 @@
+import{_ as o,h as t,r as n,o as r,c as s}from"./index.4dece8ad.js";import{S as c}from"./Screen.2ab920ec.js";const p={name:"PopupBiblePage",components:{Screen:c},computed:{module_id(){return t.id},module(){return this.$modules.get(this.module_id)}}};function a(m,u,_,d,i,l){const e=n("Screen");return r(),s(e)}const h=o(p,[["render",a]]);export{h as default};
