@@ -3,24 +3,31 @@
     ref="container"
     class="d-flex align-center justify-center"
     :style="{
-      background: '#000',
+      background: config.background,
       width: '100%',
       height: height ? height + 'px' : '100%',
-      color: '#fff',
+      color: config.textColor,
     }"
   >
     <div v-if="bible" class="d-flex flex-column">
       <span
         v-if="bible.text"
         class="text-center"
-        :style="{ fontSize: `${this.fontSizePc(15)}px` }"
+        :style="{ 
+          fontSize: config.textFontSize ? config.textFontSize + 'px' : `${this.fontSizePc(15)}px`,
+          fontFamily: config.fontFamily || 'Arial, sans-serif'
+        }"
       >
         {{ bible.text }}
       </span>
       <span
         v-if="bible.scriptural_reference"
         class="text-right"
-        :style="{ fontSize: `${this.fontSizePc(10)}px` }"
+        :style="{ 
+          fontSize: config.referenceFontSize ? config.referenceFontSize + 'px' : `${this.fontSizePc(10)}px`,
+          fontFamily: config.fontFamily || 'Arial, sans-serif',
+          color: config.referenceColor || config.textColor
+        }"
       >
         {{ bible.scriptural_reference }}
       </span>
@@ -35,6 +42,17 @@ export default {
   name: "ScreenBiblePage",
   props: {
     height: Number,
+    config: {
+      type: Object,
+      default: () => ({
+        background: '#000000',
+        textColor: '#ffffff',
+        referenceColor: '#aaaaaa',
+        textFontSize: 48,
+        referenceFontSize: 32,
+        fontFamily: 'Arial, sans-serif',
+      })
+    },
   },
   data: () => ({
     s_width: 0,
