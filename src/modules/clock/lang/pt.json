@@ -1,3 +1,11 @@
 {
-    "title": "Relógio"
+    "title": "Relógio",
+    "settings": {
+        "title": "Configurações",
+        "format": "Formato do Relógio",
+        "formatLabel": "Selecione o formato",
+        "background": "Cor de Fundo",
+        "textColor": "Cor do Texto",
+        "preview": "Pré-visualização"
+    }
 }
