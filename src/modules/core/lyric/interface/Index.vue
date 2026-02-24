@@ -9,6 +9,7 @@
     :image="config?.image ? $path.file(config.image) : ''"
     closable
     size="small"
+    :flat="false"
     @close="$media.closeLyric()"
   >
     <v-skeleton-loader v-if="module.loading" type="text@5" />

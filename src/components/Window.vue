@@ -1,16 +1,24 @@
 <template>
-  <v-dialog
+  <component
+    :is="flatMode ? 'v-sheet' : 'v-dialog'"
     v-model="visible"
-    scrollable
-    persistent
-    :width="w_width"
-    :height="w_height"
+    :fullscreen="!flatMode && fullscreen"
+    :max-width="flatMode ? undefined : w_width"
+    :scrollable="!flatMode"
+    :persistent="!flatMode && !closable"
+    :no-click-animation="!flatMode && !closable"
+    :transition="!flatMode ? (fullscreen ? 'dialog-bottom-transition' : 'dialog-transition') : undefined"
+    :scrim="!flatMode ? (dark ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)') : undefined"
+    :style="!flatMode ? 'z-index: 1000' : 'height: 100%; width: 100%;'"
+    :class="{ 'window-flat': flatMode, 'window-dialog': !flatMode, 'elevation-0': !flatMode && !dark }"
     :theme="dark ? 'dark' : ''"
+    color="transparent"
   >
-    <v-card :color="color ? color : ''">
+    <v-card :color="color ? color : ''" :class="{ 'h-100 flex-column d-flex': flatMode }" elevation="0">
       <slot name="toolbar">
         <div
           class="d-flex flex-no-wrap align-stretch flex-row justify-space-between"
+          :class="{ 'window-toolbar-flat': flatMode }"
         >
           <div
             v-if="icon"
@@ -33,7 +41,7 @@
             <v-card-title
               v-if="title"
               class="py-0 my-0"
-              :class="titleClass ? titleClass : 'text-h5 font-weight-light'"
+              :class="titleClass ? titleClass : (flatMode ? 'text-h6 font-weight-medium' : 'text-h5 font-weight-light')"
             >
               {{ title }}
             </v-card-title>
@@ -41,7 +49,7 @@
               {{ subtitle }}
             </v-card-subtitle>
           </div>
-          <div class="d-flex flex-row flex-nowrap align-start">
+          <div class="d-flex flex-row flex-nowrap align-start" v-if="!flatMode">
             <slot name="system_buttons" />
             <v-btn
               v-if="minimizable"
@@ -69,10 +77,11 @@
       <v-card-text
         ref="container"
         class="d-flex align-stretch overflow-hidden pa-0 ma-0"
+        :class="{ 'flex-grow-1': flat }"
       >
         <div
           v-if="$slots.left"
-          :style="`height:${container_height}px;${slotLeftStyle};`"
+          :style="`${container_height > 0 ? 'height:' + container_height + 'px;' : ''}${slotLeftStyle};`"
           :class="slotLeftClass"
         >
           <slot name="left" />
@@ -87,7 +96,7 @@
         </div>
         <div
           v-if="$slots.right"
-          :style="`height:${container_height}px;${slotRightStyle};`"
+          :style="`${container_height > 0 ? 'height:' + container_height + 'px;' : ''}${slotRightStyle};`"
           :class="slotRightClass"
         >
           <slot name="right" />
@@ -101,7 +110,7 @@
         <slot name="footer" />
       </v-card-actions>
     </v-card>
-  </v-dialog>
+  </component>
 </template>
 
 <script>
@@ -123,10 +132,18 @@ export default {
     minimizable: Boolean,
     titleClass: String,
     dark: Boolean,
+    flat: {
+      type: Boolean,
+      default: null
+    },
     index: [Boolean, Number, String],
     size: String,
     imageSize: Number,
     color: String,
+    fullscreen: {
+      type: Boolean,
+      default: false
+    },
     slotLeftClass: String,
     slotRightClass: String,
     slotLeftStyle: [String, Object],
@@ -139,10 +156,14 @@ export default {
   computed: {
     visible: {
       get() {
-        return this.modelValue;
+        const val = this.modelValue;
+        if (!this.flatMode) {
+          console.log(`[Window.vue] Dialog visible=${val} (from modelValue)`);
+        }
+        return val;
       },
-      set(value) {
-        this.$emit("update:modelValue", value);
+      set(val) {
+        this.$emit("update:modelValue", val);
       },
     },
     compact_screen: function () {
@@ -166,6 +187,18 @@ export default {
         : this.size == "small"
         ? "550px"
         : "90%";
+    },
+    flatMode() {
+      let isFlat;
+      if (this.flat !== null && this.flat !== undefined) {
+        isFlat = this.flat;
+      } else if (this.$appdata.get("is_popup")) {
+        isFlat = false;
+      } else {
+        isFlat = true;
+      }
+      console.log(`[Window.vue] title="${this.title}", flat prop=${this.flat}, resolving flatMode=${isFlat}`);
+      return isFlat;
     },
   },
   watch: {
@@ -255,3 +288,20 @@ export default {
   },
 };
 </script>
+<style scoped>
+.window-flat {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: rgb(var(--v-theme-background));
+}
+
+.window-toolbar-flat {
+  background-color: rgb(var(--v-theme-surface));
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+  min-height: 48px;
+  max-height: 48px;
+  padding: 0 8px;
+}
+</style>

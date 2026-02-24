@@ -8,5 +8,8 @@
   "icon": null,
   "minAppVersion": "1.0.0",
   "dependencies": [],
-  "permissions": []
+  "permissions": [],
+  "moduleOptions": {
+    "floating": true
+  }
 }

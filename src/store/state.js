@@ -9,11 +9,17 @@ export default {
   popup_module: null,
   import_modules: false,
   loading: false,
+  active_module_id: null,
+  active_group: "musics",
   modules: {},
   module_group: {
     musics: {
       title: "module_group.musics.title",
       modules: ["musics", "hymnal", "hymnal_1996"],
+    },
+    online: {
+      title: "module_group.online.title",
+      modules: [],
     },
     bible: {
       title: "module_group.bible.title",
@@ -23,7 +29,12 @@ export default {
       title: "module_group.utilities.title",
       modules: [],
     },
+    favorites: {
+      title: "module_group.favorites.title",
+      modules: [],
+    },
   },
+  active_group: "musics",
   menu: {
     show: false,
     modules: [],

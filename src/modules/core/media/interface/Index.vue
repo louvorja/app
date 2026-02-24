@@ -12,6 +12,7 @@
     minimizable
     compact
     compact_footer
+    :flat="false"
     @close="$media.close()"
     @minimize="$media.minimize()"
     @resize="resize"

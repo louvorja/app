@@ -5,18 +5,24 @@
     :image="module?.data?.url_image ? $path.file(module.data.url_image) : ''"
     closable
     compact
+    :flat="false"
     title-class="text-h4 font-weight-light"
     :image-size="125"
     :color="module?.data?.color"
     @close="$media.closeAlbum()"
-    slot-left-class="w-100"
   >
-    <template v-slot:left>
+    <div class="album-content pa-4" :style="{ backgroundColor: module.data.color, color: '#FFF', minHeight: '300px' }">
+      <v-progress-linear v-if="loading" color="white" indeterminate />
+      
+      <div v-else-if="!module.data.musics || module.data.musics.length === 0" class="text-center pa-4">
+        {{ t('data.not_found') }}
+      </div>
+      
       <v-table
-        v-if="!loading"
+        v-else
         fixed-header
         hover
-        class="w-100 h-100"
+        class="w-100"
         :style="{ backgroundColor: module.data.color, color: '#FFF' }"
       >
         <thead>
@@ -63,9 +69,7 @@
           </tr>
         </tbody>
       </v-table>
-
-      <v-progress-linear v-if="loading" color="white" indeterminate />
-    </template>
+    </div>
   </Window>
 </template>
 
@@ -96,12 +100,12 @@ export default {
     },
   },
   methods: {
-    /* METHODS OBRIGATÓRIOS - INÍCIO */
+    /* METHODS OBRIGATÓRIAS - INÍCIO */
     /* NÃO MODIFICAR */
     t(text) {
       return this.$t(`modules.${this.module_id}.${text}`);
     },
-    /* METHODS OBRIGATÓRIOS - FIM */
+    /* METHODS OBRIGATÓRIAS - FIM */
   },
 };
 </script>

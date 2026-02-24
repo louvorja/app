@@ -9,7 +9,19 @@ export default {
     }
     $dev.write("open", id);
     $appdata.set(`modules.${id}.show`, true);
+
+    // Se for um módulo flutuante, não definir como ativo para as abas
+    if (!this.isFloating(id)) {
+      this.setActive(id);
+    }
   },
+
+  isFloating(id) {
+    const module = this.get(id);
+    const result = module?.floating === true || module?.moduleOptions?.floating === true || ['media', 'lyric', 'album', 'theme'].includes(id);
+    return result;
+  },
+
   close(id) {
     if (!this.check(id)) {
       console.error(`Módulo ${id} não encontrado!`);
@@ -17,6 +29,18 @@ export default {
     }
     $dev.write("close", id);
     $appdata.set(`modules.${id}.show`, false);
+
+    // Se o módulo fechado era o ativo, tenta ativar outro módulo aberto
+    if ($appdata.get("active_module_id") === id) {
+      const openModules = Object.keys($appdata.get("modules")).filter(
+        (mid) => $appdata.get(`modules.${mid}.show`) === true
+      );
+      if (openModules.length > 0) {
+        this.setActive(openModules[openModules.length - 1]);
+      } else {
+        $appdata.set("active_module_id", null);
+      }
+    }
 
     //Remove da TrayArea
     this.removeTray(id);
@@ -37,8 +61,31 @@ export default {
     $dev.write("minimize", id);
     $appdata.set(`modules.${id}.show`, false);
 
+    // Se minimizou o ativo, tenta ativar outro
+    if ($appdata.get("active_module_id") === id) {
+      const openModules = Object.keys($appdata.get("modules")).filter(
+        (mid) => $appdata.get(`modules.${mid}.show`) === true
+      );
+      if (openModules.length > 0) {
+        this.setActive(openModules[openModules.length - 1]);
+      } else {
+        $appdata.set("active_module_id", null);
+      }
+    }
+
     //Adiciona na TrayArea
     this.addTray(id);
+  },
+  setActive(id) {
+    if (!this.check(id)) {
+      console.error(`Módulo ${id} não encontrado!`);
+      return;
+    }
+    // Não permitir definir um módulo flutuante como ativo para as abas
+    if (this.isFloating(id)) {
+      return;
+    }
+    $appdata.set("active_module_id", id);
   },
   get(list = null) {
     if (list == null) {

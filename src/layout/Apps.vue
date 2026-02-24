@@ -1,129 +1,127 @@
 <template>
-  <div class="apps">
-    <v-expansion-panels v-model="panels_active" flat multiple :rounded="false">
-      <v-expansion-panel
-        v-for="(group, group_key) in module_group"
-        :key="group_key"
-      >
-        <v-expansion-panel-title
-          v-if="countModules(group.modules) != 0"
-          class="my-0 py-0"
-        >
-          {{ $t(group.title) }}
-        </v-expansion-panel-title>
-        <v-expansion-panel-text v-if="countModules(group.modules) != 0">
-          <v-container fluid class="my-0 py-0">
-            <v-row class="my-0 py-0">
-              <template
-                v-for="(module, module_key) in sortModules(group.modules)"
-                :key="module_key"
-              >
-                <v-card
-                  v-if="
-                    module.language
-                      ? module.language == language
-                      : !module.development || (is_dev && module.development)
-                  "
-                  hover
-                  :color="
-                    module.invalid
-                      ? 'error'
-                      : module.development
-                      ? 'warning'
-                      : $theme.primary()
-                  "
-                  @click="$modules.open(module_key)"
-                  class="ma-2"
-                  :width="130"
-                >
-                  <div
-                    class="d-flex flex-column align-center justify-center h-100"
-                  >
-                    <v-avatar class="ma-3" rounded="0" size="40">
-                      <v-icon :icon="module.icon" color="#FFFFFF" :size="40" />
-                    </v-avatar>
-                    <div class="w-100">
-                      <v-card-title
-                        class="text-caption text-center"
-                        style="text-wrap: initial"
-                      >
-                        {{ module.title ? $t(module.title) : "" }}
-                      </v-card-title>
-                    </div>
-                  </div>
-                </v-card>
-              </template>
-            </v-row>
-          </v-container>
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
+  <div class="apps-ribbon bg-light">
+    <div class="d-flex align-center h-100 px-6 overflow-x-auto no-scrollbar">
+      <template v-if="activeModuleGroup && activeModuleGroup.modules">
+        <transition-group name="fade-slide" tag="div" class="d-flex">
+          <div
+            v-for="(module, module_key) in sortModules(
+              activeModuleGroup.modules,
+            )"
+            :key="module_key"
+            class="module-item text-center d-flex flex-column align-center justify-center cursor-pointer"
+            @click="$modules.open(module_key)"
+          >
+            <div class="icon-container mb-1">
+              <v-icon
+                :icon="module.icon"
+                size="32"
+                :color="module.color || '#555'"
+              />
+            </div>
+            <div class="module-title text-caption">
+              {{ module.title ? $t(module.title) : "" }}
+            </div>
+          </div>
+        </transition-group>
+      </template>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: "AppsLayout",
-  data: () => ({
-    panels_active: [],
-
-    selectedTheme: "",
-    themes: [],
-  }),
-  watch: {
-    module_group() {
-      this.panels_active = Object.keys(this.module_group).map((_, key) => key);
-    },
-  },
   computed: {
-    module_group() {
-      return Object.entries(this.$modules.getGroups())
-        .filter(([, value]) => Object.keys(value.modules).length > 0)
-        .reduce((result, [key, value]) => {
-          result[key] = value;
-          return result;
-        }, {});
+    active_group() {
+      return this.$appdata.get("active_group");
     },
-    is_dev: {
-      get() {
-        return this.$appdata.get("is_dev");
-      },
-      set(value) {
-        if (!value) {
-          this.$appdata.set("is_dev", value);
-        }
-      },
+    activeModuleGroup() {
+      const groups = this.$modules.getGroups();
+      return groups[this.active_group] || null;
     },
-    language: {
-      get() {
-        return this.$userdata.get("language");
-      },
-      set(value) {
-        if (!value) {
-          this.$userdata.set("language", value);
-        }
-      },
+    is_dev() {
+      return this.$appdata.get("is_dev");
+    },
+    language() {
+      return this.$userdata.get("language");
     },
   },
   methods: {
     sortModules(modules) {
-      //Ordena pelo idioma selecionado
-      return this.$modules.sort(modules, this.$t);
-    },
-    countModules(modules) {
-      return Object.keys(modules).filter((key) =>
-        !this.is_dev
-          ? !modules[key].development || modules[key].development === false
-          : true
-      ).length;
+      const filtered = Object.fromEntries(
+        Object.entries(modules).filter(([, module]) => {
+          const devMatch =
+            !module.development || (this.is_dev && module.development);
+          const langMatch =
+            !module.language || module.language == this.language;
+          return devMatch && langMatch;
+        }),
+      );
+      return this.$modules.sort(filtered, this.$t);
     },
   },
 };
 </script>
 
 <style scoped>
-.apps {
-  overflow: auto !important;
+.apps-ribbon {
+  height: 90px;
   width: 100%;
+  background-color: rgb(var(--v-theme-surface));
+  border-bottom: 2px solid rgb(var(--v-theme-primary));
+  box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  flex: 0 0 auto;
+}
+
+.module-item {
+  min-width: 110px;
+  height: 80px;
+  padding: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+}
+
+.module-item:hover {
+  background-color: rgba(var(--v-theme-primary), 0.08);
+  transform: translateY(-2px);
+}
+
+.icon-container {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.module-title {
+  color: rgb(var(--v-theme-on-surface));
+  line-height: 1.2;
+  font-weight: 500;
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
 }
 </style>

@@ -133,16 +133,19 @@ export default {
     });
 
     for (const path in modules) {
+      console.log(`[ModuleManager] Found module at: ${path}`);
       const ModuleClass = modules[path].default;
       if (typeof ModuleClass === "function") {
         const module = new ModuleClass();
         const parts = path.split("/");
         if (module?.manifest?.id != parts[parts.length - 2]) {
+          console.error(`[ModuleManager] ID mismatch for ${path}: ${module?.manifest?.id} vs ${parts[parts.length - 2]}`);
           $alert.error({
             text: "messages.misconfigured_module",
             error: path,
           });
         } else {
+          console.log(`[ModuleManager] Installing module: ${module.manifest.id}`);
           await this.installModule(module);
         }
       }

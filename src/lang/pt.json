@@ -9,13 +9,19 @@
     },
     "module_group": {
         "musics": {
-            "title": "Músicas"
+            "title": "Coletâneas"
+        },
+        "online": {
+            "title": "Coletâneas On-line"
         },
         "bible": {
             "title": "Bíblia"
         },
         "utilities": {
             "title": "Utilitários"
+        },
+        "favorites": {
+            "title": "Favoritos"
         }
     },
     "components": {
