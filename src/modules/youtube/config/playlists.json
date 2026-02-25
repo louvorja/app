@@ -1,0 +1,40 @@
+{
+  "playlists": [
+    {
+      "id": "prova_e_vede_com_libras",
+      "name": "Prova e Vede - Com Libras",
+      "icon": "mdi-book-open-page-variant",
+      "color": "blue",
+      "type": "playlist",
+      "playlistId": "PLRzhXS-xO9iExRwxSXUF9t4skBu3f7cZE",
+      "url": "https://www.youtube.com/playlist?list=PLRzhXS-xO9iExRwxSXUF9t4skBu3f7cZE"
+    },
+    {
+      "id": "prova_e_vede",
+      "name": "Prova e Vede",
+      "icon": "mdi-cross",
+      "color": "indigo",
+      "type": "playlist",
+      "playlistId": "PLRzhXS-xO9iGgK8_6fX1hF1U5H4S9HJge",
+      "url": "https://www.youtube.com/playlist?list=PLRzhXS-xO9iGgK8_6fX1hF1U5H4S9HJge"
+    },
+    {
+      "id": "informativo_missoes",
+      "name": "Informativo Mundial das Missões",
+      "icon": "mdi-earth",
+      "color": "green",
+      "type": "playlist",
+      "playlistId": "PL_GfLCIoktxXUrnxifx8lGSdBxXR4gWLH",
+      "url": "https://www.youtube.com/playlist?list=PL_GfLCIoktxXUrnxifx8lGSdBxXR4gWLH"
+    },
+    {
+      "id": "minutos_saudade",
+      "name": "Minutos de Saudade",
+      "icon": "mdi-heart",
+      "color": "red",
+      "type": "playlist",
+      "playlistId": "PLTXME2yWP8A8UJO12bsCQ0pZCF3OL4k2U",
+      "url": "https://www.youtube.com/playlist?list=PLTXME2yWP8A8UJO12bsCQ0pZCF3OL4k2U"
+    }
+  ]
+}
