@@ -3,6 +3,8 @@
     v-model="visible"
     scrollable
     persistent
+    @click:outside="minimize"
+    @keydown.esc="minimize"
     :width="w_width"
     :height="w_height"
     :theme="dark ? 'dark' : ''"
