@@ -23,6 +23,37 @@
         item-value="value"
         item-title="title"
       />
+
+      <!-- Os campos abaixo serão exibidos apenas no mobile / reolução pequena -->
+      <div v-if="compact">
+        <div class="my-1" />
+        <l-select
+          v-model="bible.id_bible_book"
+          :items="books ?? []"
+          item-value="id_bible_book"
+          item-title="name"
+          item-subtitle="abbreviation"
+          icon="mdi-book-open-page-variant"
+        />
+        <div class="my-1" />
+        <l-select
+          v-model="bible.chapter"
+          :items="chaptersList()"
+          item-value="id"
+          item-title="value"
+          icon="mdi-bookmark"
+        />
+        <div class="my-1" />
+        <l-select
+          v-model="bible_verses"
+          :items="versesList()"
+          item-value="id"
+          item-title="value"
+          multiple
+          icon="mdi-format-list-numbered"
+          :display="displayVerses()"
+        />
+      </div>
     </template>
 
     <template v-slot:left>
@@ -246,6 +277,7 @@
           <!-- Verse Search Menu (above verse list) -->
           <div class="ps-1 pe-4 pb-3" style="flex-shrink: 0">
             <l-select
+              v-if="!compact"
               v-model="bible_verses"
               :items="versesList()"
               item-value="id"
