@@ -17,55 +17,61 @@
     :index="loading"
   >
     <template v-slot:header>
-      <div class="d-flex align-center w-100" style="gap: 8px;">
-        <!-- Selected Book Display -->
-        <v-text-field
-          :model-value="bible.book || 'Selecionar Livro'"
-          prepend-inner-icon="mdi-book-open-page-variant"
-          variant="underlined"
-          density="compact"
-          hide-details
-          readonly
-          style="flex: 1;"
-        />
-
-        <!-- Campo Versão (só quando não está compact) -->
-        <v-autocomplete
-          v-if="!compact"
-          v-model="bible.id_bible_version"
-          :items="versions_list"
-          hide-details
-          density="compact"
-          variant="underlined"
-          placeholder="Versão"
-          style="width: 130px; flex-shrink: 0;"
-        />
-      </div>
+      <LSelect
+        v-model="bible.id_bible_version"
+        :items="versions_list ?? []"
+        item-value="value"
+        item-title="title"
+      />
     </template>
 
     <template v-slot:left>
       <!-- Settings Panel -->
-      <div v-if="showSettings" class="pa-4" style="width: 100%; background: #f5f5f5;">
+      <div
+        v-if="showSettings"
+        class="pa-4"
+        style="width: 100%; background: #f5f5f5"
+      >
         <div class="text-h6 mb-4">Configurações</div>
-        
+
         <!-- Background -->
         <div class="mb-4">
           <label class="text-subtitle-2">Cor de Fundo</label>
           <div class="d-flex gap-2 mt-1">
-            <input type="color" v-model="bibleConfig.background" class="color-input" @change="saveBibleConfig" />
-            <input type="text" v-model="bibleConfig.background" class="form-input" @change="saveBibleConfig" />
+            <input
+              type="color"
+              v-model="bibleConfig.background"
+              class="color-input"
+              @change="saveBibleConfig"
+            />
+            <input
+              type="text"
+              v-model="bibleConfig.background"
+              class="form-input"
+              @change="saveBibleConfig"
+            />
           </div>
         </div>
-        
+
         <!-- Text Color -->
         <div class="mb-4">
           <label class="text-subtitle-2">Cor do Texto</label>
           <div class="d-flex gap-2 mt-1">
-            <input type="color" v-model="bibleConfig.textColor" class="color-input" @change="saveBibleConfig" />
-            <input type="text" v-model="bibleConfig.textColor" class="form-input" @change="saveBibleConfig" />
+            <input
+              type="color"
+              v-model="bibleConfig.textColor"
+              class="color-input"
+              @change="saveBibleConfig"
+            />
+            <input
+              type="text"
+              v-model="bibleConfig.textColor"
+              class="form-input"
+              @change="saveBibleConfig"
+            />
           </div>
         </div>
-        
+
         <!-- Text Font Size -->
         <div class="mb-4">
           <label class="text-subtitle-2">Tamanho do Texto</label>
@@ -77,7 +83,7 @@
             @update:model-value="saveBibleConfig"
           />
         </div>
-        
+
         <!-- Reference Font Size -->
         <div class="mb-4">
           <label class="text-subtitle-2">Tamanho da Referência</label>
@@ -89,16 +95,26 @@
             @update:model-value="saveBibleConfig"
           />
         </div>
-        
+
         <!-- Reference Color -->
         <div class="mb-4">
           <label class="text-subtitle-2">Cor da Referência</label>
           <div class="d-flex gap-2 mt-1">
-            <input type="color" v-model="bibleConfig.referenceColor" class="color-input" @change="saveBibleConfig" />
-            <input type="text" v-model="bibleConfig.referenceColor" class="form-input" @change="saveBibleConfig" />
+            <input
+              type="color"
+              v-model="bibleConfig.referenceColor"
+              class="color-input"
+              @change="saveBibleConfig"
+            />
+            <input
+              type="text"
+              v-model="bibleConfig.referenceColor"
+              class="form-input"
+              @change="saveBibleConfig"
+            />
           </div>
         </div>
-        
+
         <!-- Font Family -->
         <div class="mb-4">
           <label class="text-subtitle-2">Fonte</label>
@@ -112,59 +128,22 @@
             @update:model-value="saveBibleConfig"
           />
         </div>
-      </div>    
+      </div>
       <div v-else-if="!compact" class="d-flex flex-row h-100">
-
         <!-- Combined Book Selection Area -->
         <div class="w-70 h-100 d-flex flex-column">
           <!-- Book Search Menu (inline above book list) -->
-          <div class="pa-2" style="flex-shrink: 0;">
-            <v-menu v-model="bookMenu" :close-on-content-click="false" style="width: 100%;">
-              <template v-slot:activator="{ props }">
-                <v-text-field
-                  v-bind="props"
-                  :model-value="bible.book || 'Selecionar Livro'"
-                  prepend-inner-icon="mdi-book-open-page-variant"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  readonly
-                  style="width: 100%;"
-                  placeholder="Buscar ou selecionar livro..."
-                  @click="bookMenu = true"
-                />
-              </template>
-              <v-card min-width="350" max-height="300">
-                <v-card-text class="pa-2">
-                  <v-text-field
-                    v-model="searchBook"
-                    label="Buscar livro..."
-                    prepend-inner-icon="mdi-magnify"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    autofocus
-                    clearable
-                    class="mb-2"
-                    @keydown.enter="filteredBooks.length > 0 && selBook(filteredBooks[0].id_bible_book)"
-                  />
-                  <div style="max-height: 180px; overflow-y: auto;">
-                    <v-list density="compact" nav>
-                      <v-list-item
-                        v-for="book in filteredBooks"
-                        :key="book.id_bible_book"
-                        :active="book.id_bible_book == bible.id_bible_book"
-                        @click="selBook(book.id_bible_book); closeBookMenu()"
-                        :title="book.name"
-                        :subtitle="book.abbreviation"
-                      />
-                    </v-list>
-                  </div>
-                </v-card-text>
-              </v-card>
-            </v-menu>
+          <div style="flex-shrink: 0" class="ps-4 pe-1">
+            <LSelect
+              v-model="bible.id_bible_book"
+              :items="books ?? []"
+              item-value="id_bible_book"
+              item-title="name"
+              item-subtitle="abbreviation"
+              icon="mdi-book-open-page-variant"
+            />
           </div>
-          
+
           <!-- Book Grid List -->
           <div
             :style="`height: ${height - 60}px`"
@@ -205,56 +184,20 @@
             </v-card>
           </div>
         </div>
-        
+
         <!-- compoenente dos versiculos -->
         <div class="w-30 h-100 d-flex flex-column">
           <!-- Chapter Search Menu (inline above chapter list) -->
-          <div class="pa-2" style="flex-shrink: 0;">
-            <v-menu v-model="chapterMenu" :close-on-content-click="false" style="width: 100%;">
-              <template v-slot:activator="{ props }">
-                <v-text-field
-                  v-bind="props"
-                  :model-value="bible.chapter || 'Selecionar Capítulo'"
-                  prepend-inner-icon="mdi-bookmark"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  readonly
-                  style="width: 100%;"
-                  placeholder="Buscar ou selecionar capítulo..."
-                  @click="chapterMenu = true"
-                />
-              </template>
-              <v-card min-width="200" max-height="250">
-                <v-card-text class="pa-2">
-                  <v-text-field
-                    v-model="searchChapter"
-                    label="Buscar capítulo..."
-                    prepend-inner-icon="mdi-magnify"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    autofocus
-                    clearable
-                    class="mb-2"
-                    @keydown.enter="filteredChapters.length > 0 && selChapter(filteredChapters[0])"
-                  />
-                  <div style="max-height: 150px; overflow-y: auto;">
-                    <v-list density="compact" nav>
-                      <v-list-item
-                        v-for="chapter in filteredChapters"
-                        :key="chapter"
-                        :active="chapter == bible.chapter"
-                        @click="selChapter(chapter); closeChapterMenu()"
-                        :title="`Capítulo ${chapter}`"
-                      />
-                    </v-list>
-                  </div>
-                </v-card-text>
-              </v-card>
-            </v-menu>
+          <div style="flex-shrink: 0" class="px-1">
+            <LSelect
+              v-model="bible.chapter"
+              :items="chaptersList()"
+              item-value="id"
+              item-title="value"
+              icon="mdi-bookmark"
+            />
           </div>
-          
+
           <!-- Chapter Grid List -->
           <div
             :style="`height: ${height - 60}px`"
@@ -301,18 +244,26 @@
           }"
         >
           <!-- Verse Search Menu (above verse list) -->
-          <div class="pa-2" style="flex-shrink: 0;">
-            <v-menu v-model="verseMenu" :close-on-content-click="false" style="width: 100%;">
+          <div class="ps-1 pe-4 pb-3" style="flex-shrink: 0">
+            <v-menu
+              v-model="verseMenu"
+              :close-on-content-click="false"
+              style="width: 100%"
+            >
               <template v-slot:activator="{ props }">
                 <v-text-field
                   v-bind="props"
-                  :model-value="bible.verses.length > 0 ? `Versículos: ${bible.verses.join(', ')}` : 'Selecionar Versículos'"
+                  :model-value="
+                    bible.verses.length > 0
+                      ? `Versículos: ${bible.verses.join(', ')}`
+                      : 'Selecionar Versículos'
+                  "
                   prepend-inner-icon="mdi-format-list-numbered"
                   variant="outlined"
                   density="compact"
                   hide-details
                   readonly
-                  style="width: 100%;"
+                  style="width: 100%"
                   placeholder="Buscar ou selecionar versículos..."
                   @click="verseMenu = true"
                 />
@@ -329,15 +280,21 @@
                     autofocus
                     clearable
                     class="mb-2"
-                    @keydown.enter="filteredVerses.length > 0 && selVerse($event, filteredVerses[0])"
+                    @keydown.enter="
+                      filteredVerses.length > 0 &&
+                        selVerse($event, filteredVerses[0])
+                    "
                   />
-                  <div style="max-height: 180px; overflow-y: auto;">
+                  <div style="max-height: 180px; overflow-y: auto">
                     <v-list density="compact" nav>
                       <v-list-item
                         v-for="verse in filteredVerses"
                         :key="verse"
                         :active="bible.verses.includes(verse)"
-                        @click="selVerse($event, verse); closeVerseMenu()"
+                        @click="
+                          selVerse($event, verse);
+                          closeVerseMenu();
+                        "
                         :title="`Versículo ${verse}`"
                       />
                     </v-list>
@@ -346,7 +303,7 @@
               </v-card>
             </v-menu>
           </div>
-          
+
           <div :style="`height: ${height / 2 - 80}px;`">
             <v-skeleton-loader
               v-show="loading_book || loading_verses"
@@ -419,7 +376,10 @@
               <LScreenBtn module="bible" />
             </v-toolbar>
           </div>
-          <Screen :height="compact ? height / 2 - 48 : height / 2 - 88" :config="bibleConfig" />
+          <Screen
+            :height="compact ? height / 2 - 48 : height / 2 - 88"
+            :config="bibleConfig"
+          />
         </div>
       </div>
     </template>
@@ -430,6 +390,7 @@
 import manifest from "../manifest.json";
 import LWindow from "@/components/Window.vue";
 import Screen from "../components/Screen.vue";
+import LSelect from "@/components/inputs/Select.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
 
 export default {
@@ -438,6 +399,7 @@ export default {
     LWindow,
     Screen,
     LScreenBtn,
+    LSelect,
   },
   data: () => ({
     lang: null,
@@ -447,11 +409,8 @@ export default {
     tab: null,
     width: 0,
     height: 0,
-    searchBook: '',
-    searchChapter: '',
-    searchVerse: '',
-    bookMenu: false,
-    chapterMenu: false,
+    searchChapter: "",
+    searchVerse: "",
     verseMenu: false,
     bible: {
       id_bible_version: null,
@@ -478,22 +437,26 @@ export default {
     last_bible_file: null,
     showSettings: false,
     bibleConfig: {
-      background: '#000000',
-      textColor: '#ffffff',
-      referenceColor: '#aaaaaa',
+      background: "#000000",
+      textColor: "#ffffff",
+      referenceColor: "#aaaaaa",
       textFontSize: 48,
       referenceFontSize: 32,
-      fontFamily: 'Arial, sans-serif',
+      fontFamily: "Arial, sans-serif",
     },
-    fontSizeOptions: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96],
+    fontSizeOptions: [
+      10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44,
+      46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80,
+      82, 84, 86, 88, 90, 92, 94, 96,
+    ],
     fontFamilyOptions: [
-      { label: 'Arial', value: 'Arial, sans-serif' },
-      { label: 'Helvetica', value: 'Helvetica, sans-serif' },
-      { label: 'Times New Roman', value: 'Times New Roman, serif' },
-      { label: 'Georgia', value: 'Georgia, serif' },
-      { label: 'Courier New', value: 'Courier New, monospace' },
-      { label: 'Verdana', value: 'Verdana, sans-serif' },
-      { label: 'DIN Condensed', value: 'din-bold, sans-serif' },
+      { label: "Arial", value: "Arial, sans-serif" },
+      { label: "Helvetica", value: "Helvetica, sans-serif" },
+      { label: "Times New Roman", value: "Times New Roman, serif" },
+      { label: "Georgia", value: "Georgia, serif" },
+      { label: "Courier New", value: "Courier New, monospace" },
+      { label: "Verdana", value: "Verdana, sans-serif" },
+      { label: "DIN Condensed", value: "din-bold, sans-serif" },
     ],
   }),
   computed: {
@@ -513,56 +476,31 @@ export default {
 
     book() {
       return this.books.find(
-        (b) => b.id_bible_book == this.bible.id_bible_book
+        (b) => b.id_bible_book == this.bible.id_bible_book,
       );
     },
     version() {
       return this.versions.find(
-        (b) => b.id_bible_version == this.bible.id_bible_version
+        (b) => b.id_bible_version == this.bible.id_bible_version,
       );
     },
     chapters() {
       return this.book?.chapters;
     },
-    filteredBooks() {
-      if (!this.searchBook || this.searchBook.trim() === '') {
-        return this.books;
-      }
-      const search = this.searchBook.toLowerCase();
-      return this.books.filter(book => 
-        book.name.toLowerCase().includes(search) || 
-        book.abbreviation.toLowerCase().includes(search)
-      );
-    },
-    filteredChapters() {
-      if (!this.searchChapter || this.searchChapter.trim() === '') {
-        return this.chapters_list;
-      }
-      const search = this.searchChapter.toLowerCase();
-      return this.chapters_list.filter(chapter => 
-        chapter.toString().includes(search)
-      );
-    },
     filteredVerses() {
-      if (!this.searchVerse || this.searchVerse.trim() === '') {
+      if (!this.searchVerse || this.searchVerse.trim() === "") {
         return this.verseOptions;
       }
       const search = this.searchVerse.toLowerCase();
-      return this.verseOptions.filter(verse => 
-        verse.toString().includes(search)
+      return this.verseOptions.filter((verse) =>
+        verse.toString().includes(search),
       );
     },
-    books_list() {
-      return this.books.map((book) => ({
-        title: book.name,
-        value: book.id_bible_book,
-      }));
-    },
-    chapters_list() {
-      return Array.from({ length: this.chapters }, (_, index) => index + 1);
-    },
     verseOptions() {
-      return Array.from({ length: this.chapters || 1 }, (_, index) => index + 1);
+      return Array.from(
+        { length: this.chapters || 1 },
+        (_, index) => index + 1,
+      );
     },
     versions_list() {
       return this.versions.map((version) => ({
@@ -632,7 +570,7 @@ export default {
       if (this.books.length <= 0) {
         this.loading_book = true;
         this.books = await this.$database.get(
-          `${this.$i18n.locale}_bible_book`
+          `${this.$i18n.locale}_bible_book`,
         );
         if (!this.bible.id_bible_book) {
           await this.selBook(this.books[0].id_bible_book);
@@ -642,7 +580,7 @@ export default {
 
       if (this.versions.length <= 0) {
         this.versions = await this.$database.get(
-          `${this.$i18n.locale}_bible_version`
+          `${this.$i18n.locale}_bible_version`,
         );
         if (!this.bible.id_bible_version) {
           await this.selVersion(this.versions[0].id_bible_version);
@@ -748,7 +686,7 @@ export default {
       this.bible.verses.sort((a, b) => a - b);
       this.select_bible = Object.assign({}, this.bible);
       this.select_bible.scriptural_reference = this.scripturalReference(
-        this.select_bible
+        this.select_bible,
       );
       this.select_bible.text = this.getSelectedVerses(this.select_bible.verses);
 
@@ -769,7 +707,7 @@ export default {
       }
       if (this.select_bible?.verses && this.select_bible.verses.length > 0) {
         let verse = Math.min(
-          ...this.select_bible.verses.filter((num) => num > 0)
+          ...this.select_bible.verses.filter((num) => num > 0),
         );
         if (verse > 1) {
           verse--;
@@ -778,7 +716,7 @@ export default {
           verse = Math.max(...Object.keys(this.verses).map(Number));
         } else {
           let bookIndex = this.books.findIndex(
-            (b) => b.id_bible_book == this.bible.id_bible_book
+            (b) => b.id_bible_book == this.bible.id_bible_book,
           );
           const book =
             bookIndex > 0
@@ -812,7 +750,7 @@ export default {
           verse = 1;
         } else {
           let bookIndex = this.books.findIndex(
-            (b) => b.id_bible_book == this.bible.id_bible_book
+            (b) => b.id_bible_book == this.bible.id_bible_book,
           );
           const book =
             bookIndex < this.books.length - 1
@@ -824,6 +762,22 @@ export default {
         }
         this.selVerse(null, verse);
       }
+    },
+    chaptersList() {
+      if (!this.chapters) {
+        return [];
+      }
+      return Array.from({ length: this.chapters }, (_, index) => {
+        return { id: index + 1, value: "Capítulo " + (index + 1) };
+      });
+    },
+    versesList() {
+      if (!this?.verses) {
+        return [];
+      }
+      return Object.keys(this.verses).map((verse) => {
+        return { id: verse, value: "Versículo " + verse };
+      });
     },
     numbersInterval(numbers) {
       if (!numbers || numbers.length === 0) return "";
@@ -923,17 +877,9 @@ export default {
         this.bibleConfig = { ...this.bibleConfig, ...saved };
       }
     },
-    closeBookMenu() {
-      this.bookMenu = false;
-      this.searchBook = '';
-    },
-    closeChapterMenu() {
-      this.chapterMenu = false;
-      this.searchChapter = '';
-    },
     closeVerseMenu() {
       this.verseMenu = false;
-      this.searchVerse = '';
+      this.searchVerse = "";
     },
   },
   async mounted() {

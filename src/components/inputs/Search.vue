@@ -19,7 +19,7 @@
 
 <script>
 export default {
-  name: "InputSearchComponent",
+  name: "SearchComponent",
   props: {
     modelValue: String,
     label: String,

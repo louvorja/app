@@ -143,7 +143,7 @@ import manifest from "../manifest.json";
 
 import LWindow from "@/components/Window.vue";
 import LTable from "@/components/DataTable.vue";
-import LSearch from "@/components/inputs/InputSearch.vue";
+import LSearch from "@/components/inputs/Search.vue";
 import LCheckbox from "@/components/inputs/CheckBox.vue";
 import LMusicMenuTable from "@/components/MusicMenuTable.vue";
 import LLetterPaginate from "@/components/LetterPagination.vue";
@@ -214,13 +214,13 @@ export default {
     filter_instrumental_music: {
       get() {
         return this.$userdata.get(
-          `modules.${this.module_id}.filter.instrumental_music`
+          `modules.${this.module_id}.filter.instrumental_music`,
         );
       },
       set(value) {
         this.$userdata.set(
           `modules.${this.module_id}.filter.instrumental_music`,
-          value
+          value,
         );
       },
     },

@@ -96,7 +96,7 @@ import manifest from "../manifest.json";
 
 import LWindow from "@/components/Window.vue";
 import LTable from "@/components/DataTable.vue";
-import LSearch from "@/components/inputs/InputSearch.vue";
+import LSearch from "@/components/inputs/Search.vue";
 import LMusicMenuTable from "@/components/MusicMenuTable.vue";
 
 export default {
