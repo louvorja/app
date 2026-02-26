@@ -5,6 +5,9 @@
     "modules": {
         "invalid": {
             "title": "#Error#"
+        },
+        "youtube": {
+            "title": "Vídeos informativos"
         }
     },
     "module_group": {
@@ -16,6 +19,9 @@
         },
         "utilities": {
             "title": "Utilidades"
+        },
+        "midias_online": {
+            "title": "Medios Online"
         }
     },
     "components": {

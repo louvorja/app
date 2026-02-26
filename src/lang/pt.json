@@ -5,6 +5,9 @@
     "modules": {
         "invalid": {
             "title": "#Erro#"
+        },
+        "youtube": {
+            "title": "Momentos Missionários"
         }
     },
     "module_group": {
@@ -16,6 +19,9 @@
         },
         "utilities": {
             "title": "Utilitários"
+        },
+        "midias_online": {
+            "title": "Mídias Online"
         }
     },
     "components": {
