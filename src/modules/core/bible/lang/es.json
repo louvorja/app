@@ -1,3 +1,7 @@
 {
-    "title": "Biblia"
+    "title": "Biblia",
+    "chapter": "Capítulo",
+    "verse": "Versículo",
+    "verses": "Versículos",
+    "verses_select": "Seleccionar versículos"
 }

@@ -17,7 +17,7 @@
     :index="loading"
   >
     <template v-slot:header>
-      <LSelect
+      <l-select
         v-model="bible.id_bible_version"
         :items="versions_list ?? []"
         item-value="value"
@@ -134,7 +134,7 @@
         <div class="w-70 h-100 d-flex flex-column">
           <!-- Book Search Menu (inline above book list) -->
           <div style="flex-shrink: 0" class="ps-4 pe-1">
-            <LSelect
+            <l-select
               v-model="bible.id_bible_book"
               :items="books ?? []"
               item-value="id_bible_book"
@@ -147,7 +147,7 @@
           <!-- Book Grid List -->
           <div
             :style="`height: ${height - 60}px`"
-            class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2"
+            class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
           >
             <v-skeleton-loader
               v-for="n in 10"
@@ -189,7 +189,7 @@
         <div class="w-30 h-100 d-flex flex-column">
           <!-- Chapter Search Menu (inline above chapter list) -->
           <div style="flex-shrink: 0" class="px-1">
-            <LSelect
+            <l-select
               v-model="bible.chapter"
               :items="chaptersList()"
               item-value="id"
@@ -201,7 +201,7 @@
           <!-- Chapter Grid List -->
           <div
             :style="`height: ${height - 60}px`"
-            class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2"
+            class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
           >
             <v-skeleton-loader
               v-for="n in 10"
@@ -245,66 +245,18 @@
         >
           <!-- Verse Search Menu (above verse list) -->
           <div class="ps-1 pe-4 pb-3" style="flex-shrink: 0">
-            <v-menu
-              v-model="verseMenu"
-              :close-on-content-click="false"
-              style="width: 100%"
-            >
-              <template v-slot:activator="{ props }">
-                <v-text-field
-                  v-bind="props"
-                  :model-value="
-                    bible.verses.length > 0
-                      ? `Versículos: ${bible.verses.join(', ')}`
-                      : 'Selecionar Versículos'
-                  "
-                  prepend-inner-icon="mdi-format-list-numbered"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  readonly
-                  style="width: 100%"
-                  placeholder="Buscar ou selecionar versículos..."
-                  @click="verseMenu = true"
-                />
-              </template>
-              <v-card :min-width="200" :max-width="300" max-height="300">
-                <v-card-text class="pa-2">
-                  <v-text-field
-                    v-model="searchVerse"
-                    label="Buscar versículo..."
-                    prepend-inner-icon="mdi-magnify"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    autofocus
-                    clearable
-                    class="mb-2"
-                    @keydown.enter="
-                      filteredVerses.length > 0 &&
-                        selVerse($event, filteredVerses[0])
-                    "
-                  />
-                  <div style="max-height: 180px; overflow-y: auto">
-                    <v-list density="compact" nav>
-                      <v-list-item
-                        v-for="verse in filteredVerses"
-                        :key="verse"
-                        :active="bible.verses.includes(verse)"
-                        @click="
-                          selVerse($event, verse);
-                          closeVerseMenu();
-                        "
-                        :title="`Versículo ${verse}`"
-                      />
-                    </v-list>
-                  </div>
-                </v-card-text>
-              </v-card>
-            </v-menu>
+            <l-select
+              v-model="bible_verses"
+              :items="versesList()"
+              item-value="id"
+              item-title="value"
+              multiple
+              icon="mdi-format-list-numbered"
+              :display="displayVerses()"
+            />
           </div>
 
-          <div :style="`height: ${height / 2 - 80}px;`">
+          <div :style="`height: ${height / 2 - 80}px;`" class="mt-2">
             <v-skeleton-loader
               v-show="loading_book || loading_verses"
               type="list-item-two-line"
@@ -409,9 +361,6 @@ export default {
     tab: null,
     width: 0,
     height: 0,
-    searchChapter: "",
-    searchVerse: "",
-    verseMenu: false,
     bible: {
       id_bible_version: null,
       id_bible_book: null,
@@ -474,6 +423,31 @@ export default {
       return this.module.show;
     },
 
+    bible_verses: {
+      get() {
+        return Object.assign([], this.bible.verses);
+      },
+      set(value) {
+        if (value.length == 0) {
+          this.clean();
+          return;
+        }
+        if (value.length == 1) {
+          this.selVerse(null, value[0]);
+        } else {
+          const added = value.filter((v) => !this.bible.verses.includes(v));
+          const removed = this.bible.verses.filter((v) => !value.includes(v));
+
+          const event = { ctrlKey: true };
+          if (added.length > 0) {
+            this.selVerse(event, added[0]);
+          } else if (removed.length > 0) {
+            this.selVerse(event, removed[0]);
+          }
+        }
+      },
+    },
+
     book() {
       return this.books.find(
         (b) => b.id_bible_book == this.bible.id_bible_book,
@@ -486,21 +460,6 @@ export default {
     },
     chapters() {
       return this.book?.chapters;
-    },
-    filteredVerses() {
-      if (!this.searchVerse || this.searchVerse.trim() === "") {
-        return this.verseOptions;
-      }
-      const search = this.searchVerse.toLowerCase();
-      return this.verseOptions.filter((verse) =>
-        verse.toString().includes(search),
-      );
-    },
-    verseOptions() {
-      return Array.from(
-        { length: this.chapters || 1 },
-        (_, index) => index + 1,
-      );
     },
     versions_list() {
       return this.versions.map((version) => ({
@@ -656,7 +615,11 @@ export default {
     },
     async selVerse(event, num) {
       if (event) {
-        event.preventDefault();
+        try {
+          event.preventDefault();
+        } catch (e) {
+          null;
+        }
       }
 
       num = parseInt(num);
@@ -680,8 +643,14 @@ export default {
           }
         }
       } else {
+        if (this.bible.verses.length == 1 && this.bible.verses[0] == num) {
+          this.bible.verses.splice(0, 1);
+          this.clean();
+          return;
+        }
         this.bible.verses = [num];
       }
+
       this.last_verse = num;
       this.bible.verses.sort((a, b) => a - b);
       this.select_bible = Object.assign({}, this.bible);
@@ -694,6 +663,9 @@ export default {
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
+    },
+    lastSelectedVerse(verse) {
+      this.selVerse(null, +verse);
     },
     async prevVerse() {
       if (this.select_bible?.id_bible_version) {
@@ -768,7 +740,7 @@ export default {
         return [];
       }
       return Array.from({ length: this.chapters }, (_, index) => {
-        return { id: index + 1, value: "Capítulo " + (index + 1) };
+        return { id: index + 1, value: this.t("chapter") + " " + (index + 1) };
       });
     },
     versesList() {
@@ -776,7 +748,7 @@ export default {
         return [];
       }
       return Object.keys(this.verses).map((verse) => {
-        return { id: verse, value: "Versículo " + verse };
+        return { id: verse, value: this.t("verse") + " " + verse };
       });
     },
     numbersInterval(numbers) {
@@ -877,9 +849,11 @@ export default {
         this.bibleConfig = { ...this.bibleConfig, ...saved };
       }
     },
-    closeVerseMenu() {
-      this.verseMenu = false;
-      this.searchVerse = "";
+    displayVerses() {
+      if (!this.bible.verses || this.bible.verses.length === 0) {
+        return this.t("verses_select");
+      }
+      return `${this.t("verses")}: ${this.numbersInterval(this.bible.verses)}`;
     },
   },
   async mounted() {

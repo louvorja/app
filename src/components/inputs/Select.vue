@@ -11,6 +11,7 @@
         variant="outlined"
         readonly
         @click:clear="clear"
+        hide-details
       />
     </template>
 
@@ -36,8 +37,16 @@
           v-for="item in filteredItems"
           :key="item[itemValue]"
           @click="select(item)"
-          :active="item[itemValue] === modelValue"
+          :active="active(item)"
         >
+          <template v-if="multiple" #prepend>
+            <v-checkbox
+              @click.stop="selectCheck(item)"
+              :model-value="active(item)"
+              hide-details
+            />
+          </template>
+
           <v-list-item-title>
             {{ item[itemTitle] }}
           </v-list-item-title>
@@ -62,9 +71,13 @@ export default {
   name: "SelectComponent",
 
   props: {
-    modelValue: [String, Number],
+    modelValue: [String, Number, Array],
     label: String,
     icon: String,
+    multiple: {
+      type: Boolean,
+      default: false,
+    },
     items: {
       type: Array,
       default: () => [],
@@ -78,6 +91,10 @@ export default {
       default: "value",
     },
     itemSubtitle: {
+      type: String,
+      default: null,
+    },
+    display: {
       type: String,
       default: null,
     },
@@ -104,24 +121,61 @@ export default {
     },
 
     displayText() {
-      const selected = this.items.find(
-        (item) => item[this.itemValue] === this.modelValue,
-      );
+      if (this.display) {
+        return this.display;
+      } else if (this.multiple && Array.isArray(this.modelValue)) {
+        return this.modelValue
+          .map((value) => {
+            const item = this.items.find((i) => i[this.itemValue] == value);
+            return item ? item[this.itemTitle] : "";
+          })
+          .filter(Boolean)
+          .join(", ");
+      } else {
+        const selected = this.items.find(
+          (item) => item[this.itemValue] === this.modelValue,
+        );
 
-      return selected ? selected[this.itemTitle] : "";
+        return selected ? selected[this.itemTitle] : "";
+      }
     },
   },
 
   methods: {
     select(item) {
-      console.log("Selected item:", item);
-      this.$emit("update:modelValue", item[this.itemValue]);
+      console.log("Selected item:", item, this.multiple);
+      if (this.multiple) {
+        this.$emit("update:modelValue", [+item[this.itemValue]]);
+      } else {
+        this.$emit("update:modelValue", item[this.itemValue]);
+      }
       this.menu = false;
       this.search = "";
+    },
+    selectCheck(item) {
+      const currentValues = Array.isArray(this.modelValue)
+        ? this.modelValue
+        : [];
+      const newValue = +item[this.itemValue];
+      const index = currentValues.indexOf(newValue);
+      if (index > -1) {
+        currentValues.splice(index, 1);
+      } else {
+        currentValues.push(newValue);
+      }
+      this.$emit("update:modelValue", currentValues);
     },
 
     clear() {
       this.$emit("update:modelValue", null);
+    },
+
+    active(item) {
+      return this.multiple
+        ? Array.isArray(this.modelValue) &&
+            (this.modelValue.includes(item[this.itemValue]) ||
+              this.modelValue.includes(+item[this.itemValue]))
+        : item[this.itemValue] == this.modelValue;
     },
   },
 };
