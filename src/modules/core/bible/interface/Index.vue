@@ -177,7 +177,7 @@
 
           <!-- Book Grid List -->
           <div
-            :style="`height: ${height - 60}px`"
+            :style="`height: ${height - 65}px`"
             class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
           >
             <v-skeleton-loader
@@ -231,7 +231,7 @@
 
           <!-- Chapter Grid List -->
           <div
-            :style="`height: ${height - 60}px`"
+            :style="`height: ${height - 65}px`"
             class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
           >
             <v-skeleton-loader
@@ -288,7 +288,7 @@
             />
           </div>
 
-          <div :style="`height: ${height / 2 - 80}px;`" class="mt-2">
+          <div :style="`height: ${height / 2 - 30}px;`" class="mt-2">
             <v-skeleton-loader
               v-show="loading_book || loading_verses"
               type="list-item-two-line"
