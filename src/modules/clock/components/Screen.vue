@@ -3,13 +3,19 @@
     ref="container"
     class="d-flex align-center justify-center"
     :style="{
-      background: '#000',
+      background: config.background,
       width: '100%',
       height: height ? height + 'px' : '100%',
-      color: '#fff',
+      color: config.textColor,
     }"
   >
-    <span class="text-right" :style="{ fontSize: `${this.fontSizePc(30)}px` }">
+    <span 
+      class="text-right" 
+      :style="{ 
+        fontSize: config.fontSize ? config.fontSize + 'px' : '96px',
+        fontFamily: config.fontFamily || 'Arial, sans-serif'
+      }"
+    >
       {{ time }}
     </span>
   </div>
@@ -20,6 +26,16 @@ export default {
   name: "ClockPage",
   props: {
     height: Number,
+    config: {
+      type: Object,
+      default: () => ({
+        format: 'hh:mm',
+        background: '#000',
+        textColor: '#fff',
+        fontSize: 96,
+        fontFamily: 'Arial, sans-serif',
+      })
+    },
   },
   data: () => ({
     s_width: 0,
@@ -46,16 +62,35 @@ export default {
         }
       }
     },
+    getTimeFormat() {
+      const format = this.config.format || 'hh:mm';
+      const options = {};
+      
+      // Handle uppercase variants (H:mm, H:mm:ss)
+      if (format.includes('H')) {
+        options.hour = 'numeric';
+      } else if (format.includes('hh') || format.includes('HH')) {
+        options.hour = '2-digit';
+      }
+      
+      if (format.includes('mm')) {
+        options.minute = '2-digit';
+      }
+      if (format.includes('ss') && !format.includes('SS')) {
+        options.second = '2-digit';
+      }
+      if (format.includes('SS')) {
+        options.second = 'numeric';
+      }
+      
+      return new Date().toLocaleTimeString('pt-BR', options);
+    },
   },
   mounted() {
     this.windowResize();
     window.addEventListener("resize", this.windowResize);
     this.timer = setInterval(() => {
-      this.time = new Date().toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
+      this.time = this.getTimeFormat();
     });
   },
   unmounted() {
