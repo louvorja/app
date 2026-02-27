@@ -27,7 +27,6 @@
             items: [
               ['reference_font', 'reference_font_size'],
               'reference_font_color',
-              ['reference_font_color', 'reference_font_size'],
             ],
           },
           { name: 'Janela', items: ['border_spacing'] },
