@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
+    RewriteRule ^\.git - [F,L]
+
+    # Redireciona tudo para o index.html, exceto se for um arquivo ou diretório existente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Adiciona Cache-Control para melhorar o desempenho
+<IfModule mod_headers.c>
+    <FilesMatch "\.(ico|jpg|jpeg|png|gif|js|css|woff|woff2|ttf|svg|eot|otf|webp|mp4|avi|mov|mkv|webm)$">
+        Header set Cache-Control "max-age=31536000, public"
+    </FilesMatch>
+</IfModule>
+
+# Adiciona ErrorDocuments
+ErrorDocument 403 /403.shtml
+ErrorDocument 404 /404.shtml
+ErrorDocument 500 /500.shtml
