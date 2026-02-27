@@ -79,7 +79,7 @@
     </template>
 
     <template v-slot:left>
-      <div class="d-flex flex-row h-100">
+      <div v-if="!compact" class="d-flex flex-row h-100">
         <!-- Combined Book Selection Area -->
         <div class="w-70 h-100 d-flex flex-column">
           <!-- Book Search Menu (inline above book list) -->
