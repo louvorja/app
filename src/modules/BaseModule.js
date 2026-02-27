@@ -17,6 +17,7 @@ export default class BaseModule {
       permissions: manifest.permissions || [],
       translations: manifest.translations || {},
       system: manifest.system ?? false,
+      customization: manifest.customization || {},
     };
   }
 

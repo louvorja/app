@@ -1,5 +1,6 @@
 // @/helpers/ModuleManager.js
 import $appdata from "./AppData";
+import $userdata from "./UserData";
 import $dev from "./Dev";
 import $alert from "./Alert";
 
@@ -82,7 +83,19 @@ export default {
             this.i18n.global.mergeLocaleMessage(lang, {
               modules: { [manifest.id]: translations },
             });
-          }
+          },
+        );
+      }
+
+      // Install customization options
+      if (manifest.customization) {
+        Object.entries(manifest.customization).forEach(
+          ([key, customization]) => {
+            $userdata.setIfNull(
+              `modules.${manifest.id}.${key}`,
+              customization.default ?? null,
+            );
+          },
         );
       }
 
@@ -90,7 +103,7 @@ export default {
       $dev.write(
         "module_install",
         manifest.id,
-        manifest.development ? "[dev]" : ""
+        manifest.development ? "[dev]" : "",
       );
 
       return true;

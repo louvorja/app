@@ -123,6 +123,20 @@ export default {
     module() {
       return this.$modules.get(this.module_id);
     },
+    userdata() {
+      return new Proxy(
+        {},
+        {
+          get: (_, key) => {
+            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+          },
+          set: (_, key, value) => {
+            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            return true;
+          },
+        },
+      );
+    },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
 
     classform() {

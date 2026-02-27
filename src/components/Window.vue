@@ -43,6 +43,17 @@
           </div>
           <div class="d-flex flex-row flex-nowrap align-start">
             <slot name="system_buttons" />
+
+            <l-customization-bar v-if="$slots.customize">
+              <slot name="customize" />
+            </l-customization-bar>
+
+            <v-divider
+              v-if="$slots.customize || $slots.system_buttons"
+              vertical
+              class="ms-2"
+            />
+
             <v-btn
               v-if="minimizable"
               class="ms-2"
@@ -105,6 +116,8 @@
 </template>
 
 <script>
+import LCustomizationBar from "@/components/CustomizationBar.vue";
+
 export default {
   name: "WindowComponent",
   props: {
@@ -131,6 +144,9 @@ export default {
     slotRightClass: String,
     slotLeftStyle: [String, Object],
     slotRightStyle: [String, Object],
+  },
+  components: {
+    LCustomizationBar,
   },
 
   data: () => ({

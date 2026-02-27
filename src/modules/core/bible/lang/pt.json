@@ -3,5 +3,15 @@
     "chapter": "Capítulo",
     "verse": "Versículo",
     "verses": "Versículos",
-    "verses_select": "Selecione os versículos"
+    "verses_select": "Selecione os versículos",
+    "customization": {
+        "font": "Fonte",
+        "font_color": "Cor",
+        "reference_font": "Fonte",
+        "reference_font_color": "Cor",
+        "background_color": "Cor",
+        "font_size": "Tamanho",
+        "reference_font_size": "Tamanho",
+        "border_spacing": "Borda"
+    }
 }

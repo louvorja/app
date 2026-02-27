@@ -1,12 +1,54 @@
 {
   "id": "bible",
   "name": "Bíblia",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Bíblia",
   "author": "maycorolbuche",
   "category": "bible",
   "icon": "mdi-book-cross",
   "minAppVersion": "1.0.0",
   "dependencies": [],
-  "permissions": []
+  "permissions": [],
+  "customization": {
+    "font": {
+      "type": "font",
+      "label": "customization.font",
+      "default": "Arial, sans-serif"
+    },
+    "font_color": {
+      "type": "color",
+      "label": "customization.font_color",
+      "default": "#FFFFFF"
+    },
+    "font_size": {
+      "type": "font-size",
+      "label": "customization.font_size",
+      "default": 15
+    },
+    "reference_font": {
+      "type": "font",
+      "label": "customization.font",
+      "default": "Arial, sans-serif"
+    },
+    "reference_font_color": {
+      "type": "color",
+      "label": "customization.reference_font",
+      "default": "#FB8C00"
+    },
+    "reference_font_size": {
+      "type": "font-size",
+      "label": "customization.reference_font_size",
+      "default": 10
+    },
+    "background_color": {
+      "type": "color",
+      "label": "customization.background_color",
+      "default": "#000000"
+    },
+    "border_spacing": {
+      "type": "border-spacing",
+      "label": "customization.border_spacing",
+      "default": 10
+    }
+  }
 }

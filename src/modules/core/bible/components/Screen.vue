@@ -3,19 +3,20 @@
     ref="container"
     class="d-flex align-center justify-center"
     :style="{
-      background: config.background,
+      background: userdata.background_color,
       width: '100%',
       height: height ? height + 'px' : '100%',
-      color: config.textColor,
+      padding: `${this.fontSizePc(userdata.border_spacing)}px`,
     }"
   >
     <div v-if="bible" class="d-flex flex-column">
       <span
         v-if="bible.text"
         class="text-center"
-        :style="{ 
-          fontSize: config.textFontSize ? config.textFontSize + 'px' : `${this.fontSizePc(15)}px`,
-          fontFamily: config.fontFamily || 'Arial, sans-serif'
+        :style="{
+          color: userdata.font_color,
+          fontSize: `${this.fontSizePc(userdata.font_size)}px`,
+          fontFamily: userdata.font || 'Arial, sans-serif',
         }"
       >
         {{ bible.text }}
@@ -23,10 +24,10 @@
       <span
         v-if="bible.scriptural_reference"
         class="text-right"
-        :style="{ 
-          fontSize: config.referenceFontSize ? config.referenceFontSize + 'px' : `${this.fontSizePc(10)}px`,
-          fontFamily: config.fontFamily || 'Arial, sans-serif',
-          color: config.referenceColor || config.textColor
+        :style="{
+          color: userdata.reference_font_color,
+          fontSize: `${this.fontSizePc(userdata.reference_font_size)}px`,
+          fontFamily: userdata.reference_font || 'Arial, sans-serif',
         }"
       >
         {{ bible.scriptural_reference }}
@@ -42,17 +43,6 @@ export default {
   name: "ScreenBiblePage",
   props: {
     height: Number,
-    config: {
-      type: Object,
-      default: () => ({
-        background: '#000000',
-        textColor: '#ffffff',
-        referenceColor: '#aaaaaa',
-        textFontSize: 48,
-        referenceFontSize: 32,
-        fontFamily: 'Arial, sans-serif',
-      })
-    },
   },
   data: () => ({
     s_width: 0,
@@ -66,6 +56,20 @@ export default {
     },
     module() {
       return this.$modules.get(this.module_id);
+    },
+    userdata() {
+      return new Proxy(
+        {},
+        {
+          get: (_, key) => {
+            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+          },
+          set: (_, key, value) => {
+            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            return true;
+          },
+        },
+      );
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
     bible() {

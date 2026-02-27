@@ -16,6 +16,29 @@
     :slot-right-style="{ width: compact ? width : (width / 100) * 40 + 'px' }"
     :index="loading"
   >
+    <template v-slot:customize>
+      <l-customization-tools
+        :module="module"
+        :items="[
+          { name: 'Fundo', items: ['background_color'] },
+          { name: 'Texto', items: [['font', 'font_size'], 'font_color'] },
+          {
+            name: 'Referência',
+            items: [
+              ['reference_font', 'reference_font_size'],
+              'reference_font_color',
+              ['reference_font_color', 'reference_font_size'],
+            ],
+          },
+          { name: 'Janela', items: ['border_spacing'] },
+        ]"
+      />
+    </template>
+
+    <template v-slot:system_buttons>
+      <LScreenBtn module="bible" />
+    </template>
+
     <template v-slot:header>
       <l-select
         v-model="bible.id_bible_version"
@@ -57,110 +80,7 @@
     </template>
 
     <template v-slot:left>
-      <!-- Settings Panel -->
-      <div
-        v-if="showSettings"
-        class="pa-4"
-        style="width: 100%; background: #f5f5f5"
-      >
-        <div class="text-h6 mb-4">Configurações</div>
-
-        <!-- Background -->
-        <div class="mb-4">
-          <label class="text-subtitle-2">Cor de Fundo</label>
-          <div class="d-flex gap-2 mt-1">
-            <input
-              type="color"
-              v-model="bibleConfig.background"
-              class="color-input"
-              @change="saveBibleConfig"
-            />
-            <input
-              type="text"
-              v-model="bibleConfig.background"
-              class="form-input"
-              @change="saveBibleConfig"
-            />
-          </div>
-        </div>
-
-        <!-- Text Color -->
-        <div class="mb-4">
-          <label class="text-subtitle-2">Cor do Texto</label>
-          <div class="d-flex gap-2 mt-1">
-            <input
-              type="color"
-              v-model="bibleConfig.textColor"
-              class="color-input"
-              @change="saveBibleConfig"
-            />
-            <input
-              type="text"
-              v-model="bibleConfig.textColor"
-              class="form-input"
-              @change="saveBibleConfig"
-            />
-          </div>
-        </div>
-
-        <!-- Text Font Size -->
-        <div class="mb-4">
-          <label class="text-subtitle-2">Tamanho do Texto</label>
-          <v-select
-            v-model="bibleConfig.textFontSize"
-            :items="fontSizeOptions"
-            density="compact"
-            variant="outlined"
-            @update:model-value="saveBibleConfig"
-          />
-        </div>
-
-        <!-- Reference Font Size -->
-        <div class="mb-4">
-          <label class="text-subtitle-2">Tamanho da Referência</label>
-          <v-select
-            v-model="bibleConfig.referenceFontSize"
-            :items="fontSizeOptions"
-            density="compact"
-            variant="outlined"
-            @update:model-value="saveBibleConfig"
-          />
-        </div>
-
-        <!-- Reference Color -->
-        <div class="mb-4">
-          <label class="text-subtitle-2">Cor da Referência</label>
-          <div class="d-flex gap-2 mt-1">
-            <input
-              type="color"
-              v-model="bibleConfig.referenceColor"
-              class="color-input"
-              @change="saveBibleConfig"
-            />
-            <input
-              type="text"
-              v-model="bibleConfig.referenceColor"
-              class="form-input"
-              @change="saveBibleConfig"
-            />
-          </div>
-        </div>
-
-        <!-- Font Family -->
-        <div class="mb-4">
-          <label class="text-subtitle-2">Fonte</label>
-          <v-select
-            v-model="bibleConfig.fontFamily"
-            :items="fontFamilyOptions"
-            item-title="label"
-            item-value="value"
-            density="compact"
-            variant="outlined"
-            @update:model-value="saveBibleConfig"
-          />
-        </div>
-      </div>
-      <div v-else-if="!compact" class="d-flex flex-row h-100">
+      <div class="d-flex flex-row h-100">
         <!-- Combined Book Selection Area -->
         <div class="w-70 h-100 d-flex flex-column">
           <!-- Book Search Menu (inline above book list) -->
@@ -315,11 +235,6 @@
           </div>
           <div style="height: 48px">
             <v-toolbar density="compact">
-              <v-btn
-                icon="mdi-cog"
-                variant="text"
-                @click="showSettings = !showSettings"
-              />
               <v-spacer />
               <v-divider vertical />
               <v-btn
@@ -360,10 +275,7 @@
               <LScreenBtn module="bible" />
             </v-toolbar>
           </div>
-          <Screen
-            :height="compact ? height / 2 - 48 : height / 2 - 88"
-            :config="bibleConfig"
-          />
+          <Screen :height="compact ? height / 2 - 48 : height / 2 - 88" />
         </div>
       </div>
     </template>
@@ -376,6 +288,7 @@ import LWindow from "@/components/Window.vue";
 import Screen from "../components/Screen.vue";
 import LSelect from "@/components/inputs/Select.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
+import LCustomizationTools from "@/components/CustomizationTools.vue";
 
 export default {
   name: "CollectionsModule",
@@ -384,6 +297,7 @@ export default {
     Screen,
     LScreenBtn,
     LSelect,
+    LCustomizationTools,
   },
   data: () => ({
     lang: null,
@@ -416,29 +330,6 @@ export default {
     verses: [],
     last_verse: 1,
     last_bible_file: null,
-    showSettings: false,
-    bibleConfig: {
-      background: "#000000",
-      textColor: "#ffffff",
-      referenceColor: "#aaaaaa",
-      textFontSize: 48,
-      referenceFontSize: 32,
-      fontFamily: "Arial, sans-serif",
-    },
-    fontSizeOptions: [
-      10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44,
-      46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80,
-      82, 84, 86, 88, 90, 92, 94, 96,
-    ],
-    fontFamilyOptions: [
-      { label: "Arial", value: "Arial, sans-serif" },
-      { label: "Helvetica", value: "Helvetica, sans-serif" },
-      { label: "Times New Roman", value: "Times New Roman, serif" },
-      { label: "Georgia", value: "Georgia, serif" },
-      { label: "Courier New", value: "Courier New, monospace" },
-      { label: "Verdana", value: "Verdana, sans-serif" },
-      { label: "DIN Condensed", value: "din-bold, sans-serif" },
-    ],
   }),
   computed: {
     /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
@@ -448,6 +339,20 @@ export default {
     },
     module() {
       return this.$modules.get(this.module_id);
+    },
+    userdata() {
+      return new Proxy(
+        {},
+        {
+          get: (_, key) => {
+            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+          },
+          set: (_, key, value) => {
+            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            return true;
+          },
+        },
+      );
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
 
@@ -504,13 +409,6 @@ export default {
     },
     super_compact: function () {
       return this.$vuetify.display.width <= 400;
-    },
-    bibleConfigLoaded() {
-      const saved = this.$appdata.get(`modules.bible.config`);
-      if (saved) {
-        return { ...this.bibleConfig, ...saved };
-      }
-      return this.bibleConfig;
     },
   },
   watch: {
@@ -872,15 +770,6 @@ export default {
         text: null,
       };
     },
-    saveBibleConfig() {
-      this.$appdata.set(`modules.bible.config`, { ...this.bibleConfig });
-    },
-    loadBibleConfig() {
-      const saved = this.$appdata.get(`modules.bible.config`);
-      if (saved) {
-        this.bibleConfig = { ...this.bibleConfig, ...saved };
-      }
-    },
     displayVerses() {
       if (!this.bible.verses || this.bible.verses.length === 0) {
         return this.t("verses_select");
@@ -890,7 +779,6 @@ export default {
   },
   async mounted() {
     await this.loadData();
-    this.loadBibleConfig();
   },
 };
 </script>

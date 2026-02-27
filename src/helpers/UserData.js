@@ -30,6 +30,19 @@ export default {
     this.save();
   },
 
+  setIfNull(param, value) {
+    $dev.write("set userdata", { param, value });
+    if (
+      $appdata.get(`user_data.${param}`) === null ||
+      $appdata.get(`user_data.${param}`) === undefined
+    ) {
+      $appdata.set(`user_data.${param}`, value);
+    }
+
+    //Salvar os Dados
+    this.save();
+  },
+
   get(param, ifnull = null) {
     //$dev.write("get userdata", { param, ifnull });
     if (!param) {
