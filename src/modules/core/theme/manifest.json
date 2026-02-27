@@ -9,7 +9,6 @@
   "icon": "mdi-palette",
   "minAppVersion": "1.0.0",
   "dependencies": [],
-  "permissions": [],
   "moduleOptions": {
     "size": "small"
   }

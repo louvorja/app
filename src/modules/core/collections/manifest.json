@@ -9,6 +9,5 @@
   "minAppVersion": "1.0.0",
   "dependencies": [
     "album"
-  ],
-  "permissions": []
+  ]
 }

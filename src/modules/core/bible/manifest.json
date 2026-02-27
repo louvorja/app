@@ -8,7 +8,6 @@
   "icon": "mdi-book-cross",
   "minAppVersion": "1.0.0",
   "dependencies": [],
-  "permissions": [],
   "customization": {
     "font": {
       "type": "font",

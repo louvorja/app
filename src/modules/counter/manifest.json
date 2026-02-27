@@ -9,6 +9,5 @@
   "category": "utilities",
   "icon": "mdi-counter",
   "minAppVersion": "1.0.0",
-  "dependencies": [],
-  "permissions": []
+  "dependencies": []
 }

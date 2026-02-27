@@ -2,7 +2,7 @@
 export const ModuleManifest = {
   create(options) {
     // Add validation
-    const required = ['id', 'name', 'version'];
+    const required = ["id", "name", "version"];
     for (const field of required) {
       if (!options[field]) {
         throw new Error(`Missing required field: ${field}`);
@@ -15,14 +15,13 @@ export const ModuleManifest = {
       version: options.version,
       description: options.description,
       author: options.author,
-      category: options.category || 'misc',
+      category: options.category || "misc",
       icon: options.icon,
-      minAppVersion: options.minAppVersion || '1.0.0',
+      minAppVersion: options.minAppVersion || "1.0.0",
       dependencies: options.dependencies || [],
-      permissions: options.permissions || []
-    }
-  }
-}
+    };
+  },
+};
 
 export class BaseModule {
   constructor(manifest) {
@@ -33,7 +32,7 @@ export class BaseModule {
   // eslint-disable-next-line no-unused-vars
   async install(app, context) {
     // Abstract method to be implemented by specific Modules
-    throw new Error('Module must implement install method');
+    throw new Error("Module must implement install method");
   }
 
   // eslint-disable-next-line no-unused-vars

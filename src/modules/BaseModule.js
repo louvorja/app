@@ -14,7 +14,6 @@ export default class BaseModule {
       language: manifest.language || null,
       minAppVersion: manifest.minAppVersion,
       dependencies: manifest.dependencies || [],
-      permissions: manifest.permissions || [],
       translations: manifest.translations || {},
       system: manifest.system ?? false,
       customization: manifest.customization || {},
@@ -43,9 +42,5 @@ export default class BaseModule {
 
   getDependencies() {
     return this.manifest.dependencies;
-  }
-
-  getPermissions() {
-    return this.manifest.permissions;
   }
 }

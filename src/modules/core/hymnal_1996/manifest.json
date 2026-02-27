@@ -11,6 +11,5 @@
   "dependencies": [
     "media",
     "lyric"
-  ],
-  "permissions": []
+  ]
 }
