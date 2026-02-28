@@ -12,18 +12,38 @@
     >
       <!---->
       <template #item="{ element }">
-        <v-btn
-          :color="$theme.primary()"
-          style="margin: 3px 0 3px 0"
-          tonal
-          icon
-          @click="$modules.open(element.id)"
-        >
-          <v-icon :icon="element.icon"></v-icon>
-          <v-tooltip activator="parent" location="start">
-            {{ $t(element.title) }}
-          </v-tooltip>
-        </v-btn>
+        <v-hover v-slot="{ isHovering, props }">
+          <div v-bind="props" style="position: relative">
+            <v-btn
+              :color="$theme.primary()"
+              style="margin: 3px 0 3px 0"
+              tonal
+              icon
+              @click="$modules.open(element.id)"
+            >
+              <v-icon :icon="element.icon"></v-icon>
+              <v-tooltip activator="parent" location="start">
+                {{ $t(element.title) }}
+              </v-tooltip>
+            </v-btn>
+            <v-btn
+              v-if="isHovering"
+              icon="mdi-close"
+              variant="flat"
+              color="error"
+              size="x-small"
+              style="
+                position: absolute;
+                top: 0;
+                right: -5px;
+                z-index: 10;
+                width: 20px;
+                height: 20px;
+              "
+              @click.stop="$modules.close(element.id)"
+            />
+          </div>
+        </v-hover>
       </template>
     </draggable>
 
