@@ -23,6 +23,7 @@ export default {
   },
 
   set(param, value) {
+    console.log("param, value", param, value);
     $dev.write("set userdata", { param, value });
     $appdata.set(`user_data.${param}`, value);
 
@@ -38,9 +39,6 @@ export default {
     ) {
       $appdata.set(`user_data.${param}`, value);
     }
-
-    //Salvar os Dados
-    this.save();
   },
 
   get(param, ifnull = null) {

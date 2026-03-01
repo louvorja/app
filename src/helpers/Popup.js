@@ -22,7 +22,6 @@ export default {
     $appdata.set("popup_module", "");
   },
   async close() {
-    console.log("popup",popup)
     popup.close();
     await this.exit();
     $appdata.set("popup", null);
