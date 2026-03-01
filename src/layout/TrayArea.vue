@@ -39,6 +39,7 @@
                 z-index: 10;
                 width: 20px;
                 height: 20px;
+                font-size: 9px;
               "
               @click.stop="$modules.close(element.id)"
             />
