@@ -4,8 +4,10 @@
     <v-slide-group-item
       v-for="(block, indx_block) in menu_items"
       :key="indx_block"
+      
     >
-      <v-card class="d-flex flex-column pt-2 px-1">
+      <v-divider v-if="indx_block > 0" vertical class="mx-1" />
+      <v-card flat class="d-flex flex-column pt-2 px-1">
         <v-card-text style="flex: 1" class="d-flex pa-0 ma-0 px-1">
           <!-- GRUPOS -->
           <template
@@ -95,99 +97,6 @@
         </v-card-subtitle>
       </v-card>
     </v-slide-group-item>
-    <!--
-    <v-slide-group-item>
-      <v-card class="d-flex flex-column">
-        <v-card-text style="flex: 1" class="pa-0 ma-0 px-1">
-          <div>
-            <v-btn color="blue" />
-          </div>
-        </v-card-text>
-        <v-card-subtitle class="text-center"> Cores </v-card-subtitle>
-      </v-card>
-    </v-slide-group-item>
-    <v-slide-group-item>
-      <v-card class="d-flex flex-column">
-        <v-card-text style="flex: 1" class="pa-0 ma-0 px-1">
-          <div class="d-flex flex-column">
-            <v-btn color="blue" />
-            <v-btn color="red" />
-          </div>
-        </v-card-text>
-        <v-card-subtitle class="text-center"> Cores </v-card-subtitle>
-      </v-card>
-    </v-slide-group-item>
-    <v-slide-group-item>
-      <v-card>
-        <v-card-text class="d-flex pa-0 ma-0 px-1">
-          <div>
-            <v-text-field
-              label="Fonte"
-              density="compact"
-              hide-details
-              width="200"
-              class="my-1"
-            />
-            <v-select
-              label="Tamanho"
-              density="compact"
-              hide-details
-              class="my-1"
-            />
-          </div>
-          <v-divider vertical class="mx-1" />
-          <div>
-            <v-text-field
-              label="Fonte"
-              density="compact"
-              hide-details
-              width="200"
-              class="my-1"
-            />
-            <v-select
-              label="Tamanho"
-              density="compact"
-              hide-details
-              class="my-1"
-            />
-          </div>
-        </v-card-text>
-        <v-card-subtitle class="text-center"> Grupo de Ações </v-card-subtitle>
-      </v-card>
-    </v-slide-group-item>
-    <v-slide-group-item>
-      <v-card>
-        <v-card-text class="d-flex pa-0 ma-0 px-1">
-          <div>
-            <v-text-field
-              label="Fonte"
-              density="compact"
-              hide-details
-              width="200"
-              class="my-1"
-            />
-            <v-select
-              label="Tamanho"
-              density="compact"
-              hide-details
-              class="my-1"
-            />
-          </div>
-          <v-divider vertical class="mx-1" />
-          <div>
-            <v-text-field
-              label="Fonte"
-              density="compact"
-              hide-details
-              width="200"
-              class="my-1"
-            />
-          </div>
-        </v-card-text>
-        <v-card-subtitle class="text-center"> Grupo de Ações </v-card-subtitle>
-      </v-card>
-    </v-slide-group-item>
-    -->
   </v-slide-group>
 </template>
 
