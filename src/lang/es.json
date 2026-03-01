@@ -29,6 +29,11 @@
         },
         "inputs": {
             "search": "Buscar"
+        },
+        "customization": {
+            "restore": "Restaurar",
+            "restore_configs": "Restaurar Configuración",
+            "restore_dialog": "¿Quieres restaurar la configuración?"
         }
     },
     "alert": {

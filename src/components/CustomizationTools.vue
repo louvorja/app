@@ -4,7 +4,6 @@
     <v-slide-group-item
       v-for="(block, indx_block) in menu_items"
       :key="indx_block"
-      
     >
       <v-divider v-if="indx_block > 0" vertical class="mx-1" />
       <v-card flat class="d-flex flex-column pt-2 px-1">
@@ -20,7 +19,7 @@
               <div
                 v-for="(item, indx_item) in group"
                 :key="indx_item"
-                class="my-1"
+                class="my-2"
               >
                 <v-text-field
                   v-if="item?.type == 'color'"
@@ -64,6 +63,14 @@
                   item-value="value"
                   hide-details
                 />
+                <v-btn
+                  v-else-if="item?.type == 'restore'"
+                  icon="mdi-restore"
+                  size="x-large"
+                  variant="tonal"
+                  color="primary"
+                  @click="restore"
+                />
                 <v-text-field
                   v-else
                   v-model="userdata[item.property]"
@@ -74,21 +81,6 @@
                   hide-details
                 />
               </div>
-              <!--
-              <v-text-field
-                label="Fonte"
-                density="compact"
-                hide-details
-                width="200"
-                class="my-1"
-              />
-              <v-select
-                label="Tamanho"
-                density="compact"
-                hide-details
-                class="my-1"
-              />
-              -->
             </div>
           </template>
         </v-card-text>
@@ -121,9 +113,22 @@ export default {
   }),
   computed: {
     menu_items() {
-      return this.items.map((block) => {
-        return this.toBlock(block);
-      });
+      return [
+        ...this.items.map((block) => {
+          return this.toBlock(block);
+        }),
+        {
+          name: this.$t("components.customization.restore"),
+          items: [
+            [
+              {
+                type: "restore",
+                label: this.$t("components.customization.restore_configs"),
+              },
+            ],
+          ],
+        },
+      ];
     },
     userdata() {
       return new Proxy(
@@ -182,6 +187,25 @@ export default {
     },
     properties(item) {
       return this.module?.manifest?.customization[item];
+    },
+    restore() {
+      let self = this;
+      this.$alert.yesno(
+        "components.customization.restore_dialog",
+        function (btn) {
+          if (btn == "yes") {
+            self.menu_items?.map((block) => {
+              block.items?.map((group) => {
+                group.map((item) => {
+                  if (item.property) {
+                    self.userdata[item.property] = item.default;
+                  }
+                });
+              });
+            });
+          }
+        },
+      );
     },
   },
 };
