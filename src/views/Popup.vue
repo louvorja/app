@@ -51,6 +51,10 @@ export default {
     });
 
     window.opener.postMessage("mounted", window.location.origin);
+
+    window.addEventListener("beforeunload", () => {
+      window.opener?.postMessage("closed", window.location.origin);
+    });
   },
 };
 </script>

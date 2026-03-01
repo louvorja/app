@@ -31,14 +31,13 @@
                   variant="outlined"
                   hide-details
                 />
-                <v-text-field
+                <v-number-input
                   v-else-if="
                     ['font-size', 'border-spacing'].includes(item?.type)
                   "
                   v-model="userdata[item.property]"
                   :label="item?.label"
-                  :width="120"
-                  type="number"
+                  :width="200"
                   :min="1"
                   :max="90"
                   :prepend-inner-icon="
@@ -207,7 +206,7 @@ export default {
       { label: "Georgia", value: "Georgia, serif" },
       { label: "Courier New", value: "Courier New, monospace" },
       { label: "Verdana", value: "Verdana, sans-serif" },
-      { label: "DIN Condensed", value: "din-bold, sans-serif" },
+      { label: "DIN Condensed", value: "DINCondensedBold, sans-serif" },
       { label: "Roboto", value: "Roboto, sans-serif" },
     ],
   }),

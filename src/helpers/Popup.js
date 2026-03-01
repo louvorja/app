@@ -1,13 +1,15 @@
 import $appdata from "@/helpers/AppData";
 import $window from "@/helpers/Window";
 
+let popup = null;
+
 export default {
   async open(params) {
     if (typeof params != "object") {
       params = { module: params };
     }
 
-    let popup = $appdata.get("popup");
+    popup = $appdata.get("popup");
     if (popup && !popup.closed) {
       popup.focus();
     } else {
@@ -18,5 +20,11 @@ export default {
   },
   async exit() {
     $appdata.set("popup_module", "");
+  },
+  async close() {
+    console.log("popup",popup)
+    popup.close();
+    await this.exit();
+    $appdata.set("popup", null);
   },
 };

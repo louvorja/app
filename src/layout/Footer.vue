@@ -1,7 +1,7 @@
 <template>
   <v-footer id="footer-bar" class="pa-0" color="primary">
     <l-player v-if="$media.isMinimized()" location="footer" />
-    <v-row v-else no-gutters>
+    <v-row v-else class="ma-0 pa-0">
       <span class="text-caption pa-1">Versão {{ version }}</span>
     </v-row>
   </v-footer>

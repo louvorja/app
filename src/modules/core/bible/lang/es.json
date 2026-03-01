@@ -1,5 +1,7 @@
 {
     "title": "Biblia",
+    "version": "Versión",
+    "book": "Libro",
     "chapter": "Capítulo",
     "verse": "Versículo",
     "verses": "Versículos",

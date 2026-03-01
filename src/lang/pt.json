@@ -26,6 +26,9 @@
             "alerts": {
                 "not_found": "Não foi possível localizar o arquivo para exibir essas informações!"
             }
+        },
+        "inputs": {
+            "search": "Buscar"
         }
     },
     "alert": {
@@ -33,6 +36,9 @@
         "yes": "Sim",
         "no": "Não",
         "wait": "Aguarde..."
+    },
+    "popup": {
+        "close": "Fechar Janela"
     },
     "messages": {
         "file_database_not_found": "Arquivo de dados não encontrado!",

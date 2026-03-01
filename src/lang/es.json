@@ -26,6 +26,9 @@
             "alerts": {
                 "not_found": "¡No se pudo encontrar el archivo para mostrar esta información!"
             }
+        },
+        "inputs": {
+            "search": "Buscar"
         }
     },
     "alert": {
@@ -33,6 +36,9 @@
         "yes": "Sí",
         "no": "No",
         "wait": "Aguardar..."
+    },
+    "popup": {
+        "close": "Cerrar Ventana"
     },
     "messages": {
         "file_database_not_found": "Archivo de datos no encontrado!",

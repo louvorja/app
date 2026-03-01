@@ -40,6 +40,7 @@
 
     <template v-slot:header>
       <l-select
+        :label="t('version')"
         v-model="bible.id_bible_version"
         :items="versions_list ?? []"
         item-value="value"
@@ -48,8 +49,9 @@
 
       <!-- Os campos abaixo serão exibidos apenas no mobile / reolução pequena -->
       <div v-if="compact">
-        <div class="my-1" />
+        <div class="my-2" />
         <l-select
+          :label="t('book')"
           v-model="bible.id_bible_book"
           :items="books ?? []"
           item-value="id_bible_book"
@@ -57,23 +59,24 @@
           item-subtitle="abbreviation"
           icon="mdi-book-open-page-variant"
         />
-        <div class="my-1" />
+        <div class="my-2" />
         <l-select
+          :label="t('chapter')"
           v-model="bible.chapter"
           :items="chaptersList()"
           item-value="id"
           item-title="value"
           icon="mdi-bookmark"
         />
-        <div class="my-1" />
+        <div class="my-2" />
         <l-select
+          :label="t('verses')"
           v-model="bible_verses"
           :items="versesList()"
           item-value="id"
           item-title="value"
           multiple
           icon="mdi-format-list-numbered"
-          :display="displayVerses()"
         />
       </div>
     </template>
@@ -81,10 +84,11 @@
     <template v-slot:left>
       <div v-if="!compact" class="d-flex flex-row h-100">
         <!-- Combined Book Selection Area -->
-        <div class="w-70 h-100 d-flex flex-column">
+        <div class="w-70 h-100 d-flex flex-column pt-2">
           <!-- Book Search Menu (inline above book list) -->
           <div style="flex-shrink: 0" class="ps-4 pe-1">
             <l-select
+              :label="t('book')"
               v-model="bible.id_bible_book"
               :items="books ?? []"
               item-value="id_bible_book"
@@ -136,10 +140,11 @@
         </div>
 
         <!-- compoenente dos versiculos -->
-        <div class="w-30 h-100 d-flex flex-column">
+        <div class="w-30 h-100 d-flex flex-column pt-2">
           <!-- Chapter Search Menu (inline above chapter list) -->
           <div style="flex-shrink: 0" class="px-1">
             <l-select
+              :label="t('chapter')"
               v-model="bible.chapter"
               :items="chaptersList()"
               item-value="id"
@@ -186,7 +191,7 @@
     </template>
 
     <template v-slot:right>
-      <div class="d-flex flex-row h-100">
+      <div class="d-flex flex-row h-100 pt-2">
         <div
           :style="{
             height: height + 'px',
@@ -196,6 +201,7 @@
           <!-- Verse Search Menu (above verse list) -->
           <div class="ps-1 pe-4 pb-3" style="flex-shrink: 0">
             <l-select
+              :label="t('verses')"
               v-if="!compact"
               v-model="bible_verses"
               :items="versesList()"
@@ -203,7 +209,6 @@
               item-title="value"
               multiple
               icon="mdi-format-list-numbered"
-              :display="displayVerses()"
             />
           </div>
 
@@ -361,7 +366,8 @@ export default {
 
     bible_verses: {
       get() {
-        return Object.assign([], this.bible.verses);
+        //return Object.assign([], this.bible.verses);
+        return this.bible.verses;
       },
       set(value) {
         if (value.length == 0) {
@@ -669,7 +675,10 @@ export default {
         return [];
       }
       return Array.from({ length: this.chapters }, (_, index) => {
-        return { id: index + 1, value: this.t("chapter") + " " + (index + 1) };
+        return {
+          id: index + 1,
+          value: /*this.t("chapter") + " " +*/ index + 1,
+        };
       });
     },
     versesList() {
@@ -677,7 +686,7 @@ export default {
         return [];
       }
       return Object.keys(this.verses).map((verse) => {
-        return { id: verse, value: this.t("verse") + " " + verse };
+        return { id: +verse, value: /*this.t("verse") + " "*/ +verse };
       });
     },
     numbersInterval(numbers) {
@@ -768,12 +777,6 @@ export default {
         scriptural_reference: null,
         text: null,
       };
-    },
-    displayVerses() {
-      if (!this.bible.verses || this.bible.verses.length === 0) {
-        return this.t("verses_select");
-      }
-      return `${this.t("verses")}: ${this.numbersInterval(this.bible.verses)}`;
     },
   },
   async mounted() {

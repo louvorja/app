@@ -43,7 +43,7 @@ export default {
     //Carrega o tema
     let theme = this.$userdata.get("theme");
     if (theme != "") {
-      this.$vuetify.theme.global.name = theme;
+      this.$vuetify.theme.change(theme);
     }
     this.$appdata.set("is_dark", this.$vuetify.theme.global.current.dark);
 
@@ -82,6 +82,7 @@ export default {
     }
 
     window.addEventListener("message", (event) => {
+      console.log("POPUP0",event.data)
       if (event.origin === window.location.origin) {
         if (event.data == "mounted") {
           const popup = this.$appdata.get("popup");
@@ -95,6 +96,8 @@ export default {
             });
             //popup.postMessage({ all: data }, window.location.origin);
           }
+        }else if (event.data == "closed") {
+          this.$popup.close();
         }
       }
     });

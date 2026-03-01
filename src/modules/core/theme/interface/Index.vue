@@ -30,7 +30,7 @@ export default {
   methods: {
     setTheme(theme_id) {
       this.current = theme_id;
-      this.$vuetify.theme.global.name = this.current;
+      this.$vuetify.theme.change(this.current);
       this.$userdata.set("theme", this.current);
       this.$appdata.set("is_dark", this.$vuetify.theme.global.current.dark);
     },

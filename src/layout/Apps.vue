@@ -24,33 +24,33 @@
                       ? module.language == language
                       : !module.development || (is_dev && module.development)
                   "
-                  hover
                   :color="
                     module.invalid
                       ? 'error'
                       : module.development
-                      ? 'warning'
-                      : $theme.primary()
+                        ? 'warning'
+                        : $theme.primary()
                   "
                   @click="$modules.open(module_key)"
                   class="ma-2"
-                  :width="130"
+                  :width="140"
                 >
-                  <div
-                    class="d-flex flex-column align-center justify-center h-100"
+                  <v-card-text
+                    class="d-flex flex-column align-center justify-center h-100 px-0"
                   >
-                    <v-avatar class="ma-3" rounded="0" size="40">
-                      <v-icon :icon="module.icon" color="#FFFFFF" :size="40" />
-                    </v-avatar>
-                    <div class="w-100">
+                    <v-icon
+                      :icon="module.icon"
+                      color="#FFFFFF"
+                      :size="40"
+                      style="flex: 1"
+                    />
                       <v-card-title
-                        class="text-caption text-center"
+                        class="text-center font-weight-light text-title-small"
                         style="text-wrap: initial"
                       >
                         {{ module.title ? $t(module.title) : "" }}
                       </v-card-title>
-                    </div>
-                  </div>
+                  </v-card-text>
                 </v-card>
               </template>
             </v-row>
@@ -114,7 +114,7 @@ export default {
       return Object.keys(modules).filter((key) =>
         !this.is_dev
           ? !modules[key].development || modules[key].development === false
-          : true
+          : true,
       ).length;
     },
   },
