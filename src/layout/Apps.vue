@@ -44,12 +44,12 @@
                       :size="40"
                       style="flex: 1"
                     />
-                      <v-card-title
-                        class="text-center font-weight-light text-title-small"
-                        style="text-wrap: initial"
-                      >
-                        {{ module.title ? $t(module.title) : "" }}
-                      </v-card-title>
+                    <v-card-title
+                      class="text-center font-weight-light text-title-small"
+                      style="text-wrap: initial"
+                    >
+                      <small>{{ module.title ? $t(module.title) : "" }}</small>
+                    </v-card-title>
                   </v-card-text>
                 </v-card>
               </template>
