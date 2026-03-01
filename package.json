@@ -1,6 +1,6 @@
 {
   "name": "louvorja",
-  "version": "1.16.1",
+  "version": "1.17.0",
   "private": true,
   "scripts": {
     "version:major": "npm version major",
