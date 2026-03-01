@@ -23,7 +23,6 @@ export default {
   },
 
   set(param, value) {
-    console.log("param, value", param, value);
     $dev.write("set userdata", { param, value });
     $appdata.set(`user_data.${param}`, value);
 

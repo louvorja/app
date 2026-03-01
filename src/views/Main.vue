@@ -71,7 +71,7 @@ export default {
     this.$appdata.set(
       "is_mobile",
       this.$vuetify.display.platform.android ||
-        this.$vuetify.display.platform.ios
+        this.$vuetify.display.platform.ios,
     );
 
     if (this.$vuetify.display.platform.electron) {
@@ -82,7 +82,6 @@ export default {
     }
 
     window.addEventListener("message", (event) => {
-      console.log("POPUP0",event.data)
       if (event.origin === window.location.origin) {
         if (event.data == "mounted") {
           const popup = this.$appdata.get("popup");
@@ -91,12 +90,12 @@ export default {
             Object.keys(data).map((item) => {
               popup.postMessage(
                 { param: item, value: data[item] },
-                window.location.origin
+                window.location.origin,
               );
             });
             //popup.postMessage({ all: data }, window.location.origin);
           }
-        }else if (event.data == "closed") {
+        } else if (event.data == "closed") {
           this.$popup.close();
         }
       }
