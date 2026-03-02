@@ -1,5 +1,5 @@
 <template>
-  <v-slide-group show-arrows class="__customization_tools">
+  <v-slide-group show-arrows class="__customization_tools px-1">
     <!-- BLOCOS -->
     <v-slide-group-item
       v-for="(block, indx_block) in menu_items"
