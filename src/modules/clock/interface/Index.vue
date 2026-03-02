@@ -34,35 +34,38 @@
       />
     </template>
 
+    <template v-slot:system_buttons>
+      <LScreenBtn module="clock" />
+    </template>
+
     <template v-slot:header>
-      <v-toolbar density="compact">
-        <l-select
-          v-model="userdata.time_format"
-          :items="timeFormatOptions"
-          item-value="value"
-          item-title="title"
-          density="compact"
-          hide-details
-          style="max-width: 100px"
-        />
+      <l-tool-bar>
+        <l-tool-bar-item>
+          <l-select
+            :label="t('customization.hour_cycle')"
+            v-model="userdata.hour_cycle"
+            :items="timeFormatOptions"
+            item-value="value"
+            item-title="title"
+            density="compact"
+            hide-details
+            style="width: 130px"
+          />
+        </l-tool-bar-item>
 
-        <l-select
-          v-model="userdata.time_type"
-          :items="timeTypeOptions"
-          item-value="value"
-          item-title="title"
-          density="compact"
-          hide-details
-          style="max-width: 140px"
-        />
-
-        <v-spacer />
-
-        <!-- Botão de customização no header -->
-        
-
-        <LScreenBtn module="clock" />
-      </v-toolbar>
+        <l-tool-bar-item>
+          <l-select
+            :label="t('customization.time_format')"
+            v-model="userdata.time_format"
+            :items="timeTypeOptions"
+            item-value="value"
+            item-title="title"
+            density="compact"
+            hide-details
+            style="width: 160px"
+          />
+        </l-tool-bar-item>
+      </l-tool-bar>
     </template>
 
     <Screen />
@@ -76,6 +79,8 @@ import Screen from "../components/Screen.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
 import LSelect from "@/components/inputs/Select.vue";
 import LCustomizationTools from "@/components/CustomizationTools.vue";
+import LToolBar from "@/components/ToolBar.vue";
+import LToolBarItem from "@/components/ToolBarItem.vue";
 
 export default {
   name: manifest.id,
@@ -85,6 +90,8 @@ export default {
     LScreenBtn,
     LSelect,
     LCustomizationTools,
+    LToolBar,
+    LToolBarItem,
   },
   data: () => ({
     width: 0,
@@ -94,8 +101,8 @@ export default {
       { title: "12h", value: "12h" },
     ],
     timeTypeOptions: [
-      { title: "hh.mm.ss", value: "hh.mm.ss" },
-      { title: "hh.mm", value: "hh.mm" },
+      { title: "hh:mm:ss", value: "hh:mm:ss" },
+      { title: "hh:mm", value: "hh:mm" },
       { title: "hh", value: "hh" },
     ],
     fonts: [

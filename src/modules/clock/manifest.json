@@ -7,7 +7,6 @@
   "category": "utilities",
   "icon": "mdi-clock-outline",
   "minAppVersion": "1.0.0",
-
   "customization": {
     "font": {
       "type": "font",
@@ -59,15 +58,15 @@
       "label": "customization.adjust",
       "default": "cover"
     },
+    "hour_cycle": {
+      "type": "select",
+      "label": "customization.hour_cycle",
+      "default": "24h"
+    },
     "time_format": {
       "type": "select",
       "label": "customization.time_format",
-      "default": "24h"
-    },
-    "time_type": {
-      "type": "select",
-      "label": "customization.time_type",
-      "default": "hh.mm.ss"
+      "default": "hh:mm:ss"
     }
   }
 }

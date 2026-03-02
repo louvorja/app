@@ -5,6 +5,20 @@
     :class="alignClass"
     :style="containerStyle"
   >
+    <img
+      v-if="userdata.image"
+      :src="userdata.image"
+      :style="{
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        objectFit: userdata.image_fit,
+        opacity: userdata.image_opacity / 100,
+      }"
+    />
+
     <span class="text-right" :style="textStyle">
       {{ time }}
     </span>
@@ -73,11 +87,11 @@ export default {
     imageFit() {
       return this.userdata.image_fit || "cover";
     },
-    timeFormat() {
-      return this.userdata.time_format || "24h";
+    hourCycle() {
+      return this.userdata.hour_cycle || "24h";
     },
-    timeType() {
-      return this.userdata.time_type || "hh.mm.ss";
+    timeFormat() {
+      return this.userdata.time_format || "hh:mm:ss";
     },
     alignClass() {
       const vertical = {
@@ -93,36 +107,20 @@ export default {
       return `${vertical[this.verticalAlign]} ${horizontal[this.horizontalAlign]}`;
     },
     containerStyle() {
-      let style = {
+      return {
         background: this.backgroundColor,
         width: "100%",
         height: "100%",
+        position: "relative",
         color: this.fontColor,
         padding: `${this.borderSpacing}px`,
       };
-
-      if (this.image) {
-        style = {
-          ...style,
-          background: `
-            linear-gradient(
-              rgba(0, 0, 0, ${1 - this.imageOpacity}),
-              rgba(0, 0, 0, ${1 - this.imageOpacity})
-            ),
-            url(${this.image})
-          `,
-          backgroundSize: this.imageFit,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        };
-      }
-
-      return style;
     },
     textStyle() {
       return {
         fontFamily: this.font,
         color: this.fontColor,
+        zIndex: 1,
         fontSize: `${this.fontSizePc(this.fontSize)}px`,
       };
     },
@@ -149,25 +147,28 @@ export default {
     updateTime() {
       const now = new Date();
       let hours = now.getHours();
-      const is12Hour = this.timeFormat === "12h";
-      const displayHours = is12Hour && hours > 12 ? hours - 12 : (is12Hour && hours === 0 ? 12 : hours);
+      const is12Hour = this.hourCycle === "12h";
+      const displayHours =
+        is12Hour && hours > 12
+          ? hours - 12
+          : is12Hour && hours === 0
+            ? 12
+            : hours;
       const minutes = now.getMinutes().toString().padStart(2, "0");
       const seconds = now.getSeconds().toString().padStart(2, "0");
 
-      let timeStr = "";
-      switch (this.timeType) {
-        case "hh.mm.ss":
-          timeStr = `${displayHours}.${minutes}.${seconds}`;
-          break;
-        case "hh.mm":
-          timeStr = `${displayHours}.${minutes}`;
-          break;
-        case "hh":
-          timeStr = `${displayHours}`;
-          break;
-        default:
-          timeStr = `${displayHours}.${minutes}.${seconds}`;
-      }
+      const pad = (v) => String(v).padStart(2, "0");
+
+      const tokens = {
+        hh: pad(displayHours),
+        mm: pad(minutes),
+        ss: pad(seconds),
+      };
+
+      let timeStr = this.timeFormat.replace(
+        /hh|mm|ss/g,
+        (match) => tokens[match],
+      );
 
       if (is12Hour) {
         timeStr += hours >= 12 ? " PM" : " AM";

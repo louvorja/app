@@ -14,7 +14,7 @@
         "horizontal": "Horizontal",
         "border": "Borda",
         "size": "Tamanho",
-        "time_format": "Formato",
-        "time_type": "Tipo de Hora"
+        "hour_cycle": "Ciclo de Horas",
+        "time_format": "Formato de Hora"
     }
 }
