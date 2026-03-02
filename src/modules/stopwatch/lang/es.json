@@ -1,0 +1,29 @@
+{
+    "title": "Cronómetro",
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "reset": "Reiniciar",
+    "save": "Guardar",
+    "lap": "Vuelta",
+    "laps": "Vueltas",
+    "clearLaps": "Limpiar Vueltas",
+    "saved_times": "Tiempos Guardados",
+    "clear_all": "Limpiar Todos",
+    "no_saved_times": "Sin tiempos guardados",
+    "customization": {
+        "background": "Fondo",
+        "color": "Color",
+        "image": "Imagen",
+        "transparency": "Transparencia",
+        "adjust": "Ajustar",
+        "align": "Alineación",
+        "font": "Fuente",
+        "text": "Texto",
+        "window": "Ventana",
+        "vertical": "Vertical",
+        "horizontal": "Horizontal",
+        "border": "Borde",
+        "size": "Tamaño",
+        "time_format": "Formato"
+    }
+}
