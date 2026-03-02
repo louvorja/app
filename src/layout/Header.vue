@@ -5,6 +5,10 @@
     </template>
     <v-app-bar-title>{{ $t("app.name") }}</v-app-bar-title>
     <v-spacer />
+    <v-btn
+      :icon="layout == 'apps' ? 'mdi-tab' : 'mdi-apps'"
+      @click="changeLayout()"
+    />
     <LanguageSelector />
   </v-app-bar>
 </template>
@@ -16,6 +20,20 @@ export default {
   name: "HeaderLayout",
   components: {
     LanguageSelector,
+  },
+  computed: {
+    layout() {
+      return this.$userdata.get("layout");
+    },
+  },
+  methods: {
+    changeLayout() {
+      if (this.layout == "apps") {
+        this.$userdata.set("layout", "ribbon");
+      } else {
+        this.$userdata.set("layout", "apps");
+      }
+    },
   },
 };
 </script>

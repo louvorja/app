@@ -48,6 +48,7 @@ export default {
   user_data: {
     theme: "",
     language: "",
+    layout: "apps",
     modules: {
       musics: {
         search: {

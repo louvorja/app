@@ -76,9 +76,6 @@ export default {
   name: "AppsLayout",
   data: () => ({
     panels_active: [],
-
-    selectedTheme: "",
-    themes: [],
   }),
   watch: {
     module_group() {
@@ -127,6 +124,9 @@ export default {
           : true,
       ).length;
     },
+  },
+  mounted() {
+    this.panels_active = Object.keys(this.module_group).map((_, key) => key);
   },
 };
 </script>

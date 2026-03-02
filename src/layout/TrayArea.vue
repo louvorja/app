@@ -1,14 +1,15 @@
 <template>
-  <div
+  <v-sheet
     class="apps-bar d-flex flex-column"
     v-if="Object.keys(modules).length > 0"
+    :style="!horizontal ? 'width:80px;' : ''"
   >
     <div class="apps-bar-header"></div>
-
     <draggable
       v-model="modules"
       item-key="id"
-      class="apps-bar-container d-flex align-center justify-center flex-column"
+      class="apps-bar-container d-flex align-center justify-center"
+      :class="[`flex-${horizontal ? 'row' : 'column'}`]"
     >
       <!---->
       <template #item="{ element }">
@@ -17,7 +18,7 @@
             <div v-bind="props" style="position: relative">
               <v-btn
                 :color="$theme.primary()"
-                style="margin: 3px 0 3px 0"
+                style="margin: 3px"
                 tonal
                 icon
                 @click="$modules.open(element.id)"
@@ -51,7 +52,7 @@
     </draggable>
 
     <div class="apps-bar-footer"></div>
-  </div>
+  </v-sheet>
 </template>
 
 <script>
@@ -61,6 +62,12 @@ export default {
   name: "TrayAreaLayout",
   components: {
     Draggable,
+  },
+  props: {
+    horizontal: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     modules: {
@@ -77,8 +84,7 @@ export default {
 
 <style scoped>
 .apps-bar {
-  width: 80px;
-  margin: 5px;
+  padding: 5px;
 }
 .apps-bar-header,
 .apps-bar-footer {
