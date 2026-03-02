@@ -1,7 +1,11 @@
 <template>
   <div
     ref="container"
-    class="d-flex align-center justify-center"
+    :class="[
+      'd-flex',
+      `align-${userdata.vertical_align}`,
+      `justify-${userdata.horizontal_align}`,
+    ]"
     :style="{
       background: userdata.background_color,
       width: '100%',
@@ -12,7 +16,14 @@
     <div v-if="bible" class="d-flex flex-column">
       <span
         v-if="bible.text"
-        class="text-center"
+        :class="
+          'text-' +
+          (userdata.horizontal_align == 'start'
+            ? 'left'
+            : userdata.horizontal_align == 'end'
+              ? 'right'
+              : 'center')
+        "
         :style="{
           color: userdata.font_color,
           fontSize: `${this.fontSizePc(userdata.font_size)}px`,
@@ -23,7 +34,9 @@
       </span>
       <span
         v-if="bible.scriptural_reference"
-        class="text-right"
+        :class="
+          'text-' + (userdata.horizontal_align == 'start' ? 'left' : 'right')
+        "
         :style="{
           color: userdata.reference_font_color,
           fontSize: `${this.fontSizePc(userdata.reference_font_size)}px`,

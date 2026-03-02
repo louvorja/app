@@ -38,7 +38,7 @@
                   "
                   v-model="userdata[item.property]"
                   :label="item?.label"
-                  :width="200"
+                  :width="150"
                   :min="1"
                   :max="90"
                   :prepend-inner-icon="
@@ -48,6 +48,7 @@
                   "
                   density="compact"
                   variant="outlined"
+                  control-variant="split"
                   hide-details
                 />
                 <v-select
@@ -63,6 +64,38 @@
                   item-value="value"
                   hide-details
                 />
+                <v-btn-toggle
+                  v-else-if="item?.type == 'h-align'"
+                  v-model="userdata[item.property]"
+                  :label="item?.label"
+                  variant="outlined"
+                >
+                  <v-btn value="start">
+                    <v-icon>mdi-format-horizontal-align-left</v-icon>
+                  </v-btn>
+                  <v-btn value="center">
+                    <v-icon>mdi-format-horizontal-align-center</v-icon>
+                  </v-btn>
+                  <v-btn value="end">
+                    <v-icon>mdi-format-horizontal-align-right</v-icon>
+                  </v-btn>
+                </v-btn-toggle>
+                <v-btn-toggle
+                  v-else-if="item?.type == 'v-align'"
+                  v-model="userdata[item.property]"
+                  :label="item?.label"
+                  variant="outlined"
+                >
+                  <v-btn value="start">
+                    <v-icon>mdi-format-vertical-align-top</v-icon>
+                  </v-btn>
+                  <v-btn value="center">
+                    <v-icon>mdi-format-vertical-align-center</v-icon>
+                  </v-btn>
+                  <v-btn value="end">
+                    <v-icon>mdi-format-vertical-align-bottom</v-icon>
+                  </v-btn>
+                </v-btn-toggle>
                 <v-btn
                   v-else-if="item?.type == 'restore'"
                   icon="mdi-restore"
@@ -71,15 +104,9 @@
                   color="primary"
                   @click="restore"
                 />
-                <v-text-field
-                  v-else
-                  v-model="userdata[item.property]"
-                  :label="item?.label"
-                  :width="200"
-                  density="compact"
-                  variant="outlined"
-                  hide-details
-                />
+                <div v-else class="text-error">
+                  Tipo {{ item?.type }} inválido!
+                </div>
               </div>
             </div>
           </template>

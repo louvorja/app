@@ -48,6 +48,16 @@
       "type": "border-spacing",
       "label": "customization.border_spacing",
       "default": 10
+    },
+    "vertical_align": {
+      "type": "v-align",
+      "label": "customization.vertical",
+      "default": "center"
+    },
+    "horizontal_align": {
+      "type": "h-align",
+      "label": "customization.horizontal",
+      "default": "center"
     }
   }
 }

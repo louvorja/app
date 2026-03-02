@@ -20,16 +20,23 @@
       <l-customization-tools
         :module="module"
         :items="[
-          { name: 'Fundo', items: ['background_color'] },
-          { name: 'Texto', items: [['font', 'font_size'], 'font_color'] },
+          { name: t('customization.background'), items: ['background_color'] },
           {
-            name: 'Referência',
+            name: t('customization.align'),
+            items: [['horizontal_align', 'vertical_align']],
+          },
+          {
+            name: t('customization.text'),
+            items: [['font', 'font_size'], 'font_color'],
+          },
+          {
+            name: t('customization.reference'),
             items: [
               ['reference_font', 'reference_font_size'],
               'reference_font_color',
             ],
           },
-          { name: 'Janela', items: ['border_spacing'] },
+          { name: t('customization.window'), items: ['border_spacing'] },
         ]"
       />
     </template>

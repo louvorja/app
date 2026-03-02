@@ -9,11 +9,18 @@
     "customization": {
         "font": "Fuente",
         "font_color": "Color",
+        "reference": "Referencia",
         "reference_font": "Fuente",
         "reference_font_color": "Color",
         "background_color": "Color",
         "font_size": "Tamaño",
         "reference_font_size": "Tamaño",
-        "border_spacing": "Bordes"
+        "border_spacing": "Bordes",
+        "background": "Fondo",
+        "text": "Texto",
+        "window": "Ventana",
+        "align": "Alineación",
+        "vertical": "Vertical",
+        "horizontal": "Horizontal"
     }
 }

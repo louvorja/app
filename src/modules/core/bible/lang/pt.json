@@ -9,11 +9,18 @@
     "customization": {
         "font": "Fonte",
         "font_color": "Cor",
+        "reference": "Referência",
         "reference_font": "Fonte",
         "reference_font_color": "Cor",
         "background_color": "Cor",
         "font_size": "Tamanho",
         "reference_font_size": "Tamanho",
-        "border_spacing": "Borda"
+        "border_spacing": "Borda",
+        "background": "Fundo",
+        "text": "Texto",
+        "window": "Janela",
+        "align": "Alinhamento",
+        "vertical": "Vertical",
+        "horizontal": "Horizontal"
     }
 }
