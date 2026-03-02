@@ -1,3 +1,20 @@
 {
-    "title": "Reloj"
+    "title": "Reloj",
+    "customization": {
+        "background": "Fondo",
+        "color": "Color",
+        "image": "Imagen",
+        "transparency": "Transparencia",
+        "adjust": "Ajustar",
+        "align": "Alineacion",
+        "font": "Fuente",
+        "text": "Texto",
+        "window": "Ventana",
+        "vertical": "Vertical",
+        "horizontal": "Horizontal",
+        "border": "Borde",
+        "size": "Tamano",
+        "time_format": "Formato",
+        "time_type": "Tipo de Hora"
+    }
 }
