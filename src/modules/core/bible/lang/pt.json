@@ -17,6 +17,9 @@
         "window": "Janela",
         "align": "Alinhamento",
         "vertical": "Vertical",
-        "horizontal": "Horizontal"
+        "horizontal": "Horizontal",
+        "image": "Imagem",
+        "transparency": "Transparência",
+        "adjust": "Ajuste"
     }
 }

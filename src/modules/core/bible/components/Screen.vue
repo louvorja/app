@@ -7,12 +7,27 @@
       `justify-${userdata.horizontal_align}`,
     ]"
     :style="{
+      position: 'relative',
       background: userdata.background_color,
       width: '100%',
       height: height ? height + 'px' : '100%',
       padding: `${this.fontSizePc(userdata.border_spacing)}px`,
     }"
   >
+    <img
+      v-if="userdata.image"
+      :src="userdata.image"
+      :style="{
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        objectFit: userdata.image_fit,
+        opacity: userdata.image_opacity / 100,
+      }"
+    />
+
     <div v-if="bible" class="d-flex flex-column">
       <span
         v-if="bible.text"
@@ -25,6 +40,7 @@
               : 'center')
         "
         :style="{
+          zIndex: 1,
           color: userdata.font_color,
           fontSize: `${this.fontSizePc(userdata.font_size)}px`,
           fontFamily: userdata.font || 'Arial, sans-serif',
@@ -38,6 +54,7 @@
           'text-' + (userdata.horizontal_align == 'start' ? 'left' : 'right')
         "
         :style="{
+          zIndex: 1,
           color: userdata.reference_font_color,
           fontSize: `${this.fontSizePc(userdata.reference_font_size)}px`,
           fontFamily: userdata.reference_font || 'Arial, sans-serif',

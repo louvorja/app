@@ -106,8 +106,55 @@
                   color="primary"
                   @click="restore"
                 />
+                <v-text-field
+                  v-else-if="item?.type == 'image'"
+                  v-model="userdata[item.property]"
+                  :label="item?.label"
+                  :width="200"
+                  type="text"
+                  prepend-inner-icon="mdi-image-area"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                />
+                <v-select
+                  v-else-if="item?.type == 'object-fit'"
+                  v-model="userdata[item.property]"
+                  :label="item?.label"
+                  :width="200"
+                  prepend-inner-icon="mdi-fit-to-page"
+                  density="compact"
+                  variant="outlined"
+                  :items="fit"
+                  item-title="label"
+                  item-value="value"
+                  hide-details
+                />
+                <div
+                  v-else-if="item?.type == 'opacity'"
+                  class="px-1"
+                  style="width: 200px"
+                >
+                  <span
+                    class="text-label-small px-2"
+                    style="
+                      opacity: var(--v-medium-emphasis-opacity);
+                      font-size: 12px;
+                    "
+                  >
+                    {{ item?.label }}
+                  </span>
+                  <v-slider
+                    v-model="userdata[item.property]"
+                    :min="0"
+                    :max="100"
+                    hide-details
+                    :thumb-size="15"
+                    :track-size="1"
+                  />
+                </div>
                 <div v-else class="text-error">
-                  Tipo {{ item?.type }} inválido!
+                  Type "{{ item?.type }}" invalid!
                 </div>
               </div>
             </div>
@@ -172,6 +219,20 @@ export default {
           },
         },
       );
+    },
+    fit() {
+      return [
+        { label: this.$t("components.customization.fit.none"), value: "none" },
+        { label: this.$t("components.customization.fit.fill"), value: "fill" },
+        {
+          label: this.$t("components.customization.fit.contain"),
+          value: "contain",
+        },
+        {
+          label: this.$t("components.customization.fit.cover"),
+          value: "cover",
+        },
+      ];
     },
   },
   methods: {

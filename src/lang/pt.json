@@ -33,7 +33,13 @@
         "customization": {
             "restore": "Restaurar",
             "restore_configs": "Restaurar Configurações",
-            "restore_dialog": "Deseja restaurar as configurações?"
+            "restore_dialog": "Deseja restaurar as configurações?",
+            "fit": {
+                "none": "Nenhum",
+                "fill": "Ampliar",
+                "contain": "Ajustar",
+                "cover": "Preencher"
+            }
         }
     },
     "alert": {

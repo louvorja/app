@@ -17,6 +17,9 @@
         "window": "Ventana",
         "align": "Alineación",
         "vertical": "Vertical",
-        "horizontal": "Horizontal"
+        "horizontal": "Horizontal",
+        "image": "Imagen",
+        "transparency": "Transparencia",
+        "adjust": "Ajuste"
     }
 }
