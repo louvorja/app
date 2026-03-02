@@ -1,9 +1,16 @@
 <template>
   <div class="apps">
-    <v-expansion-panels v-model="panels_active" flat multiple :rounded="false">
+    <v-expansion-panels
+      v-model="panels_active"
+      flat
+      multiple
+      :rounded="false"
+      class="ma-0 pa-0"
+    >
       <v-expansion-panel
         v-for="(group, group_key) in module_group"
         :key="group_key"
+        class="ma-0 pa-0"
       >
         <v-expansion-panel-title
           v-if="countModules(group.modules) != 0"
@@ -11,9 +18,12 @@
         >
           {{ $t(group.title) }}
         </v-expansion-panel-title>
-        <v-expansion-panel-text v-if="countModules(group.modules) != 0">
-          <v-container fluid class="my-0 py-0">
-            <v-row class="my-0 py-0">
+        <v-expansion-panel-text
+          v-if="countModules(group.modules) != 0"
+          class="ma-0 pa-0"
+        >
+          <v-container fluid class="ma-0 pa-0">
+            <v-row class="ma-0 pa-0" style="gap: 5px">
               <template
                 v-for="(module, module_key) in sortModules(group.modules)"
                 :key="module_key"
@@ -32,7 +42,7 @@
                         : $theme.primary()
                   "
                   @click="$modules.open(module_key)"
-                  class="ma-2"
+                  class="ma-1"
                   :width="140"
                 >
                   <v-card-text
