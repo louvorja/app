@@ -16,12 +16,12 @@
     },
     "font_color": {
       "type": "color",
-      "label": "customization.font_color",
+      "label": "customization.color",
       "default": "#FFFFFF"
     },
     "font_size": {
       "type": "font-size",
-      "label": "customization.font_size",
+      "label": "customization.size",
       "default": 15
     },
     "reference_font": {
@@ -31,22 +31,22 @@
     },
     "reference_font_color": {
       "type": "color",
-      "label": "customization.reference_font",
+      "label": "customization.color",
       "default": "#FB8C00"
     },
     "reference_font_size": {
       "type": "font-size",
-      "label": "customization.reference_font_size",
+      "label": "customization.size",
       "default": 10
     },
     "background_color": {
       "type": "color",
-      "label": "customization.background_color",
+      "label": "customization.color",
       "default": "#000000"
     },
     "border_spacing": {
       "type": "border-spacing",
-      "label": "customization.border_spacing",
+      "label": "customization.border",
       "default": 10
     },
     "vertical_align": {

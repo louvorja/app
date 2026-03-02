@@ -6,8 +6,8 @@
       :key="indx_block"
     >
       <v-divider v-if="indx_block > 0" vertical class="mx-1" />
-      <v-card flat class="d-flex flex-column pt-2 px-1">
-        <v-card-text style="flex: 1" class="d-flex pa-0 ma-0 px-1">
+      <v-card flat class="d-flex flex-column pt-2">
+        <v-card-text style="flex: 1" class="d-flex pa-0 ma-0">
           <!-- GRUPOS -->
           <template
             v-for="(group, indx_group) in block.items"
@@ -68,6 +68,7 @@
                   v-else-if="item?.type == 'h-align'"
                   v-model="userdata[item.property]"
                   :label="item?.label"
+                  density="compact"
                   variant="outlined"
                 >
                   <v-btn value="start">
@@ -84,6 +85,7 @@
                   v-else-if="item?.type == 'v-align'"
                   v-model="userdata[item.property]"
                   :label="item?.label"
+                  density="compact"
                   variant="outlined"
                 >
                   <v-btn value="start">
