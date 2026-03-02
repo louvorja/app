@@ -1,45 +1,158 @@
 <template>
-  <ModuleContainer ref="moduleContainer" :manifest="manifest">
+  <l-window
+    v-model="module.show"
+    :title="t('title')"
+    :icon="module.icon"
+    closable
+    minimizable
+    @close="close()"
+    @minimize="$modules.minimize(module_id)"
+    @resize="resize"
+    :index="show ? 1 : 0"
+  >
+    <template v-slot:customize>
+      <l-customization-tools
+        :module="module"
+        :items="[
+          {
+            name: t('customization.background'),
+            items: [
+              'background_color',
+              ['image', 'image_opacity', 'image_fit'],
+            ],
+          },
+          {
+            name: t('customization.align'),
+            items: [['horizontal_align', 'vertical_align']],
+          },
+          {
+            name: t('customization.text'),
+            items: [['font', 'font_size', 'font_color']],
+          },
+          { name: t('customization.window'), items: ['border_spacing'] },
+        ]"
+      />
+    </template>
+
     <template v-slot:header>
-      <v-toolbar>
+      <v-toolbar density="compact">
+        <l-select
+          v-model="userdata.time_format"
+          :items="timeFormatOptions"
+          item-value="value"
+          item-title="title"
+          density="compact"
+          hide-details
+          style="max-width: 100px"
+        />
+
+        <l-select
+          v-model="userdata.time_type"
+          :items="timeTypeOptions"
+          item-value="value"
+          item-title="title"
+          density="compact"
+          hide-details
+          style="max-width: 140px"
+        />
+
         <v-spacer />
-        <v-divider vertical />
+
+        <!-- Botão de customização no header -->
+        
+
         <LScreenBtn module="clock" />
       </v-toolbar>
     </template>
+
     <Screen />
-  </ModuleContainer>
+  </l-window>
 </template>
 
 <script>
+import manifest from "../manifest.json";
+import LWindow from "@/components/Window.vue";
 import Screen from "../components/Screen.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
+import LSelect from "@/components/inputs/Select.vue";
+import LCustomizationTools from "@/components/CustomizationTools.vue";
 
 export default {
   name: manifest.id,
   components: {
-    ModuleContainer,
+    LWindow,
     Screen,
     LScreenBtn,
+    LSelect,
+    LCustomizationTools,
   },
   data: () => ({
-    tab: null,
+    width: 0,
+    height: 0,
+    timeFormatOptions: [
+      { title: "24h", value: "24h" },
+      { title: "12h", value: "12h" },
+    ],
+    timeTypeOptions: [
+      { title: "hh.mm.ss", value: "hh.mm.ss" },
+      { title: "hh.mm", value: "hh.mm" },
+      { title: "hh", value: "hh" },
+    ],
+    fonts: [
+      "Arial, sans-serif",
+      "Helvetica, sans-serif",
+      "Times New Roman, serif",
+      "Georgia, serif",
+      "Courier New, monospace",
+      "Verdana, sans-serif",
+      "Roboto, sans-serif",
+    ],
   }),
+  computed: {
+    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
+    /* NÃO MODIFICAR */
+    module_id() {
+      return manifest.id;
+    },
+    module() {
+      return this.$modules.get(this.module_id);
+    },
+    userdata() {
+      return new Proxy(
+        {},
+        {
+          get: (_, key) => {
+            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+          },
+          set: (_, key, value) => {
+            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            return true;
+          },
+        },
+      );
+    },
+    /* COMPUTEDS OBRIGATÓRIAS - FIM */
+
+    show() {
+      return this.module.show;
+    },
+  },
+  methods: {
+    /* METHODS OBRIGATÓRIAS - INÍCIO */
+    /* NÃO MODIFICAR */
+    t(text) {
+      return this.$t(`modules.${this.module_id}.${text}`);
+    },
+    /* METHODS OBRIGATÓRIAS - FIM */
+
+    resize(data) {
+      this.width = data.container_width;
+      this.height = data.container_height;
+    },
+
+    close() {
+      this.$modules.close(this.module_id);
+    },
+  },
 };
 </script>
-
-<!-- ########################################################### -->
-<!-- ####### SETUP OBRIGATÓRIA PARA INSTALAÇÃO DO MODULO ####### -->
-<!-- ########################################################### -->
-<script setup>
-import manifest from "../manifest.json";
-import ModuleContainer from "@/layout/ModuleContainer.vue";
-import { ref } from "vue";
-const moduleContainer = ref(null);
-/*const t = (key) => {
-  return moduleContainer.value?.t(key) || key;
-};*/
-</script>
-<!-- ########################################################### -->
-<!-- ########################################################### -->
-<!-- ########################################################### -->
