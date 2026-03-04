@@ -7,8 +7,6 @@
   "category": "utilities",
   "icon": "mdi-timer-outline",
   "minAppVersion": "1.0.0",
-  "showInMainMenu": true,
-
   "customization": {
     "font": {
       "type": "font",

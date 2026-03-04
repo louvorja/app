@@ -6,6 +6,6 @@
 
 <script>
 export default {
-  name: "ToolBarComponent",
+  name: "ToolbarComponent",
 };
 </script>

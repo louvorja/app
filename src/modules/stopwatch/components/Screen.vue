@@ -1,10 +1,23 @@
 <template>
   <div
     ref="container"
-    class="d-flex flex-column"
+    class="d-flex"
     :class="alignClass"
     :style="containerStyle"
   >
+    <img
+      v-if="userdata.image"
+      :src="userdata.image"
+      :style="{
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        objectFit: userdata.image_fit,
+        opacity: userdata.image_opacity / 100,
+      }"
+    />
     <span class="text-right" :style="textStyle">
       {{ formattedTime }}
     </span>
@@ -21,11 +34,8 @@ export default {
     s_height: 0,
     timer: null,
     elapsedTime: 0,
-    isRunning: false,
-    startTime: null,
-    pausedTime: 0,
+    now: null,
   }),
-  expose: ['elapsedTime', 'formattedTime', 'start', 'pause', 'reset'],
   computed: {
     module_id() {
       return manifest.id;
@@ -42,6 +52,20 @@ export default {
           },
           set: (_, key, value) => {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            return true;
+          },
+        },
+      );
+    },
+    appdata() {
+      return new Proxy(
+        {},
+        {
+          get: (_, key) => {
+            return this.$appdata.get(`modules.${this.module.id}.${key}`, null);
+          },
+          set: (_, key, value) => {
+            this.$appdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         },
@@ -94,71 +118,71 @@ export default {
       return `${vertical[this.verticalAlign]} ${horizontal[this.horizontalAlign]}`;
     },
     containerStyle() {
-      let style = {
+      return {
         background: this.backgroundColor,
         width: "100%",
         height: "100%",
+        position: "relative",
         color: this.fontColor,
         padding: `${this.borderSpacing}px`,
       };
-
-      if (this.image) {
-        style = {
-          ...style,
-          background: `
-            linear-gradient(
-              rgba(0, 0, 0, ${1 - this.imageOpacity}),
-              rgba(0, 0, 0, ${1 - this.imageOpacity})
-            ),
-            url(${this.image})
-          `,
-          backgroundSize: this.imageFit,
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        };
-      }
-
-      return style;
     },
     textStyle() {
       return {
         fontFamily: this.font,
         color: this.fontColor,
+        zIndex: 1,
         fontSize: `${this.fontSizePc(this.fontSize)}px`,
+        textAlign: `${this.horizontalAlign}`,
       };
     },
+
+    startTime() {
+      const value = this.appdata.start_time;
+      if (!value) return null;
+      return value instanceof Date ? value : new Date(value);
+    },
+    pausedTime() {
+      const value = this.appdata.paused_time;
+      if (!value) return null;
+      return value instanceof Date ? value : new Date(value);
+    },
+    isRunning() {
+      return this.appdata.is_running ?? null;
+    },
+
     formattedTime() {
-      const totalMilliseconds = this.elapsedTime;
+      const elapsedTime = this.now
+        ? this.now - (this.startTime ?? this.now)
+        : 0;
+
+      const totalMilliseconds = elapsedTime;
       const hours = Math.floor(totalMilliseconds / 3600000);
       const minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
       const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
       const milliseconds = Math.floor((totalMilliseconds % 1000) / 10);
 
-      switch (this.timeFormat) {
-        case "hh.mm.ss.ms":
-          return `${hours.toString().padStart(2, "0")}.${minutes
-            .toString()
-            .padStart(2, "0")}.${seconds.toString().padStart(2, "0")}.${milliseconds
-            .toString()
-            .padStart(2, "0")}`;
-        case "hh.mm.ss":
-          return `${hours.toString().padStart(2, "0")}.${minutes
-            .toString()
-            .padStart(2, "0")}.${seconds.toString().padStart(2, "0")}`;
-        case "mm.ss.ms":
-          return `${minutes.toString().padStart(2, "0")}.${seconds
-            .toString()
-            .padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
-        case "mm.ss":
-          return `${minutes.toString().padStart(2, "0")}.${seconds
-            .toString()
-            .padStart(2, "0")}`;
-        default:
-          return `${hours.toString().padStart(2, "0")}.${minutes
-            .toString()
-            .padStart(2, "0")}.${seconds.toString().padStart(2, "0")}.${milliseconds
-            .toString()
-            .padStart(2, "0")}`;
+      const pad = (v) => String(v).padStart(2, "0");
+
+      const tokens = {
+        hh: pad(hours),
+        mm: pad(minutes),
+        ss: pad(seconds),
+        ms: pad(milliseconds),
+      };
+
+      return this.timeFormat.replace(/hh|mm|ss|ms/g, (match) => tokens[match]);
+    },
+  },
+  watch: {
+    isRunning() {
+      if (this.isRunning) {
+        this.timer = setInterval(() => {
+          this.now = new Date();
+        }, 10);
+      } else {
+        clearInterval(this.timer);
+        this.now = this.pausedTime;
       }
     },
   },
@@ -181,49 +205,20 @@ export default {
         }
       }
     },
-    start() {
-      if (!this.isRunning) {
-        this.isRunning = true;
-        this.startTime = Date.now() - this.pausedTime;
-        this.timer = setInterval(() => {
-          this.elapsedTime = Date.now() - this.startTime;
-          // Salvar tempo em tempo real para o popup espelhar
-          this.userdata.savedTime = this.elapsedTime;
-        }, 10);
-      }
-    },
-    pause() {
-      if (this.isRunning) {
-        this.isRunning = false;
-        this.pausedTime = this.elapsedTime;
-        clearInterval(this.timer);
-      }
-    },
-    reset() {
-      this.isRunning = false;
-      this.elapsedTime = 0;
-      this.startTime = null;
-      this.pausedTime = 0;
-      clearInterval(this.timer);
-    },
   },
   mounted() {
     this.windowResize();
     window.addEventListener("resize", this.windowResize);
-    
-    // Carregar tempo salvo se houver
-    const savedTime = this.userdata.savedTime;
-    if (savedTime) {
-      this.elapsedTime = savedTime;
-      this.pausedTime = savedTime;
+
+    if (this.isRunning) {
+      this.timer = setInterval(() => {
+        this.now = new Date();
+      }, 10);
     }
   },
   unmounted() {
     window.removeEventListener("resize", this.windowResize);
     clearInterval(this.timer);
-    
-    // Salvar tempo ao desmontar
-    this.userdata.savedTime = this.elapsedTime;
   },
 };
 </script>

@@ -122,6 +122,7 @@ export default {
         color: this.fontColor,
         zIndex: 1,
         fontSize: `${this.fontSizePc(this.fontSize)}px`,
+        textAlign: `${this.horizontalAlign}`,
       };
     },
   },
@@ -154,8 +155,8 @@ export default {
           : is12Hour && hours === 0
             ? 12
             : hours;
-      const minutes = now.getMinutes().toString().padStart(2, "0");
-      const seconds = now.getSeconds().toString().padStart(2, "0");
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
 
       const pad = (v) => String(v).padStart(2, "0");
 

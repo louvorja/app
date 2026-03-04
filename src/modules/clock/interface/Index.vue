@@ -39,8 +39,8 @@
     </template>
 
     <template v-slot:header>
-      <l-tool-bar>
-        <l-tool-bar-item>
+      <l-toolbar>
+        <l-toolbar-item>
           <l-select
             :label="t('customization.hour_cycle')"
             v-model="userdata.hour_cycle"
@@ -51,9 +51,9 @@
             hide-details
             style="width: 130px"
           />
-        </l-tool-bar-item>
+        </l-toolbar-item>
 
-        <l-tool-bar-item>
+        <l-toolbar-item>
           <l-select
             :label="t('customization.time_format')"
             v-model="userdata.time_format"
@@ -64,8 +64,8 @@
             hide-details
             style="width: 160px"
           />
-        </l-tool-bar-item>
-      </l-tool-bar>
+        </l-toolbar-item>
+      </l-toolbar>
     </template>
 
     <Screen />
@@ -79,8 +79,8 @@ import Screen from "../components/Screen.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
 import LSelect from "@/components/inputs/Select.vue";
 import LCustomizationTools from "@/components/CustomizationTools.vue";
-import LToolBar from "@/components/ToolBar.vue";
-import LToolBarItem from "@/components/ToolBarItem.vue";
+import LToolbar from "@/components/Toolbar.vue";
+import LToolbarItem from "@/components/ToolbarItem.vue";
 
 export default {
   name: manifest.id,
@@ -90,8 +90,8 @@ export default {
     LScreenBtn,
     LSelect,
     LCustomizationTools,
-    LToolBar,
-    LToolBarItem,
+    LToolbar,
+    LToolbarItem,
   },
   data: () => ({
     width: 0,
