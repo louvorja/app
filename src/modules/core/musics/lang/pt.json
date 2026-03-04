@@ -6,6 +6,7 @@
         "filter_name": "Nome",
         "filter_lyric": "Letra",
         "filter_album": "Álbum",
+        "filter_track": "Número",
         "filter_instrumental": "Com Playback"
     },
     "table": {

@@ -113,6 +113,17 @@ export default {
             searchable.length === 0 ||
             value == "" ||
             searchable.some((key) => {
+              if (key === "track" && item.albums) {
+                return item.albums.some((album) => {
+                  // Only search by track in hymnal (id_album: 1, name: "Hinário Adventista - 1996" or "Hinário Adventista")
+                  // Since we might not know the exact IDs for sure without checking the db, it's safer to check known names or a specific property if it existed,
+                  // but typically "Hinário Adventista" and "Hinário Adventista - 1996" are explicitly named.
+                  // Let's filter by album name containing "Hinário Adventista".
+                  const isHymnal = album.name && album.name.includes("Hinário Adventista");
+                  return isHymnal && album.pivot && Number(album.pivot.track) === Number(value);
+                });
+              }
+
               if (!isNaN(item[key]) && !isNaN(value)) {
                 return Number(item[key]) === Number(value);
               } else if (isNaN(item[key])) {

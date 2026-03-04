@@ -36,6 +36,10 @@
             v-model="search_album"
             :label="t('inputs.filter_album')"
           />
+          <l-checkbox
+            v-model="search_track"
+            :label="t('inputs.filter_track')"
+          />
         </div>
         <v-divider vertical />
         <div :class="classform.group_item" style="flex-basis: 200px">
@@ -58,6 +62,7 @@
         name: search_name,
         lyric: search_lyric,
         albums_names: search_album,
+        track: search_track,
       }"
       :filter="{ has_instrumental_music: filter_instrumental_music }"
       :scroll="scroll"
@@ -192,7 +197,12 @@ export default {
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
 
     disabled() {
-      return !this.search_name && !this.search_lyric && !this.search_album;
+      return (
+        !this.search_name &&
+        !this.search_lyric &&
+        !this.search_album &&
+        !this.search_track
+      );
     },
     classform() {
       return {
@@ -223,6 +233,14 @@ export default {
       },
       set(value) {
         this.$userdata.set(`modules.${this.module_id}.search.album`, value);
+      },
+    },
+    search_track: {
+      get() {
+        return this.$userdata.get(`modules.${this.module_id}.search.track`);
+      },
+      set(value) {
+        this.$userdata.set(`modules.${this.module_id}.search.track`, value);
       },
     },
     filter_instrumental_music: {
