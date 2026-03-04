@@ -20,49 +20,61 @@
   </ModuleContainer>
 </template>
 
-<script>
-export default {
-  name: manifest.id,
-  data: () => ({
-    current: {},
-    themes: {},
-  }),
-  methods: {
-    setTheme(theme_id) {
-      this.current = theme_id;
-      this.$vuetify.theme.change(this.current);
-      this.$userdata.set("theme", this.current);
-      this.$appdata.set("is_dark", this.$vuetify.theme.global.current.dark);
-    },
-  },
-  mounted() {
-    this.current = this.$vuetify.theme.global.name;
-    this.themes = { light: {}, dark: {} };
-
-    for (const key in this.$vuetify.theme.themes) {
-      const item = this.$vuetify.theme.themes[key];
-      if (item.dark) {
-        this.themes.dark[key] = item;
-      } else {
-        this.themes.light[key] = item;
-      }
-    }
-  },
-};
-</script>
-
-<!-- ########################################################### -->
-<!-- ####### SETUP OBRIGATÓRIA PARA INSTALAÇÃO DO MODULO ####### -->
-<!-- ########################################################### -->
 <script setup>
+/* ########################################################### */
+/* ####### SETUP OBRIGATÓRIA PARA INSTALAÇÃO DO MODULO ####### */
+/* ########################################################### */
+import { ref, computed, getCurrentInstance, onMounted } from "vue";
 import manifest from "../manifest.json";
-import ModuleContainer from "@/layout/ModuleContainer.vue";
-import { ref } from "vue";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 const moduleContainer = ref(null);
 const t = (key) => {
   return moduleContainer.value?.t(key) || key;
 };
+const userdata = computed(() => {
+  return moduleContainer.value?.userdata;
+});
+const appdata = computed(() => {
+  return moduleContainer.value?.appdata;
+});
+const { proxy } = getCurrentInstance();
+/* ########################################################### */
+/* ########################################################### */
+/* ########################################################### */
+
+const current = ref("");
+const themes = ref({
+  light: {},
+  dark: {},
+});
+
+/* ########################################################### */
+/* ###################### METHODS ############################# */
+/* ########################################################### */
+
+function setTheme(theme_id) {
+  current.value = theme_id;
+  proxy.$vuetify.theme.change(current.value);
+  proxy.$userdata.set("theme", current.value);
+  proxy.$appdata.set("is_dark", proxy.$vuetify.theme.global.current.dark);
+}
+
+/* ########################################################### */
+/* ###################### MOUNTED ############################# */
+/* ########################################################### */
+
+onMounted(() => {
+  current.value = proxy.$vuetify.theme.global.name;
+  themes.value = { light: {}, dark: {} };
+
+  for (const key in proxy.$vuetify.theme.themes) {
+    const item = proxy.$vuetify.theme.themes[key];
+
+    if (item.dark) {
+      themes.value.dark[key] = item;
+    } else {
+      themes.value.light[key] = item;
+    }
+  }
+});
 </script>
-<!-- ########################################################### -->
-<!-- ########################################################### -->
-<!-- ########################################################### -->

@@ -173,17 +173,17 @@ export default {
       return this.compact_screen
         ? "100%"
         : this.size == "small"
-        ? "500px"
-        : this.size == "large"
-        ? "95%"
-        : "90%";
+          ? "500px"
+          : this.size == "large"
+            ? "95%"
+            : "90%";
     },
     w_height() {
       return this.compact_screen || this.compact_height
         ? "100%"
         : this.size == "small"
-        ? "550px"
-        : "90%";
+          ? "550px"
+          : "90%";
     },
   },
   watch: {

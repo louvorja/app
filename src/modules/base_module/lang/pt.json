@@ -1,0 +1,20 @@
+{
+    "title": "Título do Módulo",
+    "customization": {
+        "background": "Fundo",
+        "color": "Cor",
+        "image": "Imagem",
+        "transparency": "Transparência",
+        "adjust": "Ajustar",
+        "align": "Alinhamento",
+        "font": "Fonte",
+        "text": "Texto",
+        "window": "Janela",
+        "vertical": "Vertical",
+        "horizontal": "Horizontal",
+        "border": "Borda",
+        "size": "Tamanho",
+        "hour_cycle": "Ciclo de Horas",
+        "time_format": "Formato de Hora"
+    }
+}

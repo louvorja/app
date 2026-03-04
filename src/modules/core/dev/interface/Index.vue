@@ -45,7 +45,7 @@ export default {
 <!-- ########################################################### -->
 <script setup>
 import manifest from "../manifest.json";
-import ModuleContainer from "@/layout/ModuleContainer.vue";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 import { ref } from "vue";
 const moduleContainer = ref(null);
 const t = (key) => {

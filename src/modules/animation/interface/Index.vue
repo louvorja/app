@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import ModuleContainer from "@/layout/ModuleContainer.vue";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 import { ref, watch } from "vue";
 import manifest from "../manifest.json";
 import ShowAnimation from "./components/modals/ShowAnimation.vue";
@@ -51,6 +51,4 @@ watch(openEditAnimation, (value) => {
     openShowAnimation.value = false;
   }
 });
-
-
 </script>

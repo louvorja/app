@@ -92,7 +92,7 @@ export default {
 
 <script setup>
 import { ref } from "vue";
-import ModuleContainer from "@/layout/ModuleContainer.vue";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 import manifest from "../manifest.json";
 
 // ---- Obrigatório para tradução -------

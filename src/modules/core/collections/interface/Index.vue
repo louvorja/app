@@ -145,7 +145,7 @@ export default {
           ...new Map(
             this.categories
               .reduce((acc, category) => acc.concat(category.albums), [])
-              .map((album) => [album.id_album, { ...album, subtitle: null }])
+              .map((album) => [album.id_album, { ...album, subtitle: null }]),
           ).values(),
         ].sort((a, b) => this.$string.sort(a.name, b.name));
       }
@@ -165,7 +165,7 @@ export default {
       this.loading = true;
 
       this.categories = await this.$database.get(
-        `${this.$i18n.locale}_categories`
+        `${this.$i18n.locale}_categories`,
       );
 
       if (this.categories == null) {
@@ -216,7 +216,7 @@ export default {
 <!-- ########################################################### -->
 <script setup>
 import manifest from "../manifest.json";
-import ModuleContainer from "@/layout/ModuleContainer.vue";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 import { ref } from "vue";
 const moduleContainer = ref(null);
 const t = (key) => {
