@@ -1,0 +1,8 @@
+{
+  "title": "Configuraciones",
+  "settings": {
+    "popup_title": "Pantalla Auxiliar (Popup)",
+    "multiple_popups": "Permitir múltiplos popups",
+    "multiple_popups_help": "Si está activado, cada módulo se abrirá en una ventana separada. Si está desactivado, el nuevo popup reemplazará al actual."
+  }
+}
