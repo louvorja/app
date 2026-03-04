@@ -18,9 +18,8 @@
         opacity: userdata.image_opacity / 100,
       }"
     />
-
     <span class="text-right" :style="textStyle">
-      {{ time }}
+      {{ formattedTime }}
     </span>
   </div>
 </template>
@@ -29,12 +28,13 @@
 import manifest from "../manifest.json";
 
 export default {
-  name: "ClockPage",
+  name: "StopwatchPage",
   data: () => ({
     s_width: 0,
     s_height: 0,
     timer: null,
-    time: null,
+    elapsedTime: 0,
+    now: null,
   }),
   computed: {
     module_id() {
@@ -52,6 +52,20 @@ export default {
           },
           set: (_, key, value) => {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            return true;
+          },
+        },
+      );
+    },
+    appdata() {
+      return new Proxy(
+        {},
+        {
+          get: (_, key) => {
+            return this.$appdata.get(`modules.${this.module.id}.${key}`, null);
+          },
+          set: (_, key, value) => {
+            this.$appdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         },
@@ -87,11 +101,8 @@ export default {
     imageFit() {
       return this.userdata.image_fit || "cover";
     },
-    hourCycle() {
-      return this.userdata.hour_cycle || "24h";
-    },
     timeFormat() {
-      return this.userdata.time_format || "hh:mm:ss";
+      return this.userdata.time_format || "hh.mm.ss.ms";
     },
     alignClass() {
       const vertical = {
@@ -125,6 +136,55 @@ export default {
         textAlign: `${this.horizontalAlign}`,
       };
     },
+
+    startTime() {
+      const value = this.appdata.start_time;
+      if (!value) return null;
+      return value instanceof Date ? value : new Date(value);
+    },
+    pausedTime() {
+      const value = this.appdata.paused_time;
+      if (!value) return null;
+      return value instanceof Date ? value : new Date(value);
+    },
+    isRunning() {
+      return this.appdata.is_running ?? null;
+    },
+
+    formattedTime() {
+      const elapsedTime = this.now
+        ? this.now - (this.startTime ?? this.now)
+        : 0;
+
+      const totalMilliseconds = elapsedTime;
+      const hours = Math.floor(totalMilliseconds / 3600000);
+      const minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
+      const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
+      const milliseconds = Math.floor((totalMilliseconds % 1000) / 10);
+
+      const pad = (v) => String(v).padStart(2, "0");
+
+      const tokens = {
+        hh: pad(hours),
+        mm: pad(minutes),
+        ss: pad(seconds),
+        ms: pad(milliseconds),
+      };
+
+      return this.timeFormat.replace(/hh|mm|ss|ms/g, (match) => tokens[match]);
+    },
+  },
+  watch: {
+    isRunning() {
+      if (this.isRunning) {
+        this.timer = setInterval(() => {
+          this.now = new Date();
+        }, 10);
+      } else {
+        clearInterval(this.timer);
+        this.now = this.pausedTime;
+      }
+    },
   },
   methods: {
     fontSizePc(pc) {
@@ -145,46 +205,16 @@ export default {
         }
       }
     },
-    updateTime() {
-      const now = new Date();
-      let hours = now.getHours();
-      const is12Hour = this.hourCycle === "12h";
-      const displayHours =
-        is12Hour && hours > 12
-          ? hours - 12
-          : is12Hour && hours === 0
-            ? 12
-            : hours;
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
-
-      const pad = (v) => String(v).padStart(2, "0");
-
-      const tokens = {
-        hh: pad(displayHours),
-        mm: pad(minutes),
-        ss: pad(seconds),
-      };
-
-      let timeStr = this.timeFormat.replace(
-        /hh|mm|ss/g,
-        (match) => tokens[match],
-      );
-
-      if (is12Hour) {
-        timeStr += hours >= 12 ? " PM" : " AM";
-      }
-
-      this.time = timeStr;
-    },
   },
   mounted() {
     this.windowResize();
     window.addEventListener("resize", this.windowResize);
-    this.updateTime();
-    this.timer = setInterval(() => {
-      this.updateTime();
-    }, 1000);
+
+    if (this.isRunning) {
+      this.timer = setInterval(() => {
+        this.now = new Date();
+      }, 10);
+    }
   },
   unmounted() {
     window.removeEventListener("resize", this.windowResize);

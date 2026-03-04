@@ -1,6 +1,6 @@
 {
   "name": "louvorja",
-  "version": "1.21.0",
+  "version": "1.23.0",
   "private": true,
   "scripts": {
     "version:major": "npm version major",
@@ -15,8 +15,7 @@
     "dev": "vite",
     "host": "vite --host",
     "files": "node node/server.js",
-    "git:tag": "git tag -a -f v%npm_package_version% -m \"Versão %npm_package_version%\" && git push origin -f v%npm_package_version% && git push -u origin main",
-    "git:publish": "git pull origin main && git checkout main && git merge develop && git push -u origin main && git checkout develop"
+    "git:tag": "git tag -a -f v%npm_package_version% -m \"Versão %npm_package_version%\" && git push origin -f v%npm_package_version% && git push -u origin main"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

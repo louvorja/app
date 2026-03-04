@@ -49,6 +49,7 @@ export default {
     theme: "",
     language: "",
     multiple_popups: false,
+    layout: "apps",
     modules: {
       musics: {
         search: {

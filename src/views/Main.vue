@@ -6,9 +6,22 @@
   <AppModules />
   <AppAlert />
 
-  <v-main class="bg-main">
+  <AppsRibbon v-if="this.$userdata.get('layout') == 'ribbon'" />
+
+  <v-main v-if="this.$userdata.get('layout') !== 'ribbon'" class="bg-main">
     <Apps />
     <AppTrayArea />
+  </v-main>
+  <v-main class="d-flex flex-column" v-else>
+    <v-sheet
+      :color="$theme.primary()"
+      width="100%"
+      height="100%"
+      class="d-flex align-center justify-center"
+    >
+      <img src="@/assets/imgs/logo.svg" />
+    </v-sheet>
+    <AppTrayArea horizontal />
   </v-main>
 
   <AppFooter />
@@ -22,6 +35,7 @@ import AppMenu from "@/layout/Menu.vue";
 import AppModules from "@/layout/Modules.vue";
 import AppAlert from "@/layout/Alert.vue";
 import Apps from "@/layout/Apps.vue";
+import AppsRibbon from "@/layout/AppsRibbon.vue";
 import AppTrayArea from "@/layout/TrayArea.vue";
 
 export default {
@@ -34,6 +48,7 @@ export default {
     AppModules,
     AppAlert,
     Apps,
+    AppsRibbon,
     AppTrayArea,
   },
   mounted() {

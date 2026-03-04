@@ -1,55 +1,58 @@
 <template>
-  <div
+  <v-sheet
     class="apps-bar d-flex flex-column"
     v-if="Object.keys(modules).length > 0"
+    :style="!horizontal ? 'width:80px;' : ''"
   >
     <div class="apps-bar-header"></div>
-
     <draggable
       v-model="modules"
       item-key="id"
-      class="apps-bar-container d-flex align-center justify-center flex-column"
+      class="apps-bar-container d-flex align-center justify-center"
+      :class="[`flex-${horizontal ? 'row' : 'column'}`]"
     >
       <!---->
       <template #item="{ element }">
-        <v-hover v-slot="{ isHovering, props }">
-          <div v-bind="props" style="position: relative">
-            <v-btn
-              :color="$theme.primary()"
-              style="margin: 3px 0 3px 0"
-              tonal
-              icon
-              @click="$modules.open(element.id)"
-            >
-              <v-icon :icon="element.icon"></v-icon>
-              <v-tooltip activator="parent" location="start">
-                {{ $t(element.title) }}
-              </v-tooltip>
-            </v-btn>
-            <v-btn
-              v-if="isHovering"
-              icon="mdi-close"
-              variant="flat"
-              color="error"
-              size="x-small"
-              style="
-                position: absolute;
-                top: 0;
-                right: -5px;
-                z-index: 10;
-                width: 20px;
-                height: 20px;
-                font-size: 9px;
-              "
-              @click.stop="$modules.close(element.id)"
-            />
-          </div>
-        </v-hover>
+        <div>
+          <v-hover v-slot="{ isHovering, props }">
+            <div v-bind="props" style="position: relative">
+              <v-btn
+                :color="$theme.primary()"
+                style="margin: 3px"
+                tonal
+                icon
+                @click="$modules.open(element.id)"
+              >
+                <v-icon :icon="element.icon"></v-icon>
+                <v-tooltip activator="parent" location="start">
+                  {{ $t(element.title) }}
+                </v-tooltip>
+              </v-btn>
+              <v-btn
+                v-if="isHovering"
+                icon="mdi-close"
+                variant="flat"
+                color="error"
+                size="x-small"
+                style="
+                  position: absolute;
+                  top: 0;
+                  right: -5px;
+                  z-index: 10;
+                  width: 20px;
+                  height: 20px;
+                  font-size: 9px;
+                "
+                @click.stop="$modules.close(element.id)"
+              />
+            </div>
+          </v-hover>
+        </div>
       </template>
     </draggable>
 
     <div class="apps-bar-footer"></div>
-  </div>
+  </v-sheet>
 </template>
 
 <script>
@@ -59,6 +62,12 @@ export default {
   name: "TrayAreaLayout",
   components: {
     Draggable,
+  },
+  props: {
+    horizontal: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     modules: {
@@ -75,8 +84,7 @@ export default {
 
 <style scoped>
 .apps-bar {
-  width: 80px;
-  margin: 5px;
+  padding: 5px;
 }
 .apps-bar-header,
 .apps-bar-footer {

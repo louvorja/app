@@ -1,0 +1,67 @@
+{
+  "id": "stopwatch",
+  "name": "Cronômetro",
+  "version": "1.0.0",
+  "description": "Cronômetro",
+  "author": "maycorolbuche",
+  "category": "utilities",
+  "icon": "mdi-timer-outline",
+  "minAppVersion": "1.0.0",
+  "customization": {
+    "font": {
+      "type": "font",
+      "label": "customization.font",
+      "default": "Arial, sans-serif"
+    },
+    "font_color": {
+      "type": "color",
+      "label": "customization.color",
+      "default": "#FFFFFF"
+    },
+    "font_size": {
+      "type": "font-size",
+      "label": "customization.size",
+      "default": 30
+    },
+    "background_color": {
+      "type": "color",
+      "label": "customization.color",
+      "default": "#000000"
+    },
+    "border_spacing": {
+      "type": "border-spacing",
+      "label": "customization.border",
+      "default": 10
+    },
+    "vertical_align": {
+      "type": "v-align",
+      "label": "customization.vertical",
+      "default": "center"
+    },
+    "horizontal_align": {
+      "type": "h-align",
+      "label": "customization.horizontal",
+      "default": "center"
+    },
+    "image": {
+      "type": "image",
+      "label": "customization.image",
+      "default": ""
+    },
+    "image_opacity": {
+      "type": "opacity",
+      "label": "customization.transparency",
+      "default": 100
+    },
+    "image_fit": {
+      "type": "object-fit",
+      "label": "customization.adjust",
+      "default": "cover"
+    },
+    "time_format": {
+      "type": "select",
+      "label": "customization.time_format",
+      "default": "hh.mm.ss.ms"
+    }
+  }
+}
