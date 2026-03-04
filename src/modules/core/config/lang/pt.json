@@ -1,0 +1,8 @@
+{
+  "title": "Configurações",
+  "settings": {
+    "popup_title": "Tela Auxiliar (Popup)",
+    "multiple_popups": "Permitir múltiplos popups",
+    "multiple_popups_help": "Se ativado, cada módulo abrirá em uma janela separada. Se desativado, o novo popup substituirá o atual."
+  }
+}

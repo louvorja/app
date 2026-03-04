@@ -48,12 +48,22 @@ export default {
       return this.$appdata.get("is_mobile");
     },
     is_popup_opened: function () {
-      return !!this.$appdata.get("popup");
+      const multiplePopups = this.$userdata.get("multiple_popups", false);
+      if (multiplePopups) {
+        const popups = this.$appdata.get("popups") || {};
+        return !!(popups[this.module] && !popups[this.module].closed);
+      }
+      const popup = this.$appdata.get("popup_instance");
+      return !!(popup && !popup.closed);
     },
     popup_module: function () {
       return this.$appdata.get("popup_module");
     },
     is_selected: function () {
+      const multiplePopups = this.$userdata.get("multiple_popups", false);
+      if (multiplePopups) {
+        return this.is_popup_opened;
+      }
       return this.is_popup_opened && this.popup_module == this.module;
     },
   },
@@ -66,7 +76,7 @@ export default {
       }
     },
     close: function () {
-      this.$popup.close();
+      this.$popup.close(this.module);
     },
   },
 };

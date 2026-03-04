@@ -1,5 +1,7 @@
 import $dev from "@/helpers/Dev";
 import $appdata from "@/helpers/AppData";
+import $popup from "@/helpers/Popup";
+import $userdata from "@/helpers/UserData";
 
 export default {
   open(id) {
@@ -20,6 +22,23 @@ export default {
 
     //Remove da TrayArea
     this.removeTray(id);
+
+    // Auto-closing popup logic
+    const multiplePopups = $userdata.get("multiple_popups", false);
+
+    if (multiplePopups) {
+      $popup.close(id);
+    } else {
+      // Check if any module is still active or in the tray
+      const modules = $appdata.get("modules") || {};
+      const trayModules = $appdata.get("tray_area.modules") || [];
+      const anyActive = Object.values(modules).some((m) => m.show);
+      const anyInTray = trayModules.length > 0;
+
+      if (!anyActive && !anyInTray) {
+        $popup.close();
+      }
+    }
   },
   minimize(id) {
     if (!this.check(id)) {

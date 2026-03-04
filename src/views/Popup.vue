@@ -14,6 +14,11 @@ export default {
   }),
   computed: {
     module() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const module = urlParams.get("module");
+      if (module) {
+        return module;
+      }
       return this.$appdata.get("popup_module");
     },
   },
@@ -50,10 +55,16 @@ export default {
       }
     });
 
-    window.opener.postMessage("mounted", window.location.origin);
+    window.opener.postMessage(
+      { type: "mounted", module: this.module },
+      window.location.origin
+    );
 
     window.addEventListener("beforeunload", () => {
-      window.opener?.postMessage("closed", window.location.origin);
+      window.opener?.postMessage(
+        { type: "closed", module: this.module },
+        window.location.origin
+      );
     });
   },
 };

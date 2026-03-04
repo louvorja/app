@@ -1,0 +1,12 @@
+{
+  "id": "config",
+  "name": "Configurações",
+  "active": true,
+  "showInMainMenu": true,
+  "icon": "mdi-cog",
+  "category": null,
+  "development": false,
+  "moduleOptions": {
+    "size": "small"
+  }
+}

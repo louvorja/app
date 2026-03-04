@@ -5,7 +5,7 @@ export default {
   is_mobile: false,
   is_desktop: false,
   is_online: false,
-  popup: null,
+  popups: {},
   popup_module: null,
   import_modules: false,
   loading: false,
@@ -48,6 +48,7 @@ export default {
   user_data: {
     theme: "",
     language: "",
+    multiple_popups: false,
     layout: "apps",
     modules: {
       musics: {

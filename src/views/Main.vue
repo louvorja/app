@@ -98,8 +98,8 @@ export default {
 
     window.addEventListener("message", (event) => {
       if (event.origin === window.location.origin) {
-        if (event.data == "mounted") {
-          const popup = this.$appdata.get("popup");
+        if (event.data === "mounted" || (event.data && event.data.type === "mounted")) {
+          const popup = event.source;
           if (popup) {
             const data = this.$appdata.getFlatten();
             Object.keys(data).map((item) => {
@@ -108,10 +108,10 @@ export default {
                 window.location.origin,
               );
             });
-            //popup.postMessage({ all: data }, window.location.origin);
           }
-        } else if (event.data == "closed") {
-          this.$popup.close();
+        } else if (event.data === "closed" || (event.data && event.data.type === "closed")) {
+          const module = event.data.module || null;
+          this.$popup.close(module);
         }
       }
     });
