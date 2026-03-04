@@ -1,12 +1,9 @@
 {
   "id": "stopwatch",
   "name": "Cronômetro",
-  "version": "1.0.0",
   "description": "Cronômetro",
-  "author": "maycorolbuche",
   "category": "utilities",
   "icon": "mdi-timer-outline",
-  "minAppVersion": "1.0.0",
   "customization": {
     "font": {
       "type": "font",

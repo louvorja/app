@@ -1,11 +1,8 @@
 {
   "id": "album",
   "name": "Álbum",
-  "version": "1.0.0",
   "description": "Exibe as músicas de um álbum (função $media.openAlbum)",
-  "author": "maycorolbuche",
   "category": null,
   "icon": null,
-  "minAppVersion": "1.0.0",
   "dependencies": []
 }

@@ -3,12 +3,9 @@
   "development": true,
   "id": "animation",
   "name": "Animation Plugin",
-  "version": "1.0.0",
   "description": "Simple animation to get dependencies",
-  "author": "Your Name",
   "category": "utilities",
   "icon": "mdi-animation-play",
-  "minAppVersion": "1.0.0",
   "dependencies": [
     {
       "animejs": {

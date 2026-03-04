@@ -21,11 +21,6 @@
           </v-chip>
         </v-card-title>
 
-        <v-card-subtitle class="pa-0">
-          by {{ module.manifest.author }} | version:
-          {{ module.manifest.version }}
-        </v-card-subtitle>
-
         <v-card-text class="px-0 py-1">
           {{ module.manifest.description }}
         </v-card-text>

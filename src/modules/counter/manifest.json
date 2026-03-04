@@ -3,11 +3,8 @@
   "development": true,
   "id": "counter",
   "name": "Counter Module",
-  "version": "1.0.0",
   "description": "Simple counter utility",
-  "author": "Your Name",
   "category": "utilities",
   "icon": "mdi-counter",
-  "minAppVersion": "1.0.0",
   "dependencies": []
 }

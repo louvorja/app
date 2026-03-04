@@ -2,7 +2,7 @@
 export const ModuleManifest = {
   create(options) {
     // Add validation
-    const required = ["id", "name", "version"];
+    const required = ["id", "name"];
     for (const field of required) {
       if (!options[field]) {
         throw new Error(`Missing required field: ${field}`);
@@ -12,12 +12,10 @@ export const ModuleManifest = {
     return {
       id: options.id,
       name: options.name,
-      version: options.version,
       description: options.description,
       author: options.author,
       category: options.category || "misc",
       icon: options.icon,
-      minAppVersion: options.minAppVersion || "1.0.0",
       dependencies: options.dependencies || [],
     };
   },

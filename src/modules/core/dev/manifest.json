@@ -1,13 +1,10 @@
 {
   "id": "dev",
   "name": "Desenvolvedor",
-  "version": "1.0.0",
   "description": "Exibir informações do sistema ao desenvolvedor.",
-  "author": "maycorolbuche",
   "category": null,
   "showInMainMenu": true,
   "development": true,
   "icon": "mdi-code-braces",
-  "minAppVersion": "1.0.0",
   "dependencies": []
 }

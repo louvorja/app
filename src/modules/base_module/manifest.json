@@ -2,12 +2,9 @@
   "id": "base_module",
   "name": "Módulo Template",
   "development": true,
-  "version": "1.0.0",
   "description": "Módulo base para criação de outros módulos",
-  "author": "maycorolbuche",
   "category": "utilities",
   "icon": "mdi-monitor-dashboard",
-  "minAppVersion": "1.0.0",
   "customization": {
     "font": {
       "type": "font",

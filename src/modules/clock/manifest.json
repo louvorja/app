@@ -1,12 +1,9 @@
 {
   "id": "clock",
   "name": "Relógio",
-  "version": "1.0.0",
   "description": "Relógio",
-  "author": "maycorolbuche",
   "category": "utilities",
   "icon": "mdi-clock-outline",
-  "minAppVersion": "1.0.0",
   "customization": {
     "font": {
       "type": "font",

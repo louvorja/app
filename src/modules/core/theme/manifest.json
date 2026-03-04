@@ -1,13 +1,10 @@
 {
   "id": "theme",
   "name": "Temas",
-  "version": "1.0.0",
   "description": "Fornece ferramentas para customização das cores do programa.",
-  "author": "maycorolbuche",
   "category": null,
   "showInMainMenu": true,
   "icon": "mdi-palette",
-  "minAppVersion": "1.0.0",
   "dependencies": [],
   "moduleOptions": {
     "size": "small"

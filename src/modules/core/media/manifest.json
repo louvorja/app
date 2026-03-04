@@ -1,11 +1,8 @@
 {
   "id": "media",
   "name": "Slide",
-  "version": "1.0.0",
   "description": "Monta o slide da música (função $media.open)",
-  "author": "maycorolbuche",
   "category": null,
   "icon": null,
-  "minAppVersion": "1.0.0",
   "dependencies": []
 }

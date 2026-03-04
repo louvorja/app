@@ -28,9 +28,7 @@ Define metadados do módulo:
 ```json
 {
   "name": "Nome do Módulo",
-  "icon": "mdi-star",
-  "version": "1.0.0",
-  "author": "Seu Nome"
+  "icon": "mdi-star"
 }
 ```
 

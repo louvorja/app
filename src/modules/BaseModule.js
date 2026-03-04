@@ -12,7 +12,6 @@ export default class BaseModule {
       showInMainMenu: manifest.showInMainMenu || false,
       development: manifest.development || false,
       language: manifest.language || null,
-      minAppVersion: manifest.minAppVersion,
       dependencies: manifest.dependencies || [],
       translations: manifest.translations || {},
       system: manifest.system ?? false,

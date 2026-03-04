@@ -1,12 +1,9 @@
 {
   "id": "collections",
   "name": "Álbuns",
-  "version": "1.0.0",
   "description": "Lista as coletâneas",
-  "author": "maycorolbuche",
   "category": "musics",
   "icon": "mdi-music-box-multiple",
-  "minAppVersion": "1.0.0",
   "dependencies": [
     "album"
   ]

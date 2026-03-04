@@ -1,11 +1,8 @@
 {
   "id": "lyric",
   "name": "Letra",
-  "version": "1.0.0",
   "description": "Exibe a letra da música (função $media.openLyric)",
-  "author": "maycorolbuche",
   "category": null,
   "icon": null,
-  "minAppVersion": "1.0.0",
   "dependencies": []
 }
