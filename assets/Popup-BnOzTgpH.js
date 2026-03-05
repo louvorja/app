@@ -1,0 +1,1 @@
+import{_ as o,r as n,o as t,c as r,j as s}from"./index-BI-EPTHK.js";import{S as c}from"./Screen-DFOwpOcA.js";const p={name:"PopupScreenPage",components:{Screen:c},computed:{module_id(){return s.id},module(){return this.$modules.get(this.module_id)}}};function a(m,u,_,d,i,f){const e=n("Screen");return t(),r(e)}const $=o(p,[["render",a]]);export{$ as default};
