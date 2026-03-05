@@ -2,7 +2,7 @@
   <Window
     v-if="manifest"
     v-model="module.show"
-    :title="title ?? t('title')"
+    :title="title ?? (manifest ? t('title') : '')"
     :icon="module.icon"
     closable
     minimizable
@@ -61,13 +61,13 @@ export default {
   },
   computed: {
     module_id() {
-      return this.manifest.id;
+      return this.manifest?.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return this.module_id && this.$modules.get(this.module_id);
     },
     show() {
-      return this.module.show;
+      return this.module_id ? this.module.show : false;
     },
 
     /* 

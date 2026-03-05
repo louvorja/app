@@ -59,16 +59,16 @@ export default {
         "modules.media.times",
         this.slides().map((item) =>
           $datetime.toNumber(
-            mode == "audio" ? item.time : item.instrumental_time
-          )
-        )
+            mode == "audio" ? item.time : item.instrumental_time,
+          ),
+        ),
       );
 
       $appdata.set(
         "modules.media.config.audio",
         $path.file(
-          mode == "audio" ? data.url_music : data.url_instrumental_music
-        )
+          mode == "audio" ? data.url_music : data.url_instrumental_music,
+        ),
       );
 
       if (
@@ -95,7 +95,7 @@ export default {
               if (a) {
                 self.open(id_music);
               }
-            }
+            },
           );
           return;
         }
@@ -116,7 +116,7 @@ export default {
                 if (a) {
                   self.open(id_music);
                 }
-              }
+              },
             );
           }
         };
@@ -130,7 +130,7 @@ export default {
               if (a) {
                 self.open(id_music);
               }
-            }
+            },
           );
           return;
         };
@@ -222,7 +222,7 @@ export default {
     $appdata.set("modules.album.data", data);
 
     let hymnal = data.categories.filter((item) =>
-      item.startsWith("hymnal.")
+      item.startsWith("hymnal."),
     )[0];
     if (hymnal) {
       $modules.open(hymnal.split(".")[1]);
@@ -320,19 +320,19 @@ export default {
   slides() {
     let data = $appdata.get("modules.media.data");
 
-    let prev_image = data.url_image;
-    let prev_image_position = data.image_position;
+    let prev_image = data?.url_image;
+    let prev_image_position = data?.image_position;
 
     return [
       {
-        lyric: data.name,
+        lyric: data?.name,
         cover: true,
         time: "00:00:00",
         instrumental_time: "00:00:00",
-        url_image: data.url_image,
-        image_position: data.image_position,
+        url_image: data?.url_image,
+        image_position: data?.image_position,
       },
-      ...Object.values(data.lyric || {})
+      ...Object.values(data?.lyric || {})
         .filter((lyric) => lyric.show_slide === 1)
         .sort((a, b) => a.order - b.order)
         .map((lyric) => {
@@ -428,7 +428,7 @@ export default {
             if (a) {
               self.open($appdata.get("modules.media.id_music"));
             }
-          }
+          },
         );
       });
       if (fade_audio) {
@@ -585,7 +585,7 @@ export default {
         : 1;
     $appdata.set(
       "modules.media.config.slide_index",
-      slide_index <= 0 ? 0 : slide_index
+      slide_index <= 0 ? 0 : slide_index,
     );
 
     const start_time = times && times?.length ? times[slide_index] : 0;

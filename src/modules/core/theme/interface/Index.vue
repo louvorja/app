@@ -22,7 +22,7 @@
 
 <script setup>
 /* ########################################################### */
-/* ####### SETUP OBRIGATÓRIA PARA INSTALAÇÃO DO MODULO ####### */
+/* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
 import { ref, computed, getCurrentInstance, onMounted } from "vue";
 import manifest from "../manifest.json";
@@ -31,16 +31,11 @@ const moduleContainer = ref(null);
 const t = (key) => {
   return moduleContainer.value?.t(key) || key;
 };
-const userdata = computed(() => {
-  return moduleContainer.value?.userdata;
-});
-const appdata = computed(() => {
-  return moduleContainer.value?.appdata;
-});
+/* ########################################################### */
+/* ########################################################### */
+/* ########################################################### */
+
 const { proxy } = getCurrentInstance();
-/* ########################################################### */
-/* ########################################################### */
-/* ########################################################### */
 
 const current = ref("");
 const themes = ref({

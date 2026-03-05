@@ -136,7 +136,7 @@
 
 <script setup>
 /* ########################################################### */
-/* ####### SETUP OBRIGATÓRIA PARA INSTALAÇÃO DO MODULO ####### */
+/* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
 import { ref, computed, getCurrentInstance } from "vue";
 import manifest from "../manifest.json";
@@ -148,10 +148,6 @@ const t = (key) => {
 const userdata = computed(() => {
   return moduleContainer.value?.userdata;
 });
-const appdata = computed(() => {
-  return moduleContainer.value?.appdata;
-});
-const { proxy } = getCurrentInstance();
 /* ########################################################### */
 /* ########################################################### */
 /* ########################################################### */
@@ -165,6 +161,8 @@ import LetterPaginate from "@/components/LetterPagination.vue";
 /* -------------------------------------------------- */
 /* STATE                                              */
 /* -------------------------------------------------- */
+const { proxy } = getCurrentInstance();
+
 const search = ref("");
 const data = ref([]);
 const scroll = ref({});

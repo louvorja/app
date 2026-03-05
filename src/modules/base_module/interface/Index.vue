@@ -6,9 +6,9 @@
 
 <script setup>
 /* ########################################################### */
-/* ####### SETUP OBRIGATÓRIA PARA INSTALAÇÃO DO MODULO ####### */
+/* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
-import { ref, computed, getCurrentInstance } from "vue";
+import { ref, computed } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 const moduleContainer = ref(null);
@@ -21,7 +21,6 @@ const userdata = computed(() => {
 const appdata = computed(() => {
   return moduleContainer.value?.appdata;
 });
-const { proxy } = getCurrentInstance();
 /* ########################################################### */
 /* ########################################################### */
 /* ########################################################### */
