@@ -45,7 +45,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 068 | [Adicionar Husky + lint-staged](tasks/068-adicionar-husky-lint-staged.md) | S | P2 | 1h | done | 68 |
 | 057 | [Auditar e travar `vue-router` em versão estável](tasks/057-travar-vue-router.md) | O | P1 | 2h | done | 57 |
 | 058 | [RFC: travar Vuetify na versão estável](tasks/058-rfc-vuetify-decision.md) | O | P0 | 4h | done | 58, 59 |
-| 060 | [Auditar dependências (webfontloader, core-js, etc)](tasks/060-audit-dependencias.md) | S | P3 | 1h | todo | 60 |
+| 060 | [Auditar dependências (webfontloader, core-js, etc)](tasks/060-audit-dependencias.md) | S | P3 | 1h | done | 60 |
 | 061 | `jszip` external → import dinâmico em `SljaConverter.js` | S | P1 | 1h | done | 61 |
 | 062 | [manualChunks no Vite + bundle visualizer](tasks/062-manualchunks-bundle-visualizer.md) | S | P2 | 2h | todo | 62, 63 |
 | 064 | [Adicionar aliases Vite (`@helpers`, `@modules`, `@components`)](tasks/064-aliases-vite.md) | S | P3 | 0.5h | todo | 64 |
