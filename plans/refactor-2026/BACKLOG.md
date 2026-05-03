@@ -66,7 +66,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 016 | [Quebrar `helpers/Media.js` em composables](tasks/016-quebrar-media-helper.md) | O | P0 | 12h | done | 16, 76 |
 | 017 | [Refatorar `liturgy/Index.vue` (2331 linhas) em componentes+composables](tasks/017-refatorar-liturgy.md) | O | P0 | 16h | done | 17, 18, 19, 20 |
 | 022 | [Refatorar `Player.vue` (453 linhas)](tasks/022-refatorar-player.md) | O | P1 | 8h | done | 22 |
-| 005 | [Substituir `setData` genérico por mutations tipadas](tasks/005-substituir-setdata.md) | O | P1 | 8h | todo | 5, 6 |
+| 005 | [Substituir `setData` genérico por mutations tipadas](tasks/005-substituir-setdata.md) | O | P1 | 8h | done | 5, 6 |
 | 010 | [Unificar Hotkeys + Shortcuts + vue3-shortkey](tasks/010-unificar-hotkeys-shortcuts.md) | O | P1 | 6h | todo | 10 |
 | 009 | [Unificar Modules.js + ModuleManager.js](tasks/009-unificar-modules-manager.md) | O | P1 | 4h | todo | 9, 12 |
 | 094 | [Padronizar prefixo de componentes (Lj* ou renomear conflitantes)](tasks/done/094-prefixo-componentes.md) | S | P2 | 2h | done | 94 |
