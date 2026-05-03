@@ -13,7 +13,7 @@
     :persistent-hint="disabled"
     :loading="disabled"
     :error="error"
-    @click:appendInner="reset()"
+    @click:append-inner="reset()"
   />
 </template>
 

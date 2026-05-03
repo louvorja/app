@@ -1,0 +1,7 @@
+{
+  "id": "liturgy",
+  "name": "Liturgia",
+  "description": "Planejador de cultos com itens, cronômetro e exportação.",
+  "category": "utilities",
+  "icon": "mdi-view-list-outline"
+}

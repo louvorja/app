@@ -12,7 +12,7 @@
     :multiple="multiple"
     hide-details
   >
-    <template v-slot:menu-header="{ search, filteredItems }">
+    <template #menu-header="{ search, filteredItems }">
       <div class="pa-2 border-b">
         <v-text-field
           v-model="search.value"

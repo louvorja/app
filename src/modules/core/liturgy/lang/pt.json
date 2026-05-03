@@ -1,0 +1,120 @@
+{
+  "title": "Liturgia",
+  "actions": {
+    "add": "Adicionar item",
+    "save": "Salvar",
+    "load": "Carregar",
+    "clear": "Limpar",
+    "start": "Iniciar culto",
+    "stop": "Parar",
+    "edit": "Editar",
+    "remove": "Excluir",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "drag": "Arrastar para reordenar",
+    "change_color": "Mudar cor",
+    "mark_done": "Marcar como concluído",
+    "open": "Abrir",
+    "choose_folder": "Escolher pasta",
+    "choose_file": "Escolher arquivo",
+    "scheduled_items": "Gerenciar itens agendados",
+    "scheduled_items_short": "Itens agendados",
+    "scheduled_manage": "Gerenciar",
+    "mark_all": "Marcar todos como concluídos",
+    "unmark_all": "Desmarcar todos",
+    "remove_done": "Excluir concluídos",
+    "toggle_lock": "Modo apresentação",
+    "toggle_notes": "Anotações por dia",
+    "prev_item": "Item anterior",
+    "next_item": "Próximo item"
+  },
+  "types": {
+    "anotacao": "Anotação",
+    "arquivo": "Arquivo/Diretório",
+    "categoria": "Categoria",
+    "itensagendados": "Itens Agendados",
+    "musica": "Música",
+    "site": "Site"
+  },
+  "inputs": {
+    "type": "Tipo",
+    "item_name": "Nome do Item",
+    "item_name_placeholder": "Ex.: Boas-vindas, Oração inicial, Oferta...",
+    "color": "Cor",
+    "annotation": "Texto da anotação",
+    "annotation_placeholder": "Anote aqui o que será dito ou lembrado...",
+    "url": "Endereço (URL)",
+    "file_path": "Arquivo ou Pasta",
+    "file_path_placeholder": "C:\\caminho\\para\\arquivo.ext",
+    "path_external": "Caminho externo",
+    "path_internal": "Caminho relativo ao programa",
+    "music_choose_later": "Escolher na hora do culto",
+    "music_select": "Música",
+    "music_pick": "-- selecione uma música --",
+    "scheduled_category": "Categoria do item agendado",
+    "scheduled_pick": "-- selecione uma categoria --",
+    "scheduled_empty": "Nenhuma categoria criada. Use o botão de configuração para criar.",
+    "category_hint": "Categorias servem como separadores visuais entre seções da liturgia.",
+    "duration_min": "Duração (min)"
+  },
+  "data": {
+    "empty": "Liturgia vazia",
+    "empty_hint": "Adicione músicas, anotações, sites, arquivos e categorias para montar seu culto.",
+    "total": "Tempo total estimado",
+    "drop_hint": "Solte para adicionar à liturgia",
+    "music_prefix": "Música"
+  },
+  "week": {
+    "label": "Semana",
+    "from": "de",
+    "to": "a"
+  },
+  "notes": {
+    "title": "Anotações",
+    "placeholder": "Anotações para este dia...",
+    "days": ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
+  },
+  "timer": {
+    "current_item": "Item em execução"
+  },
+  "placeholders": {
+    "untitled": "(Sem título)",
+    "category": "Nova Categoria",
+    "music_choose": "Clique para escolher a música"
+  },
+  "music": {
+    "play_lyric": "Reproduzir cantado",
+    "play_lyric_pb": "Reproduzir playback (instrumental)",
+    "show_lyric": "Mostrar letra",
+    "no_audio": "Slides sem áudio"
+  },
+  "schedules": {
+    "title": "Itens Agendados",
+    "categories": "Categorias",
+    "select_category": "Selecione uma categoria",
+    "select_category_hint": "Crie ou escolha uma categoria à esquerda para visualizar os itens agendados.",
+    "add_category": "Adicionar categoria",
+    "new_category": "Nome da nova categoria:",
+    "remove_category_confirm": "Excluir esta categoria e todos os seus itens agendados?",
+    "no_categories": "Nenhuma categoria criada.",
+    "add_item": "Adicionar item",
+    "no_items": "Nenhum item agendado para esta categoria.",
+    "date": "Data",
+    "item_name": "Nome",
+    "file": "Arquivo"
+  },
+  "dialog": {
+    "add_title": "Adicionar Item",
+    "edit_title": "Alterar Item",
+    "choose_type": "Escolha o tipo de item!",
+    "set_name": "Defina o nome do item!",
+    "choose_scheduled": "Escolha a categoria de itens agendados!",
+    "remove_confirm": "Deseja realmente excluir este item?",
+    "clear_confirm": "Deseja limpar toda a liturgia?",
+    "remove_done_confirm": "Excluir todos os itens marcados como concluídos hoje?",
+    "invalid_file": "Arquivo inválido. Não foi possível carregar a liturgia.",
+    "music_choose_first": "Escolha a música primeiro (clique no item).",
+    "scheduled_not_found": "Não há item agendado para esta data nesta categoria.",
+    "desktop_only": "Recurso disponível apenas na versão desktop."
+  }
+}
