@@ -31,49 +31,20 @@
     </div>
 
     <div class="d-flex flex-column flex-grow-1">
-      <div class="d-flex align-center justify-center py-1 flex-grow-1">
-        <v-btn
-          v-for="(button, key) in buttons"
-          v-show="button.show && (compact === false || (compact === true && !button.compact))"
-          :key="key"
-          v-shortkey="button.shortkey"
-          :disabled="media.loading || button.disabled"
-          :icon="button.icon"
-          :color="button.highlight ? 'white' : ''"
-          :variant="button.highlight ? 'flat' : 'text'"
-          class="ma-1"
-          size="small"
-          @click="button.click"
-          @shortkey="button.click"
-        />
-      </div>
-      <div v-if="media.config.audio" class="d-flex align-center justify-center py-1 px-3">
-        <div class="text-right text-caption">
-          {{ $datetime.shortTime(audio.currentTime) }}
-        </div>
-        <div class="flex-grow-1 px-2">
-          <v-progress-linear
-            v-model="audio.progress"
-            rounded
-            clickable
-            :indeterminate="media.loading"
-            :height="10"
-            :buffer-value="audio.buffered"
-            :color="audio.isPaused ? 'warning' : audio.volume <= 0 ? 'red' : 'info'"
-            @click="seekToProgress"
-          />
-        </div>
-        <div class="text-left text-caption">
-          {{ $datetime.shortTime(audio.duration) }}
-        </div>
-        <div
-          v-if="media.config.last_slide > 0"
-          class="text-caption text-medium-emphasis ml-2"
-          style="white-space: nowrap"
-        >
-          {{ media.config.slide_index + 1 }}/{{ media.config.last_slide }}
-        </div>
-      </div>
+      <PlayerControls :buttons="buttons" :compact="compact" :loading="media.loading" />
+      <PlayerProgress
+        v-if="media.config.audio"
+        :progress="audio.progress"
+        :current-time="audio.currentTime"
+        :duration="audio.duration"
+        :buffered="audio.buffered"
+        :loading="media.loading"
+        :is-paused="audio.isPaused"
+        :volume="audio.volume"
+        :slide-index="media.config.slide_index"
+        :last-slide="media.config.last_slide"
+        @seek="seekToProgress"
+      />
       <div
         v-if="!media.config.audio && location == 'footer'"
         class="d-flex align-center justify-center py-1 px-3"
@@ -170,7 +141,7 @@
 
           <v-list>
             <v-list-item
-              v-for="(button, key) in buttons.filter((item) => item.compact == true)"
+              v-for="(button, key) in compactButtons"
               :key="key"
               v-shortkey="button.shortkey"
               :disabled="media.loading || button.disabled"
@@ -229,19 +200,28 @@
 </template>
 
 <script>
+import { computed } from "vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
+import PlayerControls from "@/components/PlayerControls.vue";
+import PlayerProgress from "@/components/PlayerProgress.vue";
 import { usePlayerState } from "@/composables/usePlayerState";
 
 export default {
   name: "PlayerComponent",
   components: {
     LScreenBtn,
+    PlayerControls,
+    PlayerProgress,
   },
   props: {
     location: String,
   },
   setup() {
-    return { ...usePlayerState() };
+    const state = usePlayerState();
+    const compactButtons = computed(() =>
+      state.buttons.value.filter((item) => item.compact === true)
+    );
+    return { ...state, compactButtons };
   },
 };
 </script>
