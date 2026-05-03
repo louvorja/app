@@ -63,9 +63,9 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 015 | [Contratos tipados para BroadcastChannel](tasks/done/015-broadcast-contratos-tipados.md) | O | P1 | 3h | done | 15, 26 |
 | 025 | [Composable `useBroadcastListener` + cleanup automático](tasks/done/025-use-broadcast-listener.md) | O | P1 | 4h | done | 25, 26, 75 |
 | 023 | [Eliminar duplicação Projection/ProjectionReturn](tasks/done/023-eliminar-duplicacao-projection.md) | O | P1 | 6h | done | 23, 24, 27 |
-| 016 | [Quebrar `helpers/Media.js` em composables](tasks/016-quebrar-media-helper.md) | O | P0 | 12h | todo | 16, 76 |
-| 017 | [Refatorar `liturgy/Index.vue` (2331 linhas) em componentes+composables](tasks/017-refatorar-liturgy.md) | O | P0 | 16h | in-progress | 17, 18, 19, 20 |
-| 022 | [Refatorar `Player.vue` (453 linhas)](tasks/022-refatorar-player.md) | O | P1 | 8h | todo | 22 |
+| 016 | [Quebrar `helpers/Media.js` em composables](tasks/016-quebrar-media-helper.md) | O | P0 | 12h | done | 16, 76 |
+| 017 | [Refatorar `liturgy/Index.vue` (2331 linhas) em componentes+composables](tasks/017-refatorar-liturgy.md) | O | P0 | 16h | done | 17, 18, 19, 20 |
+| 022 | [Refatorar `Player.vue` (453 linhas)](tasks/022-refatorar-player.md) | O | P1 | 8h | done | 22 |
 | 005 | [Substituir `setData` genérico por mutations tipadas](tasks/005-substituir-setdata.md) | O | P1 | 8h | todo | 5, 6 |
 | 010 | [Unificar Hotkeys + Shortcuts + vue3-shortkey](tasks/010-unificar-hotkeys-shortcuts.md) | O | P1 | 6h | todo | 10 |
 | 009 | [Unificar Modules.js + ModuleManager.js](tasks/009-unificar-modules-manager.md) | O | P1 | 4h | todo | 9, 12 |
@@ -83,16 +83,16 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 001 | Padronizar Composition API + `<script setup>` em todo o projeto   | H      | P1  | 24h | todo   | 1           |
-| 002 | Migração para TypeScript (faseada: helpers → store → components)  | O      | P1  | 80h | todo   | 2, 7        |
-| 003 | Substituir Vuex por Pinia                                         | O      | P1  | 16h | todo   | 3           |
-| 004 | Unificar Storage→AppData→UserData numa camada tipada              | O      | P1  | 12h | todo   | 4, 6        |
-| 011 | Reorganizar fronteira helper/composable                           | O      | P2  | 12h | todo   | 11, 12      |
-| 012 | Substituir `globalProperties` por imports/composables             | H      | P2  | 8h  | todo   | 12          |
-| 088 | Setup Vitest + cobertura de helpers críticos                      | O      | P1  | 6h  | todo   | 88, 91, 92  |
-| 089 | Setup Playwright + smoke E2E (Operator → Projection)              | O      | P1  | 8h  | todo   | 89          |
-| 090 | Regressão visual (Percy/Chromatic) para Ribbon e Player           | O      | P2  | 6h  | todo   | 90          |
-| 093 | Validar Electron build em CI (matriz win/mac/linux)               | O      | P2  | 4h  | todo   | 93          |
+| 001 | [Padronizar Composition API + `<script setup>` em todo o projeto](tasks/001-composition-api-script-setup.md)   | H      | P1  | 24h | todo   | 1           |
+| 002 | [Migração para TypeScript (faseada: helpers → store → components)](tasks/002-migracao-typescript.md)  | O      | P1  | 80h | todo   | 2, 7        |
+| 003 | [Substituir Vuex por Pinia](tasks/003-substituir-vuex-pinia.md)                                         | O      | P1  | 16h | todo   | 3           |
+| 004 | [Unificar Storage→AppData→UserData numa camada tipada](tasks/004-unificar-storage-appdata-userdata.md)              | O      | P1  | 12h | todo   | 4, 6        |
+| 011 | [Reorganizar fronteira helper/composable](tasks/011-fronteira-helper-composable.md)                           | O      | P2  | 12h | todo   | 11, 12      |
+| 012 | [Substituir `globalProperties` por imports/composables](tasks/012-remover-globalproperties.md)             | H      | P2  | 8h  | todo   | 12          |
+| 088 | [Setup Vitest + cobertura de helpers críticos](tasks/088-setup-vitest.md)                      | O      | P1  | 6h  | todo   | 88, 91, 92  |
+| 089 | [Setup Playwright + smoke E2E (Operator → Projection)](tasks/089-setup-playwright.md)              | O      | P1  | 8h  | todo   | 89          |
+| 090 | [Regressão visual (Percy/Chromatic) para Ribbon e Player](tasks/090-regressao-visual-percy.md)           | O      | P2  | 6h  | todo   | 90          |
+| 093 | [Validar Electron build em CI (matriz win/mac/linux)](tasks/093-electron-ci.md)               | O      | P2  | 4h  | todo   | 93          |
 
 ---
 
@@ -100,14 +100,14 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 071 | TTL + versionamento em `Database.js` (cache sessionStorage)       | O      | P1  | 3h  | todo   | 71          |
-| 072 | CommandRegistry: lazy-load + paginação + cancel tokens            | O      | P2  | 4h  | todo   | 72          |
-| 073 | `Dev.write` env-gated em vez de state Vuex (no RAF loop)          | S      | P2  | 0.5h| todo   | 73          |
-| 074 | Substituir `setInterval(100ms)` em `Alert.js` por watcher         | S      | P2  | 1h  | todo   | 74          |
-| 077 | Tornar `Liturgy.migrate()` async no boot, com feedback            | S      | P2  | 1h  | todo   | 77          |
-| 078 | Memoization de `computed` que retornam novos arrays/objetos        | H      | P3  | 4h  | todo   | 78          |
-| 079 | Adicionar `loading="lazy"` em imagens                             | S      | P3  | 1h  | todo   | 79          |
-| 080 | Auditar e ajustar Service Worker (offline-first vs network-first) | O      | P2  | 3h  | todo   | 80          |
+| 071 | [TTL + versionamento em `Database.js` (cache sessionStorage)](tasks/071-database-cache-ttl.md)       | O      | P1  | 3h  | todo   | 71          |
+| 072 | [CommandRegistry: lazy-load + paginação + cancel tokens](tasks/072-command-registry-lazy.md)            | O      | P2  | 4h  | todo   | 72          |
+| 073 | [`Dev.write` env-gated em vez de state Vuex (no RAF loop)](tasks/073-dev-write-env-gated.md)          | S      | P2  | 0.5h| todo   | 73          |
+| 074 | [Substituir `setInterval(100ms)` em `Alert.js` por watcher](tasks/074-alert-watcher.md)         | S      | P2  | 1h  | todo   | 74          |
+| 077 | [Tornar `Liturgy.migrate()` async no boot, com feedback](tasks/077-liturgy-migrate-async.md)            | S      | P2  | 1h  | todo   | 77          |
+| 078 | [Memoization de `computed` que retornam novos arrays/objetos](tasks/078-memoization-computed.md)        | H      | P3  | 4h  | todo   | 78          |
+| 079 | [Adicionar `loading="lazy"` em imagens](tasks/079-loading-lazy-imagens.md)                             | S      | P3  | 1h  | todo   | 79          |
+| 080 | [Auditar e ajustar Service Worker (offline-first vs network-first)](tasks/080-service-worker-strategy.md) | O      | P2  | 3h  | todo   | 80          |
 
 ---
 
@@ -115,10 +115,10 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 081 | Sanitizar inputs em `Path.db()` e `Path.file()`                   | S      | P1  | 1h  | todo   | 81          |
-| 082 | Substituir `v-html` em CommandPalette (highlight via DOM)         | S      | P2  | 1h  | todo   | 82          |
-| 085 | Garantir `noopener,noreferrer` em popups                          | S      | P2  | 0.5h| todo   | 85          |
-| 086 | Configurar CSP / headers de segurança (PWA web)                   | O      | P2  | 3h  | todo   | 86          |
+| 081 | [Sanitizar inputs em `Path.db()` e `Path.file()`](tasks/081-sanitizar-path-inputs.md)                   | S      | P1  | 1h  | todo   | 81          |
+| 082 | [Substituir `v-html` em CommandPalette (highlight via DOM)](tasks/082-vhtml-command-palette.md)         | S      | P2  | 1h  | todo   | 82          |
+| 085 | [Garantir `noopener,noreferrer` em popups](tasks/085-noopener-noreferrer.md)                          | S      | P2  | 0.5h| todo   | 85          |
+| 086 | [Configurar CSP / headers de segurança (PWA web)](tasks/086-csp-headers.md)                   | O      | P2  | 3h  | todo   | 86          |
 | 087 | Confirmar que `basic-ftp` está no main process do Electron        | S      | P0  | 0.5h| done   | 87          |
 
 ---
@@ -127,18 +127,18 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 095 | Padronizar nomenclatura `interface/` vs `components/`             | S      | P3  | 2h  | todo   | 95          |
-| 096 | Padronizar capitalização de arquivos (Index.vue vs index.vue)     | S      | P3  | 1h  | todo   | 96          |
-| 097 | Padronizar imports relativos vs alias `@`                         | S      | P3  | 1h  | todo   | 97          |
-| 098 | Decidir: `modules/core/` permanece ou achata                      | S      | P3  | 0.5h| todo   | 98          |
-| 105 | Refatorar `state.js` (`module_group` pre-declarado)               | S      | P3  | 0.5h| todo   | 105         |
-| 106 | Limpar comentários de rationale antigos                           | S      | P3  | 0.5h| todo   | 106         |
-| 107 | Confirmar zero refs a TrayArea/Header/Apps/AppsRibbon/Menu/Main   | S      | P1  | 0.5h| todo   | 107         |
-| 108 | Criar `CONTRIBUTING.md` (fluxo de criação de módulo)              | O      | P2  | 2h  | todo   | 108         |
-| 109 | Criar `ARCHITECTURE.md` (camadas, composables vs helpers)         | O      | P2  | 4h  | todo   | 109         |
-| 110 | Atualizar README com onboarding humano                            | S      | P3  | 1h  | todo   | 110         |
-| 111 | Documentar BroadcastChannel schemas (depois de #015)              | S      | P2  | 1h  | todo   | 111         |
-| 112 | Documentar variáveis de ambiente Vite                             | S      | P2  | 0.5h| todo   | 112         |
+| 095 | [Padronizar nomenclatura `interface/` vs `components/`](tasks/095-interface-vs-components.md)             | S      | P3  | 2h  | todo   | 95          |
+| 096 | [Padronizar capitalização de arquivos (Index.vue vs index.vue)](tasks/096-capitalizacao-arquivos.md)     | S      | P3  | 1h  | todo   | 96          |
+| 097 | [Padronizar imports relativos vs alias `@`](tasks/097-imports-alias.md)                         | S      | P3  | 1h  | todo   | 97          |
+| 098 | [Decidir: `modules/core/` permanece ou achata](tasks/098-modules-core-flat.md)                      | S      | P3  | 0.5h| todo   | 98          |
+| 105 | [Refatorar `state.js` (`module_group` pre-declarado)](tasks/105-state-module-group.md)               | S      | P3  | 0.5h| todo   | 105         |
+| 106 | [Limpar comentários de rationale antigos](tasks/106-comentarios-rationale.md)                           | S      | P3  | 0.5h| todo   | 106         |
+| 107 | [Confirmar zero refs a TrayArea/Header/Apps/AppsRibbon/Menu/Main](tasks/107-confirmar-zero-refs-deletados.md)   | S      | P1  | 0.5h| todo   | 107         |
+| 108 | [Criar `CONTRIBUTING.md` (fluxo de criação de módulo)](tasks/108-contributing-md.md)              | O      | P2  | 2h  | todo   | 108         |
+| 109 | [Criar `ARCHITECTURE.md` (camadas, composables vs helpers)](tasks/109-architecture-md.md)         | O      | P2  | 4h  | todo   | 109         |
+| 110 | [Atualizar README com onboarding humano](tasks/110-readme-onboarding.md)                            | S      | P3  | 1h  | todo   | 110         |
+| 111 | [Documentar BroadcastChannel schemas (depois de #015)](tasks/111-broadcast-schemas-docs.md)              | S      | P2  | 1h  | todo   | 111         |
+| 112 | [Documentar variáveis de ambiente Vite](tasks/112-env-vars-docs.md)                             | S      | P2  | 0.5h| todo   | 112         |
 
 ---
 
@@ -146,10 +146,10 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 114 | `assertHydrated()` em `Storage.set/get` no Electron               | S      | P1  | 1h  | todo   | 114         |
-| 116 | Confirmar BroadcastChannel cross-window em Electron + alternativa | O      | P1  | 4h  | todo   | 116         |
-| 117 | Validar latência <50ms slide_change Operator→Projection           | O      | P2  | 4h  | todo   | 117         |
-| 118 | Resolver conflito globalShortcut vs Hotkeys in-window             | O      | P1  | 2h  | todo   | 118         |
+| 114 | [`assertHydrated()` em `Storage.set/get` no Electron](tasks/114-assert-hydrated.md)               | S      | P1  | 1h  | todo   | 114         |
+| 116 | [Confirmar BroadcastChannel cross-window em Electron + alternativa](tasks/116-broadcast-electron-cross-window.md) | O      | P1  | 4h  | todo   | 116         |
+| 117 | [Validar latência <50ms slide_change Operator→Projection](tasks/117-validar-latencia-slide-change.md)           | O      | P2  | 4h  | todo   | 117         |
+| 118 | [Resolver conflito globalShortcut vs Hotkeys in-window](tasks/118-globalshortcut-vs-hotkeys.md)             | O      | P1  | 2h  | todo   | 118         |
 
 ---
 
@@ -157,17 +157,17 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 121 | Helper para `scrollIntoView()` (3 usos em liturgy)                | S      | P3  | 0.5h| todo   | 121         |
-| 122 | `Media.open` cleanup completo em error path                       | S      | P2  | 1h  | todo   | 122         |
-| 123 | `Media._loadingId` race no XHR else branch                        | S      | P2  | 1h  | todo   | 123         |
-| 124 | Auditar duplicação MusicMenuTable vs DataTable                    | O      | P2  | 3h  | todo   | 124         |
-| 125 | Bible: 3 watchers consecutivos chamando mesma função              | S      | P2  | 0.5h| todo   | 125         |
-| 036 | Variantes de elevação/sombra como tokens                          | S      | P3  | 1h  | todo   | 36          |
-| 039 | Documentar design system (`DESIGN.md`)                            | O      | P2  | 4h  | todo   | 39          |
-| 048 | a11y: color/week/file inputs com descrição assistiva              | S      | P2  | 1h  | todo   | 48          |
-| 055 | Validar idioma `es` end-to-end                                    | S      | P3  | 2h  | todo   | 55          |
-| 059 | Travar versão Vue / decisão de upgrade                            | S      | P3  | 0.5h| todo   | 59          |
-| 065 | Remover `browserslist` se inutilizado pelo Vite                   | S      | P3  | 0.25h| todo  | 65          |
+| 121 | [Helper para `scrollIntoView()` (3 usos em liturgy)](tasks/121-helper-scroll-into-view.md)                | S      | P3  | 0.5h| todo   | 121         |
+| 122 | [`Media.open` cleanup completo em error path](tasks/122-media-open-cleanup.md)                       | S      | P2  | 1h  | todo   | 122         |
+| 123 | [`Media._loadingId` race no XHR else branch](tasks/123-media-loading-id-race.md)                        | S      | P2  | 1h  | todo   | 123         |
+| 124 | [Auditar duplicação MusicMenuTable vs DataTable](tasks/124-music-menu-vs-datatable.md)                    | O      | P2  | 3h  | todo   | 124         |
+| 125 | [Bible: 3 watchers consecutivos chamando mesma função](tasks/125-bible-watchers-redundantes.md)              | S      | P2  | 0.5h| todo   | 125         |
+| 036 | [Variantes de elevação/sombra como tokens](tasks/036-tokens-elevacao.md)                          | S      | P3  | 1h  | todo   | 36          |
+| 039 | [Documentar design system (`DESIGN.md`)](tasks/039-design-md.md)                            | O      | P2  | 4h  | todo   | 39          |
+| 048 | [a11y: color/week/file inputs com descrição assistiva](tasks/048-a11y-color-week-file.md)              | S      | P2  | 1h  | todo   | 48          |
+| 055 | [Validar idioma `es` end-to-end](tasks/055-validar-es-end-to-end.md)                                    | S      | P3  | 2h  | todo   | 55          |
+| 059 | [Travar versão Vue / decisão de upgrade](tasks/059-travar-vue-versao.md)                            | S      | P3  | 0.5h| todo   | 59          |
+| 065 | [Remover `browserslist` se inutilizado pelo Vite](tasks/065-remover-browserslist.md)                   | S      | P3  | 0.25h| todo  | 65          |
 
 ---
 
