@@ -259,6 +259,16 @@ $storage.hydrate().then(async () => {
       label: "Ctrl+Shift+F2",
     });
 
+    // Ctrl+Alt+D: alterna o modo desenvolvedor
+    Hotkeys.register("Ctrl+Alt+d", () => {
+      Dev.toggle();
+    }, {
+      context: "global",
+      description: "hotkeys.ctrl_alt_d",
+      group: "system",
+      label: "Ctrl+Alt+D",
+    });
+
     // --- Navegação de slides (contexto: media ativa) ---
 
     const _ifMedia = (fn) => () => { if (_mediaIsActive()) fn(); };
