@@ -169,7 +169,12 @@ liturgy/
     - `.liturgy-list-area--locked .lit-card` substituído por `.lit-card--locked` no próprio componente.
     - Import `manifest` não usado removido de `Index.vue`.
     - Index.vue: 1661 → 1302 linhas (−359 linhas).
-  - 017d: _pendente_ (LiturgyItemForm + LiturgyImportExport)
+  - 017d: ✅ `LiturgyItemForm.vue` e `LiturgyImportExport.vue` extraídos:
+    - `LiturgyItemForm.vue` (254 linhas template + CSS): recebe `form` como prop read-only + `setFormField(field, value)` como function prop para todas as mutações; `@change`/`@input` em vez de `v-model` evita `vue/no-mutating-props`.
+    - `LiturgyImportExport.vue` (82 linhas): wrapper dos 2 botões save/load + `<input type="file">` oculto; emite `save` e `file-load(event)`; `loadFile()` e `$refs.fileInput` removidos do Index.vue.
+    - `useLiturgyItems.js`: adicionado `setFormField(field, value)` exposto e passado como prop ao form.
+    - CSS de dialog/form movido para LiturgyItemForm.vue; Index.vue retém apenas `.lit-input`, `.lit-hint` (usados no diálogo de agendados ainda em Index.vue).
+    - Index.vue: 1302 → 960 linhas (−342 linhas).
   - 017e: _pendente_ (LiturgyList + cleanup Index.vue < 200 linhas)
 - **Surpresas:**
   - `$userdata.set/get` usa Vuex via `$appdata`, tornando `$liturgy.list()` reativo — sem necessidade de `onSuccess` callback em `onFileLoad`.

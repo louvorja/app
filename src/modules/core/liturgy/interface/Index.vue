@@ -103,12 +103,7 @@
         <v-icon icon="mdi-calendar-multiselect" size="16" />
         <span class="lit-btn-label">{{ t("actions.scheduled_items_short") }}</span>
       </button>
-      <button class="lit-btn lit-btn--ghost" :title="t('actions.save')" @click="saveFile">
-        <v-icon icon="mdi-content-save-outline" size="16" />
-      </button>
-      <button class="lit-btn lit-btn--ghost" :title="t('actions.load')" @click="loadFile">
-        <v-icon icon="mdi-folder-open-outline" size="16" />
-      </button>
+      <LiturgyImportExport @save="saveFile" @file-load="onFileLoad" />
       <button class="lit-btn lit-btn--ghost" :title="t('actions.clear')" @click="confirmClear">
         <v-icon icon="mdi-delete-sweep-outline" size="16" />
       </button>
@@ -215,222 +210,25 @@
     <!-- ============================================================== -->
     <!-- DIALOG: Adicionar/Editar Item -->
     <!-- ============================================================== -->
-    <v-dialog v-model="dialog" max-width="640" persistent>
-      <v-card class="lit-dialog">
-        <div class="lit-dialog-title">
-          <v-icon :icon="editIndex >= 0 ? 'mdi-pencil' : 'mdi-plus'" size="18" />
-          <span>{{ editIndex >= 0 ? t("dialog.edit_title") : t("dialog.add_title") }}</span>
-          <v-spacer />
-          <button class="lit-card-action" @click="dialog = false">
-            <v-icon icon="mdi-close" size="14" />
-          </button>
-        </div>
-
-        <div class="lit-dialog-header">
-          <div class="lit-field">
-            <label>{{ t("inputs.type") }}</label>
-            <select v-model="form.tipo" class="lit-select" @change="onTypeChange">
-              <option value="anotacao">{{ t("types.anotacao") }}</option>
-              <option value="arquivo">{{ t("types.arquivo") }}</option>
-              <option value="categoria">{{ t("types.categoria") }}</option>
-              <option value="itensagendados">{{ t("types.itensagendados") }}</option>
-              <option value="musica">{{ t("types.musica") }}</option>
-              <option value="site">{{ t("types.site") }}</option>
-            </select>
-          </div>
-
-          <div v-if="form.tipo !== 'itensagendados'" class="lit-field lit-field--grow">
-            <label>{{ t("inputs.item_name") }}</label>
-            <input
-              v-model="form.item"
-              type="text"
-              class="lit-input"
-              :placeholder="t('inputs.item_name_placeholder')"
-            />
-          </div>
-
-          <div class="lit-field">
-            <label>{{ t("inputs.duration_min") }}</label>
-            <input
-              v-model.number="form.duration"
-              type="number"
-              min="0"
-              class="lit-input lit-input--small"
-            />
-          </div>
-
-          <div class="lit-field lit-field--color">
-            <label>{{ t("inputs.color") }}</label>
-            <div class="lit-color-picker">
-              <input v-model="form.cor" type="color" class="lit-color-input" />
-              <div class="lit-color-presets">
-                <span
-                  v-for="c in colors"
-                  :key="c"
-                  class="lit-color-preset"
-                  :class="{ 'is-active': form.cor?.toLowerCase() === c.toLowerCase() }"
-                  :style="{ background: c }"
-                  @click="form.cor = c"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Painel ANOTAÇÃO -->
-        <div v-if="form.tipo === 'anotacao'" class="lit-panel">
-          <div class="lit-panel-title">{{ t("types.anotacao") }}</div>
-          <div class="lit-field">
-            <label>{{ t("inputs.annotation") }}</label>
-            <textarea
-              v-model="form.subitem"
-              rows="4"
-              class="lit-input"
-              :placeholder="t('inputs.annotation_placeholder')"
-            />
-          </div>
-        </div>
-
-        <!-- Painel SITE -->
-        <div v-if="form.tipo === 'site'" class="lit-panel">
-          <div class="lit-panel-title">{{ t("types.site") }}</div>
-          <div class="lit-field">
-            <label>{{ t("inputs.url") }}</label>
-            <div class="lit-input-row">
-              <input
-                v-model="form.url"
-                type="text"
-                class="lit-input"
-                placeholder="https://"
-                @blur="form.url = $liturgy.validateUrl(form.url)"
-              />
-              <button class="lit-btn lit-btn--ghost" :title="t('actions.open')" @click="openSite">
-                <v-icon icon="mdi-open-in-new" size="14" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Painel ARQUIVO -->
-        <div v-if="form.tipo === 'arquivo'" class="lit-panel">
-          <div class="lit-panel-title">{{ t("types.arquivo") }}</div>
-          <div class="lit-field">
-            <label>{{ t("inputs.file_path") }}</label>
-            <div class="lit-input-row">
-              <input
-                v-model="form.dir"
-                type="text"
-                class="lit-input"
-                :placeholder="t('inputs.file_path_placeholder')"
-              />
-              <button
-                class="lit-btn lit-btn--ghost"
-                :title="t('actions.choose_folder')"
-                @click="chooseFolder"
-              >
-                <v-icon icon="mdi-folder-outline" size="14" />
-              </button>
-              <button
-                class="lit-btn lit-btn--ghost"
-                :title="t('actions.choose_file')"
-                @click="chooseFile"
-              >
-                <v-icon icon="mdi-file-outline" size="14" />
-              </button>
-            </div>
-          </div>
-          <div class="lit-field-row">
-            <label class="lit-radio">
-              <input v-model="form.dir_info" type="radio" value="E" />
-              {{ t("inputs.path_external") }}
-            </label>
-            <label class="lit-radio">
-              <input v-model="form.dir_info" type="radio" value="I" />
-              {{ t("inputs.path_internal") }}
-            </label>
-          </div>
-        </div>
-
-        <!-- Painel MÚSICA -->
-        <div v-if="form.tipo === 'musica'" class="lit-panel">
-          <div class="lit-panel-title">{{ t("types.musica") }}</div>
-          <label class="lit-radio">
-            <input type="radio" :checked="form.escolha === '1'" @change="setMusicChoice(true)" />
-            {{ t("inputs.music_choose_later") }}
-          </label>
-          <div v-if="form.escolha !== '1'" class="lit-field mt-2">
-            <label>{{ t("inputs.music_select") }}</label>
-            <div class="lit-input-row">
-              <select
-                v-model.number="form.musica"
-                class="lit-select lit-select--full"
-                @change="onMusicChange"
-              >
-                <option value="-1">{{ t("inputs.music_pick") }}</option>
-                <option v-for="m in musicsList" :key="m.id_music" :value="m.id_music">
-                  {{ m.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Painel ITENS AGENDADOS -->
-        <div v-if="form.tipo === 'itensagendados'" class="lit-panel">
-          <div class="lit-panel-title">{{ t("types.itensagendados") }}</div>
-          <div class="lit-field">
-            <label>{{ t("inputs.scheduled_category") }}</label>
-            <div class="lit-input-row">
-              <select
-                v-model="form.id"
-                class="lit-select lit-select--full"
-                @change="onScheduledCategoryChange"
-              >
-                <option value="">{{ t("inputs.scheduled_pick") }}</option>
-                <option v-for="c in scheduledCategories" :key="c.id" :value="c.id">
-                  {{ c.nome }}
-                </option>
-              </select>
-              <button
-                class="lit-btn lit-btn--ghost"
-                :title="t('actions.scheduled_manage')"
-                @click="openSchedulesDialog"
-              >
-                <v-icon icon="mdi-cog-outline" size="14" />
-              </button>
-            </div>
-          </div>
-          <div v-if="scheduledCategories.length === 0" class="lit-hint">
-            {{ t("inputs.scheduled_empty") }}
-          </div>
-        </div>
-
-        <!-- CATEGORIA -->
-        <div v-if="form.tipo === 'categoria'" class="lit-panel">
-          <div class="lit-panel-title">{{ t("types.categoria") }}</div>
-          <div class="lit-hint">{{ t("inputs.category_hint") }}</div>
-        </div>
-
-        <div class="lit-dialog-footer">
-          <button
-            v-if="editIndex >= 0"
-            class="lit-btn lit-btn--danger"
-            @click="confirmRemove(editIndex, true)"
-          >
-            <v-icon icon="mdi-delete" size="14" />
-            <span>{{ t("actions.remove") }}</span>
-          </button>
-          <v-spacer />
-          <button class="lit-btn lit-btn--ghost" @click="dialog = false">
-            {{ t("actions.cancel") }}
-          </button>
-          <button class="lit-btn lit-btn--primary" @click="saveItem">
-            <v-icon :icon="editIndex >= 0 ? 'mdi-content-save' : 'mdi-plus'" size="14" />
-            <span>{{ editIndex >= 0 ? t("actions.save") : t("actions.add") }}</span>
-          </button>
-        </div>
-      </v-card>
-    </v-dialog>
+    <LiturgyItemForm
+      v-model:model-value="dialog"
+      :edit-index="editIndex"
+      :form="form"
+      :colors="colors"
+      :musics-list="musicsList"
+      :scheduled-categories="scheduledCategories"
+      :set-form-field="setFormField"
+      :on-type-change="onTypeChange"
+      :on-music-change="onMusicChange"
+      :on-scheduled-category-change="onScheduledCategoryChange"
+      :set-music-choice="setMusicChoice"
+      :save-item="saveItem"
+      :confirm-remove="confirmRemove"
+      :open-site="openSite"
+      :choose-folder="chooseFolder"
+      :choose-file="chooseFile"
+      :open-schedules-dialog="openSchedulesDialog"
+    />
 
     <!-- ============================================================== -->
     <!-- DIALOG: Itens Agendados -->
@@ -572,15 +370,6 @@
         </div>
       </v-card>
     </v-dialog>
-
-    <!-- Hidden file input para load -->
-    <input
-      ref="fileInput"
-      type="file"
-      accept=".json,.ja"
-      style="display: none"
-      @change="onFileLoad"
-    />
   </div>
 </template>
 
@@ -594,12 +383,14 @@ import { useLiturgyItems, COLORS, DEFAULT_COLOR } from "../composables/useLiturg
 import { useLiturgyTimer } from "../composables/useLiturgyTimer";
 import LiturgyTimer from "./LiturgyTimer.vue";
 import LiturgyItem from "./LiturgyItem.vue";
+import LiturgyItemForm from "./LiturgyItemForm.vue";
+import LiturgyImportExport from "./LiturgyImportExport.vue";
 
 const TRANSLATIONS = { pt, es };
 
 export default {
   name: "LiturgyModule",
-  components: { draggable, LiturgyTimer, LiturgyItem },
+  components: { draggable, LiturgyTimer, LiturgyItem, LiturgyItemForm, LiturgyImportExport },
   setup() {
     const persist = useLiturgyPersistence();
     const litItems = useLiturgyItems(persist.activeWeek, persist.scheduledCategories);
@@ -668,6 +459,7 @@ export default {
       openSite: litItems.openSite,
       chooseFolder: litItems.chooseFolder,
       chooseFile: litItems.chooseFile,
+      setFormField: litItems.setFormField,
       onDragOver: litItems.onDragOver,
       onDrop: litItems.onDrop,
 
@@ -725,9 +517,6 @@ export default {
     closeModule() {
       this._timer.stopTimer();
       this.$modules.close("liturgy");
-    },
-    loadFile() {
-      this.$refs.fileInput.click();
     },
     onDragLeave(e) {
       if (!this.$el.contains(e.relatedTarget)) {
@@ -1048,77 +837,8 @@ export default {
   background: rgba(220, 38, 38, 0.08);
 }
 
-/* ====================== Dialog ====================== */
-.lit-dialog {
-  background: var(--lj-surface-bg);
-  color: var(--lj-text);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.lit-dialog-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.1));
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  font-weight: 500;
-}
-.lit-dialog-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 12px 14px;
-  background: rgba(var(--lj-on-surface-ch), 0.02);
-  border-bottom: 1px solid rgba(var(--v-border-color), 0.2);
-}
-.lit-dialog-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-top: 1px solid rgba(var(--v-border-color), 0.2);
-  background: rgba(var(--lj-on-surface-ch), 0.02);
-}
-.lit-panel {
-  padding: 12px 14px 14px;
-  border-bottom: 1px solid rgba(var(--v-border-color), 0.2);
-}
-.lit-panel-title {
-  font-weight: 500;
-  font-size: 12px;
-  color: rgba(var(--lj-on-surface-ch), 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
-}
-
-.lit-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex-shrink: 1;
-}
-.lit-field--grow {
-  flex: 1;
-  min-width: 200px;
-}
-.lit-field--color {
-  flex-shrink: 0;
-}
-.lit-field-row {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  margin-top: 8px;
-}
-.lit-field label {
-  font-size: 11px;
-  color: rgba(var(--lj-on-surface-ch), 0.7);
-  font-weight: 500;
-}
-.lit-input,
-.lit-select {
+/* ─── Shared input styles (used in schedules dialog below) ─── */
+.lit-input {
   height: 30px;
   padding: 0 8px;
   border: 1px solid rgba(var(--v-border-color), 0.5);
@@ -1130,37 +850,9 @@ export default {
   width: 100%;
   outline: none;
 }
-.lit-input--small {
-  width: 70px;
-}
-.lit-input:focus,
-.lit-select:focus {
+.lit-input:focus {
   border-color: var(--lj-navy);
   box-shadow: 0 0 0 2px rgba(var(--lj-navy-ch), 0.15);
-}
-textarea.lit-input {
-  height: auto;
-  padding: 6px 8px;
-  resize: vertical;
-}
-.lit-input-row {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-.lit-input-row .lit-input {
-  flex: 1;
-}
-.lit-select--full {
-  width: 100%;
-}
-
-.lit-radio {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 12px;
 }
 .lit-hint {
   font-size: 11px;
@@ -1168,41 +860,8 @@ textarea.lit-input {
   padding: 4px 0;
 }
 
-.lit-color-picker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.lit-color-input {
-  width: 40px;
-  height: 30px;
-  border: 1px solid rgba(var(--v-border-color), 0.5);
-  border-radius: 3px;
-  cursor: pointer;
-  padding: 0;
-  background: transparent;
-}
-.lit-color-presets {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 3px;
-}
-.lit-color-preset {
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  cursor: pointer;
-  border: 1.5px solid rgba(var(--v-border-color), 0.3);
-}
-.lit-color-preset:hover {
-  transform: scale(1.15);
-}
-.lit-color-preset.is-active {
-  border-color: white;
-  box-shadow: 0 0 0 2px var(--lj-navy);
-}
-
-/* ====================== Schedules dialog ====================== */
+/* ====================== Dialog: Itens Agendados ====================== */
+/* (LiturgyItemForm dialog CSS lives in LiturgyItemForm.vue) */
 .lit-schedules {
   display: flex;
   min-height: 400px;
@@ -1290,9 +949,6 @@ textarea.lit-input {
   font-size: 12px;
 }
 
-.mt-2 {
-  margin-top: 8px;
-}
 .mt-4 {
   margin-top: 16px;
 }

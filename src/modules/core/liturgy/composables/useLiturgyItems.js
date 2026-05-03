@@ -438,6 +438,10 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
     }
   }
 
+  function setFormField(field, value) {
+    form.value[field] = value;
+  }
+
   return {
     dialog,
     editIndex,
@@ -477,5 +481,6 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
     onDragLeave,
     onDrop,
     loadMusicsList,
+    setFormField,
   };
 }
