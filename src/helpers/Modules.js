@@ -2,12 +2,17 @@ import $dev from "@/helpers/Dev";
 import $appdata from "@/helpers/AppData";
 
 /**
- * Modules — orquestra abertura/fechamento de módulos.
+ * Modules — runtime de módulos (open / close / query).
+ *
+ * Responsabilidade: controlar visibilidade e estado de módulos já instalados.
+ * Opera sobre `$appdata.modules.<id>`, populado pelo ModuleManager no boot.
+ *
+ * NÃO instala nem registra módulos — isso é ModuleManager.js.
  *
  * Comportamento (replica PageControl Delphi):
  * - Abrir um módulo embedded fecha automaticamente os outros embedded.
  * - Módulos popup (album, lyric, media) coexistem com embedded.
- * - O Modules.vue só monta os módulos que estão visíveis (show=true ou minimized=true).
+ * - O Modules.vue só monta os módulos com show=true ou minimized=true.
  */
 
 export default {
