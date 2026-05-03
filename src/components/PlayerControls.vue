@@ -4,7 +4,6 @@
       v-for="(button, key) in buttons"
       v-show="button.show && (compact === false || (compact === true && !button.compact))"
       :key="key"
-      v-shortkey="button.shortkey"
       :disabled="loading || button.disabled"
       :icon="button.icon"
       :color="button.highlight ? 'white' : ''"
@@ -12,7 +11,6 @@
       class="ma-1"
       size="small"
       @click="button.click"
-      @shortkey="button.click"
     />
   </div>
 </template>

@@ -4,8 +4,8 @@
  * Recebe ações despachadas pelo main process via globalShortcut e as
  * traduz para operações nos helpers do app — substitui o FormKeyUp do Delphi.
  *
- * Diferença de vue3-shortkey (já usado):
- * - vue3-shortkey: atalhos in-window (só quando uma janela do app está em foco)
+ * Diferença de Hotkeys.js (atalhos in-window):
+ * - Hotkeys.js:    atalhos in-window (só quando a janela do app está em foco)
  * - Shortcuts.js:  recebe globalShortcut system-wide (app pode estar em background)
  *
  * No browser/PWA, init() e destroy() são no-op.
@@ -21,7 +21,7 @@ let _unlisten = null;
 /**
  * Roteia ações de atalho para os helpers apropriados.
  * Pode ser chamado tanto pelo listener de IPC (D6) quanto diretamente
- * por componentes que queiram reutilizar o roteamento (e.g. vue3-shortkey).
+ * por componentes que queiram reutilizar o roteamento.
  *
  * @param {string} action   Ex: "slide:next", "audio:toggle"
  * @param {object} [payload]

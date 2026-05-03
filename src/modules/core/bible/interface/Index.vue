@@ -191,32 +191,26 @@
             <v-spacer />
             <v-divider vertical />
             <v-btn
-              v-shortkey="['arrowleft']"
               :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
               variant="text"
               size="small"
-              icon="mdi-chevron-left "
+              icon="mdi-chevron-left"
               @click="prevVerse()"
-              @shortkey="prevVerse()"
             />
             <v-btn
-              v-shortkey="['arrowright']"
               :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
               variant="text"
               size="small"
-              icon="mdi-chevron-right "
+              icon="mdi-chevron-right"
               @click="nextVerse()"
-              @shortkey="nextVerse()"
             />
             <v-divider vertical />
             <v-btn
-              v-shortkey="['del']"
               :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
               variant="text"
               size="small"
               icon="mdi-eraser"
               @click="clean()"
-              @shortkey="clean()"
             />
             <v-divider vertical />
             <LScreenBtn module="bible" />
@@ -235,6 +229,7 @@ import Screen from "../components/Screen.vue";
 import LSelect from "@/components/inputs/LjSelect.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
 import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
+import Hotkeys from "@/helpers/Hotkeys";
 
 export default {
   name: "CollectionsModule",
@@ -385,7 +380,39 @@ export default {
     },
   },
   async mounted() {
+    this._hotkeyPrev = () => {
+      if (this.select_bible?.verses?.length > 0) this.prevVerse();
+    };
+    this._hotkeyNext = () => {
+      if (this.select_bible?.verses?.length > 0) this.nextVerse();
+    };
+    this._hotkeyClean = () => {
+      if (this.select_bible?.verses?.length > 0) this.clean();
+    };
+    Hotkeys.register("ArrowLeft", this._hotkeyPrev, {
+      context: "bible",
+      description: "hotkeys.bible_prev_verse",
+      group: "bible",
+      label: "←",
+    });
+    Hotkeys.register("ArrowRight", this._hotkeyNext, {
+      context: "bible",
+      description: "hotkeys.bible_next_verse",
+      group: "bible",
+      label: "→",
+    });
+    Hotkeys.register("Delete", this._hotkeyClean, {
+      context: "bible",
+      description: "hotkeys.bible_clear",
+      group: "bible",
+      label: "Del",
+    });
     await this.loadData();
+  },
+  unmounted() {
+    Hotkeys.unregister("ArrowLeft", this._hotkeyPrev);
+    Hotkeys.unregister("ArrowRight", this._hotkeyNext);
+    Hotkeys.unregister("Delete", this._hotkeyClean);
   },
   methods: {
     /* METHODS OBRIGATÓRIOS - INÍCIO */

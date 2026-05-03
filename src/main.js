@@ -5,7 +5,6 @@ import vuetify from "./plugins/vuetify";
 import store from "./store";
 import { loadFonts } from "./plugins/webfontloader";
 import { createI18nInstance } from "./i18n";
-import shortkey from "vue3-shortkey";
 import VueFullscreen from "vue-fullscreen";
 import "./assets/styles/tokens.css";
 import "./assets/styles/utilities.css";
@@ -65,7 +64,6 @@ Object.assign(app.config.globalProperties, {
 app.use(router);
 app.use(vuetify);
 app.use(store);
-app.use(shortkey, { prevent: ["input", "textarea"] });
 app.use(VueFullscreen);
 
 // ---------------------------------------------------------------------------

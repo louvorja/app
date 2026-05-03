@@ -326,6 +326,7 @@
       "navigation": "Navegação de slides",
       "media": "Player",
       "liturgy": "Liturgia",
+      "bible": "Bíblia",
       "system": "Sistema"
     },
     "esc": "Fechar módulo ativo",
@@ -350,6 +351,9 @@
     "ctrl_shift_f2": "Limpar cache e recarregar dados",
     "ctrl_alt_d": "Alternar modo desenvolvedor",
     "prev_slide": "Slide anterior",
-    "next_slide": "Próximo slide"
+    "next_slide": "Próximo slide",
+    "bible_prev_verse": "Versículo anterior",
+    "bible_next_verse": "Próximo versículo",
+    "bible_clear": "Limpar versículo selecionado"
   }
 }

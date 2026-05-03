@@ -40,9 +40,6 @@ export function usePlayerState() {
     return String(item.lyric).replace(/<br>/gi, " / ").toUpperCase();
   });
 
-  // Atalhos centralizados em Hotkeys.js (Space, Home, End, Ctrl+↑/↓/PageUp/PageDown).
-  // ArrowLeft/ArrowRight permanecem locais — não estão no Hotkeys.js para não conflitar
-  // com a navegação de listas.
   const buttons = computed(() => {
     const cfg = media.value?.config ?? {};
     const lastSlide = cfg.last_slide ?? 0;
@@ -72,7 +69,6 @@ export function usePlayerState() {
         highlight: false,
         icon: "mdi-chevron-left",
         click: () => prev(),
-        shortkey: ["arrowleft"],
       },
       {
         show: hasAudio,
@@ -89,7 +85,6 @@ export function usePlayerState() {
         highlight: false,
         icon: "mdi-chevron-right",
         click: () => next(),
-        shortkey: ["arrowright"],
       },
       {
         show: true,

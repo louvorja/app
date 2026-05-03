@@ -82,10 +82,8 @@
         <v-list-item
           v-for="(button, key) in compactButtons"
           :key="key"
-          v-shortkey="button.shortkey"
           :disabled="loading || button.disabled"
           @click="button.click"
-          @shortkey="button.click"
         >
           <v-icon :icon="button.icon" />
         </v-list-item>
