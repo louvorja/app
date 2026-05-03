@@ -29,7 +29,7 @@ import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
 import DateTime from "@/helpers/DateTime";
 import Path from "@/helpers/Path";
-import Media from "@/helpers/Media";
+import Media from "@/composables/useMedia";
 import Alert from "@/helpers/Alert";
 import Popup from "@/helpers/Popup";
 import Database from "@/helpers/Database";
@@ -49,7 +49,7 @@ Object.assign(app.config.globalProperties, {
   $string: Strings,
   $datetime: DateTime,
   $path: Path,
-  $media: Media,
+
   $alert: Alert,
   $popup: Popup,
   $database: Database,

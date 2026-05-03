@@ -1,6 +1,6 @@
 import { ref, computed, getCurrentInstance } from "vue";
 import $liturgy from "@/helpers/Liturgy";
-import $media from "@/helpers/Media";
+import $media from "@/composables/useMedia";
 import $database from "@/helpers/Database";
 import $alert from "@/helpers/Alert";
 import pt from "../lang/pt.json";
