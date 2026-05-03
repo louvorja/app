@@ -41,9 +41,6 @@ import Shortcuts from "@/helpers/Shortcuts";
 import Hotkeys from "@/helpers/Hotkeys";
 import { useShell } from "@/composables/useShell";
 
-// Registra helpers como globalProperties (shared via prototype chain)
-// Equivalente ao mixin.beforeCreate mas sem duplicar propriedades por instância.
-// Todos os componentes continuam acessando via this.$xxx normalmente.
 Object.assign(app.config.globalProperties, {
   $userdata: UserData,
   $appdata: AppData,

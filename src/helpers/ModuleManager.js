@@ -47,33 +47,12 @@ export default {
       const category = manifest.category;
       if (category) {
         const moduleGroups = $appdata.get("module_group") || {};
-        // Create category if not exists
-        /*if (!moduleGroups[category]) {
-        moduleGroups[category] = {
-          title: `module_group.${category}.title`,
-          modules: [],
-        };
-      }*/
-
-        // Add module to category if not already present
         if (!moduleGroups[category].modules.includes(manifest.id)) {
           moduleGroups[category].modules.push(manifest.id);
         }
 
         // Save updated module groups
         $appdata.set("module_group", moduleGroups);
-      }
-
-      // Add to main menu
-      const showInMainMenu = manifest.showInMainMenu;
-      if (showInMainMenu) {
-        const moduleMainMenu = $appdata.get("menu") || {};
-        // Add module to main menu if not already present
-        if (!moduleMainMenu.modules.includes(manifest.id)) {
-          moduleMainMenu.modules.push(manifest.id);
-        }
-        // Save updated module groups
-        $appdata.set("menu", moduleMainMenu);
       }
 
       // Auto-load translations
@@ -113,63 +92,37 @@ export default {
     }
   },
 
-  // Remote module installation method
-  async installRemoteModule(moduleId) {
-    try {
-      // Fetch module manifest from remote module store
-      const manifest = await this.fetchModuleManifest(moduleId);
-
-      // Download module module dynamically
-      const ModuleClass = await this.downloadModuleModule(manifest);
-
-      // Create module instance
-      const moduleInstance = new ModuleClass();
-
-      // Register and install module
-      if (this.register(moduleId, moduleInstance)) {
-        await this.installModule(moduleInstance);
-        return moduleInstance;
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Remote module installation failed:", error);
-      throw error;
-    }
-  },
-
   async init(i18n) {
     this.i18n = i18n;
 
-    const modules = import.meta.glob("@/modules/**/index.js", {
-      eager: true,
-    });
+    // eager: false → cada index.js é carregado sob demanda via Promise,
+    // reduzindo o trabalho síncrono no boot (o chunk JS só é avaliado quando
+    // a factory é chamada, não quando o glob é criado).
+    const modules = import.meta.glob("@/modules/**/index.js");
 
     for (const path in modules) {
-      const ModuleClass = modules[path].default;
-      if (typeof ModuleClass === "function") {
-        const module = new ModuleClass();
-        const parts = path.split("/");
-        if (module?.manifest?.id != parts[parts.length - 2]) {
-          $alert.error({
-            text: "messages.misconfigured_module",
-            error: path,
-          });
-        } else {
-          await this.installModule(module);
+      try {
+        const moduleFactory = modules[path];
+        const moduleExports = await moduleFactory();
+        const ModuleClass = moduleExports.default;
+        if (typeof ModuleClass === "function") {
+          const module = new ModuleClass();
+          const parts = path.split("/");
+          if (module?.manifest?.id != parts[parts.length - 2]) {
+            $alert.error({
+              text: "messages.misconfigured_module",
+              error: path,
+            });
+          } else {
+            await this.installModule(module);
+          }
         }
+      } catch (e) {
+        console.warn(`[ModuleManager] Falha ao carregar módulo ${path}:`, e);
       }
     }
 
     //Importa as interfaces dos modules
     $appdata.set("import_modules", true);
-
-    // Optional: Remote module installation
-    try {
-      // Uncomment and modify as needed
-      // await ModuleManager.installRemoteModule('some-module-id');
-    } catch (error) {
-      console.error("Failed to install remote module", error);
-    }
   },
 };
