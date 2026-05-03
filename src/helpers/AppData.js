@@ -48,8 +48,17 @@ export default {
     store.commit("removeElementArray", [param, value]);
   },
 
-  toogle(param) {
+  toggle(param) {
     this.set(param, !this.get(param));
+  },
+
+  /** @deprecated Use `toggle` (correct spelling). Will be removed in a future release. */
+  toogle(param) {
+    if (import.meta.env.DEV && !this._toogleWarned) {
+      console.warn("[AppData] toogle() is deprecated; use toggle() instead.");
+      this._toogleWarned = true;
+    }
+    return this.toggle(param);
   },
 
   exists(param) {

@@ -22,7 +22,7 @@ export default {
     handleKeydown() {
       console.log("click ");
       //if (event.shiftKey && event.key === "A") {
-      this.$dev.toogle();
+      this.$dev.toggle();
       //}
     },
   },
