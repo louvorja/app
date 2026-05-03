@@ -102,7 +102,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
 | 071 | [TTL + versionamento em `Database.js` (cache sessionStorage)](tasks/071-database-cache-ttl.md)       | O      | P1  | 3h  | todo   | 71          |
 | 072 | [CommandRegistry: lazy-load + paginação + cancel tokens](tasks/072-command-registry-lazy.md)            | O      | P2  | 4h  | todo   | 72          |
-| 073 | [`Dev.write` env-gated em vez de state Vuex (no RAF loop)](tasks/073-dev-write-env-gated.md)          | S      | P2  | 0.5h| todo   | 73          |
+| 073 | [`Dev.write` env-gated em vez de state Vuex (no RAF loop)](tasks/073-dev-write-env-gated.md)          | S      | P2  | 0.5h| done   | 73          |
 | 074 | [Substituir `setInterval(100ms)` em `Alert.js` por watcher](tasks/074-alert-watcher.md)         | S      | P2  | 1h  | todo   | 74          |
 | 077 | [Tornar `Liturgy.migrate()` async no boot, com feedback](tasks/077-liturgy-migrate-async.md)            | S      | P2  | 1h  | todo   | 77          |
 | 078 | [Memoization de `computed` que retornam novos arrays/objetos](tasks/078-memoization-computed.md)        | H      | P3  | 4h  | todo   | 78          |

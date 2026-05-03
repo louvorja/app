@@ -3,6 +3,7 @@ import $alert from "@/helpers/Alert";
 
 export default {
   write() {
+    if (!import.meta.env.DEV) return;
     if (this.debug()) {
       console.log(...Array.from(arguments), " << ");
     }
