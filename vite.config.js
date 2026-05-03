@@ -2,22 +2,39 @@ import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
 import { VitePWA } from "vite-plugin-pwa";
-
-const path = require("path");
+import path from "path";
 
 // https://vitejs.dev/config/
-export default ({ mode }) => {
+export default async ({ mode }) => {
+  const { visualizer } = await import("rollup-plugin-visualizer");
   // Load app-level env vars to node-level env vars.
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
-  return defineConfig({
-    base: process.env.VITE_BASE_URL ?? "/",
-    plugins: [
-      vue(),
-      // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
-      vuetify({
-        autoImport: true,
-      }),
+  // Detectar target: "desktop" (Electron) ou "web" (padrão PWA)
+  const isDesktop = process.env.VITE_TARGET === "desktop";
+
+  // Plugins base — sempre incluídos
+  const plugins = [
+    vue(),
+    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
+    vuetify({
+      autoImport: true,
+    }),
+  ];
+
+  // Bundle visualizer — gera dist/stats.html a cada build
+  plugins.push(
+    visualizer({
+      filename: "dist/stats.html",
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    })
+  );
+
+  // VitePWA só para target web — no Electron o protocolo file:// não suporta Service Workers
+  if (!isDesktop) {
+    plugins.push(
       VitePWA({
         registerType: "autoUpdate", // Registra o Service Worker para atualizar automaticamente
         devOptions: {
@@ -46,27 +63,33 @@ export default ({ mode }) => {
               type: "image/png",
             },
             {
-              src:
-                (process.env.VITE_BASE_URL ?? "/") + "ico/favicon-144x144.png",
+              src: (process.env.VITE_BASE_URL ?? "/") + "ico/favicon-144x144.png",
               sizes: "144x144",
               type: "image/png",
             },
             {
-              src:
-                (process.env.VITE_BASE_URL ?? "/") + "ico/favicon-152x152.png",
+              src: (process.env.VITE_BASE_URL ?? "/") + "ico/favicon-152x152.png",
               sizes: "152x152",
               type: "image/png",
             },
             {
-              src:
-                (process.env.VITE_BASE_URL ?? "/") + "ico/favicon-180x180.png",
+              src: (process.env.VITE_BASE_URL ?? "/") + "ico/favicon-180x180.png",
               sizes: "180x180",
               type: "image/png",
             },
           ],
         },
-      }),
-    ],
+      })
+    );
+  }
+
+  return defineConfig({
+    // No Electron, base deve ser "./" para que assets relativos funcionem via file://
+    // No web/PWA, usa VITE_BASE_URL ou "/" como padrão
+    base: isDesktop ? "./" : (process.env.VITE_BASE_URL ?? "/"),
+
+    plugins,
+
     define: {
       "process.env": {},
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: "true",
@@ -74,6 +97,26 @@ export default ({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
+      },
+    },
+    build: {
+      rollupOptions: {
+        // jszip é uma dependência opcional (necessária apenas para loadSlja).
+        // Marcada como external para não falhar o build quando não está instalada.
+        // Instalar com: npm install jszip
+        external: ["jszip"],
+        output: {
+          manualChunks: {
+            // Framework core — raramente muda, longa vida no cache do browser
+            "vendor-vue": ["vue", "vue-router", "vuex"],
+            // i18n — muda só com novas traduções
+            "vendor-i18n": ["vue-i18n"],
+            // Busca full-text
+            "vendor-fuse": ["fuse.js"],
+            // Vuetify NÃO entra aqui — vite-plugin-vuetify faz tree-shaking
+            // automático dos componentes; forçar um chunk único quebraria isso.
+          },
+        },
       },
     },
     server: {
