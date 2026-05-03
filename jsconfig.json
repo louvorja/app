@@ -5,15 +5,15 @@
     "baseUrl": "./",
     "moduleResolution": "node",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"],
+      "@helpers/*": ["src/helpers/*"],
+      "@components/*": ["src/components/*"],
+      "@modules/*": ["src/modules/*"],
+      "@layout/*": ["src/layout/*"],
+      "@views/*": ["src/views/*"],
+      "@store/*": ["src/store/*"],
+      "@lang/*": ["src/lang/*"]
     },
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   }
 }
