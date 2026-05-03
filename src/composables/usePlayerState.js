@@ -201,8 +201,8 @@ export function usePlayerState() {
   function toggleVolume() {
     Media.toogleVolume();
   }
-  function setVolume() {
-    Media.setVolume(audio.volume.value);
+  function setVolume(value) {
+    Media.setVolume(value ?? audio.volume.value);
   }
   function seekToProgress() {
     const time = (audio.duration.value * audio.progress.value) / 100;
