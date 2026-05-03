@@ -60,7 +60,7 @@
             :height="10"
             :buffer-value="audio.buffered"
             :color="audio.isPaused ? 'warning' : audio.volume <= 0 ? 'red' : 'info'"
-            @click="changeProgress"
+            @click="seekToProgress"
           />
         </div>
         <div class="text-left text-caption">
@@ -97,18 +97,18 @@
           </template>
 
           <v-list>
-            <template v-for="(mode, key) in menu_modes" :key="key">
-              <v-divider v-if="mode.title == '-'" />
+            <template v-for="(item, key) in menu_modes" :key="key">
+              <v-divider v-if="item.title == '-'" />
               <v-list-item
                 v-else
-                :active="mode.active"
-                :disabled="mode.disabled"
-                @click="mode.click"
+                :active="item.active"
+                :disabled="item.disabled"
+                @click="item.click"
               >
                 <template #prepend>
-                  <v-icon :icon="mode.icon"></v-icon>
+                  <v-icon :icon="item.icon"></v-icon>
                 </template>
-                {{ mode.title }}
+                {{ item.title }}
               </v-list-item>
             </template>
           </v-list>
@@ -126,7 +126,7 @@
               v-for="(item, index) in slides"
               :key="index"
               :active="media.config.slide_index == index"
-              @click="$media.goToSlide(index)"
+              @click="goToSlide(index)"
             >
               <template #prepend>
                 <v-chip size="small" class="mr-2">{{ index + 1 }}</v-chip>
@@ -181,15 +181,15 @@
             </v-list-item>
 
             <v-divider v-if="$vuetify.display.width <= 350" />
-            <template v-for="(mode, key) in menu_modes" :key="key">
-              <v-divider v-if="mode.title == '-' && $vuetify.display.width <= 350" />
+            <template v-for="(item, key) in menu_modes" :key="key">
+              <v-divider v-if="item.title == '-' && $vuetify.display.width <= 350" />
               <v-list-item
                 v-else-if="$vuetify.display.width <= 350"
-                :active="mode.active"
-                :disabled="mode.disabled"
-                @click="mode.click"
+                :active="item.active"
+                :disabled="item.disabled"
+                @click="item.click"
               >
-                <v-icon :icon="mode.icon" />
+                <v-icon :icon="item.icon" />
               </v-list-item>
             </template>
           </v-list>
@@ -210,7 +210,7 @@
             :icon="volume_icon"
             size="x-small"
             variant="text"
-            @click="toogleVolume"
+            @click="toggleVolume"
           />
         </div>
         <div class="flex-grow-1 px-2" style="min-width: 100px">
@@ -220,7 +220,7 @@
             clickable
             :height="10"
             color="white"
-            @click="changeVolume"
+            @click="setVolume"
           />
         </div>
       </div>
@@ -230,7 +230,7 @@
 
 <script>
 import LScreenBtn from "@/components/buttons/Screen.vue";
-import { useAudioPlayback } from "@/composables/useAudioPlayback";
+import { usePlayerState } from "@/composables/usePlayerState";
 
 export default {
   name: "PlayerComponent",
@@ -241,217 +241,7 @@ export default {
     location: String,
   },
   setup() {
-    return { audio: useAudioPlayback() };
-  },
-  computed: {
-    media() {
-      return this.$modules.get("media");
-    },
-    slides() {
-      return this.$media.slides();
-    },
-    has_instrumental_music() {
-      return this.media.data.url_instrumental_music ? true : false;
-    },
-    buttons() {
-      return [
-        // Atalhos centralizados em Hotkeys.js (Space, Home, End, Ctrl+↑/↓/PageUp/PageDown).
-        // Aqui só o clique no botão. ArrowLeft/ArrowRight simples permanecem locais
-        // (não estão no Hotkeys.js para não conflitar com a navegação de listas).
-        {
-          show: this.media.config.audio,
-          compact: true,
-          disabled: false,
-          highlight: false,
-          icon: "mdi-rewind-10",
-          click: () => this.rewind(),
-        },
-        {
-          show: true,
-          compact: true,
-          disabled: this.media.config.slide_index <= 0,
-          highlight: false,
-          icon: "mdi-page-first",
-          click: () => this.first(),
-        },
-        {
-          show: true,
-          compact: false,
-          disabled: this.media.config.slide_index <= 0,
-          highlight: false,
-          icon: "mdi-chevron-left",
-          click: () => this.prev(),
-          shortkey: ["arrowleft"],
-        },
-        {
-          show: this.media.config.audio,
-          compact: false,
-          disabled: this.audio.isFading,
-          highlight: true,
-          icon: this.audio.isPaused ? "mdi-play" : "mdi-pause",
-          click: () => this.play(),
-        },
-        {
-          show: true,
-          compact: false,
-          disabled: this.media.config.slide_index >= this.media.config.last_slide - 1,
-          highlight: false,
-          icon: "mdi-chevron-right",
-          click: () => this.next(),
-          shortkey: ["arrowright"],
-        },
-        {
-          show: true,
-          compact: true,
-          disabled: this.media.config.slide_index >= this.media.config.last_slide - 1,
-          highlight: false,
-          icon: "mdi-page-last",
-          click: () => this.last(),
-        },
-        {
-          show: this.media.config.audio,
-          compact: true,
-          disabled: false,
-          highlight: false,
-          icon: "mdi-fast-forward-10",
-          click: () => this.forward(),
-        },
-      ];
-    },
-    menu_modes() {
-      return [
-        {
-          mode: "audio",
-          title: this.$t("modules.media.general.sung"),
-          color: "info",
-          active: this.media.config.mode == "audio",
-          icon: "mdi-play-box-multiple",
-          tray_icon: "mdi-account-voice",
-          click: () =>
-            this.open({
-              id_music: this.media.id_music,
-              mode: "audio",
-              minimized: this.media.minimized,
-            }),
-        },
-        {
-          mode: "instrumental",
-          title: this.$t("modules.media.general.instrumental"),
-          color: "success",
-          active: this.media.config.mode == "instrumental",
-          disabled: !this.has_instrumental_music,
-          icon: "mdi-play-box-multiple-outline",
-          tray_icon: "mdi-music-note",
-          click: () =>
-            this.open({
-              id_music: this.media.id_music,
-              mode: "instrumental",
-              minimized: this.media.minimized,
-            }),
-        },
-        {
-          mode: "no_audio",
-          title: this.$t("modules.media.general.no_audio"),
-          color: "error",
-          active: this.media.config.mode == "no_audio",
-          icon: "mdi-checkbox-multiple-blank-outline",
-          tray_icon: "mdi-music-off",
-          click: () =>
-            this.open({
-              id_music: this.media.id_music,
-              minimized: this.media.minimized,
-            }),
-        },
-        { title: "-" },
-        {
-          title: this.$t("modules.media.general.lyric"),
-          color: "error",
-          icon: "mdi-text-box-outline",
-          click: () => this.openLyric(),
-        },
-      ];
-    },
-    mode() {
-      return this.menu_modes.filter((item) => item.mode == this.media.config.mode)[0];
-    },
-    volume_icon: function () {
-      switch (true) {
-        case this.audio.volume <= 0:
-          return "mdi-volume-mute";
-        case this.audio.volume <= 20:
-          return "mdi-volume-low";
-        case this.audio.volume <= 70:
-          return "mdi-volume-medium";
-        default:
-          return "mdi-volume-high";
-      }
-    },
-    slide_text: function () {
-      if (!this.slides[this.media.config.slide_index]) return "";
-      if (!this.slides[this.media.config.slide_index].lyric) return "";
-
-      let text = this.slides[this.media.config.slide_index].lyric;
-      text = text.replace(/<br>/gi, " / ").toUpperCase();
-      return text;
-    },
-    is_mobile: function () {
-      return this.$appdata.get("is_mobile");
-    },
-    compact: function () {
-      return this.$vuetify.display.width <= 500;
-    },
-  },
-  methods: {
-    play() {
-      if (this.audio.isPaused) {
-        this.$media.play();
-      } else {
-        this.$media.pause();
-      }
-    },
-    rewind: function () {
-      this.$media.advanceTime(-10);
-    },
-    first() {
-      this.$media.firstSlide();
-    },
-    prev() {
-      this.$media.prevSlide();
-    },
-    next() {
-      this.$media.nextSlide();
-    },
-    last() {
-      this.$media.lastSlide();
-    },
-    forward: function () {
-      this.$media.advanceTime(+10);
-    },
-    open: function (data) {
-      this.$media.open(data);
-    },
-    openLyric: function () {
-      this.$media.openLyric();
-    },
-    maximize: function () {
-      this.$media.maximize();
-    },
-    close: function () {
-      this.$media.close();
-    },
-    changeProgress() {
-      const time = (this.audio.duration * this.audio.progress) / 100;
-      this.$media.goToTime(time);
-    },
-    fullscreen(value = true) {
-      this.$media.fullscreen(value);
-    },
-    toogleVolume() {
-      this.$media.toogleVolume();
-    },
-    changeVolume() {
-      this.$media.setVolume(this.audio.volume);
-    },
+    return { ...usePlayerState() };
   },
 };
 </script>
