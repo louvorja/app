@@ -15,7 +15,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | ID  | Task                                                       | Modelo | Pri | Est | Status | Cobre items |
 |-----|------------------------------------------------------------|--------|-----|-----|--------|-------------|
 | 007 | [Renomear `helpers/String.js` → `Strings.js`](tasks/007-rename-string-helper.md) | S | P0 | 1h | done | 7 |
-| 008 | [Corrigir typo `toogle` → `toggle` (alias deprecated)](tasks/008-fix-toogle-typo.md) | S | P1 | 1h | ready | 8 |
+| 008 | [Corrigir typo `toogle` → `toggle` (alias deprecated)](tasks/008-fix-toogle-typo.md) | S | P1 | 1h | done | 8 |
 | 099 | [Remover helpers vazios (Window.js, Theme.js)](tasks/099-remover-helpers-vazios.md) | S | P2 | 0.5h | ready | 99, 100 |
 | 102 | [Remover debug em App.vue (Ctrl+Alt+D + console)](tasks/102-remover-debug-app.md) | S | P0 | 0.5h | ready | 102 |
 | 104 | [Remover blocos comentados ModuleManager/main](tasks/104-cleanup-dead-comments.md) | S | P2 | 0.5h | ready | 104, 106 |
