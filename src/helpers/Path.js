@@ -1,5 +1,7 @@
 import Platform from "@/helpers/Platform";
 
+const DB_KEY_RE = /^[a-zA-Z0-9_-]+$/;
+
 export default {
   /**
    * Constrói a URL para um arquivo do banco de dados JSON.
@@ -12,12 +14,14 @@ export default {
    * @returns {string}
    */
   db(path) {
-    if (Platform.isDesktop) {
-      const p = path.startsWith("/") ? path : "/" + path;
-      return "louvorja://json_db" + p;
+    const key = path.startsWith("/") ? path.slice(1) : path;
+    if (!DB_KEY_RE.test(key)) {
+      throw new Error(`Path.db: chave inválida "${key}"`);
     }
-    const url = import.meta.env.VITE_URL_DATABASE;
-    return url + path;
+    if (Platform.isDesktop) {
+      return "louvorja://json_db/" + key;
+    }
+    return import.meta.env.VITE_URL_DATABASE + "/" + key;
   },
 
   /**
@@ -31,11 +35,13 @@ export default {
    * @returns {string}
    */
   file(path) {
+    if (path.includes("..") || /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//i.test(path)) {
+      throw new Error(`Path.file: caminho inválido "${path}"`);
+    }
     if (Platform.isDesktop) {
       const p = path.startsWith("/") ? path : "/" + path;
       return "louvorja://files" + p;
     }
-    const url = import.meta.env.VITE_URL_FILES;
-    return url + path;
+    return import.meta.env.VITE_URL_FILES + path;
   },
 };
