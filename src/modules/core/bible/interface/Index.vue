@@ -365,15 +365,6 @@ export default {
         await this.loadData();
       }
     },
-    async "bible.id_bible_book"() {
-      await this.selBook();
-    },
-    async "bible.chapter"() {
-      await this.selChapter();
-    },
-    async "bible.id_bible_version"() {
-      await this.selVersion();
-    },
     select_bible() {
       this.send("scriptural_reference", this.select_bible.scriptural_reference);
       this.send("text", this.select_bible.text);

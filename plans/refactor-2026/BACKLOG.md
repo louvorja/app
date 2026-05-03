@@ -161,7 +161,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 122 | [`Media.open` cleanup completo em error path](tasks/122-media-open-cleanup.md)                       | S      | P2  | 1h  | todo   | 122         |
 | 123 | [`Media._loadingId` race no XHR else branch](tasks/123-media-loading-id-race.md)                        | S      | P2  | 1h  | todo   | 123         |
 | 124 | [Auditar duplicação MusicMenuTable vs DataTable](tasks/124-music-menu-vs-datatable.md)                    | O      | P2  | 3h  | todo   | 124         |
-| 125 | [Bible: 3 watchers consecutivos chamando mesma função](tasks/125-bible-watchers-redundantes.md)              | S      | P2  | 0.5h| todo   | 125         |
+| 125 | [Bible: 3 watchers consecutivos chamando mesma função](tasks/125-bible-watchers-redundantes.md)              | S      | P2  | 0.5h| done   | 125         |
 | 036 | [Variantes de elevação/sombra como tokens](tasks/036-tokens-elevacao.md)                          | S      | P3  | 1h  | todo   | 36          |
 | 039 | [Documentar design system (`DESIGN.md`)](tasks/039-design-md.md)                            | O      | P2  | 4h  | todo   | 39          |
 | 048 | [a11y: color/week/file inputs com descrição assistiva](tasks/048-a11y-color-week-file.md)              | S      | P2  | 1h  | todo   | 48          |
