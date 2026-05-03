@@ -28,7 +28,6 @@ import Strings from "@/helpers/Strings";
 import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
 import DateTime from "@/helpers/DateTime";
-import Theme from "@/helpers/Theme";
 import Path from "@/helpers/Path";
 import Media from "@/helpers/Media";
 import Alert from "@/helpers/Alert";
@@ -52,7 +51,6 @@ Object.assign(app.config.globalProperties, {
   $dev: Dev,
   $string: Strings,
   $datetime: DateTime,
-  $theme: Theme,
   $path: Path,
   $media: Media,
   $alert: Alert,
