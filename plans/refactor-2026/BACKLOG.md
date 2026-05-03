@@ -74,7 +74,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 040 | [Cobertura ARIA shell (RibbonBar, OpenModulesTabs, AppMenu)](tasks/done/040-cobertura-aria-shell.md) | S | P1 | 3h | done | 40, 41, 42, 50 |
 | 044 | [`alt` em imagens + `aria-label` em inputs](tasks/done/044-alt-imagens-aria-inputs.md) | S | P1 | 2h | done | 44, 45, 49 |
 | 046 | [Fix `Operator.vue` tabindex=0 sem role](tasks/done/046-operator-tabindex.md) | S | P2 | 0.25h | done | 46 |
-| 045 | [Adicionar focus-trap em todos os modais](tasks/045-focus-trap-modais.md) | O | P1 | 4h | todo | 43, 47 |
+| 045 | [Adicionar focus-trap em todos os modais](tasks/045-focus-trap-modais.md) | O | P1 | 4h | done | 43, 47 |
 | 051 | [Adicionar `vue-axe` em dev mode](tasks/done/051-vue-axe-dev.md) | S | P2 | 1h | done | 51 |
 
 ---

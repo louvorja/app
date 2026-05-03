@@ -4,6 +4,7 @@
     max-width="780"
     persistent
     @update:model-value="$emit('update:modelValue', $event)"
+    @keydown.escape="$emit('update:modelValue', false)"
   >
     <v-card class="lit-dialog">
       <div class="lit-dialog-title">
