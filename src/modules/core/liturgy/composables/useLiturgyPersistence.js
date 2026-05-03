@@ -115,9 +115,22 @@ export function useLiturgyPersistence() {
     editingCatName.value = c.nome;
   }
 
-  function saveCategoryName(id) {
-    if (editingCatName.value.trim()) {
-      $liturgy.updateScheduledCategory(id, { nome: editingCatName.value.trim() });
+  function setActiveCatId(id) {
+    activeCatId.value = id;
+  }
+
+  function setNoteDayIndex(i) {
+    noteDayIndex.value = i;
+  }
+
+  function toggleNotes() {
+    showNotes.value = !showNotes.value;
+  }
+
+  function saveCategoryName(id, name) {
+    const trimmed = (name ?? editingCatName.value).trim();
+    if (trimmed) {
+      $liturgy.updateScheduledCategory(id, { nome: trimmed });
       _refreshScheduled();
     }
     editingCatId.value = null;
@@ -192,6 +205,9 @@ export function useLiturgyPersistence() {
     categoryItems,
     noteDays,
     currentNote,
+    setActiveCatId,
+    setNoteDayIndex,
+    toggleNotes,
     onWeekChange,
     changeWeek,
     toggleLock,

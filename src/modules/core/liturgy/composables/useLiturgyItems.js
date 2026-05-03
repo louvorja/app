@@ -442,6 +442,14 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
     form.value[field] = value;
   }
 
+  function toggleMenuOpen() {
+    menuOpen.value = !menuOpen.value;
+  }
+
+  function closeMenu() {
+    menuOpen.value = false;
+  }
+
   return {
     dialog,
     editIndex,
@@ -482,5 +490,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
     onDrop,
     loadMusicsList,
     setFormField,
+    toggleMenuOpen,
+    closeMenu,
   };
 }
