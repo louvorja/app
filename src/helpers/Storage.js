@@ -39,6 +39,14 @@ let _desktopHydrated = false;
 /** Promise da hidratação (singleton — evita múltiplas hidratações paralelas) */
 let _hydrationPromise = null;
 
+function assertHydrated(op) {
+  if (Platform.isDesktop && !_desktopHydrated) {
+    throw new Error(
+      `[Storage] ${op}() chamado antes de Storage.hydrate() — aguarde a hidratação antes de montar o app.`
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Migração de localStorage → userStore
 // ---------------------------------------------------------------------------
@@ -164,6 +172,7 @@ export default {
 
     // Desktop: cache em memória + escrita assíncrona no userStore
     if (Platform.isDesktop) {
+      assertHydrated("set");
       _desktopCache[item] = data;
       Platform.userStore
         .write(item, data)
@@ -205,6 +214,7 @@ export default {
 
     // Desktop: lê do cache em memória (populado pela hidratação)
     if (Platform.isDesktop) {
+      assertHydrated("get");
       const value = _desktopCache[item];
       if (value === undefined || value === null) return ifnull;
       return value;
