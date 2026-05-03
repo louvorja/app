@@ -1,14 +1,51 @@
 import store from "@/store";
 
+// Caminhos de primeiro nível que mapeiam 1:1 para uma mutation nomeada.
+const _SCALAR_MUTATIONS = {
+  loading: "SET_LOADING",
+  is_dark: "SET_IS_DARK",
+  is_dev: "SET_IS_DEV",
+  is_popup: "SET_IS_POPUP",
+  is_mobile: "SET_IS_MOBILE",
+  is_desktop: "SET_IS_DESKTOP",
+  is_online: "SET_IS_ONLINE",
+  import_modules: "SET_IMPORT_MODULES",
+  popup: "SET_POPUP",
+  popup_module: "SET_POPUP_MODULE",
+  module_group: "SET_MODULE_GROUP",
+};
+
 export default {
   set(param, value) {
-    store.commit("setData", [param, value]);
+    const parts = param.split(".");
+    const root = parts[0];
 
+    if (_SCALAR_MUTATIONS[root] && parts.length === 1) {
+      // Scalar top-level flag — mutation nomeada direta.
+      store.commit(_SCALAR_MUTATIONS[root], value);
+    } else if (root === "alert") {
+      // alert.<key> = value
+      store.commit("PATCH_ALERT", { key: parts[1], value });
+    } else if (root === "modules" && parts.length >= 2) {
+      // modules.<id>[.<path>] = value
+      const id = parts[1];
+      const path = parts.slice(2).join(".");
+      store.commit("SET_MODULE_PATH", { id, path, value });
+    } else if (root === "user_data" && parts.length >= 2) {
+      // user_data.<path> = value
+      const path = parts.slice(1).join(".");
+      store.commit("SET_USER_DATA_PATH", { path, value });
+    } else {
+      // Fallback deprecated — caminhos desconhecidos ou compostos (ex: Popup.vue
+      // recebe event.data.param dinamicamente e pode ser qualquer coisa).
+      store.commit("setData", [param, value]);
+    }
+
+    // Sincroniza popup quando appdata muda (mantém estado entre janelas).
     const popup = this.get("popup");
     if (popup && param != "popup" && param != "is_popup" && param != "is_fullscreen") {
       if (popup.closed) {
         this.set("popup", null);
-        //this.set("popup_module", null);
       } else {
         try {
           popup.postMessage({ param, value }, window.location.origin);
