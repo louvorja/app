@@ -167,7 +167,7 @@ function staticCommands(t) {
             fullscreen: true,
           });
         } else {
-          window.open("/projection", "_blank");
+          window.open("/projection", "_blank", "noopener,noreferrer");
         }
       },
     },
@@ -185,7 +185,7 @@ function staticCommands(t) {
             fullscreen: false,
           });
         } else {
-          window.open("/operator", "_blank");
+          window.open("/operator", "_blank", "noopener,noreferrer");
         }
       },
     },

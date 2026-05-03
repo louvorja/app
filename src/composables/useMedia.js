@@ -319,7 +319,7 @@ const _self = {
     }
 
     const url = mode == "instrumental" ? data.url_instrumental_music : data.url_music;
-    window.open($path.file(url), "_blank");
+    window.open($path.file(url), "_blank", "noopener,noreferrer");
 
     $appdata.set("loading", false);
   },
