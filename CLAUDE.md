@@ -368,13 +368,17 @@ FASE 7 (atualização)           ← independente
 ## Comandos
 
 ```bash
-npm run dev          # Servidor de desenvolvimento (web/PWA)
-npm run host         # Dev com acesso na rede local
+npm run dev          # Servidor de desenvolvimento web/PWA → http://localhost:5002
+npm run host         # Dev exposto na rede local (http://<ip>:5002) — útil para testes mobile
 npm run build        # Build de produção (web/PWA)
 npm run files        # Servidor de arquivos local (node/server.js)
 npm run electron:dev   # Desenvolvimento desktop (Electron + Vite) — após D0
 npm run electron:build # Build .exe instalável — após D0
 ```
+
+> **Porta 5002**: deliberada. O Electron usa `http://localhost:5002` como `DEV_URL` em
+> `electron/main.cjs`. Alterar a porta exige atualizar `vite.config.js`, `electron/main.cjs`
+> e o script `electron:dev` no `package.json` em sincronia.
 
 ---
 

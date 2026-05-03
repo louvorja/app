@@ -49,7 +49,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 061 | `jszip` external → import dinâmico em `SljaConverter.js` | S | P1 | 1h | done | 61 |
 | 062 | [manualChunks no Vite + bundle visualizer](tasks/062-manualchunks-bundle-visualizer.md) | S | P2 | 2h | done | 62, 63 |
 | 064 | [Adicionar aliases Vite (`@helpers`, `@modules`, `@components`)](tasks/064-aliases-vite.md) | S | P3 | 0.5h | done | 64 |
-| 069 | [Documentar/corrigir porta dev (5002 vs 5173)](tasks/069-corrigir-porta-dev.md) | S | P2 | 0.5h | todo | 69 |
+| 069 | [Documentar/corrigir porta dev (5002 vs 5173)](tasks/069-corrigir-porta-dev.md) | S | P2 | 0.5h | done | 69 |
 | 070 | [Decidir destino de `npm run files`: documentar ou remover](tasks/070-destino-npm-run-files.md) | S | P3 | 0.5h | todo | 70 |
 | 113 | [Criar `.env.example` documentando VITE_*](tasks/113-env-example.md) | S | P2 | 0.5h | todo | 113 |
 | 014 | [JSON schema para `manifest.json` + validação na build](tasks/014-manifest-json-schema.md) | O | P2 | 3h | todo | 13, 14 |
