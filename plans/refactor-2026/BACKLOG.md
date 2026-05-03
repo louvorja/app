@@ -14,16 +14,16 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                       | Modelo | Pri | Est | Status | Cobre items |
 |-----|------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 007 | [Renomear `helpers/String.js` → `Strings.js`](tasks/007-rename-string-helper.md) | S | P0 | 1h | done | 7 |
-| 008 | [Corrigir typo `toogle` → `toggle` (alias deprecated)](tasks/008-fix-toogle-typo.md) | S | P1 | 1h | done | 8 |
-| 099 | [Remover helpers vazios (Window.js, Theme.js)](tasks/099-remover-helpers-vazios.md) | S | P2 | 0.5h | done | 99, 100 |
-| 102 | [Remover debug em App.vue (Ctrl+Alt+D + console)](tasks/102-remover-debug-app.md) | S | P0 | 0.5h | done | 102 |
-| 104 | [Remover blocos comentados ModuleManager/main](tasks/104-cleanup-dead-comments.md) | S | P2 | 0.5h | done | 104, 106 |
-| 115 | [`console.log` em Storage.js → env-gated](tasks/115-storage-logs.md) | S | P1 | 0.5h | ready | 115 |
-| 119 | [Bug: `parseInt(num)` sem radix](tasks/119-bible-parseint-radix.md) | S | P2 | 0.25h | ready | 119 |
-| 120 | [Bug: `Math.max` sem proteção](tasks/120-bible-math-max-empty.md) | S | P2 | 0.25h | ready | 120 |
-| 103 | [Limpar refs legacy a `hymnal_1996`](tasks/103-cleanup-hymnal-1996.md) | S | P2 | 1h | ready | 103 |
-| 084 | [Remover token API hardcoded fallback](tasks/084-remove-token-fallback.md) | S | P1 | 0.5h | ready | 84 |
+| 007 | [Renomear `helpers/String.js` → `Strings.js`](tasks/done/007-rename-string-helper.md) | S | P0 | 1h | done | 7 |
+| 008 | [Corrigir typo `toogle` → `toggle` (alias deprecated)](tasks/done/008-fix-toogle-typo.md) | S | P1 | 1h | done | 8 |
+| 099 | [Remover helpers vazios (Window.js, Theme.js)](tasks/done/099-remover-helpers-vazios.md) | S | P2 | 0.5h | done | 99, 100 |
+| 102 | [Remover debug em App.vue (Ctrl+Alt+D + console)](tasks/done/102-remover-debug-app.md) | S | P0 | 0.5h | done | 102 |
+| 104 | [Remover blocos comentados ModuleManager/main](tasks/done/104-cleanup-dead-comments.md) | S | P2 | 0.5h | done | 104, 106 |
+| 115 | [`console.log` em Storage.js → env-gated](tasks/done/115-storage-logs.md) | S | P1 | 0.5h | done | 115 |
+| 119 | [Bug: `parseInt(num)` sem radix](tasks/done/119-bible-parseint-radix.md) | S | P2 | 0.25h | done | 119 |
+| 120 | [Bug: `Math.max` sem proteção](tasks/done/120-bible-math-max-empty.md) | S | P2 | 0.25h | done | 120 |
+| 103 | [Limpar refs legacy a `hymnal_1996`](tasks/done/103-cleanup-hymnal-1996.md) | S | P2 | 1h | done | 103 |
+| 084 | [Remover token API hardcoded fallback](tasks/done/084-remove-token-fallback.md) | S | P1 | 0.5h | done | 84 |
 
 ---
 
@@ -31,28 +31,28 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                                | Modelo | Pri | Est | Status | Cobre items     |
 |-----|---------------------------------------------------------------------|--------|-----|-----|--------|-----------------|
-| 028 | Aplicar tokens CSS — varredura e substituição de hex hardcoded      | S      | P1  | 4h  | todo   | 28, 35, 38      |
-| 029 | Eliminar `!important` de RibbonBar (resolver especificidade)        | S      | P2  | 1h  | todo   | 29              |
-| 030 | Eliminar `:global(.v-theme--dark)` em scoped — usar tokens          | S      | P2  | 2h  | todo   | 30              |
-| 031 | Reduzir `rgb(var(--v-theme-primary))` em favor de tokens LJ         | S      | P3  | 1h  | todo   | 31              |
-| 032 | Extrair classes utilitárias `.flex-btn`, `.flex-center`, etc        | S      | P2  | 2h  | todo   | 32              |
-| 033 | Mover `layout.scss` (loop de larguras) para `utilities.scss`        | S      | P3  | 0.5h| todo   | 33              |
-| 034 | Consolidar `@font-face DINCondensedBold` (3 lugares → 1)            | S      | P2  | 0.5h| todo   | 34              |
-| 037 | `Slide.vue` respeitar dark theme (cores hardcoded)                  | S      | P2  | 1h  | todo   | 37              |
-| 052 | Mover strings hardcoded para i18n (varredura completa)              | S      | P1  | 3h  | todo   | 52, 53, 54, 56  |
-| 066 | Migrar ESLint para flat config (eslint.config.js)                   | S      | P3  | 1h  | todo   | 66              |
-| 067 | Adicionar Prettier com config compartilhada                         | S      | P2  | 1h  | todo   | 67              |
-| 068 | Adicionar Husky + lint-staged                                       | S      | P2  | 1h  | todo   | 68              |
-| 057 | Auditar e travar `vue-router` em versão estável                     | O      | P1  | 2h  | todo   | 57              |
-| 058 | [RFC: voltar para Vuetify 3 estável](tasks/058-rfc-vuetify-decision.md) | O | P0 | 4h | pending-approval | 58, 59 |
-| 060 | Auditar dependências (webfontloader, core-js, etc)                  | S      | P3  | 1h  | todo   | 60              |
-| 061 | `jszip` external → import dinâmico em `SljaConverter.js`            | S      | P1  | 1h  | todo   | 61              |
-| 062 | `manualChunks` no Vite + bundle visualizer                          | S      | P2  | 2h  | todo   | 62, 63          |
-| 064 | Adicionar aliases Vite (`@helpers`, `@modules`, `@components`)      | S      | P3  | 0.5h| todo   | 64              |
-| 069 | Documentar/corrigir porta dev (5002 vs 5173)                        | S      | P2  | 0.5h| todo   | 69              |
-| 070 | Decidir destino de `npm run files`: documentar ou remover           | S      | P3  | 0.5h| todo   | 70              |
-| 113 | Criar `.env.example` documentando VITE_*                            | S      | P2  | 0.5h| todo   | 113             |
-| 014 | JSON schema para `manifest.json` + validação na build               | O      | P2  | 3h  | todo   | 13, 14          |
+| 028 | [Aplicar tokens CSS — varredura e substituição de hex hardcoded](tasks/028-aplicar-tokens-css.md) | S | P1 | 4h | done | 28, 35, 38 |
+| 029 | [Eliminar `!important` (resolver especificidade)](tasks/029-remover-important.md) | S | P2 | 1h | done | 29 |
+| 030 | [Eliminar `:global(.v-theme--dark)` em scoped — usar tokens](tasks/030-remover-global-theme-dark.md) | S | P2 | 2h | done | 30 |
+| 031 | [Substituir `rgb(var(--v-theme-primary))` por tokens LJ](tasks/031-reduzir-rgb-var.md) | S | P3 | 1h | done | 31 |
+| 032 | [Extrair classes utilitárias `.lj-u-*`](tasks/032-extrair-classes-utilitarias.md) | S | P2 | 2h | done | 32 |
+| 033 | [Mover `layout.scss` para `utilities.scss`](tasks/033-mover-layout-scss.md) | S | P3 | 0.5h | done | 33 |
+| 034 | [Consolidar `@font-face DINCondensedBold` (2 lugares → 1)](tasks/034-consolidar-font-face.md) | S | P2 | 0.5h | done | 34 |
+| 037 | [`Slide.vue` respeitar dark theme (cores hardcoded)](tasks/037-slide-dark-theme.md) | S | P2 | 1h | done | 37 |
+| 052 | [Mover strings hardcoded para i18n (varredura completa)](tasks/052-mover-strings-hardcoded-i18n.md) | S | P1 | 3h | done | 52, 53, 54, 56 |
+| 066 | [Migrar ESLint para flat config (eslint.config.js)](tasks/066-eslint-flat-config.md) | S | P3 | 1h | done | 66 |
+| 067 | [Adicionar Prettier com config compartilhada](tasks/067-adicionar-prettier.md) | S | P2 | 1h | done | 67 |
+| 068 | [Adicionar Husky + lint-staged](tasks/068-adicionar-husky-lint-staged.md) | S | P2 | 1h | done | 68 |
+| 057 | [Auditar e travar `vue-router` em versão estável](tasks/057-travar-vue-router.md) | O | P1 | 2h | done | 57 |
+| 058 | [RFC: travar Vuetify na versão estável](tasks/058-rfc-vuetify-decision.md) | O | P0 | 4h | done | 58, 59 |
+| 060 | [Auditar dependências (webfontloader, core-js, etc)](tasks/060-audit-dependencias.md) | S | P3 | 1h | todo | 60 |
+| 061 | `jszip` external → import dinâmico em `SljaConverter.js` | S | P1 | 1h | done | 61 |
+| 062 | [manualChunks no Vite + bundle visualizer](tasks/062-manualchunks-bundle-visualizer.md) | S | P2 | 2h | todo | 62, 63 |
+| 064 | [Adicionar aliases Vite (`@helpers`, `@modules`, `@components`)](tasks/064-aliases-vite.md) | S | P3 | 0.5h | todo | 64 |
+| 069 | [Documentar/corrigir porta dev (5002 vs 5173)](tasks/069-corrigir-porta-dev.md) | S | P2 | 0.5h | todo | 69 |
+| 070 | [Decidir destino de `npm run files`: documentar ou remover](tasks/070-destino-npm-run-files.md) | S | P3 | 0.5h | todo | 70 |
+| 113 | [Criar `.env.example` documentando VITE_*](tasks/113-env-example.md) | S | P2 | 0.5h | todo | 113 |
+| 014 | [JSON schema para `manifest.json` + validação na build](tasks/014-manifest-json-schema.md) | O | P2 | 3h | todo | 13, 14 |
 
 ---
 
@@ -197,7 +197,10 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 - Opus, alto valor estratégico: #016, #017, #058
 - Híbrida, fundação para o resto: #015, #025, #045
 
-**Tasks com arquivo detalhado pronto** (status `ready` ou `pending-approval`):
-- Onda 1 completa: #007, #008, #084, #099, #102, #103, #104, #115, #119, #120
-- Decisão estratégica aguardando aprovação: #058
-- Exemplo Opus complexo (referência): #016
+**Tasks com arquivo detalhado pronto:**
+- Onda 1 completa (em `tasks/done/`): #007, #008, #084, #099, #102, #103, #104, #115, #119, #120
+- Onda 2 — Block A tooling: #066, #067, #068
+- Onda 2 — Block B estratégico: #057, #014, #058 (pending-approval)
+- Onda 2 — Block C CSS: #028, #029, #030, #031, #032, #033, #034, #037, #052
+- Onda 2 — Block D Vite/deps: #060, #062, #064, #069, #070, #113
+- Onda 3 exemplo Opus complexo (referência): #016
