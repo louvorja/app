@@ -32,6 +32,9 @@ export default {
       timeout: null,
     };
   },
+  beforeUnmount() {
+    clearTimeout(this.timeout); // Limpa o temporizador ao destruir o componente
+  },
   methods: {
     mouseMove() {
       if (!this.start_timer) {
@@ -59,16 +62,15 @@ export default {
       }, 1000);
     },
   },
-  beforeUnmount() {
-    clearTimeout(this.timeout); // Limpa o temporizador ao destruir o componente
-  },
 };
 </script>
 
 <style scoped>
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 .slide-up-enter-from,
 .slide-up-leave-to {

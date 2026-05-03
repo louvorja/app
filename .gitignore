@@ -2,12 +2,14 @@
 /tmp/
 /dev-dist
 
+# env files com segredos — commitar apenas .env.example
+.env
+.env.production
 .env.development
 
 .DS_Store
 node_modules
 /dist
-
 
 # local env files
 .env.local

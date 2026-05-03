@@ -371,7 +371,7 @@ FASE 7 (atualização)           ← independente
 npm run dev          # Servidor de desenvolvimento web/PWA → http://localhost:5002
 npm run host         # Dev exposto na rede local (http://<ip>:5002) — útil para testes mobile
 npm run build        # Build de produção (web/PWA)
-npm run files        # Servidor de arquivos local (node/server.js)
+npm run files        # Servidor de arquivos local → http://localhost:7070 (serve ./files/)
 npm run electron:dev   # Desenvolvimento desktop (Electron + Vite) — após D0
 npm run electron:build # Build .exe instalável — após D0
 ```
@@ -379,6 +379,12 @@ npm run electron:build # Build .exe instalável — após D0
 > **Porta 5002**: deliberada. O Electron usa `http://localhost:5002` como `DEV_URL` em
 > `electron/main.cjs`. Alterar a porta exige atualizar `vite.config.js`, `electron/main.cjs`
 > e o script `electron:dev` no `package.json` em sincronia.
+
+> **`npm run files`**: servidor HTTP simples (Node.js puro, sem deps) que serve a pasta `./files/`
+> na porta 7070 com CORS aberto. Use quando precisar desenvolver offline — aponte `VITE_URL_DATABASE`
+> e `VITE_URL_FILES` para `http://localhost:7070/database` e `http://localhost:7070` respectivamente.
+> A pasta `./files/` não está no repositório; popule-a com uma cópia local do banco JSON + MP3.
+> No Electron (fase D5), será substituído por um servidor Express embarcado na mesma porta 7070.
 
 ---
 

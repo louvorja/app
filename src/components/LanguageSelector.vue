@@ -1,6 +1,6 @@
 <template>
   <v-menu>
-    <template v-slot:activator="{ props }">
+    <template #activator="{ props }">
       <v-btn v-bind="props" slim>
         <country-flag
           v-if="current_language"
@@ -10,16 +10,9 @@
       </v-btn>
     </template>
     <v-list>
-      <v-list-item
-        v-for="(language, key) in languages"
-        :key="key"
-        @click="changeLanguage(key)"
-      >
-        <template v-slot:prepend>
-          <country-flag
-            :country="language.flag"
-            style="margin: 0; padding: 0"
-          />
+      <v-list-item v-for="(language, key) in languages" :key="key" @click="changeLanguage(key)">
+        <template #prepend>
+          <country-flag :country="language.flag" style="margin: 0; padding: 0" />
         </template>
         <v-list-item-title>
           {{ language.name }}

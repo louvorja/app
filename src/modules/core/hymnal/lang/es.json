@@ -1,16 +1,16 @@
 {
-    "title": "Himnario Adventista",
-    "inputs": {
-        "search": "Escriba el número o nombre del himno..."
-    },
-    "table": {
-        "track": "Pista",
-        "music_name": "Nombre",
-        "album_name": "Álbum",
-        "duration": "Duración"
-    },
-    "data": {
-        "records": "Registros totales",
-        "not_found": "No se encontraron registros con los filtros seleccionados. Intente cambiar los filtros de búsqueda."
-    }
+  "title": "Himnario Adventista",
+  "inputs": {
+    "search": "Escriba el número o nombre del himno..."
+  },
+  "table": {
+    "track": "Pista",
+    "music_name": "Nombre",
+    "album_name": "Álbum",
+    "duration": "Duración"
+  },
+  "data": {
+    "records": "Registros totales",
+    "not_found": "No se encontraron registros con los filtros seleccionados. Intente cambiar los filtros de búsqueda."
+  }
 }

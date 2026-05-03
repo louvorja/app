@@ -1,21 +1,21 @@
 {
-    "alerts": {
-        "not_loaded": "¡Ocurrió un error al cargar este audio!",
-        "close": "¿Quieres cerrar esta presentacion?",
-        "open_remote": "La música se abre en tu aplicación de escritorio.",
-        "open_remote_error": "Se produjo un error al reproducir tu música en la aplicación de escritorio. Comprueba si la transmisión está activada o desactiva la conexión remota para reproducirla en esta ubicación."
-    },
-    "general": {
-        "sung": "Cantado",
-        "instrumental": "Pista",
-        "no_audio": "Sin Audio",
-        "lyric": "Letra de la Canción",
-        "track": "Pista"
-    },
-    "inputs": {
-        "lazy_load": "Carga Dinámica",
-        "lazy_load_tooltip": "Si se desmarca, el audio solo se reproducirá después de cargarse completamente en la memoria.",
-        "fade_audio": "Efecto de Desvanecimiento en el audio",
-        "fade_audio_tooltip": "Si se marca, el audio reducirá o aumentará el volumen suavemente al pausar o reproducir."
-    }
+  "alerts": {
+    "not_loaded": "¡Ocurrió un error al cargar este audio!",
+    "close": "¿Quieres cerrar esta presentacion?",
+    "open_remote": "La música se abre en tu aplicación de escritorio.",
+    "open_remote_error": "Se produjo un error al reproducir tu música en la aplicación de escritorio. Comprueba si la transmisión está activada o desactiva la conexión remota para reproducirla en esta ubicación."
+  },
+  "general": {
+    "sung": "Cantado",
+    "instrumental": "Pista",
+    "no_audio": "Sin Audio",
+    "lyric": "Letra de la Canción",
+    "track": "Pista"
+  },
+  "inputs": {
+    "lazy_load": "Carga Dinámica",
+    "lazy_load_tooltip": "Si se desmarca, el audio solo se reproducirá después de cargarse completamente en la memoria.",
+    "fade_audio": "Efecto de Desvanecimiento en el audio",
+    "fade_audio_tooltip": "Si se marca, el audio reducirá o aumentará el volumen suavemente al pausar o reproducir."
+  }
 }

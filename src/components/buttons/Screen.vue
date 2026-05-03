@@ -1,9 +1,5 @@
 <template>
-  <v-btn-group
-    v-if="!is_mobile"
-    :variant="variant"
-    style="overflow: clip;"
-  >
+  <v-btn-group v-if="!is_mobile" :variant="variant" style="overflow: clip">
     <v-btn
       :size="size"
       :active="is_popup_opened"

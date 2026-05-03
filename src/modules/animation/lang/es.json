@@ -1,16 +1,16 @@
 {
-    "title": "Animaciones",
-    "text": "ESPANHOL",
-    "modals": {
-        "create": {
-            "title": "Crear animación",
-            "name": "Nombre",
-            "description": "Descripción"
-        },
-        "edit": {
-            "title": "Editar animación",
-            "name": "Nombre",
-            "description": "Descripción"
-        }
+  "title": "Animaciones",
+  "text": "ESPANHOL",
+  "modals": {
+    "create": {
+      "title": "Crear animación",
+      "name": "Nombre",
+      "description": "Descripción"
+    },
+    "edit": {
+      "title": "Editar animación",
+      "name": "Nombre",
+      "description": "Descripción"
     }
+  }
 }

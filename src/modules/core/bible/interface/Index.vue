@@ -1,59 +1,9 @@
 <template>
-  <l-window
-    v-model="module.show"
-    :title="scripturalReference(bible)"
-    :icon="module.icon"
-    closable
-    minimizable
-    compact
-    @close="
-      close();
-      $modules.close(module_id);
-    "
-    @minimize="$modules.minimize(module_id)"
-    @resize="resize"
-    :slot-left-style="{ width: compact ? 0 : (width / 100) * 60 + 'px' }"
-    :slot-right-style="{ width: compact ? width : (width / 100) * 40 + 'px' }"
-    :index="loading"
-  >
-    <template v-slot:customize>
-      <l-customization-tools
-        :module="module"
-        :items="[
-          {
-            name: t('customization.background'),
-            items: [
-              'background_color',
-              ['image', 'image_opacity', 'image_fit'],
-            ],
-          },
-          {
-            name: t('customization.align'),
-            items: [['horizontal_align', 'vertical_align']],
-          },
-          {
-            name: t('customization.text'),
-            items: [['font', 'font_size', 'font_color']],
-          },
-          {
-            name: t('customization.reference'),
-            items: [
-              ['reference_font', 'reference_font_size', 'reference_font_color'],
-            ],
-          },
-          { name: t('customization.window'), items: ['border_spacing'] },
-        ]"
-      />
-    </template>
-
-    <template v-slot:system_buttons>
-      <LScreenBtn module="bible" />
-    </template>
-
-    <template v-slot:header>
+  <ModuleContainer :manifest="manifest" compact :index="loading" @close="close()">
+    <template #header>
       <l-select
-        :label="t('version')"
         v-model="bible.id_bible_version"
+        :label="t('version')"
         :items="versions_list ?? []"
         item-value="value"
         item-title="title"
@@ -63,8 +13,8 @@
       <div v-if="compact">
         <div class="my-2" />
         <l-select
-          :label="t('book')"
           v-model="bible.id_bible_book"
+          :label="t('book')"
           :items="books ?? []"
           item-value="id_bible_book"
           item-title="name"
@@ -73,8 +23,8 @@
         />
         <div class="my-2" />
         <l-select
-          :label="t('chapter')"
           v-model="bible.chapter"
+          :label="t('chapter')"
           :items="chaptersList()"
           item-value="id"
           item-title="value"
@@ -82,8 +32,8 @@
         />
         <div class="my-2" />
         <l-select
-          :label="t('verses')"
           v-model="bible_verses"
+          :label="t('verses')"
           :items="versesList()"
           item-value="id"
           item-title="value"
@@ -93,15 +43,15 @@
       </div>
     </template>
 
-    <template v-slot:left>
+    <template #left>
       <div v-if="!compact" class="d-flex flex-row h-100">
         <!-- Combined Book Selection Area -->
         <div class="w-70 h-100 d-flex flex-column pt-2">
           <!-- Book Search Menu (inline above book list) -->
           <div style="flex-shrink: 0" class="ps-4 pe-1">
             <l-select
-              :label="t('book')"
               v-model="bible.id_bible_book"
+              :label="t('book')"
               :items="books ?? []"
               item-value="id_bible_book"
               item-title="name"
@@ -112,34 +62,30 @@
 
           <!-- Book Grid List -->
           <div
-            :style="`height: ${height - 65}px`"
+            style="flex: 1; min-height: 0"
             class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
           >
             <v-skeleton-loader
               v-for="n in 10"
-              :key="n"
               v-show="loading_book"
+              :key="n"
               class="ma-1"
               :height="80"
               :width="100"
             />
             <v-card
               v-for="book in books"
+              :id="`listBook_${book.id_bible_book}`"
               :key="book.id_bible_book"
               :color="book.color"
               class="ma-1 d-flex align-center flex-column"
               :height="80"
               :width="100"
               hover
-              :variant="
-                book.id_bible_book == bible.id_bible_book ? 'flat' : 'tonal'
-              "
+              :variant="book.id_bible_book == bible.id_bible_book ? 'flat' : 'tonal'"
               @click="selBook(book.id_bible_book)"
-              :id="`listBook_${book.id_bible_book}`"
             >
-              <v-card-title
-                class="flex-grow-1 pa-0 ma-0 text-h4 d-flex align-center"
-              >
+              <v-card-title class="flex-grow-1 pa-0 ma-0 text-h4 d-flex align-center">
                 {{ book.abbreviation }}
               </v-card-title>
               <v-card-text
@@ -156,8 +102,8 @@
           <!-- Chapter Search Menu (inline above chapter list) -->
           <div style="flex-shrink: 0" class="px-1">
             <l-select
-              :label="t('chapter')"
               v-model="bible.chapter"
+              :label="t('chapter')"
               :items="chaptersList()"
               item-value="id"
               item-title="value"
@@ -167,19 +113,20 @@
 
           <!-- Chapter Grid List -->
           <div
-            :style="`height: ${height - 65}px`"
+            style="flex: 1; min-height: 0"
             class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
           >
             <v-skeleton-loader
               v-for="n in 10"
-              :key="n"
               v-show="loading_book"
+              :key="n"
               class="ma-1"
               :height="40"
               :width="40"
             />
             <v-card
               v-for="chapter in chapters"
+              :id="`listChapter_${chapter}`"
               :key="chapter"
               :color="book?.color"
               class="ma-1 d-flex align-center flex-column"
@@ -188,7 +135,6 @@
               hover
               :variant="chapter == bible.chapter ? 'flat' : 'tonal'"
               @click="selChapter(chapter)"
-              :id="`listChapter_${chapter}`"
             >
               <v-card-title
                 class="flex-grow-1 pa-0 ma-0 d-flex align-center font-weight-regular"
@@ -202,127 +148,109 @@
       </div>
     </template>
 
-    <template v-slot:right>
-      <div class="d-flex flex-row h-100 pt-2">
-        <div
-          :style="{
-            height: height + 'px',
-            width: (compact ? width : (width / 100) * 40) + 'px',
-          }"
-        >
-          <!-- Verse Search Menu (above verse list) -->
-          <div class="ps-1 pe-4 pb-3" style="flex-shrink: 0">
-            <l-select
-              :label="t('verses')"
-              v-if="!compact"
-              v-model="bible_verses"
-              :items="versesList()"
-              item-value="id"
-              item-title="value"
-              multiple
-              icon="mdi-format-list-numbered"
-            />
-          </div>
-
-          <div :style="`height: ${height / 2 - 30}px;`" class="mt-2">
-            <v-skeleton-loader
-              v-show="loading_book || loading_verses"
-              type="list-item-two-line"
-            />
-            <v-list class="overflow h-100 ma-0 pa-0 no-select" width="100%">
-              <v-list-item
-                v-for="(verse, num) in verses"
-                :key="num"
-                link
-                variant="flat"
-                :value="verse"
-                :active="bible.verses.includes(+num)"
-                @click="selVerse($event, num)"
-                density="compact"
-                :id="`listVerse_${num}`"
-              >
-                <template v-slot:prepend>
-                  <v-chip class="mr-2">{{ num }}</v-chip>
-                </template>
-
-                <div v-html="verse" class="text-caption"></div>
-              </v-list-item>
-            </v-list>
-          </div>
-          <div style="height: 48px">
-            <v-toolbar density="compact">
-              <v-spacer />
-              <v-divider vertical />
-              <v-btn
-                :disabled="
-                  !(select_bible?.verses && select_bible.verses.length > 0)
-                "
-                variant="text"
-                size="small"
-                icon="mdi-chevron-left "
-                @click="prevVerse()"
-                @shortkey="prevVerse()"
-                v-shortkey="['arrowleft']"
-              />
-              <v-btn
-                :disabled="
-                  !(select_bible?.verses && select_bible.verses.length > 0)
-                "
-                variant="text"
-                size="small"
-                icon="mdi-chevron-right "
-                @click="nextVerse()"
-                @shortkey="nextVerse()"
-                v-shortkey="['arrowright']"
-              />
-              <v-divider vertical />
-              <v-btn
-                :disabled="
-                  !(select_bible?.verses && select_bible.verses.length > 0)
-                "
-                variant="text"
-                size="small"
-                icon="mdi-eraser"
-                @click="clean()"
-                @shortkey="clean()"
-                v-shortkey="['del']"
-              />
-              <v-divider vertical />
-              <LScreenBtn module="bible" />
-            </v-toolbar>
-          </div>
-          <Screen :height="compact ? height / 2 - 48 : height / 2 - 88" />
+    <template #right>
+      <div class="d-flex flex-column h-100 pt-2">
+        <!-- Verse Search Menu (above verse list) -->
+        <div class="ps-1 pe-4 pb-3" style="flex-shrink: 0">
+          <l-select
+            v-if="!compact"
+            v-model="bible_verses"
+            :label="t('verses')"
+            :items="versesList()"
+            item-value="id"
+            item-title="value"
+            multiple
+            icon="mdi-format-list-numbered"
+          />
         </div>
+
+        <div class="mt-2" style="flex: 1; overflow: auto; min-height: 0">
+          <v-skeleton-loader v-show="loading_book || loading_verses" type="list-item-two-line" />
+          <v-list class="overflow h-100 ma-0 pa-0 no-select" width="100%">
+            <v-list-item
+              v-for="(verse, num) in verses"
+              :id="`listVerse_${num}`"
+              :key="num"
+              link
+              variant="flat"
+              :value="verse"
+              :active="bible.verses.includes(+num)"
+              density="compact"
+              @click="selVerse($event, num)"
+            >
+              <template #prepend>
+                <v-chip class="mr-2">{{ num }}</v-chip>
+              </template>
+
+              <div class="text-caption" v-html="verse"></div>
+            </v-list-item>
+          </v-list>
+        </div>
+        <div style="height: 48px; flex-shrink: 0">
+          <v-toolbar density="compact">
+            <v-spacer />
+            <v-divider vertical />
+            <v-btn
+              v-shortkey="['arrowleft']"
+              :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
+              variant="text"
+              size="small"
+              icon="mdi-chevron-left "
+              @click="prevVerse()"
+              @shortkey="prevVerse()"
+            />
+            <v-btn
+              v-shortkey="['arrowright']"
+              :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
+              variant="text"
+              size="small"
+              icon="mdi-chevron-right "
+              @click="nextVerse()"
+              @shortkey="nextVerse()"
+            />
+            <v-divider vertical />
+            <v-btn
+              v-shortkey="['del']"
+              :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
+              variant="text"
+              size="small"
+              icon="mdi-eraser"
+              @click="clean()"
+              @shortkey="clean()"
+            />
+            <v-divider vertical />
+            <LScreenBtn module="bible" />
+          </v-toolbar>
+        </div>
+        <Screen />
       </div>
     </template>
-  </l-window>
+  </ModuleContainer>
 </template>
 
 <script>
 import manifest from "../manifest.json";
-import LWindow from "@/components/Window.vue";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 import Screen from "../components/Screen.vue";
-import LSelect from "@/components/inputs/Select.vue";
+import LSelect from "@/components/inputs/LjSelect.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
-import LCustomizationTools from "@/components/CustomizationTools.vue";
+import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
 
 export default {
   name: "CollectionsModule",
   components: {
-    LWindow,
+    ModuleContainer,
     Screen,
     LScreenBtn,
     LSelect,
-    LCustomizationTools,
   },
   data: () => ({
+    manifest,
     lang: null,
     loading: false,
     loading_book: false,
     loading_verses: false,
     tab: null,
-    width: 0,
-    height: 0,
     bible: {
       id_bible_version: null,
       id_bible_book: null,
@@ -367,7 +295,7 @@ export default {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
@@ -403,14 +331,10 @@ export default {
     },
 
     book() {
-      return this.books.find(
-        (b) => b.id_bible_book == this.bible.id_bible_book,
-      );
+      return this.books.find((b) => b.id_bible_book == this.bible.id_bible_book);
     },
     version() {
-      return this.versions.find(
-        (b) => b.id_bible_version == this.bible.id_bible_version,
-      );
+      return this.versions.find((b) => b.id_bible_version == this.bible.id_bible_version);
     },
     chapters() {
       return this.book?.chapters;
@@ -460,6 +384,9 @@ export default {
       this.send("text", this.select_bible.text);
     },
   },
+  async mounted() {
+    await this.loadData();
+  },
   methods: {
     /* METHODS OBRIGATÓRIOS - INÍCIO */
     /* NÃO MODIFICAR */
@@ -475,9 +402,7 @@ export default {
 
       if (this.books.length <= 0) {
         this.loading_book = true;
-        this.books = await this.$database.get(
-          `${this.$i18n.locale}_bible_book`,
-        );
+        this.books = await this.$database.get(`${this.$i18n.locale}_bible_book`);
         if (!this.bible.id_bible_book) {
           await this.selBook(this.books[0].id_bible_book);
         }
@@ -485,9 +410,7 @@ export default {
       }
 
       if (this.versions.length <= 0) {
-        this.versions = await this.$database.get(
-          `${this.$i18n.locale}_bible_version`,
-        );
+        this.versions = await this.$database.get(`${this.$i18n.locale}_bible_version`);
         if (!this.bible.id_bible_version) {
           await this.selVersion(this.versions[0].id_bible_version);
         }
@@ -513,11 +436,6 @@ export default {
       this.lang = this.$i18n.locale;
       this.loading = false;
     },
-    resize(data) {
-      this.width = data.container_width;
-      this.height = data.container_height;
-    },
-
     async selVersion(id_bible_version) {
       if (id_bible_version) {
         this.bible.id_bible_version = id_bible_version;
@@ -569,7 +487,7 @@ export default {
         }
       }
 
-      num = parseInt(num);
+      num = parseInt(num, 10);
       if (isNaN(num)) {
         return;
       }
@@ -601,10 +519,14 @@ export default {
       this.last_verse = num;
       this.bible.verses.sort((a, b) => a - b);
       this.select_bible = Object.assign({}, this.bible);
-      this.select_bible.scriptural_reference = this.scripturalReference(
-        this.select_bible,
-      );
+      this.select_bible.scriptural_reference = this.scripturalReference(this.select_bible);
       this.select_bible.text = this.getSelectedVerses(this.select_bible.verses);
+
+      this.$broadcast.send(BROADCAST_TYPE.BIBLE_VERSE, {
+        text: this.select_bible.text,
+        reference: this.select_bible.scriptural_reference,
+        active: true,
+      });
 
       const element = document.getElementById(`listVerse_${this.last_verse}`);
       if (element) {
@@ -625,25 +547,19 @@ export default {
         await this.selChapter(this.select_bible.chapter);
       }
       if (this.select_bible?.verses && this.select_bible.verses.length > 0) {
-        let verse = Math.min(
-          ...this.select_bible.verses.filter((num) => num > 0),
-        );
+        let verse = Math.min(...this.select_bible.verses.filter((num) => num > 0));
         if (verse > 1) {
           verse--;
         } else if (this.select_bible.chapter > 1) {
           await this.selChapter(this.select_bible.chapter - 1);
-          verse = Math.max(...Object.keys(this.verses).map(Number));
+          verse = Math.max(0, ...Object.keys(this.verses).map(Number));
         } else {
-          let bookIndex = this.books.findIndex(
-            (b) => b.id_bible_book == this.bible.id_bible_book,
-          );
+          let bookIndex = this.books.findIndex((b) => b.id_bible_book == this.bible.id_bible_book);
           const book =
-            bookIndex > 0
-              ? this.books[bookIndex - 1]
-              : this.books[this.books.length - 1];
+            bookIndex > 0 ? this.books[bookIndex - 1] : this.books[this.books.length - 1];
           await this.selBook(book.id_bible_book);
           await this.selChapter(book.chapters);
-          verse = Math.max(...Object.keys(this.verses).map(Number));
+          verse = Math.max(0, ...Object.keys(this.verses).map(Number));
         }
         this.selVerse(null, verse);
       }
@@ -660,7 +576,7 @@ export default {
       }
       if (this.select_bible?.verses && this.select_bible.verses.length > 0) {
         let verse = Math.max(...this.select_bible.verses);
-        const max_verse = Math.max(...Object.keys(this.verses).map(Number));
+        const max_verse = Math.max(0, ...Object.keys(this.verses).map(Number));
         const max_chapter = this.book.chapters;
         if (verse < max_verse) {
           verse++;
@@ -668,13 +584,9 @@ export default {
           await this.selChapter(this.select_bible.chapter + 1);
           verse = 1;
         } else {
-          let bookIndex = this.books.findIndex(
-            (b) => b.id_bible_book == this.bible.id_bible_book,
-          );
+          let bookIndex = this.books.findIndex((b) => b.id_bible_book == this.bible.id_bible_book);
           const book =
-            bookIndex < this.books.length - 1
-              ? this.books[bookIndex + 1]
-              : this.books[0];
+            bookIndex < this.books.length - 1 ? this.books[bookIndex + 1] : this.books[0];
           await this.selBook(book.id_bible_book);
           await this.selChapter(1);
           verse = 1;
@@ -710,22 +622,16 @@ export default {
       let start = numbers[0];
       let end = numbers[0];
 
-      for (let i = 1; i <= numbers.length; i++) {
+      for (let i = 1; i < numbers.length; i++) {
         if (numbers[i] === end + 1) {
-          // O número atual é uma continuação da sequência
           end = numbers[i];
         } else {
-          // A sequência terminou
-          if (start === end) {
-            result.push(`${start}`);
-          } else {
-            result.push(`${start}-${end}`);
-          }
-          // Reinicia para a próxima sequência
+          result.push(start === end ? `${start}` : `${start}-${end}`);
           start = numbers[i];
           end = numbers[i];
         }
       }
+      result.push(start === end ? `${start}` : `${start}-${end}`);
 
       return result.join(", ");
     },
@@ -777,7 +683,6 @@ export default {
     },
 
     close() {
-      this.$popup.exit();
       this.bible.verses = [];
       this.select_bible = {
         id_bible_version: null,
@@ -790,9 +695,6 @@ export default {
         text: null,
       };
     },
-  },
-  async mounted() {
-    await this.loadData();
   },
 };
 </script>

@@ -1,7 +1,7 @@
 {
-    "table": {
-        "track": "Faixa",
-        "music_name": "Nome",
-        "duration": "Duração"
-    }
+  "table": {
+    "track": "Faixa",
+    "music_name": "Nome",
+    "duration": "Duração"
+  }
 }

@@ -1,15 +1,10 @@
 <template>
-  <ModuleContainer
-    ref="moduleContainer"
-    :manifest="manifest"
-    @show="show"
-    @close="close"
-  >
-    <template v-slot:header>
-      <v-toolbar color="transparent" v-if="compact">
-        <template v-slot:prepend>
+  <ModuleContainer ref="moduleContainer" :manifest="manifest" @show="show" @close="close">
+    <template #header>
+      <v-toolbar v-if="compact" color="transparent">
+        <template #prepend>
           <v-menu>
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-btn icon="$menu" v-bind="props" />
             </template>
             <v-list :color="$theme.primary()" class="d-flex flex-column h-100">
@@ -46,18 +41,14 @@
       </v-toolbar>
     </template>
 
-    <template v-slot:left>
+    <template #left>
       <v-list
         v-if="!compact"
         :color="$theme.primary()"
         :width="200"
         class="d-flex flex-column h-100"
       >
-        <v-progress-linear
-          :color="$theme.primary()"
-          indeterminate
-          v-if="loading"
-        />
+        <v-progress-linear v-if="loading" :color="$theme.primary()" indeterminate />
         <v-list-item
           v-for="category in categories"
           :key="category.id_category"
@@ -75,25 +66,14 @@
       </v-list>
     </template>
 
-    <v-alert
-      v-if="error"
-      type="error"
-      :text="error"
-      variant="tonal"
-      border="start"
-      class="ma-2"
-    />
+    <v-alert v-if="error" type="error" :text="error" variant="tonal" border="start" class="ma-2" />
 
     <div class="d-flex flex-wrap justify-center">
       <v-card
-        :style="
-          $vuetify.display.width > 350
-            ? 'min-width: 300px; max-width: 300px'
-            : 'width:100%'
-        "
-        theme="dark"
         v-for="album in albums"
         :key="album.id_album"
+        :style="$vuetify.display.width > 350 ? 'min-width: 300px; max-width: 300px' : 'width:100%'"
+        theme="dark"
         width="320"
         class="ma-2"
         :color="album.color || '#385F73'"
@@ -125,6 +105,7 @@
 export default {
   name: manifest.id,
   data: () => ({
+    manifest,
     categories: [],
     lang: null,
     id_category: null,
@@ -145,7 +126,7 @@ export default {
           ...new Map(
             this.categories
               .reduce((acc, category) => acc.concat(category.albums), [])
-              .map((album) => [album.id_album, { ...album, subtitle: null }]),
+              .map((album) => [album.id_album, { ...album, subtitle: null }])
           ).values(),
         ].sort((a, b) => this.$string.sort(a.name, b.name));
       }
@@ -158,15 +139,16 @@ export default {
       return this.$vuetify.display.width <= 600;
     },
   },
+  async mounted() {
+    await this.loadData();
+  },
   methods: {
     async loadData() {
       this.id_category = null;
       this.categories = [];
       this.loading = true;
 
-      this.categories = await this.$database.get(
-        `${this.$i18n.locale}_categories`,
-      );
+      this.categories = await this.$database.get(`${this.$i18n.locale}_categories`);
 
       if (this.categories == null) {
         this.$modules.close(this.module_id);
@@ -192,11 +174,7 @@ export default {
     async show(value) {
       if (value && this.lang != this.$i18n.locale) {
         await this.loadData();
-      } else if (
-        value &&
-        this.categories.length > 0 &&
-        this.id_category == null
-      ) {
+      } else if (value && this.categories.length > 0 && this.id_category == null) {
         this.id_category = this.categories[0].id_category;
       }
     },
@@ -204,9 +182,6 @@ export default {
       //Se fechar a janela, não manter o histórico.
       this.id_category = null;
     },
-  },
-  async mounted() {
-    await this.loadData();
   },
 };
 </script>

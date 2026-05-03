@@ -15,9 +15,7 @@ export default {
     $appdata.set("alert.color", data.color || "");
     $appdata.set(
       "alert.translate",
-      data.translate == null || data.translate == undefined
-        ? true
-        : data.translate
+      data.translate == null || data.translate == undefined ? true : data.translate
     );
     $appdata.set(
       "alert.buttons",

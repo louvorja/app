@@ -4,5 +4,8 @@
   "description": "Exibe a letra da música (função $media.openLyric)",
   "category": null,
   "icon": null,
-  "dependencies": []
+  "dependencies": [],
+  "moduleOptions": {
+    "popup": true
+  }
 }

@@ -4,9 +4,5 @@
   "description": "Lista todas as músicas do programa, com filtros de busca.",
   "category": "musics",
   "icon": "mdi-music",
-  "dependencies": [
-    "media",
-    "lyric",
-    "album"
-  ]
+  "dependencies": ["media", "lyric", "album"]
 }

@@ -24,9 +24,8 @@
         <v-card-subtitle v-if="media.config.subtitle" class="py-0">
           {{ media.config.subtitle }}
           <span v-if="media.config.track > 0">
-            | {{ $t("modules.media.general.track") }}
-            {{ media.config.track }}</span
-          >
+            | {{ $t("modules.media.general.track") }} {{ media.config.track }}
+          </span>
         </v-card-subtitle>
       </div>
     </div>
@@ -35,50 +34,44 @@
       <div class="d-flex align-center justify-center py-1 flex-grow-1">
         <v-btn
           v-for="(button, key) in buttons"
+          v-show="button.show && (compact === false || (compact === true && !button.compact))"
           :key="key"
-          v-show="
-            button.show &&
-            (compact === false || (compact === true && !button.compact))
-          "
+          v-shortkey="button.shortkey"
           :disabled="media.loading || button.disabled"
           :icon="button.icon"
           :color="button.highlight ? 'white' : ''"
-          @click="button.click"
-          @shortkey="button.click"
-          v-shortkey="button.shortkey"
           :variant="button.highlight ? 'flat' : 'text'"
           class="ma-1"
           size="small"
+          @click="button.click"
+          @shortkey="button.click"
         />
       </div>
-      <div
-        v-if="media.config.audio"
-        class="d-flex align-center justify-center py-1 px-3"
-      >
+      <div v-if="media.config.audio" class="d-flex align-center justify-center py-1 px-3">
         <div class="text-right text-caption">
-          {{ $datetime.shortTime(media.config.current_time) }}
+          {{ $datetime.shortTime(audio.currentTime) }}
         </div>
         <div class="flex-grow-1 px-2">
           <v-progress-linear
-            v-model="media.config.progress"
+            v-model="audio.progress"
             rounded
             clickable
             :indeterminate="media.loading"
             :height="10"
-            :stream="!media.loading"
-            :buffer-value="media.config.buffered"
-            :color="
-              media.config.is_paused
-                ? 'warning'
-                : media.config.volume <= 0
-                ? 'red'
-                : 'info'
-            "
+            :buffer-value="audio.buffered"
+            :color="audio.isPaused ? 'warning' : audio.volume <= 0 ? 'red' : 'info'"
             @click="changeProgress"
           />
         </div>
         <div class="text-left text-caption">
-          {{ $datetime.shortTime(media.config.duration) }}
+          {{ $datetime.shortTime(audio.duration) }}
+        </div>
+        <div
+          v-if="media.config.last_slide > 0"
+          class="text-caption text-medium-emphasis ml-2"
+          style="white-space: nowrap"
+        >
+          {{ media.config.slide_index + 1 }}/{{ media.config.last_slide }}
         </div>
       </div>
       <div
@@ -92,10 +85,8 @@
     </div>
     <div class="d-flex flex-column">
       <div class="d-flex align-center justify-end pa-1 flex-grow-1">
-        <v-menu
-          v-if="location !== 'fullscreen' && $vuetify.display.width > 350"
-        >
-          <template v-slot:activator="{ props }">
+        <v-menu v-if="location !== 'fullscreen' && $vuetify.display.width > 350">
+          <template #activator="{ props }">
             <v-btn
               variant="text"
               size="small"
@@ -114,7 +105,7 @@
                 :disabled="mode.disabled"
                 @click="mode.click"
               >
-                <template v-slot:prepend>
+                <template #prepend>
                   <v-icon :icon="mode.icon"></v-icon>
                 </template>
                 {{ mode.title }}
@@ -123,10 +114,10 @@
           </v-list>
         </v-menu>
 
-        <v-menu v-if="this.media.minimized && !compact">
-          <template v-slot:activator="{ props }">
+        <v-menu v-if="media.minimized && !compact">
+          <template #activator="{ props }">
             <v-btn variant="flat" size="x-small" color="white" v-bind="props">
-              {{ this.media.config.slide_index + 1 }}
+              {{ media.config.slide_index + 1 }}
             </v-btn>
           </template>
 
@@ -137,24 +128,20 @@
               :active="media.config.slide_index == index"
               @click="$media.goToSlide(index)"
             >
-              <template v-slot:prepend>
+              <template #prepend>
                 <v-chip size="small" class="mr-2">{{ index + 1 }}</v-chip>
               </template>
 
               <v-list-item-title v-if="item.cover">
                 {{ item.lyric }}
               </v-list-item-title>
-              <div
-                class="text-caption text-truncate"
-                v-else
-                v-html="item.lyric"
-              />
+              <div v-else class="text-caption text-truncate" v-html="item.lyric" />
             </v-list-item>
           </v-list>
         </v-menu>
 
         <v-btn
-          v-if="this.media.minimized"
+          v-if="media.minimized"
           variant="text"
           size="small"
           icon="mdi-open-in-app"
@@ -177,34 +164,25 @@
         <LScreenBtn v-if="location !== 'fullscreen'" module="media" />
 
         <v-menu v-if="location !== 'fullscreen' && compact">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              icon="mdi-menu"
-              variant="text"
-              size="small"
-              v-bind="props"
-            ></v-btn>
+          <template #activator="{ props }">
+            <v-btn icon="mdi-menu" variant="text" size="small" v-bind="props"></v-btn>
           </template>
 
           <v-list>
             <v-list-item
-              v-for="(button, key) in buttons.filter(
-                (item) => item.compact == true
-              )"
+              v-for="(button, key) in buttons.filter((item) => item.compact == true)"
               :key="key"
+              v-shortkey="button.shortkey"
               :disabled="media.loading || button.disabled"
               @click="button.click"
               @shortkey="button.click"
-              v-shortkey="button.shortkey"
             >
               <v-icon :icon="button.icon" />
             </v-list-item>
 
             <v-divider v-if="$vuetify.display.width <= 350" />
             <template v-for="(mode, key) in menu_modes" :key="key">
-              <v-divider
-                v-if="mode.title == '-' && $vuetify.display.width <= 350"
-              />
+              <v-divider v-if="mode.title == '-' && $vuetify.display.width <= 350" />
               <v-list-item
                 v-else-if="$vuetify.display.width <= 350"
                 :active="mode.active"
@@ -218,29 +196,26 @@
         </v-menu>
 
         <v-btn
-          v-if="this.media.minimized"
+          v-if="media.minimized"
           variant="text"
           size="small"
           icon="mdi-close"
           @click="close()"
         />
       </div>
-      <div
-        v-if="media.config.audio"
-        class="d-flex align-center justify-center pa-1"
-      >
+      <div v-if="media.config.audio" class="d-flex align-center justify-center pa-1">
         <div>
           <v-btn
             :disabled="media.loading"
             :icon="volume_icon"
             size="x-small"
-            @click="toogleVolume"
             variant="text"
+            @click="toogleVolume"
           />
         </div>
         <div class="flex-grow-1 px-2" style="min-width: 100px">
           <v-progress-linear
-            v-model="media.config.volume"
+            v-model="audio.volume"
             rounded
             clickable
             :height="10"
@@ -255,14 +230,18 @@
 
 <script>
 import LScreenBtn from "@/components/buttons/Screen.vue";
+import { useAudioPlayback } from "@/composables/useAudioPlayback";
 
 export default {
   name: "PlayerComponent",
+  components: {
+    LScreenBtn,
+  },
   props: {
     location: String,
   },
-  components: {
-    LScreenBtn,
+  setup() {
+    return { audio: useAudioPlayback() };
   },
   computed: {
     media() {
@@ -276,6 +255,9 @@ export default {
     },
     buttons() {
       return [
+        // Atalhos centralizados em Hotkeys.js (Space, Home, End, Ctrl+↑/↓/PageUp/PageDown).
+        // Aqui só o clique no botão. ArrowLeft/ArrowRight simples permanecem locais
+        // (não estão no Hotkeys.js para não conflitar com a navegação de listas).
         {
           show: this.media.config.audio,
           compact: true,
@@ -283,11 +265,6 @@ export default {
           highlight: false,
           icon: "mdi-rewind-10",
           click: () => this.rewind(),
-          shortkey: {
-            left: ["ctrl", "arrowleft"],
-            up: ["ctrl", "arrowup"],
-            pgup: ["ctrl", "pageup"],
-          },
         },
         {
           show: true,
@@ -296,7 +273,6 @@ export default {
           highlight: false,
           icon: "mdi-page-first",
           click: () => this.first(),
-          shortkey: ["home"],
         },
         {
           show: true,
@@ -305,44 +281,32 @@ export default {
           highlight: false,
           icon: "mdi-chevron-left",
           click: () => this.prev(),
-          shortkey: {
-            left: ["arrowleft"],
-            up: ["arrowup"],
-            pgup: ["pageup"],
-          },
+          shortkey: ["arrowleft"],
         },
         {
           show: this.media.config.audio,
           compact: false,
-          disabled: this.media.config.is_fading,
+          disabled: this.audio.isFading,
           highlight: true,
-          icon: this.media.config.is_paused ? "mdi-play" : "mdi-pause",
+          icon: this.audio.isPaused ? "mdi-play" : "mdi-pause",
           click: () => this.play(),
-          shortkey: ["space"],
         },
         {
           show: true,
           compact: false,
-          disabled:
-            this.media.config.slide_index >= this.media.config.last_slide - 1,
+          disabled: this.media.config.slide_index >= this.media.config.last_slide - 1,
           highlight: false,
           icon: "mdi-chevron-right",
           click: () => this.next(),
-          shortkey: {
-            right: ["arrowright"],
-            down: ["arrowdown"],
-            pgdn: ["pagedown"],
-          },
+          shortkey: ["arrowright"],
         },
         {
           show: true,
           compact: true,
-          disabled:
-            this.media.config.slide_index >= this.media.config.last_slide - 1,
+          disabled: this.media.config.slide_index >= this.media.config.last_slide - 1,
           highlight: false,
           icon: "mdi-page-last",
           click: () => this.last(),
-          shortkey: ["end"],
         },
         {
           show: this.media.config.audio,
@@ -351,11 +315,6 @@ export default {
           highlight: false,
           icon: "mdi-fast-forward-10",
           click: () => this.forward(),
-          shortkey: {
-            right: ["ctrl", "arrowright"],
-            down: ["ctrl", "arrowdown"],
-            pgdn: ["ctrl", "pagedown"],
-          },
         },
       ];
     },
@@ -413,17 +372,15 @@ export default {
       ];
     },
     mode() {
-      return this.menu_modes.filter(
-        (item) => item.mode == this.media.config.mode
-      )[0];
+      return this.menu_modes.filter((item) => item.mode == this.media.config.mode)[0];
     },
     volume_icon: function () {
       switch (true) {
-        case this.media.config.volume <= 0:
+        case this.audio.volume <= 0:
           return "mdi-volume-mute";
-        case this.media.config.volume <= 20:
+        case this.audio.volume <= 20:
           return "mdi-volume-low";
-        case this.media.config.volume <= 70:
+        case this.audio.volume <= 70:
           return "mdi-volume-medium";
         default:
           return "mdi-volume-high";
@@ -446,7 +403,7 @@ export default {
   },
   methods: {
     play() {
-      if (this.media.config.is_paused) {
+      if (this.audio.isPaused) {
         this.$media.play();
       } else {
         this.$media.pause();
@@ -483,8 +440,7 @@ export default {
       this.$media.close();
     },
     changeProgress() {
-      const time =
-        (this.media.config.duration * this.media.config.progress) / 100;
+      const time = (this.audio.duration * this.audio.progress) / 100;
       this.$media.goToTime(time);
     },
     fullscreen(value = true) {
@@ -494,7 +450,7 @@ export default {
       this.$media.toogleVolume();
     },
     changeVolume() {
-      this.$media.setVolume(this.media.config.volume);
+      this.$media.setVolume(this.audio.volume);
     },
   },
 };

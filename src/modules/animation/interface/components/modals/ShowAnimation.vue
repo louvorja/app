@@ -28,13 +28,7 @@
         <circle cx="50" cy="50" r="46" fill="#303335"></circle>
 
         <!-- circle with the accent color, overlaid before the text elements -->
-        <circle
-          cx="50"
-          cy="50"
-          r="42"
-          fill="#EA3F3F"
-          filter="url(#shadow-large)"
-        ></circle>
+        <circle cx="50" cy="50" r="42" fill="#EA3F3F" filter="url(#shadow-large)"></circle>
 
         <!-- text elements, positioned from the center around the clock -->
         <g
@@ -58,22 +52,10 @@
         --></g>
 
         <!-- circle overlaid on the accent circle and text elements -->
-        <circle
-          mask="url(#mask)"
-          cx="50"
-          cy="50"
-          r="50"
-          fill="#303335"
-        ></circle>
+        <circle mask="url(#mask)" cx="50" cy="50" r="50" fill="#303335"></circle>
 
         <!-- smaller circle on which the hands sit -->
-        <circle
-          cx="50"
-          cy="50"
-          r="4"
-          filter="url(#shadow-small)"
-          fill="#303335"
-        ></circle>
+        <circle cx="50" cy="50" r="4" filter="url(#shadow-small)" fill="#303335"></circle>
 
         <!-- clock's hands -->
         <!-- centered in the clock and rotated according to the passage of time in the 0-360 range -->
@@ -114,8 +96,7 @@ log("CreateAnimation.vue");
 onMounted(() => {
   log("CreateAnimation.vue mounted");
 
-  const zeroPadded = (number) =>
-    number >= 10 ? number.toString() : `0${number}`;
+  const zeroPadded = (number) => (number >= 10 ? number.toString() : `0${number}`);
 
   // function taking as input an hour value in the [0-23] range and returning the 12 hours format
   const twelveClock = (twentyFourClock) => {
@@ -135,9 +116,7 @@ onMounted(() => {
   for (let i = 0; i < 12; i += 1) {
     clockFace.innerHTML += `
     <text
-        transform="rotate(${-90 + 30 * (i + 1)}) translate(34 0) rotate(${
-      90 - 30 * (i + 1)
-    })" >
+        transform="rotate(${-90 + 30 * (i + 1)}) translate(34 0) rotate(${90 - 30 * (i + 1)})" >
         ${zeroPadded(i + 1)}
     </text>
   `;
@@ -170,10 +149,7 @@ onMounted(() => {
   entries.forEach(([key, value]) => {
     anime({
       targets: `g.${key}`,
-      transform:
-        key === "hours"
-          ? `rotate(${-15 + value * 30})`
-          : `rotate(${value * 6})`,
+      transform: key === "hours" ? `rotate(${-15 + value * 30})` : `rotate(${value * 6})`,
       duration: 2000,
     });
   });

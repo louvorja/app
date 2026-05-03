@@ -1,21 +1,21 @@
 {
-    "alerts": {
-        "not_loaded": "Ocorreu um erro ao carregar este áudio!",
-        "close": "Deseja fechar este slide?",
-        "open_remote": "A música está sendo aberta em sua aplicação desktop.",
-        "open_remote_error": "Ocorreu um erro ao executar sua música em sua aplicação desktop. Verifique se a transmissão está ativa, ou desative a conexão remota para executar neste local."
-    },
-    "general": {
-        "sung": "Cantado",
-        "instrumental": "Playback",
-        "no_audio": "Sem Áudio",
-        "lyric": "Letra da Música",
-        "track": "Faixa"
-    },
-    "inputs": {
-        "lazy_load": "Carregamento Dinâmico",
-        "lazy_load_tooltip": "Se desmarcado, o áudio só será executado depois de totalmente carregado na memória.",
-        "fade_audio": "Efeito de Fade no áudio",
-        "fade_audio_tooltip": "Se marcado, o áudio irá reduzir ou aumentar o volume suavemente ao pausar ou dar play."
-    }
+  "alerts": {
+    "not_loaded": "Ocorreu um erro ao carregar este áudio!",
+    "close": "Deseja fechar este slide?",
+    "open_remote": "A música está sendo aberta em sua aplicação desktop.",
+    "open_remote_error": "Ocorreu um erro ao executar sua música em sua aplicação desktop. Verifique se a transmissão está ativa, ou desative a conexão remota para executar neste local."
+  },
+  "general": {
+    "sung": "Cantado",
+    "instrumental": "Playback",
+    "no_audio": "Sem Áudio",
+    "lyric": "Letra da Música",
+    "track": "Faixa"
+  },
+  "inputs": {
+    "lazy_load": "Carregamento Dinâmico",
+    "lazy_load_tooltip": "Se desmarcado, o áudio só será executado depois de totalmente carregado na memória.",
+    "fade_audio": "Efeito de Fade no áudio",
+    "fade_audio_tooltip": "Se marcado, o áudio irá reduzir ou aumentar o volume suavemente ao pausar ou dar play."
+  }
 }

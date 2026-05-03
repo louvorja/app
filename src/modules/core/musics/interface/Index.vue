@@ -3,12 +3,12 @@
     ref="moduleContainer"
     :manifest="manifest"
     compact
+    :index="data.count"
     @close="close()"
     @scroll="onScroll"
-    @hasScroll="hasScroll"
-    :index="data.count"
+    @has-scroll="hasScroll"
   >
-    <template v-slot:header>
+    <template #header>
       <div :class="classform.group">
         <div :class="classform.group_item" style="flex-basis: 600px">
           <Search
@@ -20,29 +20,17 @@
           />
         </div>
         <div :class="classform.group_item" style="flex-basis: 350px">
-          <Checkbox
-            v-model="userdata.search.name"
-            :label="t('inputs.filter_name')"
-          />
-          <Checkbox
-            v-model="userdata.search.lyric"
-            :label="t('inputs.filter_lyric')"
-          />
-          <Checkbox
-            v-model="userdata.search.album"
-            :label="t('inputs.filter_album')"
-          />
-          <Checkbox
-            v-model="userdata.search.track"
-            :label="t('inputs.filter_track')"
-          />
+          <Checkbox v-model="userdata.search.name" :label="t('inputs.filter_name')" />
+          <Checkbox v-model="userdata.search.lyric" :label="t('inputs.filter_lyric')" />
+          <Checkbox v-model="userdata.search.album" :label="t('inputs.filter_album')" />
+          <Checkbox v-model="userdata.search.track" :label="t('inputs.filter_track')" />
         </div>
         <v-divider vertical />
         <div :class="classform.group_item" style="flex-basis: 200px">
           <div>
             <Checkbox
-              switch
               v-model="userdata.filter.instrumental_music"
+              switch
               :label="t('inputs.filter_instrumental')"
             />
           </div>
@@ -108,6 +96,7 @@
             <div class="d-flex justify-end">
               <MusicMenuTable
                 :id_music="item.id_music"
+                :name="item.name"
                 :has_instrumental_music="item.has_instrumental_music"
               />
             </div>
@@ -125,7 +114,7 @@
       class="ma-2"
     />
 
-    <template v-slot:footer>
+    <template #footer>
       <div class="w-100">
         <LetterPaginate v-model="letter" />
         <div class="text-right">
@@ -158,8 +147,8 @@ const userdata = computed(() => {
 /* ########################################################### */
 
 import Table from "@/components/DataTable.vue";
-import Search from "@/components/inputs/Search.vue";
-import Checkbox from "@/components/inputs/CheckBox.vue";
+import Search from "@/components/inputs/LjSearch.vue";
+import Checkbox from "@/components/inputs/LjCheckbox.vue";
 import MusicMenuTable from "@/components/MusicMenuTable.vue";
 import LetterPaginate from "@/components/LetterPagination.vue";
 
@@ -198,12 +187,7 @@ const filter_instrumental_music = computed(() => {
 });
 
 const disabled = computed(() => {
-  return (
-    !search_name.value &&
-    !search_lyric.value &&
-    !search_album.value &&
-    !search_track.value
-  );
+  return !search_name.value && !search_lyric.value && !search_album.value && !search_track.value;
 });
 
 const classform = computed(() => ({

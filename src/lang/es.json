@@ -1,340 +1,356 @@
 {
-    "app": {
-        "name": "Loor JA"
-    },
-    "modules": {
-        "invalid": {
-            "title": "#Error#"
-        }
-    },
-    "module_group": {
-        "musics": {
-            "title": "Músicas"
-        },
-        "bible": {
-            "title": "Biblia"
-        },
-        "utilities": {
-            "title": "Utilidades"
-        }
-    },
-    "components": {
-        "letterpagination": {
-            "all": "Todas"
-        },
-        "datatable": {
-            "alerts": {
-                "not_found": "¡No se pudo encontrar el archivo para mostrar esta información!"
-            }
-        },
-        "inputs": {
-            "search": "Buscar"
-        },
-        "customization": {
-            "restore": "Restaurar",
-            "restore_configs": "Restaurar Configuración",
-            "restore_dialog": "¿Quieres restaurar la configuración?",
-            "fit": {
-                "none": "Ninguno",
-                "fill": "Expandir",
-                "contain": "Ajustar",
-                "cover": "Rellenar"
-            }
-        }
-    },
-    "alert": {
-        "close": "Cerrar",
-        "yes": "Sí",
-        "no": "No",
-        "wait": "Aguardar..."
-    },
-    "actions": {
-        "close": "Cerrar",
-        "minimize": "Minimizar",
-        "maximize": "Maximizar",
-        "save": "Guardar",
-        "cancel": "Cancelar",
-        "delete": "Eliminar",
-        "edit": "Editar",
-        "add": "Agregar",
-        "open": "Abrir",
-        "back": "Volver",
-        "next": "Siguiente",
-        "previous": "Anterior"
-    },
-    "options": {
-        "general": {
-            "title": "General",
-            "fade_form": "Agregar efecto de esmaecimiento en las pantallas",
-            "theme": "Apariencia del programa:",
-            "language": "Idioma:"
-        },
-        "monitors": {
-            "title": "Monitores",
-            "identify": "Identificar Monitores",
-            "no_displays": "Ningún monitor adicional disponible (modo web o monitor único)."
-        },
-        "slides": {
-            "title": "Diapositivas de Músicas",
-            "open_at": "Abrir en el monitor:",
-            "alignment": "Alineación de la letra:",
-            "align_top": "Arriba",
-            "align_center": "Centro",
-            "align_bottom": "Abajo",
-            "fullscreen": "Mostrar en pantalla completa",
-            "always_on_top": "Mostrar músicas siempre al frente",
-            "open_operator": "Abrir Pantalla del Operador",
-            "open_return": "Abrir Pantalla de Retorno",
-            "show_title": "Mostrar título de la música en la primera diapositiva",
-            "same_window": "Misma ventana"
-        },
-        "videos": {
-            "title": "Vídeos On-line",
-            "fullscreen": "Mostrar en pantalla completa",
-            "youtube_action": "Al ejecutar enlace de YouTube en la liturgia, abrir:",
-            "action_video": "Vídeo",
-            "action_link": "Enlace en el navegador"
-        },
-        "player": {
-            "title": "Reproductor de Audio/Vídeo",
-            "fade_audio": "Aplicar fundido al iniciar/parar audio",
-            "fade_audio_hint": "Cuando está activado, el audio sube gradualmente al reproducir y baja antes de detener. Por defecto desactivado para respuesta inmediata.",
-            "lazy_load": "Cargar audios bajo demanda"
-        }
-    },
-    "about": {
-        "tagline": "Sistema de presentación para cultos y eventos religiosos",
-        "version": "Versión",
-        "build": "Build",
-        "platform": "Plataforma",
-        "credits": "Desarrollado con ❤ para la comunidad Adventista."
-    },
-    "popup": {
-        "close": "Cerrar Ventana"
-    },
-    "messages": {
-        "file_database_not_found": "Archivo de datos no encontrado!",
-        "developer_mode_enabled": "Modo DESARROLLADOR activado!",
-        "developer_mode_disabled": "Modo DESARROLLADOR desactivado!",
-        "error_import_module": "Error al importar el módulo",
-        "misconfigured_module": "Este módulo está mal configurado. ¡La identificación ingresada en manifest.json debe tener el mismo nombre que la carpeta donde se encuentra!"
-    },
-    "ribbon": {
-        "pages": {
-            "collections": "Colecciones",
-            "collections_online": "Colecciones On-line",
-            "bible": "Biblia",
-            "utilities": "Utilidades",
-            "favorites": "Favoritos",
-            "ctx_hymnal": "Configurar Himnos",
-            "ctx_liturgy": "Configurar Liturgia"
-        },
-        "groups": {
-            "hymnal_adventist": "Himnario Adventista",
-            "albums": "Álbumes",
-            "categories": "Músicas por Categorías",
-            "user": "Usuario",
-            "search": "Búsqueda",
-            "online_videos": "Internet",
-            "general": "General",
-            "church": "Iglesia",
-            "draws": "Sorteador",
-            "time": "Tiempo",
-            "texts": "Textos",
-            "favorites": "Favoritos",
-            "info": "Información",
-            "slide": "Diapositiva",
-            "audio_file": "Archivo de Audio",
-            "export": "Exportar",
-            "error": "Error",
-            "add": "Agregar",
-            "items": "Ítems",
-            "options": "Opciones"
-        },
-        "btn": {
-            "hymnal": "Himnario Adventista",
-            "bible": "Biblia Sagrada",
-            "musics": "Músicas",
-            "ja_musics": "JA/Min. Música",
-            "diverse": "Colecciones Diversas",
-            "doxology": "Doxología",
-            "kids": "Músicas Infantiles",
-            "personal": "Colec. Personalizadas",
-            "search_music": "Localizar Músicas",
-            "online_videos": "Vídeos On-line",
-            "online_personal": "Vídeos Personalizados",
-            "scheduled_items": "Ítems Programados",
-            "stopwatch_culto": "Cronómetro de Culto",
-            "history": "Historial",
-            "favorites": "Favoritos",
-            "liturgy": "Liturgia",
-            "slide_editor": "Editor de Músicas",
-            "transmission": "Transmisión",
-            "collections": "Colecciones",
-            "downloads": "Descargas",
-            "update": "Actualizar",
-            "stopwatch": "Cronómetro",
-            "clock": "Reloj",
-            "draw": "Números",
-            "name_draw": "Nombres",
-            "counter": "Contador",
-            "message_board": "Panel Dinámico",
-            "dynamic_text": "Texto Dinámico",
-            "interactive_text": "Texto Interactivo",
-            "theme": "Tema",
-            "dev": "Dev",
-            "lyric": "Letra",
-            "sing": "Cantado",
-            "playback": "Playback",
-            "no_audio": "Sin Audio",
-            "sequence": "En Secuencia",
-            "export_music": "Exportar Música",
-            "report_error": "Reportar Error",
-            "bible_search": "Búsqueda Bíblica",
-            "add_item": "Agregar Ítem",
-            "check_all": "Marcar Todos",
-            "uncheck_all": "Desmarcar Todos",
-            "invert_selection": "Invertir Selección",
-            "delete_selected": "Eliminar Seleccionados",
-            "mark_done": "Marcar como Completado",
-            "show_notes": "Mostrar Panel de Anotaciones",
-            "lock_items": "Bloquear Ítems"
-        }
-    },
-    "shell": {
-        "search_placeholder": "Buscar himno, canción, versículo...",
-        "toggle_sidebar": "Mostrar/ocultar menú",
-        "toggle_liturgy": "Mostrar/ocultar liturgia",
-        "toggle_theme": "Alternar tema",
-        "settings": "Configuración",
-        "favorites": "Favoritos",
-        "history": "Historial",
-        "remote_connected": "Conectado remotamente",
-        "live": "EN VIVO",
-        "start_live": "Iniciar modo culto",
-        "exit_live": "Salir del modo culto",
-        "hymn_number": "N° himno",
-        "bible_ref_placeholder": "Ej: Juan 3:16",
-        "liturgy": "Liturgia",
-        "projection": "Proyectar",
-        "next_slide": "siguiente",
-        "prev_slide": "anterior",
-        "liturgy_title": "Liturgia",
-        "edit_liturgy": "Editar liturgia",
-        "liturgy_empty": "Ningún ítem en la liturgia",
-        "add_item": "Agregar",
-        "no_results": "No se encontraron resultados",
-        "navigate": "navegar",
-        "execute": "ejecutar",
-        "close": "cerrar",
-        "results": "resultados",
-        "cat": {
-            "action": "Acciones",
-            "module": "Módulos",
-            "music": "Músicas",
-            "hymn": "Himnos",
-            "bible": "Versículos",
-            "favorite": "Favoritos",
-            "recent": "Recientes"
-        },
-        "cmd": {
-            "open_liturgy": "Abrir Liturgia",
-            "open_bible": "Abrir Biblia",
-            "open_hymnal": "Abrir Himnario",
-            "open_musics": "Abrir Músicas",
-            "open_favorites": "Abrir Favoritos",
-            "open_history": "Abrir Historial",
-            "open_slide_editor": "Editor de Diapositivas",
-            "open_transmission": "Abrir Transmisión",
-            "open_downloads": "Descargas",
-            "open_update": "Actualizaciones",
-            "close_media": "Cerrar música actual",
-            "next_slide": "Siguiente diapositiva",
-            "prev_slide": "Diapositiva anterior",
-            "toggle_theme": "Alternar tema claro/oscuro",
-            "open_projection": "Abrir pantalla de proyección",
-            "open_operator": "Abrir operador (grilla de diapositivas)",
-            "toggle_live": "Iniciar/salir modo culto"
-        },
-        "live_active": "MODO CULTO ACTIVO",
-        "appmenu": "Menú",
-        "about": "Acerca de",
-        "transmission": "Transmisión",
-        "downloads": "Descargas",
-        "check_update": "Verificar actualizaciones",
-        "feedback": "Enviar comentarios",
-        "help": "Ayuda",
-        "dev_mode": "Modo desarrollador",
-        "quick_search": "Búsqueda rápida (Ctrl+K)",
-        "quick_search_short": "Búsqueda Rápida",
-        "open_modules": "Módulos abiertos",
-        "no_modules_open": "Ningún módulo abierto",
-        "empty_ribbon_page": "Seleccione una pestaña",
-        "appmenu_content_placeholder": "Seleccione una opción del menú para configurar.",
-        "appmenu_items": {
-            "about": "Acerca de",
-            "settings": "Opciones",
-            "transmission": "Transmitir",
-            "import_export": "Importar/Exportar",
-            "import_export_hint": "Use el módulo de Colecciones o Liturgia para importar/exportar.",
-            "sync": "Sincronizar Archivos",
-            "feedback": "Enviar Comentarios",
-            "check_update": "Buscar Actualizaciones",
-            "albums": "Activar/Desactivar Álbumes",
-            "donate": "Haga su Donación",
-            "dev": "Desarrollador",
-            "exit": "Salir"
-        },
-        "window": {
-            "minimize": "Minimizar",
-            "maximize": "Maximizar",
-            "restore": "Restaurar",
-            "close": "Cerrar"
-        },
-        "playing": "Reproduciendo",
-        "player": {
-            "first": "Primera diapositiva",
-            "prev": "Diapositiva anterior",
-            "play": "Reproducir",
-            "pause": "Pausar",
-            "next": "Siguiente diapositiva",
-            "last": "Última diapositiva",
-            "close": "Cerrar música",
-            "maximize": "Restaurar ventana",
-            "fullscreen": "Pantalla completa"
-        }
-    },
-    "hotkeys": {
-        "title": "Atajos de Teclado",
-        "groups": {
-            "general": "General",
-            "navigation": "Navegación de diapositivas",
-            "media": "Reproductor",
-            "liturgy": "Liturgia",
-            "system": "Sistema"
-        },
-        "esc": "Cerrar módulo activo",
-        "f1": "Mostrar atajos de teclado",
-        "f5": "Recargar módulo activo",
-        "f8": "Activar/desactivar modo culto",
-        "ctrl_w": "Cerrar módulo activo",
-        "ctrl_f": "Enfocar campo de búsqueda",
-        "ctrl_k": "Abrir paleta de comandos",
-        "ctrl_n": "Nuevo ítem (liturgia activa)",
-        "ctrl_shift_n": "Nueva anotación en liturgia",
-        "ctrl_up": "Diapositiva anterior",
-        "ctrl_down": "Siguiente diapositiva",
-        "ctrl_pageup": "Diapositiva anterior",
-        "ctrl_pagedown": "Siguiente diapositiva",
-        "ctrl_left": "Música anterior",
-        "ctrl_right": "Siguiente música",
-        "home": "Primera diapositiva",
-        "end": "Última diapositiva",
-        "space": "Pausar/reanudar reproducción",
-        "pause": "Pausar/reanudar reproducción",
-        "ctrl_shift_f2": "Limpiar caché y recargar datos",
-        "ctrl_alt_d": "Alternar modo desarrollador",
-        "prev_slide": "Diapositiva anterior",
-        "next_slide": "Siguiente diapositiva"
+  "app": {
+    "name": "Loor JA"
+  },
+  "modules": {
+    "invalid": {
+      "title": "#Error#"
     }
+  },
+  "module_group": {
+    "musics": {
+      "title": "Músicas"
+    },
+    "bible": {
+      "title": "Biblia"
+    },
+    "utilities": {
+      "title": "Utilidades"
+    }
+  },
+  "components": {
+    "letterpagination": {
+      "all": "Todas"
+    },
+    "datatable": {
+      "alerts": {
+        "not_found": "¡No se pudo encontrar el archivo para mostrar esta información!"
+      }
+    },
+    "inputs": {
+      "search": "Buscar"
+    },
+    "music_menu": {
+      "add_to": "Agregar en",
+      "add_to_favorites": "Agregar a Favoritos",
+      "remove_from_favorites": "Quitar de Favoritos",
+      "add_to_liturgy": "Agregar a la Liturgia",
+      "execute": "Ejecutar",
+      "file_sing": "Archivo Cantado",
+      "file_playback": "Archivo Playback"
+    },
+    "customization": {
+      "restore": "Restaurar",
+      "restore_configs": "Restaurar Configuración",
+      "restore_dialog": "¿Quieres restaurar la configuración?",
+      "fit": {
+        "none": "Ninguno",
+        "fill": "Expandir",
+        "contain": "Ajustar",
+        "cover": "Rellenar"
+      }
+    }
+  },
+  "alert": {
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No",
+    "wait": "Aguardar..."
+  },
+  "actions": {
+    "close": "Cerrar",
+    "minimize": "Minimizar",
+    "maximize": "Maximizar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "open": "Abrir",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior"
+  },
+  "options": {
+    "general": {
+      "title": "General",
+      "fade_form": "Agregar efecto de esmaecimiento en las pantallas",
+      "theme": "Apariencia del programa:",
+      "language": "Idioma:"
+    },
+    "monitors": {
+      "title": "Monitores",
+      "identify": "Identificar Monitores",
+      "no_displays": "Ningún monitor adicional disponible (modo web o monitor único)."
+    },
+    "slides": {
+      "title": "Diapositivas de Músicas",
+      "open_at": "Abrir en el monitor:",
+      "alignment": "Alineación de la letra:",
+      "align_top": "Arriba",
+      "align_center": "Centro",
+      "align_bottom": "Abajo",
+      "fullscreen": "Mostrar en pantalla completa",
+      "always_on_top": "Mostrar músicas siempre al frente",
+      "open_operator": "Abrir Pantalla del Operador",
+      "open_return": "Abrir Pantalla de Retorno",
+      "show_title": "Mostrar título de la música en la primera diapositiva",
+      "same_window": "Misma ventana"
+    },
+    "videos": {
+      "title": "Vídeos On-line",
+      "fullscreen": "Mostrar en pantalla completa",
+      "youtube_action": "Al ejecutar enlace de YouTube en la liturgia, abrir:",
+      "action_video": "Vídeo",
+      "action_link": "Enlace en el navegador"
+    },
+    "player": {
+      "title": "Reproductor de Audio/Vídeo",
+      "fade_audio": "Aplicar fundido al iniciar/parar audio",
+      "fade_audio_hint": "Cuando está activado, el audio sube gradualmente al reproducir y baja antes de detener. Por defecto desactivado para respuesta inmediata.",
+      "lazy_load": "Cargar audios bajo demanda"
+    }
+  },
+  "about": {
+    "tagline": "Sistema de presentación para cultos y eventos religiosos",
+    "version": "Versión",
+    "build": "Build",
+    "platform": "Plataforma",
+    "credits": "Desarrollado con ❤ para la comunidad Adventista."
+  },
+  "popup": {
+    "close": "Cerrar Ventana"
+  },
+  "messages": {
+    "file_database_not_found": "Archivo de datos no encontrado!",
+    "developer_mode_enabled": "Modo DESARROLLADOR activado!",
+    "developer_mode_disabled": "Modo DESARROLLADOR desactivado!",
+    "error_import_module": "Error al importar el módulo",
+    "misconfigured_module": "Este módulo está mal configurado. ¡La identificación ingresada en manifest.json debe tener el mismo nombre que la carpeta donde se encuentra!"
+  },
+  "ribbon": {
+    "pages": {
+      "collections": "Colecciones",
+      "collections_online": "Colecciones On-line",
+      "bible": "Biblia",
+      "utilities": "Utilidades",
+      "favorites": "Favoritos",
+      "ctx_hymnal": "Configurar Himnos",
+      "ctx_liturgy": "Configurar Liturgia"
+    },
+    "groups": {
+      "hymnal_adventist": "Himnario Adventista",
+      "albums": "Álbumes",
+      "categories": "Músicas por Categorías",
+      "user": "Usuario",
+      "search": "Búsqueda",
+      "online_videos": "Internet",
+      "general": "General",
+      "church": "Iglesia",
+      "draws": "Sorteador",
+      "time": "Tiempo",
+      "texts": "Textos",
+      "favorites": "Favoritos",
+      "info": "Información",
+      "slide": "Diapositiva",
+      "audio_file": "Archivo de Audio",
+      "export": "Exportar",
+      "error": "Error",
+      "add": "Agregar",
+      "items": "Ítems",
+      "options": "Opciones"
+    },
+    "btn": {
+      "hymnal": "Himnario Adventista",
+      "bible": "Biblia Sagrada",
+      "musics": "Músicas",
+      "ja_musics": "JA/Min. Música",
+      "diverse": "Colecciones Diversas",
+      "doxology": "Doxología",
+      "kids": "Músicas Infantiles",
+      "personal": "Colec. Personalizadas",
+      "search_music": "Localizar Músicas",
+      "online_videos": "Vídeos On-line",
+      "online_personal": "Vídeos Personalizados",
+      "scheduled_items": "Ítems Programados",
+      "stopwatch_culto": "Cronómetro de Culto",
+      "history": "Historial",
+      "favorites": "Favoritos",
+      "liturgy": "Liturgia",
+      "slide_editor": "Editor de Músicas",
+      "transmission": "Transmisión",
+      "collections": "Colecciones",
+      "downloads": "Descargas",
+      "update": "Actualizar",
+      "stopwatch": "Cronómetro",
+      "clock": "Reloj",
+      "draw": "Números",
+      "name_draw": "Nombres",
+      "counter": "Contador",
+      "message_board": "Panel Dinámico",
+      "dynamic_text": "Texto Dinámico",
+      "interactive_text": "Texto Interactivo",
+      "theme": "Tema",
+      "dev": "Dev",
+      "lyric": "Letra",
+      "sing": "Cantado",
+      "playback": "Playback",
+      "no_audio": "Sin Audio",
+      "sequence": "En Secuencia",
+      "export_music": "Exportar Música",
+      "report_error": "Reportar Error",
+      "bible_search": "Búsqueda Bíblica",
+      "add_item": "Agregar Ítem",
+      "check_all": "Marcar Todos",
+      "uncheck_all": "Desmarcar Todos",
+      "invert_selection": "Invertir Selección",
+      "delete_selected": "Eliminar Seleccionados",
+      "mark_done": "Marcar como Completado",
+      "show_notes": "Mostrar Panel de Anotaciones",
+      "lock_items": "Bloquear Ítems"
+    }
+  },
+  "shell": {
+    "search_placeholder": "Buscar himno, canción, versículo...",
+    "toggle_sidebar": "Mostrar/ocultar menú",
+    "toggle_liturgy": "Mostrar/ocultar liturgia",
+    "toggle_theme": "Alternar tema",
+    "settings": "Configuración",
+    "favorites": "Favoritos",
+    "history": "Historial",
+    "remote_connected": "Conectado remotamente",
+    "live": "EN VIVO",
+    "start_live": "Iniciar modo culto",
+    "exit_live": "Salir del modo culto",
+    "hymn_number": "N° himno",
+    "bible_ref_placeholder": "Ej: Juan 3:16",
+    "liturgy": "Liturgia",
+    "projection": "Proyectar",
+    "next_slide": "siguiente",
+    "prev_slide": "anterior",
+    "liturgy_title": "Liturgia",
+    "edit_liturgy": "Editar liturgia",
+    "liturgy_empty": "Ningún ítem en la liturgia",
+    "add_item": "Agregar",
+    "no_results": "No se encontraron resultados",
+    "navigate": "navegar",
+    "execute": "ejecutar",
+    "close": "cerrar",
+    "results": "resultados",
+    "cat": {
+      "action": "Acciones",
+      "module": "Módulos",
+      "music": "Músicas",
+      "hymn": "Himnos",
+      "bible": "Versículos",
+      "favorite": "Favoritos",
+      "recent": "Recientes"
+    },
+    "cmd": {
+      "open_liturgy": "Abrir Liturgia",
+      "open_bible": "Abrir Biblia",
+      "open_hymnal": "Abrir Himnario",
+      "open_musics": "Abrir Músicas",
+      "open_favorites": "Abrir Favoritos",
+      "open_history": "Abrir Historial",
+      "open_slide_editor": "Editor de Diapositivas",
+      "open_transmission": "Abrir Transmisión",
+      "open_downloads": "Descargas",
+      "open_update": "Actualizaciones",
+      "close_media": "Cerrar música actual",
+      "next_slide": "Siguiente diapositiva",
+      "prev_slide": "Diapositiva anterior",
+      "toggle_theme": "Alternar tema claro/oscuro",
+      "open_projection": "Abrir pantalla de proyección",
+      "open_operator": "Abrir operador (grilla de diapositivas)",
+      "toggle_live": "Iniciar/salir modo culto"
+    },
+    "live_active": "MODO CULTO ACTIVO",
+    "appmenu": "Menú",
+    "about": "Acerca de",
+    "transmission": "Transmisión",
+    "downloads": "Descargas",
+    "check_update": "Verificar actualizaciones",
+    "feedback": "Enviar comentarios",
+    "help": "Ayuda",
+    "dev_mode": "Modo desarrollador",
+    "quick_search": "Búsqueda rápida (Ctrl+K)",
+    "quick_search_short": "Búsqueda Rápida",
+    "open_modules": "Módulos abiertos",
+    "ribbon_nav": "Navegación del Ribbon",
+    "no_modules_open": "Ningún módulo abierto",
+    "empty_ribbon_page": "Seleccione una pestaña",
+    "appmenu_content_placeholder": "Seleccione una opción del menú para configurar.",
+    "appmenu_items": {
+      "about": "Acerca de",
+      "settings": "Opciones",
+      "transmission": "Transmitir",
+      "import_export": "Importar/Exportar",
+      "import_export_hint": "Use el módulo de Colecciones o Liturgia para importar/exportar.",
+      "sync": "Sincronizar Archivos",
+      "feedback": "Enviar Comentarios",
+      "check_update": "Buscar Actualizaciones",
+      "albums": "Activar/Desactivar Álbumes",
+      "donate": "Haga su Donación",
+      "dev": "Desarrollador",
+      "exit": "Salir"
+    },
+    "window": {
+      "minimize": "Minimizar",
+      "maximize": "Maximizar",
+      "restore": "Restaurar",
+      "close": "Cerrar"
+    },
+    "playing": "Reproduciendo",
+    "player": {
+      "first": "Primera diapositiva",
+      "prev": "Diapositiva anterior",
+      "play": "Reproducir",
+      "pause": "Pausar",
+      "next": "Siguiente diapositiva",
+      "last": "Última diapositiva",
+      "close": "Cerrar música",
+      "maximize": "Restaurar ventana",
+      "fullscreen": "Pantalla completa"
+    },
+    "version": "versión {v}",
+    "operator_label": "Operador de diapositivas",
+    "operator_slide_label": "Diapositiva {n} de {total}",
+    "operator_waiting": "Esperando música...",
+    "operator_hint": "← → navegar · Enter presentar",
+    "proj_return_next": "SIG"
+  },
+  "hotkeys": {
+    "title": "Atajos de Teclado",
+    "groups": {
+      "general": "General",
+      "navigation": "Navegación de diapositivas",
+      "media": "Reproductor",
+      "liturgy": "Liturgia",
+      "system": "Sistema"
+    },
+    "esc": "Cerrar módulo activo",
+    "f1": "Mostrar atajos de teclado",
+    "f5": "Recargar módulo activo",
+    "f8": "Activar/desactivar modo culto",
+    "ctrl_w": "Cerrar módulo activo",
+    "ctrl_f": "Enfocar campo de búsqueda",
+    "ctrl_k": "Abrir paleta de comandos",
+    "ctrl_n": "Nuevo ítem (liturgia activa)",
+    "ctrl_shift_n": "Nueva anotación en liturgia",
+    "ctrl_up": "Diapositiva anterior",
+    "ctrl_down": "Siguiente diapositiva",
+    "ctrl_pageup": "Diapositiva anterior",
+    "ctrl_pagedown": "Siguiente diapositiva",
+    "ctrl_left": "Música anterior",
+    "ctrl_right": "Siguiente música",
+    "home": "Primera diapositiva",
+    "end": "Última diapositiva",
+    "space": "Pausar/reanudar reproducción",
+    "pause": "Pausar/reanudar reproducción",
+    "ctrl_shift_f2": "Limpiar caché y recargar datos",
+    "ctrl_alt_d": "Alternar modo desarrollador",
+    "prev_slide": "Diapositiva anterior",
+    "next_slide": "Siguiente diapositiva"
+  }
 }

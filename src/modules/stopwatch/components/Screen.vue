@@ -1,13 +1,9 @@
 <template>
-  <div
-    ref="container"
-    class="d-flex"
-    :class="alignClass"
-    :style="containerStyle"
-  >
+  <div ref="container" class="d-flex" :class="alignClass" :style="containerStyle">
     <img
       v-if="userdata.image"
       :src="userdata.image"
+      alt=""
       :style="{
         top: 0,
         left: 0,
@@ -54,7 +50,7 @@ export default {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     appdata() {
@@ -68,7 +64,7 @@ export default {
             this.$appdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     backgroundColor() {
@@ -152,9 +148,7 @@ export default {
     },
 
     formattedTime() {
-      const elapsedTime = this.now
-        ? this.now - (this.startTime ?? this.now)
-        : 0;
+      const elapsedTime = this.now ? this.now - (this.startTime ?? this.now) : 0;
 
       const totalMilliseconds = elapsedTime;
       const hours = Math.floor(totalMilliseconds / 3600000);
@@ -186,6 +180,20 @@ export default {
       }
     },
   },
+  mounted() {
+    this.windowResize();
+    window.addEventListener("resize", this.windowResize);
+
+    if (this.isRunning) {
+      this.timer = setInterval(() => {
+        this.now = new Date();
+      }, 10);
+    }
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.windowResize);
+    clearInterval(this.timer);
+  },
   methods: {
     fontSizePc(pc) {
       const v = Math.min(this.s_width, this.s_height);
@@ -205,20 +213,6 @@ export default {
         }
       }
     },
-  },
-  mounted() {
-    this.windowResize();
-    window.addEventListener("resize", this.windowResize);
-
-    if (this.isRunning) {
-      this.timer = setInterval(() => {
-        this.now = new Date();
-      }, 10);
-    }
-  },
-  unmounted() {
-    window.removeEventListener("resize", this.windowResize);
-    clearInterval(this.timer);
   },
 };
 </script>

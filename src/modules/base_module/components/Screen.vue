@@ -1,13 +1,9 @@
 <template>
-  <div
-    ref="container"
-    class="d-flex"
-    :class="alignClass"
-    :style="containerStyle"
-  >
+  <div ref="container" class="d-flex" :class="alignClass" :style="containerStyle">
     <img
       v-if="userdata.image"
       :src="userdata.image"
+      alt=""
       :style="{
         top: 0,
         left: 0,
@@ -54,7 +50,7 @@ export default {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     backgroundColor() {
@@ -126,6 +122,18 @@ export default {
       };
     },
   },
+  mounted() {
+    this.windowResize();
+    window.addEventListener("resize", this.windowResize);
+    this.updateTime();
+    this.timer = setInterval(() => {
+      this.updateTime();
+    }, 1000);
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.windowResize);
+    clearInterval(this.timer);
+  },
   methods: {
     fontSizePc(pc) {
       const v = Math.min(this.s_width, this.s_height);
@@ -150,11 +158,7 @@ export default {
       let hours = now.getHours();
       const is12Hour = this.hourCycle === "12h";
       const displayHours =
-        is12Hour && hours > 12
-          ? hours - 12
-          : is12Hour && hours === 0
-            ? 12
-            : hours;
+        is12Hour && hours > 12 ? hours - 12 : is12Hour && hours === 0 ? 12 : hours;
       const minutes = now.getMinutes();
       const seconds = now.getSeconds();
 
@@ -166,10 +170,7 @@ export default {
         ss: pad(seconds),
       };
 
-      let timeStr = this.timeFormat.replace(
-        /hh|mm|ss/g,
-        (match) => tokens[match],
-      );
+      let timeStr = this.timeFormat.replace(/hh|mm|ss/g, (match) => tokens[match]);
 
       if (is12Hour) {
         timeStr += hours >= 12 ? " PM" : " AM";
@@ -177,18 +178,6 @@ export default {
 
       this.time = timeStr;
     },
-  },
-  mounted() {
-    this.windowResize();
-    window.addEventListener("resize", this.windowResize);
-    this.updateTime();
-    this.timer = setInterval(() => {
-      this.updateTime();
-    }, 1000);
-  },
-  unmounted() {
-    window.removeEventListener("resize", this.windowResize);
-    clearInterval(this.timer);
   },
 };
 </script>

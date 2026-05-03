@@ -13,7 +13,7 @@ export default {
   module_group: {
     musics: {
       title: "module_group.musics.title",
-      modules: ["musics", "hymnal", "hymnal_1996"],
+      modules: ["musics", "hymnal"],
     },
     bible: {
       title: "module_group.bible.title",
@@ -23,13 +23,6 @@ export default {
       title: "module_group.utilities.title",
       modules: [],
     },
-  },
-  menu: {
-    show: false,
-    modules: [],
-  },
-  tray_area: {
-    modules: [],
   },
   languages: {
     pt: { name: "Português", flag: "br" },
@@ -54,6 +47,8 @@ export default {
       url: "",
       token: "",
     },
+    favorites: [],
+    history: [],
     modules: {
       musics: {
         search: {
@@ -68,7 +63,7 @@ export default {
       },
       media: {
         lazy_load: true,
-        fade_audio: true,
+        fade_audio: false,
       },
     },
   },

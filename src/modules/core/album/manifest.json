@@ -4,5 +4,8 @@
   "description": "Exibe as músicas de um álbum (função $media.openAlbum)",
   "category": null,
   "icon": null,
-  "dependencies": []
+  "dependencies": [],
+  "moduleOptions": {
+    "popup": true
+  }
 }

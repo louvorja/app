@@ -31,28 +31,28 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                                | Modelo | Pri | Est | Status | Cobre items     |
 |-----|---------------------------------------------------------------------|--------|-----|-----|--------|-----------------|
-| 028 | [Aplicar tokens CSS — varredura e substituição de hex hardcoded](tasks/028-aplicar-tokens-css.md) | S | P1 | 4h | done | 28, 35, 38 |
-| 029 | [Eliminar `!important` (resolver especificidade)](tasks/029-remover-important.md) | S | P2 | 1h | done | 29 |
-| 030 | [Eliminar `:global(.v-theme--dark)` em scoped — usar tokens](tasks/030-remover-global-theme-dark.md) | S | P2 | 2h | done | 30 |
-| 031 | [Substituir `rgb(var(--v-theme-primary))` por tokens LJ](tasks/031-reduzir-rgb-var.md) | S | P3 | 1h | done | 31 |
-| 032 | [Extrair classes utilitárias `.lj-u-*`](tasks/032-extrair-classes-utilitarias.md) | S | P2 | 2h | done | 32 |
-| 033 | [Mover `layout.scss` para `utilities.scss`](tasks/033-mover-layout-scss.md) | S | P3 | 0.5h | done | 33 |
-| 034 | [Consolidar `@font-face DINCondensedBold` (2 lugares → 1)](tasks/034-consolidar-font-face.md) | S | P2 | 0.5h | done | 34 |
-| 037 | [`Slide.vue` respeitar dark theme (cores hardcoded)](tasks/037-slide-dark-theme.md) | S | P2 | 1h | done | 37 |
-| 052 | [Mover strings hardcoded para i18n (varredura completa)](tasks/052-mover-strings-hardcoded-i18n.md) | S | P1 | 3h | done | 52, 53, 54, 56 |
-| 066 | [Migrar ESLint para flat config (eslint.config.js)](tasks/066-eslint-flat-config.md) | S | P3 | 1h | done | 66 |
-| 067 | [Adicionar Prettier com config compartilhada](tasks/067-adicionar-prettier.md) | S | P2 | 1h | done | 67 |
-| 068 | [Adicionar Husky + lint-staged](tasks/068-adicionar-husky-lint-staged.md) | S | P2 | 1h | done | 68 |
-| 057 | [Auditar e travar `vue-router` em versão estável](tasks/057-travar-vue-router.md) | O | P1 | 2h | done | 57 |
-| 058 | [RFC: travar Vuetify na versão estável](tasks/058-rfc-vuetify-decision.md) | O | P0 | 4h | done | 58, 59 |
-| 060 | [Auditar dependências (webfontloader, core-js, etc)](tasks/060-audit-dependencias.md) | S | P3 | 1h | done | 60 |
+| 028 | [Aplicar tokens CSS — varredura e substituição de hex hardcoded](tasks/done/028-aplicar-tokens-css.md) | S | P1 | 4h | done | 28, 35, 38 |
+| 029 | [Eliminar `!important` (resolver especificidade)](tasks/done/029-remover-important.md) | S | P2 | 1h | done | 29 |
+| 030 | [Eliminar `:global(.v-theme--dark)` em scoped — usar tokens](tasks/done/030-remover-global-theme-dark.md) | S | P2 | 2h | done | 30 |
+| 031 | [Substituir `rgb(var(--v-theme-primary))` por tokens LJ](tasks/done/031-reduzir-rgb-var.md) | S | P3 | 1h | done | 31 |
+| 032 | [Extrair classes utilitárias `.lj-u-*`](tasks/done/032-extrair-classes-utilitarias.md) | S | P2 | 2h | done | 32 |
+| 033 | [Mover `layout.scss` para `utilities.scss`](tasks/done/033-mover-layout-scss.md) | S | P3 | 0.5h | done | 33 |
+| 034 | [Consolidar `@font-face DINCondensedBold` (2 lugares → 1)](tasks/done/034-consolidar-font-face.md) | S | P2 | 0.5h | done | 34 |
+| 037 | [`Slide.vue` respeitar dark theme (cores hardcoded)](tasks/done/037-slide-dark-theme.md) | S | P2 | 1h | done | 37 |
+| 052 | [Mover strings hardcoded para i18n (varredura completa)](tasks/done/052-mover-strings-hardcoded-i18n.md) | S | P1 | 3h | done | 52, 53, 54, 56 |
+| 066 | [Migrar ESLint para flat config (eslint.config.js)](tasks/done/066-eslint-flat-config.md) | S | P3 | 1h | done | 66 |
+| 067 | [Adicionar Prettier com config compartilhada](tasks/done/067-adicionar-prettier.md) | S | P2 | 1h | done | 67 |
+| 068 | [Adicionar Husky + lint-staged](tasks/done/068-adicionar-husky-lint-staged.md) | S | P2 | 1h | done | 68 |
+| 057 | [Auditar e travar `vue-router` em versão estável](tasks/done/057-travar-vue-router.md) | O | P1 | 2h | done | 57 |
+| 058 | [RFC: travar Vuetify na versão estável](tasks/done/058-rfc-vuetify-decision.md) | O | P0 | 4h | done | 58, 59 |
+| 060 | [Auditar dependências (webfontloader, core-js, etc)](tasks/done/060-audit-dependencias.md) | S | P3 | 1h | done | 60 |
 | 061 | `jszip` external → import dinâmico em `SljaConverter.js` | S | P1 | 1h | done | 61 |
-| 062 | [manualChunks no Vite + bundle visualizer](tasks/062-manualchunks-bundle-visualizer.md) | S | P2 | 2h | done | 62, 63 |
-| 064 | [Adicionar aliases Vite (`@helpers`, `@modules`, `@components`)](tasks/064-aliases-vite.md) | S | P3 | 0.5h | done | 64 |
-| 069 | [Documentar/corrigir porta dev (5002 vs 5173)](tasks/069-corrigir-porta-dev.md) | S | P2 | 0.5h | done | 69 |
-| 070 | [Decidir destino de `npm run files`: documentar ou remover](tasks/070-destino-npm-run-files.md) | S | P3 | 0.5h | todo | 70 |
-| 113 | [Criar `.env.example` documentando VITE_*](tasks/113-env-example.md) | S | P2 | 0.5h | todo | 113 |
-| 014 | [JSON schema para `manifest.json` + validação na build](tasks/014-manifest-json-schema.md) | O | P2 | 3h | todo | 13, 14 |
+| 062 | [manualChunks no Vite + bundle visualizer](tasks/done/062-manualchunks-bundle-visualizer.md) | S | P2 | 2h | done | 62, 63 |
+| 064 | [Adicionar aliases Vite (`@helpers`, `@modules`, `@components`)](tasks/done/064-aliases-vite.md) | S | P3 | 0.5h | done | 64 |
+| 069 | [Documentar/corrigir porta dev (5002 vs 5173)](tasks/done/069-corrigir-porta-dev.md) | S | P2 | 0.5h | done | 69 |
+| 070 | [Decidir destino de `npm run files`: documentar ou remover](tasks/done/070-destino-npm-run-files.md) | S | P3 | 0.5h | done | 70 |
+| 113 | [Criar `.env.example` documentando VITE_*](tasks/done/113-env-example.md) | S | P2 | 0.5h | done | 113 |
+| 014 | [JSON schema para `manifest.json` + validação na build](tasks/done/014-manifest-json-schema.md) | O | P2 | 3h | done | 13, 14 |
 
 ---
 
@@ -60,22 +60,22 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                                 | Modelo | Pri | Est | Status | Cobre items   |
 |-----|----------------------------------------------------------------------|--------|-----|-----|--------|---------------|
+| 015 | [Contratos tipados para BroadcastChannel](tasks/done/015-broadcast-contratos-tipados.md) | O | P1 | 3h | done | 15, 26 |
+| 025 | [Composable `useBroadcastListener` + cleanup automático](tasks/done/025-use-broadcast-listener.md) | O | P1 | 4h | done | 25, 26, 75 |
+| 023 | [Eliminar duplicação Projection/ProjectionReturn](tasks/done/023-eliminar-duplicacao-projection.md) | O | P1 | 6h | done | 23, 24, 27 |
 | 016 | [Quebrar `helpers/Media.js` em composables](tasks/016-quebrar-media-helper.md) | O | P0 | 12h | todo | 16, 76 |
-| 017 | Refatorar `liturgy/Index.vue` (2048 linhas) em componentes+composables| O     | P0  | 16h | todo   | 17, 18, 19, 20|
-| 022 | Refatorar `Player.vue` (489 linhas)                                  | O      | P1  | 8h  | todo   | 22            |
-| 023 | Eliminar duplicação Projection/ProjectionReturn                      | O      | P1  | 6h  | todo   | 23, 24, 27    |
-| 025 | Composable `useBroadcastListener` + cleanup automático               | H      | P1  | 4h  | todo   | 25, 26, 75    |
-| 094 | Padronizar prefixo de componentes (`L*` ou nada)                     | S      | P2  | 2h  | todo   | 94            |
-| 005 | Substituir `setData` genérico por mutations tipadas                  | O      | P1  | 8h  | todo   | 5, 6          |
-| 010 | Unificar Hotkeys + Shortcuts + vue3-shortkey                         | O      | P1  | 6h  | todo   | 10            |
-| 009 | Unificar Modules.js + ModuleManager.js                               | O      | P1  | 4h  | todo   | 9, 12         |
-| 015 | Contratos tipados para BroadcastChannel                              | O      | P1  | 3h  | todo   | 15, 26        |
-| 021 | Extrair `playBeep` (Web Audio) para helper                           | S      | P3  | 0.5h| todo   | 21            |
-| 045 | Adicionar focus-trap em todos os modais                              | H      | P1  | 4h  | todo   | 43, 47        |
-| 040 | Cobertura ARIA shell (RibbonBar, OpenModulesTabs, AppMenu)           | S      | P1  | 3h  | todo   | 40, 41, 42, 50|
-| 044 | `alt` em imagens + `aria-label` em inputs                            | S      | P1  | 2h  | todo   | 44, 45, 49    |
-| 046 | Fix `Operator.vue` tabindex=0 sem role                               | S      | P2  | 0.25h| todo  | 46            |
-| 051 | Adicionar `vue-axe-next` em dev mode + smoke test a11y               | S      | P2  | 1h  | todo   | 51            |
+| 017 | [Refatorar `liturgy/Index.vue` (2331 linhas) em componentes+composables](tasks/017-refatorar-liturgy.md) | O | P0 | 16h | in-progress | 17, 18, 19, 20 |
+| 022 | [Refatorar `Player.vue` (453 linhas)](tasks/022-refatorar-player.md) | O | P1 | 8h | todo | 22 |
+| 005 | [Substituir `setData` genérico por mutations tipadas](tasks/005-substituir-setdata.md) | O | P1 | 8h | todo | 5, 6 |
+| 010 | [Unificar Hotkeys + Shortcuts + vue3-shortkey](tasks/010-unificar-hotkeys-shortcuts.md) | O | P1 | 6h | todo | 10 |
+| 009 | [Unificar Modules.js + ModuleManager.js](tasks/009-unificar-modules-manager.md) | O | P1 | 4h | todo | 9, 12 |
+| 094 | [Padronizar prefixo de componentes (Lj* ou renomear conflitantes)](tasks/done/094-prefixo-componentes.md) | S | P2 | 2h | done | 94 |
+| 021 | [Extrair `playBeep` (Web Audio) para helper](tasks/done/021-extrair-play-beep.md) | S | P3 | 0.5h | done | 21 |
+| 040 | [Cobertura ARIA shell (RibbonBar, OpenModulesTabs, AppMenu)](tasks/done/040-cobertura-aria-shell.md) | S | P1 | 3h | done | 40, 41, 42, 50 |
+| 044 | [`alt` em imagens + `aria-label` em inputs](tasks/done/044-alt-imagens-aria-inputs.md) | S | P1 | 2h | done | 44, 45, 49 |
+| 046 | [Fix `Operator.vue` tabindex=0 sem role](tasks/done/046-operator-tabindex.md) | S | P2 | 0.25h | done | 46 |
+| 045 | [Adicionar focus-trap em todos os modais](tasks/045-focus-trap-modais.md) | O | P1 | 4h | todo | 43, 47 |
+| 051 | [Adicionar `vue-axe` em dev mode](tasks/done/051-vue-axe-dev.md) | S | P2 | 1h | done | 51 |
 
 ---
 
@@ -119,7 +119,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 082 | Substituir `v-html` em CommandPalette (highlight via DOM)         | S      | P2  | 1h  | todo   | 82          |
 | 085 | Garantir `noopener,noreferrer` em popups                          | S      | P2  | 0.5h| todo   | 85          |
 | 086 | Configurar CSP / headers de segurança (PWA web)                   | O      | P2  | 3h  | todo   | 86          |
-| 087 | Confirmar que `basic-ftp` está no main process do Electron        | S      | P0  | 0.5h| todo   | 87          |
+| 087 | Confirmar que `basic-ftp` está no main process do Electron        | S      | P0  | 0.5h| done   | 87          |
 
 ---
 
@@ -193,14 +193,14 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 ## Quick filters
 
 **Pegando algo agora? Comece por:**
-- Sonnet, ≤1h, P0/P1: #007, #008, #102, #115, #084, #087
-- Opus, alto valor estratégico: #016, #017, #058
-- Híbrida, fundação para o resto: #015, #025, #045
+- Sonnet, ≤1h: #021 (playBeep), #046 (Operator tabindex), #040 (ARIA shell), #044 (alt/aria)
+- Opus, fundação da Onda 3 (deve ser feito primeiro): #015 → #025 → #023
+- Opus, alto impacto: #016 (Media.js), #017 (liturgy), #005 (setData), #010 (hotkeys)
 
 **Tasks com arquivo detalhado pronto:**
 - Onda 1 completa (em `tasks/done/`): #007, #008, #084, #099, #102, #103, #104, #115, #119, #120
-- Onda 2 — Block A tooling: #066, #067, #068
-- Onda 2 — Block B estratégico: #057, #014, #058 (pending-approval)
-- Onda 2 — Block C CSS: #028, #029, #030, #031, #032, #033, #034, #037, #052
-- Onda 2 — Block D Vite/deps: #060, #062, #064, #069, #070, #113
-- Onda 3 exemplo Opus complexo (referência): #016
+- Onda 2 completa (em `tasks/done/`): #014, #028, #029, #030, #031, #032, #033, #034, #037, #052, #057, #058, #060, #062, #064, #066, #067, #068, #069, #070, #113
+- Onda 3 — fundação BroadcastChannel: #015, #025, #023
+- Onda 3 — refatores pesados: #016, #017, #022, #005, #010, #009
+- Onda 3 — a11y: #040, #044, #045, #046, #051
+- Onda 3 — pontuais: #021, #094

@@ -1,25 +1,25 @@
 {
-    "title": "Bíblia",
-    "version": "Versão",
-    "book": "Livro",
-    "chapter": "Capítulo",
-    "verse": "Versículo",
-    "verses": "Versículos",
-    "verses_select": "Selecione os versículos",
-    "customization": {
-        "font": "Fonte",
-        "color": "Cor",
-        "reference": "Referência",
-        "size": "Tamanho",
-        "border": "Borda",
-        "background": "Fundo",
-        "text": "Texto",
-        "window": "Janela",
-        "align": "Alinhamento",
-        "vertical": "Vertical",
-        "horizontal": "Horizontal",
-        "image": "Imagem",
-        "transparency": "Transparência",
-        "adjust": "Ajuste"
-    }
+  "title": "Bíblia",
+  "version": "Versão",
+  "book": "Livro",
+  "chapter": "Capítulo",
+  "verse": "Versículo",
+  "verses": "Versículos",
+  "verses_select": "Selecione os versículos",
+  "customization": {
+    "font": "Fonte",
+    "color": "Cor",
+    "reference": "Referência",
+    "size": "Tamanho",
+    "border": "Borda",
+    "background": "Fundo",
+    "text": "Texto",
+    "window": "Janela",
+    "align": "Alinhamento",
+    "vertical": "Vertical",
+    "horizontal": "Horizontal",
+    "image": "Imagem",
+    "transparency": "Transparência",
+    "adjust": "Ajuste"
+  }
 }

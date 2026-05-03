@@ -7,13 +7,9 @@
 
     <!-- Your main content -->
     <h1>{{ t("title") }} | Clock With Anime.js</h1>
-    <button @click="openShowAnimation = !openShowAnimation">
-      Show Animation
-    </button>
+    <button @click="openShowAnimation = !openShowAnimation">Show Animation</button>
     <br />
-    <button @click="openEditAnimation = !openEditAnimation">
-      Edit Animation
-    </button>
+    <button @click="openEditAnimation = !openEditAnimation">Edit Animation</button>
 
     <ShowAnimation v-if="openShowAnimation" />
     <EditAnimation v-if="openEditAnimation" />

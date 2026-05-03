@@ -4,5 +4,8 @@
   "description": "Monta o slide da música (função $media.open)",
   "category": null,
   "icon": null,
-  "dependencies": []
+  "dependencies": [],
+  "moduleOptions": {
+    "popup": true
+  }
 }

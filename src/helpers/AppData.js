@@ -5,12 +5,7 @@ export default {
     store.commit("setData", [param, value]);
 
     const popup = this.get("popup");
-    if (
-      popup &&
-      param != "popup" &&
-      param != "is_popup" &&
-      param != "is_fullscreen"
-    ) {
+    if (popup && param != "popup" && param != "is_popup" && param != "is_fullscreen") {
       if (popup.closed) {
         this.set("popup", null);
         //this.set("popup_module", null);

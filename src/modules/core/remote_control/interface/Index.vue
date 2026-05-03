@@ -31,18 +31,8 @@
       <v-card-actions class="px-0">
         <v-spacer></v-spacer>
         <v-btn color="info" :text="t('labels.test_connection')" @click="test" />
-        <v-btn
-          v-if="!is_connected"
-          color="success"
-          text="Conectar"
-          @click="connect"
-        />
-        <v-btn
-          v-else
-          color="error"
-          :text="t('labels.disconnect')"
-          @click="disonnect"
-        />
+        <v-btn v-if="!is_connected" color="success" text="Conectar" @click="connect" />
+        <v-btn v-else color="error" :text="t('labels.disconnect')" @click="disonnect" />
       </v-card-actions>
     </v-card>
   </ModuleContainer>

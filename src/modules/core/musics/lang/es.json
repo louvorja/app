@@ -1,21 +1,21 @@
 {
-    "title": "Músicas",
-    "inputs": {
-        "search": "Buscar por...",
-        "search_disabled": "Seleccione una opción de búsqueda para habilitar la búsqueda!",
-        "filter_name": "Nombre",
-        "filter_lyric": "Letra",
-        "filter_album": "Álbum",
-        "filter_track": "Número",
-        "filter_instrumental": "Con Instrumental"
-    },
-    "table": {
-        "music_name": "Nombre",
-        "album_name": "Álbum",
-        "duration": "Duración"
-    },
-    "data": {
-        "records": "Registros totales",
-        "not_found": "No se encontraron registros con los filtros seleccionados. Intente cambiar los filtros de búsqueda."
-    }
+  "title": "Músicas",
+  "inputs": {
+    "search": "Buscar por...",
+    "search_disabled": "Seleccione una opción de búsqueda para habilitar la búsqueda!",
+    "filter_name": "Nombre",
+    "filter_lyric": "Letra",
+    "filter_album": "Álbum",
+    "filter_track": "Número",
+    "filter_instrumental": "Con Instrumental"
+  },
+  "table": {
+    "music_name": "Nombre",
+    "album_name": "Álbum",
+    "duration": "Duración"
+  },
+  "data": {
+    "records": "Registros totales",
+    "not_found": "No se encontraron registros con los filtros seleccionados. Intente cambiar los filtros de búsqueda."
+  }
 }

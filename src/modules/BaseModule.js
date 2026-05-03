@@ -16,6 +16,11 @@ export default class BaseModule {
       translations: manifest.translations || {},
       system: manifest.system ?? false,
       customization: manifest.customization || {},
+      // moduleOptions guarda flags como popup, size, e outras opções que o
+      // ModuleManager espalha em modules.${id}. Sem isso, popups (album, lyric,
+      // media) NUNCA marcam popup=true e o Modules.open() fecha-os erroneamente
+      // junto com os módulos embedded.
+      moduleOptions: manifest.moduleOptions || {},
     };
   }
 

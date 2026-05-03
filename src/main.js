@@ -8,9 +8,9 @@ import { createI18nInstance } from "./i18n";
 import shortkey from "vue3-shortkey";
 import VueFullscreen from "vue-fullscreen";
 import "./assets/styles/tokens.css";
+import "./assets/styles/utilities.css";
 import "./assets/styles/main.css";
 import "./assets/styles/fonts.css";
-import "./assets/styles/layout.scss";
 
 loadFonts();
 
@@ -35,7 +35,7 @@ import Popup from "@/helpers/Popup";
 import Database from "@/helpers/Database";
 import Favorites from "@/helpers/Favorites";
 import History from "@/helpers/History";
-import Broadcast from "@/helpers/Broadcast";
+import Broadcast, { BROADCAST_TYPE } from "@/helpers/Broadcast";
 import Liturgy from "@/helpers/Liturgy";
 import Shortcuts from "@/helpers/Shortcuts";
 import Hotkeys from "@/helpers/Hotkeys";
@@ -87,10 +87,7 @@ function _getActiveModuleId() {
 
 /** Retorna true se há media aberta (módulo media visível OU minimizado com música). */
 function _mediaIsActive() {
-  return (
-    AppData.get("modules.media.show", false) ||
-    AppData.get("modules.media.minimized", false)
-  );
+  return AppData.get("modules.media.show", false) || AppData.get("modules.media.minimized", false);
 }
 
 /** Retorna o composable singleton do shell (com openCommandPalette / openHotkeysCheatsheet). */
@@ -123,13 +120,18 @@ $storage.hydrate().then(async () => {
 
   // D3 — Configurar API de download FTP no main process.
   if (Platform.isDesktop && Platform.download) {
-    try {
-      await Platform.download.setApiConfig({
-        paramsUrl: "https://api.louvorja.com.br/params?type=env",
-        apiToken: import.meta.env.VITE_API_TOKEN ?? "02@v2nFB2Dc",
-      });
-    } catch (e) {
-      console.warn("[main] Falha ao configurar downloader:", e);
+    const apiToken = import.meta.env.VITE_API_TOKEN;
+    if (!apiToken) {
+      console.warn("[main] VITE_API_TOKEN não definido — downloader FTP desabilitado.");
+    } else {
+      try {
+        await Platform.download.setApiConfig({
+          paramsUrl: "https://api.louvorja.com.br/params?type=env",
+          apiToken,
+        });
+      } catch (e) {
+        console.warn("[main] Falha ao configurar downloader:", e);
+      }
     }
   }
 
@@ -147,16 +149,22 @@ $storage.hydrate().then(async () => {
       } else if (eventType === "http:open-song") {
         Media.open({ id_music: data.id_music, mode: data.mode });
       } else if (eventType === "http:drawing-number") {
-        Broadcast.send("drawing_number", { number: data.number });
+        Broadcast.send(BROADCAST_TYPE.DRAWING_NUMBER, { number: data.number });
       } else if (eventType === "http:drawing-name") {
-        Broadcast.send("drawing_name", { name: data.name });
+        Broadcast.send(BROADCAST_TYPE.DRAWING_NAME, { name: data.name });
       }
     });
   }
 
-  createI18nInstance().then((i18n) => {
+  createI18nInstance().then(async (i18n) => {
     app.use(i18n);
     ModuleManager.init(i18n);
+
+    if (import.meta.env.DEV) {
+      const { default: VueAxe } = await import("vue-axe");
+      app.use(VueAxe, { clearConsoleOnUpdate: false });
+    }
+
     app.mount("#app");
 
     // ---------------------------------------------------------------------------
@@ -167,19 +175,23 @@ $storage.hydrate().then(async () => {
     // --- Geral ---
 
     // F1: abre cheatsheet de atalhos
-    Hotkeys.register("F1", () => {
-      _shell().openHotkeysCheatsheet();
-    }, {
-      context: "global",
-      description: "hotkeys.f1",
-      group: "general",
-      label: "F1",
-    });
+    Hotkeys.register(
+      "F1",
+      () => {
+        _shell().openHotkeysCheatsheet();
+      },
+      {
+        context: "global",
+        description: "hotkeys.f1",
+        group: "general",
+        label: "F1",
+      }
+    );
 
     // F5 / F9: refresh — recarrega dados do módulo ativo
     const _refreshHandler = () => {
       // Emite evento via broadcast para que o módulo ativo possa ouvir
-      Broadcast.send("module:refresh", {});
+      Broadcast.send(BROADCAST_TYPE.MODULE_REFRESH, {});
     };
     Hotkeys.register("F5", _refreshHandler, {
       context: "global",
@@ -212,100 +224,146 @@ $storage.hydrate().then(async () => {
     });
 
     // Ctrl+F: foca campo de busca do módulo ativo via broadcast
-    Hotkeys.register("Ctrl+f", () => {
-      Broadcast.send("module:focus_search", {});
-      // No browser este atalho abre busca nativa; não há como prevenir completamente.
-      // preventDefault já está definido no Hotkeys — no Electron funciona; no web pode falhar.
-    }, {
-      context: "global",
-      description: "hotkeys.ctrl_f",
-      group: "general",
-      label: "Ctrl+F",
-    });
+    Hotkeys.register(
+      "Ctrl+f",
+      () => {
+        Broadcast.send(BROADCAST_TYPE.MODULE_FOCUS_SEARCH, {});
+        // No browser este atalho abre busca nativa; não há como prevenir completamente.
+        // preventDefault já está definido no Hotkeys — no Electron funciona; no web pode falhar.
+      },
+      {
+        context: "global",
+        description: "hotkeys.ctrl_f",
+        group: "general",
+        label: "Ctrl+F",
+      }
+    );
 
     // Esc: fecha módulo ativo
-    Hotkeys.register("Escape", () => {
-      const id = _getActiveModuleId();
-      if (id) Modules.close(id);
-    }, {
-      context: "global",
-      description: "hotkeys.esc",
-      group: "general",
-      label: "Esc",
-    });
+    Hotkeys.register(
+      "Escape",
+      () => {
+        const id = _getActiveModuleId();
+        if (id) Modules.close(id);
+      },
+      {
+        context: "global",
+        description: "hotkeys.esc",
+        group: "general",
+        label: "Esc",
+      }
+    );
 
     // Ctrl+W: fecha módulo ativo (o browser pode fechar a aba — preventDefault tenta evitar)
-    Hotkeys.register("Ctrl+w", () => {
-      const id = _getActiveModuleId();
-      if (id) Modules.close(id);
-    }, {
-      context: "global",
-      description: "hotkeys.ctrl_w",
-      group: "general",
-      label: "Ctrl+W",
-    });
+    Hotkeys.register(
+      "Ctrl+w",
+      () => {
+        const id = _getActiveModuleId();
+        if (id) Modules.close(id);
+      },
+      {
+        context: "global",
+        description: "hotkeys.ctrl_w",
+        group: "general",
+        label: "Ctrl+W",
+      }
+    );
 
     // Ctrl+Shift+F2: limpa cache do DB e recarrega dados
-    Hotkeys.register("Ctrl+Shift+F2", () => {
-      $storage.removeAll("db", "session");
-      Broadcast.send("module:refresh", { clearCache: true });
-    }, {
-      context: "global",
-      description: "hotkeys.ctrl_shift_f2",
-      group: "system",
-      label: "Ctrl+Shift+F2",
-    });
+    Hotkeys.register(
+      "Ctrl+Shift+F2",
+      () => {
+        $storage.removeAll("db", "session");
+        Broadcast.send(BROADCAST_TYPE.MODULE_REFRESH, { clearCache: true });
+      },
+      {
+        context: "global",
+        description: "hotkeys.ctrl_shift_f2",
+        group: "system",
+        label: "Ctrl+Shift+F2",
+      }
+    );
 
     // Ctrl+Alt+D: alterna o modo desenvolvedor
-    Hotkeys.register("Ctrl+Alt+d", () => {
-      Dev.toggle();
-    }, {
-      context: "global",
-      description: "hotkeys.ctrl_alt_d",
-      group: "system",
-      label: "Ctrl+Alt+D",
-    });
+    Hotkeys.register(
+      "Ctrl+Alt+d",
+      () => {
+        Dev.toggle();
+      },
+      {
+        context: "global",
+        description: "hotkeys.ctrl_alt_d",
+        group: "system",
+        label: "Ctrl+Alt+D",
+      }
+    );
 
     // --- Navegação de slides (contexto: media ativa) ---
 
-    const _ifMedia = (fn) => () => { if (_mediaIsActive()) fn(); };
+    const _ifMedia = (fn) => () => {
+      if (_mediaIsActive()) fn();
+    };
 
-    Hotkeys.register("Ctrl+ArrowUp", _ifMedia(() => Media.prevSlide()), {
-      context: "media",
-      description: "hotkeys.ctrl_up",
-      group: "navigation",
-      label: "Ctrl+↑",
-    });
-    Hotkeys.register("Ctrl+ArrowDown", _ifMedia(() => Media.nextSlide()), {
-      context: "media",
-      description: "hotkeys.ctrl_down",
-      group: "navigation",
-      label: "Ctrl+↓",
-    });
-    Hotkeys.register("Ctrl+PageUp", _ifMedia(() => Media.prevSlide()), {
-      context: "media",
-      description: "hotkeys.ctrl_pageup",
-      group: "navigation",
-      label: "Ctrl+PageUp",
-    });
-    Hotkeys.register("Ctrl+PageDown", _ifMedia(() => Media.nextSlide()), {
-      context: "media",
-      description: "hotkeys.ctrl_pagedown",
-      group: "navigation",
-      label: "Ctrl+PageDown",
-    });
-    Hotkeys.register("Home", _ifMedia(() => Media.firstSlide()), {
-      context: "media",
-      description: "hotkeys.home",
-      group: "navigation",
-      label: "Home",
-    });
-    Hotkeys.register("End", _ifMedia(() => Media.lastSlide()), {
-      context: "media",
-      description: "hotkeys.end",
-      group: "navigation",
-      label: "End",
-    });
+    Hotkeys.register(
+      "Ctrl+ArrowUp",
+      _ifMedia(() => Media.prevSlide()),
+      {
+        context: "media",
+        description: "hotkeys.ctrl_up",
+        group: "navigation",
+        label: "Ctrl+↑",
+      }
+    );
+    Hotkeys.register(
+      "Ctrl+ArrowDown",
+      _ifMedia(() => Media.nextSlide()),
+      {
+        context: "media",
+        description: "hotkeys.ctrl_down",
+        group: "navigation",
+        label: "Ctrl+↓",
+      }
+    );
+    Hotkeys.register(
+      "Ctrl+PageUp",
+      _ifMedia(() => Media.prevSlide()),
+      {
+        context: "media",
+        description: "hotkeys.ctrl_pageup",
+        group: "navigation",
+        label: "Ctrl+PageUp",
+      }
+    );
+    Hotkeys.register(
+      "Ctrl+PageDown",
+      _ifMedia(() => Media.nextSlide()),
+      {
+        context: "media",
+        description: "hotkeys.ctrl_pagedown",
+        group: "navigation",
+        label: "Ctrl+PageDown",
+      }
+    );
+    Hotkeys.register(
+      "Home",
+      _ifMedia(() => Media.firstSlide()),
+      {
+        context: "media",
+        description: "hotkeys.home",
+        group: "navigation",
+        label: "Home",
+      }
+    );
+    Hotkeys.register(
+      "End",
+      _ifMedia(() => Media.lastSlide()),
+      {
+        context: "media",
+        description: "hotkeys.end",
+        group: "navigation",
+        label: "End",
+      }
+    );
 
     // Setas puras ← / → / ↑ / ↓ navegam slides quando media está ativa
     // (replica FormKeyUp Delphi: setas funcionam em qualquer janela com fMusica visível).
@@ -355,22 +413,30 @@ $storage.hydrate().then(async () => {
 
     // Ctrl+← / Ctrl+→: música anterior / próxima
     // Media.js não tem next()/prev() para álbum — emite broadcast para o módulo ouvir
-    Hotkeys.register("Ctrl+ArrowLeft", _ifMedia(() => {
-      Broadcast.send("media:prev_music", {});
-    }), {
-      context: "media",
-      description: "hotkeys.ctrl_left",
-      group: "navigation",
-      label: "Ctrl+←",
-    });
-    Hotkeys.register("Ctrl+ArrowRight", _ifMedia(() => {
-      Broadcast.send("media:next_music", {});
-    }), {
-      context: "media",
-      description: "hotkeys.ctrl_right",
-      group: "navigation",
-      label: "Ctrl+→",
-    });
+    Hotkeys.register(
+      "Ctrl+ArrowLeft",
+      _ifMedia(() => {
+        Broadcast.send(BROADCAST_TYPE.MEDIA_PREV_MUSIC, {});
+      }),
+      {
+        context: "media",
+        description: "hotkeys.ctrl_left",
+        group: "navigation",
+        label: "Ctrl+←",
+      }
+    );
+    Hotkeys.register(
+      "Ctrl+ArrowRight",
+      _ifMedia(() => {
+        Broadcast.send(BROADCAST_TYPE.MEDIA_NEXT_MUSIC, {});
+      }),
+      {
+        context: "media",
+        description: "hotkeys.ctrl_right",
+        group: "navigation",
+        label: "Ctrl+→",
+      }
+    );
 
     // Space / Pause: toggle play/pause (só quando media ativa)
     const _togglePlayPause = _ifMedia(() => {
@@ -398,24 +464,34 @@ $storage.hydrate().then(async () => {
     // --- Liturgia ---
 
     // Ctrl+N: novo item (liturgia ativa)
-    Hotkeys.register("Ctrl+n", () => {
-      Broadcast.send("liturgy:new_item", {});
-    }, {
-      context: "global",
-      description: "hotkeys.ctrl_n",
-      group: "liturgy",
-      label: "Ctrl+N",
-    });
+    Hotkeys.register(
+      "Ctrl+n",
+      () => {
+        Broadcast.send(BROADCAST_TYPE.LITURGY_NEW_ITEM, {});
+      },
+      {
+        context: "global",
+        description: "hotkeys.ctrl_n",
+        group: "liturgy",
+        label: "Ctrl+N",
+      }
+    );
 
     // Ctrl+Shift+N: nova anotação na liturgia
-    Hotkeys.register("Ctrl+Shift+n", () => {
-      Modules.open("liturgy");
-      Broadcast.send("liturgy:new_annotation", {});
-    }, {
-      context: "global",
-      description: "hotkeys.ctrl_shift_n",
-      group: "liturgy",
-      label: "Ctrl+Shift+N",
-    });
+    Hotkeys.register(
+      "Ctrl+Shift+n",
+      () => {
+        Modules.open("liturgy");
+        Broadcast.send(BROADCAST_TYPE.LITURGY_NEW_ANNOTATION, {});
+      },
+      {
+        context: "global",
+        description: "hotkeys.ctrl_shift_n",
+        group: "liturgy",
+        label: "Ctrl+Shift+N",
+      }
+    );
   });
 });
+
+// test husky hook

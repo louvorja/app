@@ -57,33 +57,22 @@ export default {
 
       // Auto-load translations
       if (manifest.translations) {
-        Object.entries(manifest.translations).forEach(
-          ([lang, translations]) => {
-            this.i18n.global.mergeLocaleMessage(lang, {
-              modules: { [manifest.id]: translations },
-            });
-          },
-        );
+        Object.entries(manifest.translations).forEach(([lang, translations]) => {
+          this.i18n.global.mergeLocaleMessage(lang, {
+            modules: { [manifest.id]: translations },
+          });
+        });
       }
 
       // Install customization options
       if (manifest.customization) {
-        Object.entries(manifest.customization).forEach(
-          ([key, customization]) => {
-            $userdata.setIfNull(
-              `modules.${manifest.id}.${key}`,
-              customization.default ?? null,
-            );
-          },
-        );
+        Object.entries(manifest.customization).forEach(([key, customization]) => {
+          $userdata.setIfNull(`modules.${manifest.id}.${key}`, customization.default ?? null);
+        });
       }
 
       // Log installation
-      $dev.write(
-        "module_install",
-        manifest.id,
-        manifest.development ? "[dev]" : "",
-      );
+      $dev.write("module_install", manifest.id, manifest.development ? "[dev]" : "");
 
       return true;
     } catch (error) {

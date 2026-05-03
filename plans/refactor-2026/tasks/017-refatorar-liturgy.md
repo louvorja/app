@@ -162,7 +162,13 @@ liturgy/
     - CSS timer-específico movido para o componente (scoped); `lit-btn` duplicado localmente.
     - `Index.vue` substituiu o bloco inline do timer e o botão start/stop por `<LiturgyTimer>`.
     - `useLiturgyTimer` permanece no `setup()` de `Index.vue` — necessário para `timerCurrentIndex`/`timerItemProgress` nos cards (017c) e `stopTimer` no `beforeUnmount`.
-  - 017c: _pendente_ (LiturgyItem.vue)
+  - 017c: ✅ `LiturgyItem.vue` extraído:
+    - Props: `element`, `index`, `locked`, `timerActive`, `timerProgress`, `defaultColor`, `isChecked`, `iconFor`, `subtitleFor`.
+    - Emits: `edit`, `remove`, `execute`, `play-music`, `change-color`, `toggle-checked`.
+    - Renderiza categoria e card normal; CSS inteiro de card/categoria movido para o componente.
+    - `.liturgy-list-area--locked .lit-card` substituído por `.lit-card--locked` no próprio componente.
+    - Import `manifest` não usado removido de `Index.vue`.
+    - Index.vue: 1661 → 1302 linhas (−359 linhas).
   - 017d: _pendente_ (LiturgyItemForm + LiturgyImportExport)
   - 017e: _pendente_ (LiturgyList + cleanup Index.vue < 200 linhas)
 - **Surpresas:**

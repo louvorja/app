@@ -5,21 +5,18 @@
     :icon="module.icon"
     closable
     minimizable
+    :index="show ? 1 : 0"
     @close="close()"
     @minimize="$modules.minimize(module_id)"
     @resize="resize"
-    :index="show ? 1 : 0"
   >
-    <template v-slot:customize>
+    <template #customize>
       <l-customization-tools
         :module="module"
         :items="[
           {
             name: t('customization.background'),
-            items: [
-              'background_color',
-              ['image', 'image_opacity', 'image_fit'],
-            ],
+            items: ['background_color', ['image', 'image_opacity', 'image_fit']],
           },
           {
             name: t('customization.align'),
@@ -34,16 +31,16 @@
       />
     </template>
 
-    <template v-slot:system_buttons>
+    <template #system_buttons>
       <LScreenBtn module="clock" />
     </template>
 
-    <template v-slot:header>
+    <template #header>
       <l-toolbar>
         <l-toolbar-item>
           <l-select
-            :label="t('customization.hour_cycle')"
             v-model="userdata.hour_cycle"
+            :label="t('customization.hour_cycle')"
             :items="timeFormatOptions"
             item-value="value"
             item-title="title"
@@ -55,8 +52,8 @@
 
         <l-toolbar-item>
           <l-select
-            :label="t('customization.time_format')"
             v-model="userdata.time_format"
+            :label="t('customization.time_format')"
             :items="timeTypeOptions"
             item-value="value"
             item-title="title"
@@ -77,7 +74,7 @@ import manifest from "../manifest.json";
 import LWindow from "@/components/Window.vue";
 import Screen from "../components/Screen.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
-import LSelect from "@/components/inputs/Select.vue";
+import LSelect from "@/components/inputs/LjSelect.vue";
 import LCustomizationTools from "@/components/CustomizationTools.vue";
 import LToolbar from "@/components/Toolbar.vue";
 import LToolbarItem from "@/components/ToolbarItem.vue";
@@ -135,7 +132,7 @@ export default {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */

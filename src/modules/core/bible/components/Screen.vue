@@ -1,22 +1,19 @@
 <template>
   <div
     ref="container"
-    :class="[
-      'd-flex',
-      `align-${userdata.vertical_align}`,
-      `justify-${userdata.horizontal_align}`,
-    ]"
+    :class="['d-flex', `align-${userdata.vertical_align}`, `justify-${userdata.horizontal_align}`]"
     :style="{
       position: 'relative',
       background: userdata.background_color,
       width: '100%',
       height: height ? height + 'px' : '100%',
-      padding: `${this.fontSizePc(userdata.border_spacing)}px`,
+      padding: `${fontSizePc(userdata.border_spacing)}px`,
     }"
   >
     <img
       v-if="userdata.image"
       :src="userdata.image"
+      alt=""
       :style="{
         top: 0,
         left: 0,
@@ -42,7 +39,7 @@
         :style="{
           zIndex: 1,
           color: userdata.font_color,
-          fontSize: `${this.fontSizePc(userdata.font_size)}px`,
+          fontSize: `${fontSizePc(userdata.font_size)}px`,
           fontFamily: userdata.font || 'Arial, sans-serif',
         }"
       >
@@ -50,13 +47,11 @@
       </span>
       <span
         v-if="bible.scriptural_reference"
-        :class="
-          'text-' + (userdata.horizontal_align == 'start' ? 'left' : 'right')
-        "
+        :class="'text-' + (userdata.horizontal_align == 'start' ? 'left' : 'right')"
         :style="{
           zIndex: 1,
           color: userdata.reference_font_color,
-          fontSize: `${this.fontSizePc(userdata.reference_font_size)}px`,
+          fontSize: `${fontSizePc(userdata.reference_font_size)}px`,
           fontFamily: userdata.reference_font || 'Arial, sans-serif',
         }"
       >
@@ -98,13 +93,20 @@ export default {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
     bible() {
       return this.$appdata.get("modules.bible.data");
     },
+  },
+  mounted() {
+    this.windowResize();
+    window.addEventListener("resize", this.windowResize);
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.windowResize);
   },
   methods: {
     fontSizePc(pc) {
@@ -125,13 +127,6 @@ export default {
         }
       }
     },
-  },
-  mounted() {
-    this.windowResize();
-    window.addEventListener("resize", this.windowResize);
-  },
-  unmounted() {
-    window.removeEventListener("resize", this.windowResize);
   },
 };
 </script>

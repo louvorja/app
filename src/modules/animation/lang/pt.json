@@ -1,16 +1,16 @@
 {
-    "title": "Animação",
-    "text": "PORTUGUES",
-    "modals": {
-        "create": {
-            "title": "Criar animação",
-            "name": "Nome",
-            "description": "Descrição"
-        },
-        "edit": {
-            "title": "Editar animação",
-            "name": "Nome",
-            "description": "Descrição"
-        }
+  "title": "Animação",
+  "text": "PORTUGUES",
+  "modals": {
+    "create": {
+      "title": "Criar animação",
+      "name": "Nome",
+      "description": "Descrição"
+    },
+    "edit": {
+      "title": "Editar animação",
+      "name": "Nome",
+      "description": "Descrição"
     }
+  }
 }

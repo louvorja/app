@@ -3,86 +3,67 @@
     v-model="visible"
     scrollable
     persistent
-    @click:outside="minimize"
-    @keydown.esc="minimize"
+    class="lj-window"
     :width="w_width"
     :height="w_height"
     :theme="dark ? 'dark' : ''"
+    @click:outside="minimize"
+    @keydown.esc="minimize"
   >
-    <v-card :color="color ? color : ''">
+    <v-card class="lj-window-card" :color="color ? color : ''">
       <slot name="toolbar">
-        <div
-          class="d-flex flex-no-wrap align-stretch flex-row justify-space-between"
-        >
-          <div
-            v-if="icon"
-            class="d-flex align-center"
-            style="margin-left: 20px"
-          >
-            <v-icon :icon="icon" />
+        <header class="lj-window-toolbar">
+          <div v-if="icon" class="lj-window-icon">
+            <v-icon :icon="icon" size="20" />
           </div>
-          <v-avatar
+          <div
             v-if="image && $vuetify.display.width > 500"
-            class="ma-1"
-            :size="imageSize ? imageSize : 65"
-            rounded="0"
+            class="lj-window-image"
+            :style="{ width: (imageSize || 65) + 'px', height: (imageSize || 65) + 'px' }"
           >
-            <v-img :src="image" />
-          </v-avatar>
-          <div
-            class="flex-grow-1 d-flex flex-column justify-center text-truncate"
-          >
-            <v-card-title
-              v-if="title"
-              class="py-0 my-0"
-              :class="titleClass ? titleClass : 'text-h5 font-weight-light'"
-            >
-              {{ title }}
-            </v-card-title>
-            <v-card-subtitle v-if="subtitle" class="pb-1">
-              {{ subtitle }}
-            </v-card-subtitle>
+            <img :src="image" alt="" />
           </div>
-          <div class="d-flex flex-row flex-nowrap align-start">
+          <div class="lj-window-titles">
+            <h2 v-if="title" class="lj-window-title" :class="titleClass">
+              {{ title }}
+            </h2>
+            <p v-if="subtitle" class="lj-window-subtitle">{{ subtitle }}</p>
+          </div>
+          <div class="lj-window-actions">
             <slot name="system_buttons" />
 
             <l-customization-bar v-if="$slots.customize">
               <slot name="customize" />
             </l-customization-bar>
 
-            <v-divider
-              v-if="$slots.customize || $slots.system_buttons"
-              vertical
-              class="ms-2"
-            />
+            <span v-if="$slots.customize || $slots.system_buttons" class="lj-window-divider" />
 
-            <v-btn
+            <button
               v-if="minimizable"
-              class="ms-2"
-              icon="mdi-minus"
-              variant="text"
-              size="small"
+              type="button"
+              class="lj-window-btn"
+              :title="$t('shell.window.minimize')"
               @click="minimize()"
-            />
-            <v-btn
+            >
+              <v-icon icon="mdi-minus" size="16" />
+            </button>
+            <button
               v-if="closable"
-              class="ms-2"
-              icon="mdi-close"
-              variant="text"
-              size="small"
+              type="button"
+              class="lj-window-btn lj-window-btn--close"
+              :title="$t('alert.close')"
               @click="close()"
-            />
+            >
+              <v-icon icon="mdi-close" size="16" />
+            </button>
           </div>
-        </div>
+        </header>
       </slot>
 
       <v-card-title v-if="$slots.header">
         <slot name="header" />
       </v-card-title>
-      <v-card-text
-        ref="container"
-        class="d-flex align-stretch overflow-hidden pa-0 ma-0"
-      >
+      <v-card-text ref="container" class="d-flex align-stretch overflow-hidden pa-0 ma-0">
         <div
           v-if="$slots.left"
           :style="`height:${container_height}px;${slotLeftStyle};`"
@@ -122,6 +103,9 @@ import LCustomizationBar from "@/components/CustomizationBar.vue";
 
 export default {
   name: "WindowComponent",
+  components: {
+    LCustomizationBar,
+  },
   props: {
     modelValue: {
       type: Boolean,
@@ -146,9 +130,6 @@ export default {
     slotRightClass: String,
     slotLeftStyle: [String, Object],
     slotRightStyle: [String, Object],
-  },
-  components: {
-    LCustomizationBar,
   },
 
   data: () => ({
@@ -204,6 +185,15 @@ export default {
       }
     },
   },
+  mounted() {
+    this.resizeObserver = new ResizeObserver(() => {
+      this.checkScroll();
+    });
+
+    if (this.visible) {
+      this.listenerResize(this.visible);
+    }
+  },
   methods: {
     close() {
       this.$emit("close");
@@ -216,8 +206,7 @@ export default {
       data.scroll_top = this.$refs.main_container.scrollTop;
       data.client_height = this.$refs.main_container.clientHeight;
       data.scroll_height = this.$refs.main_container.scrollHeight;
-      data.scroll_bottom =
-        data.scroll_height - data.scroll_top - data.client_height;
+      data.scroll_bottom = data.scroll_height - data.scroll_top - data.client_height;
       this.$emit("scroll", data);
     },
     checkScroll() {
@@ -262,14 +251,117 @@ export default {
       }
     },
   },
-  mounted() {
-    this.resizeObserver = new ResizeObserver(() => {
-      this.checkScroll();
-    });
-
-    if (this.visible) {
-      this.listenerResize(this.visible);
-    }
-  },
 };
 </script>
+
+<style scoped>
+.lj-window-card {
+  font-family: var(--lj-font-shell);
+  border-radius: var(--lj-radius-md);
+  overflow: hidden;
+}
+
+.lj-window-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--lj-space-3);
+  padding: var(--lj-space-3) var(--lj-space-4);
+  background: var(--lj-surface-bg-soft);
+  border-bottom: 1px solid var(--lj-surface-divider);
+  min-height: 52px;
+}
+
+.lj-window-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--lj-navy);
+}
+
+.lj-window-image {
+  flex-shrink: 0;
+  border-radius: var(--lj-radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lj-surface-bg);
+}
+
+.lj-window-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lj-window-titles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lj-window-title {
+  margin: 0;
+  font-size: var(--lj-text-xl);
+  font-weight: var(--lj-weight-regular);
+  color: var(--lj-text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.lj-window-subtitle {
+  margin: 2px 0 0;
+  font-size: var(--lj-text-base);
+  color: var(--lj-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lj-window-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--lj-space-1);
+  flex-shrink: 0;
+}
+
+.lj-window-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--lj-surface-border);
+  margin: 0 var(--lj-space-2);
+}
+
+.lj-window-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  border-radius: var(--lj-radius-sm);
+  color: var(--lj-text-muted);
+  cursor: pointer;
+  transition:
+    background var(--lj-transition-fast),
+    color var(--lj-transition-fast);
+  font-family: inherit;
+}
+
+.lj-window-btn:hover {
+  background: var(--lj-hover-bg);
+  color: var(--lj-text);
+}
+
+.lj-window-btn--close:hover {
+  background: var(--lj-danger);
+  color: var(--lj-white);
+}
+</style>

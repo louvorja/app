@@ -1,28 +1,16 @@
 <template>
-  <l-window
-    v-model="module.show"
-    :title="t('title')"
-    :icon="module.icon"
-    closable
-    minimizable
+  <ModuleContainer
+    :manifest="manifest"
     compact
-    @close="
-      close();
-      $modules.close(module_id);
-    "
-    @minimize="$modules.minimize(module_id)"
-    @scroll="onScroll"
-    @hasScroll="hasScroll"
     :index="data.count"
+    @close="close()"
+    @scroll="onScroll"
+    @has-scroll="hasScroll"
   >
-    <template v-slot:header>
+    <template #header>
       <div :class="classform.group">
         <div :class="classform.group_item" style="flex-basis: 600px">
-          <l-search
-            v-model="search"
-            :label="t('inputs.search')"
-            :error="data.filter_count <= 0"
-          />
+          <l-search v-model="search" :label="t('inputs.search')" :error="data.filter_count <= 0" />
         </div>
       </div>
     </template>
@@ -61,6 +49,7 @@
             <div class="d-flex justify-end">
               <l-music-menu-table
                 :id_music="item.id_music"
+                :name="item.name"
                 :has_instrumental_music="item.has_instrumental_music"
               />
             </div>
@@ -78,7 +67,7 @@
       class="ma-2"
     />
 
-    <template v-slot:footer>
+    <template #footer>
       <div class="w-100">
         <div class="text-right">
           <small>
@@ -88,27 +77,28 @@
         </div>
       </div>
     </template>
-  </l-window>
+  </ModuleContainer>
 </template>
 
 <script>
 import manifest from "../manifest.json";
 
-import LWindow from "@/components/Window.vue";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 import LTable from "@/components/DataTable.vue";
-import LSearch from "@/components/inputs/Search.vue";
+import LSearch from "@/components/inputs/LjSearch.vue";
 import LMusicMenuTable from "@/components/MusicMenuTable.vue";
 
 export default {
   name: "HymnalModule",
   components: {
-    LWindow,
+    ModuleContainer,
     LTable,
     LSearch,
     LMusicMenuTable,
   },
 
   data: () => ({
+    manifest,
     search: "",
     data: [],
     scroll: {},
@@ -134,7 +124,7 @@ export default {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
@@ -142,8 +132,7 @@ export default {
     classform() {
       return {
         group: "d-flex flex-wrap",
-        group_item:
-          "flex-shrink-1 flex-grow-1 d-flex flex-wrap justify-space-around",
+        group_item: "flex-shrink-1 flex-grow-1 d-flex flex-wrap justify-space-around",
       };
     },
     compact: function () {

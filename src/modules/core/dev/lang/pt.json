@@ -1,7 +1,7 @@
 {
-    "title": "Desenvolvedor",
-    "global-variables": "Variáveis Globais",
-    "user-variables": "Variáveis do Usuário",
-    "vue-variables": "Variáveis do Vue",
-    "modules": "Módulos"
+  "title": "Desenvolvedor",
+  "global-variables": "Variáveis Globais",
+  "user-variables": "Variáveis do Usuário",
+  "vue-variables": "Variáveis do Vue",
+  "modules": "Módulos"
 }

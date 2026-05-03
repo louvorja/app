@@ -1,3 +1,4 @@
+import { watch } from "vue";
 import $dev from "@/helpers/Dev";
 import $appdata from "@/helpers/AppData";
 import $userdata from "@/helpers/UserData";
@@ -6,8 +7,89 @@ import $path from "@/helpers/Path";
 import $alert from "@/helpers/Alert";
 import $modules from "@/helpers/Modules";
 import $database from "@/helpers/Database";
+import $history from "@/helpers/History";
+import $broadcast, { BROADCAST_TYPE } from "@/helpers/Broadcast";
+import { useAudioPlayback } from "@/composables/useAudioPlayback";
+import { useSlides } from "@/composables/useSlides";
+import { useLyric } from "@/composables/useLyric";
+import { useAlbum } from "@/composables/useAlbum";
 
-export default {
+const _audio = useAudioPlayback();
+const _slides = useSlides();
+const _lyric = useLyric();
+const _album = useAlbum();
+let _loadingId = null;
+
+// Mantém $appdata sincronizado com o estado reativo de useSlides
+// (Player.vue, Footer.vue e media/Index.vue ainda leem de $appdata)
+watch(
+  _slides.slideIndex,
+  (si) => {
+    $appdata.set("modules.media.config.slide_index", si);
+  },
+  { flush: "sync" }
+);
+watch(
+  _slides.slideProgress,
+  (sp) => {
+    $appdata.set("modules.media.config.slide_progress", sp);
+  },
+  { flush: "sync" }
+);
+watch(
+  _slides.totalSlides,
+  (n) => {
+    $appdata.set("modules.media.config.last_slide", n);
+  },
+  { flush: "sync" }
+);
+
+// Callback de timeUpdate: mantém $appdata de timing e fecha ao fim da música.
+// O cálculo de slideIndex migrou para useSlides.bindAudio.
+_audio.onTimeUpdate((ct, d) => {
+  $appdata.set("modules.media.config.current_time", ct);
+  $appdata.set("modules.media.config.duration", d);
+  $appdata.set("modules.media.config.progress", _audio.progress.value);
+  $appdata.set("modules.media.config.buffered", _audio.buffered.value);
+
+  if (!_audio.isPaused.value && ct >= d && d > 0) {
+    _self.close(true);
+  }
+});
+
+function _buildSlidesFrom(data) {
+  let prev_image = data?.url_image;
+  let prev_image_position = data?.image_position;
+
+  return [
+    {
+      lyric: data?.name,
+      cover: true,
+      time: "00:00:00",
+      instrumental_time: "00:00:00",
+      url_image: data?.url_image,
+      image_position: data?.image_position,
+    },
+    ...Object.values(data?.lyric || {})
+      .filter((lyric) => lyric.show_slide === 1)
+      .sort((a, b) => a.order - b.order)
+      .map((lyric) => {
+        if (lyric.url_image) {
+          prev_image = lyric.url_image;
+          prev_image_position = lyric.image_position;
+        }
+        return {
+          ...lyric,
+          cover: false,
+          lyric: lyric.lyric ? lyric.lyric.replace(/[\r\n]+/g, "<br>") : "",
+          url_image: prev_image,
+          image_position: prev_image_position,
+        };
+      }),
+  ];
+}
+
+const _self = {
   async open(params) {
     if (typeof params != "object") {
       params = { id_music: params };
@@ -17,8 +99,7 @@ export default {
 
     // Conexão remota está ativada? Se sim, abre do programa desktop
     if ($userdata.get("remote.is_connected")) {
-      const tag =
-        params.mode == "audio" ? 1 : params.mode == "instrumental" ? 2 : 3;
+      const tag = params.mode == "audio" ? 1 : params.mode == "instrumental" ? 2 : 3;
 
       const url =
         $userdata.get("remote.url") +
@@ -31,11 +112,7 @@ export default {
 
       $alert.info("modules.media.alerts.open_remote");
       try {
-        const response = await fetch(url, {
-          method: "GET",
-          mode: "cors",
-        });
-
+        const response = await fetch(url, { method: "GET", mode: "cors" });
         const ret = await response.json();
         if (ret.status != "ok") {
           $alert.error({
@@ -47,15 +124,28 @@ export default {
           });
         }
       } catch (error) {
-        $alert.error({
-          text: "modules.media.alerts.open_remote_error",
-          error: error,
-        });
+        $alert.error({ text: "modules.media.alerts.open_remote_error", error });
       }
       return;
     }
 
-    this.stopAudio();
+    // Crossfade: se há audio tocando, faz fade out antes de carregar a nova música
+    const _existingAudio = _audio.getElement();
+    if (
+      !_existingAudio.paused &&
+      _existingAudio.src &&
+      $userdata.get("modules.media.fade_audio", false)
+    ) {
+      await new Promise((resolve) => {
+        _audio.fadeOut(() => {
+          _audio.stop();
+          resolve();
+        });
+      });
+    } else {
+      _audio.stop();
+    }
+
     this.clearVariables();
 
     const id_music = params.id_music;
@@ -63,22 +153,38 @@ export default {
     const id_album = params.id_album ? params.id_album : null;
     let mode = params.mode ? params.mode : "no_audio";
 
+    _loadingId = id_music;
     $appdata.set("modules.media.loading", true);
 
     let data = await $database.get(`music_${id_music}`);
-    if (data == null) {
+    if (data == null || _loadingId !== id_music) {
       this.close(true);
       return;
     }
     $appdata.set("modules.media.data", data);
+    $history.add(id_music, data.name, data.has_instrumental_music);
 
     $appdata.set("modules.media.id_music", id_music);
     $appdata.set("modules.media.id_album", id_album);
-    $appdata.set("modules.media.config.slide_index", 0);
     $appdata.set("modules.media.config.title", data.name);
-    $appdata.set("modules.media.config.last_slide", this.slides().length);
-    $appdata.set("modules.media.times", []);
     this.setAlbumInfo(id_album);
+
+    const slidesArray = _buildSlidesFrom(data);
+    let timesArray = [];
+
+    if (mode == "audio" || mode == "instrumental") {
+      timesArray = slidesArray.map((item) =>
+        $datetime.toNumber(mode == "audio" ? item.time : item.instrumental_time)
+      );
+    }
+
+    _slides.setSlides(slidesArray, timesArray, data.name);
+
+    $broadcast.send(BROADCAST_TYPE.SLIDES_DATA, {
+      slides: slidesArray,
+      title: data.name,
+      slide_index: 0,
+    });
 
     if (minimized) {
       this.minimize();
@@ -87,93 +193,55 @@ export default {
     }
 
     if (mode == "audio" || mode == "instrumental") {
-      //Será executado com áudio... cria o elemento de audio
-      const audio = this.getElement();
       const volume = $appdata.get("modules.media.config.volume");
-      audio.volume = volume / 100;
+      _audio.setVolume(volume);
+      _audio.getElement().currentTime = 0;
+      $appdata.set("modules.media.config.is_paused", true);
 
-      this.pause(true);
-      audio.currentTime = 0;
+      const audioUrl = $path.file(mode == "audio" ? data.url_music : data.url_instrumental_music);
+      $appdata.set("modules.media.config.audio", audioUrl);
 
-      //Grava os tempos dos slides
-      $appdata.set(
-        "modules.media.times",
-        this.slides().map((item) =>
-          $datetime.toNumber(
-            mode == "audio" ? item.time : item.instrumental_time,
-          ),
-        ),
-      );
+      _slides.bindAudio(_audio);
 
-      $appdata.set(
-        "modules.media.config.audio",
-        $path.file(
-          mode == "audio" ? data.url_music : data.url_instrumental_music,
-        ),
-      );
-
-      if (
-        $appdata.get("is_online") &&
-        $userdata.get("modules.media.lazy_load")
-      ) {
-        //Se a opção lazy_load estiver marcada, execução rápida (o audio vai carregando enquanto é executado)
+      if ($appdata.get("is_online") && $userdata.get("modules.media.lazy_load")) {
         $appdata.set("modules.media.config.lazy", true);
-        audio.src = $appdata.get("modules.media.config.audio");
-        audio.load();
+        _audio.setSrc(audioUrl, true);
         $appdata.set("modules.media.loading", false);
-        this.play();
+        this.pause(false);
       } else {
-        //Se a opção lazy_load estiver desmarcada, execução lenta (o audio só é executado depois de totalmente carregado)
         $appdata.set("modules.media.config.lazy", false);
-        let self = this;
+        const self = this;
         let request = new XMLHttpRequest();
         try {
-          request.open("GET", $appdata.get("modules.media.config.audio"), true);
+          request.open("GET", audioUrl, true);
         } catch (error) {
-          $alert.error(
-            { text: "modules.media.alerts.not_loaded", error },
-            function (a) {
-              if (a) {
-                self.open(id_music);
-              }
-            },
-          );
+          $alert.error({ text: "modules.media.alerts.not_loaded", error }, function (a) {
+            if (a) self.open(id_music);
+          });
           return;
         }
 
         request.responseType = "blob";
         request.onload = function () {
           if (this.status == 200) {
-            audio.src = URL.createObjectURL(this.response);
-            audio.load();
-            self.play();
+            _audio.setSrc(URL.createObjectURL(this.response), false);
+            self.pause(false);
           } else {
             $alert.error(
-              {
-                text: "modules.media.alerts.not_loaded",
-                error: request.statusText || "",
-              },
+              { text: "modules.media.alerts.not_loaded", error: request.statusText || "" },
               function (a) {
-                if (a) {
-                  self.open(id_music);
-                }
-              },
+                if (a) self.open(id_music);
+              }
             );
           }
         };
         request.onerror = function () {
           $alert.error(
-            {
-              text: "modules.media.alerts.not_loaded",
-              error: request.statusText || "",
-            },
+            { text: "modules.media.alerts.not_loaded", error: request.statusText || "" },
             function (a) {
-              if (a) {
-                self.open(id_music);
-              }
-            },
+              if (a) self.open(id_music);
+            }
           );
-          return;
         };
 
         request.send();
@@ -188,18 +256,15 @@ export default {
   },
 
   close(force = false) {
-    //Se force for true, fechamento forçado. Sem diálogo de confirmação!
     if (!force) {
       const self = this;
       $alert.yesno("modules.media.alerts.close", function (btn) {
-        if (btn == "yes") {
-          self.close(true);
-        }
+        if (btn == "yes") self.close(true);
       });
       return;
     }
 
-    this.stopAudio();
+    _audio.stop();
     this.clearVariables();
     $appdata.set("modules.media.show", false);
     $appdata.set("modules.media.minimized", false);
@@ -214,73 +279,26 @@ export default {
     } else if (typeof params != "object") {
       params = { id_music: params };
     }
-    $dev.write("open lyric", params);
 
-    const id_music = params.id_music;
-    const id_album = params.id_album ? params.id_album : null;
-
-    $appdata.set("modules.lyric.loading", true);
-
-    let data = await $database.get(`music_${id_music}`);
-    if (data == null) {
+    const ok = await _lyric.open(params);
+    if (!ok) {
       this.closeLyric();
       return;
     }
 
-    $appdata.set("modules.lyric.data", data);
-
-    $appdata.set("modules.lyric.id_music", id_music);
-    $appdata.set("modules.lyric.id_album", id_album);
-    $appdata.set("modules.lyric.config.title", data.name);
-
-    this.setAlbumInfo(id_album, "lyric");
-
     $appdata.set("modules.lyric.show", true);
-    $appdata.set("modules.lyric.loading", false);
   },
   closeLyric() {
-    $dev.write("close lyric");
+    _lyric.close();
     $appdata.set("modules.lyric.show", false);
-
-    $appdata.set("modules.lyric.data", {});
-    $appdata.set("modules.lyric.id_music", null);
-    $appdata.set("modules.lyric.id_album", null);
-    $appdata.set("modules.lyric.config.title", null);
-    $appdata.set("modules.lyric.loading", false);
   },
 
   async openAlbum(id_album) {
-    $dev.write("open album", id_album);
-
-    $appdata.set("modules.album.loading", true);
-
-    let data = await $database.get(`album_${id_album}`);
-    if (data == null) {
-      this.closeAlbum();
-      return;
-    }
-
-    $appdata.set("modules.album.data", data);
-
-    let hymnal = data.categories.filter((item) =>
-      item.startsWith("hymnal."),
-    )[0];
-    if (hymnal) {
-      $modules.open(hymnal.split(".")[1]);
-      return;
-    }
-
-    $appdata.set("modules.album.id_album", id_album);
-    $appdata.set("modules.album.show", true);
-    $appdata.set("modules.album.loading", false);
+    const { redirect } = await _album.open(id_album);
+    if (redirect) $modules.open(redirect);
   },
   closeAlbum() {
-    $dev.write("close album");
-    $appdata.set("modules.album.show", false);
-
-    $appdata.set("modules.album.data", {});
-    $appdata.set("modules.album.id_album", null);
-    $appdata.set("modules.album.loading", false);
+    _album.close();
   },
 
   async openAudio(params) {
@@ -300,37 +318,26 @@ export default {
       return;
     }
 
-    const url =
-      mode == "instrumental" ? data.url_instrumental_music : data.url_music;
-
+    const url = mode == "instrumental" ? data.url_instrumental_music : data.url_music;
     window.open($path.file(url), "_blank");
 
     $appdata.set("loading", false);
   },
 
-  stopAudio() {
-    const audio = this.getElement();
-    this.pause(true, () => {
-      audio.setAttribute("src", "");
-    });
-  },
-
   clearVariables() {
+    _slides.reset();
+    _audio.reset();
     $appdata.set("modules.media.data", {});
     $appdata.set("modules.media.id_music", null);
     $appdata.set("modules.media.config.title", "");
     $appdata.set("modules.media.config.subtitle", "");
     $appdata.set("modules.media.config.track", 0);
     $appdata.set("modules.media.config.image", "");
-    $appdata.set("modules.media.config.slide_index", 0);
-    $appdata.set("modules.media.config.last_slide", 0);
     $appdata.set("modules.media.config.audio", "");
     $appdata.set("modules.media.config.lazy", false);
     $appdata.set("modules.media.config.current_time", 0);
     $appdata.set("modules.media.config.duration", 0);
     $appdata.set("modules.media.config.progress", 0);
-    $appdata.set("modules.media.config.slide_progress", 0);
-    $appdata.set("modules.media.config.buffered", 0);
     $appdata.set("modules.media.config.volume", 100);
     $appdata.set("modules.media.config.is_paused", false);
     $appdata.set("modules.media.config.is_fading", false);
@@ -359,82 +366,26 @@ export default {
   },
 
   slides() {
-    let data = $appdata.get("modules.media.data");
-
-    let prev_image = data?.url_image;
-    let prev_image_position = data?.image_position;
-
-    return [
-      {
-        lyric: data?.name,
-        cover: true,
-        time: "00:00:00",
-        instrumental_time: "00:00:00",
-        url_image: data?.url_image,
-        image_position: data?.image_position,
-      },
-      ...Object.values(data?.lyric || {})
-        .filter((lyric) => lyric.show_slide === 1)
-        .sort((a, b) => a.order - b.order)
-        .map((lyric) => {
-          if (lyric.url_image) {
-            prev_image = lyric.url_image;
-            prev_image_position = lyric.image_position;
-          }
-          return {
-            ...lyric,
-            cover: false,
-            lyric: lyric.lyric ? lyric.lyric.replace(/[\r\n]+/g, "<br>") : "",
-            url_image: prev_image,
-            image_position: prev_image_position,
-          };
-        }),
-    ];
+    return _slides.slides.value;
   },
 
   slide() {
-    let slides = this.slides() ?? [];
-    let index = $appdata.get("modules.media.config.slide_index");
-    return slides[index];
+    return _slides.slide.value;
+  },
+
+  broadcastSlide() {
+    _slides.broadcastSlide();
   },
 
   goToSlide(index) {
-    const last_slide = $appdata.get("modules.media.config.last_slide");
-
-    if (index > last_slide - 1) {
-      index = last_slide - 1;
-    }
-    if (index < 0) {
-      index = 0;
-    }
-
-    const duration = $appdata.get("modules.media.config.duration");
-    const audio = $appdata.get("modules.media.config.audio");
-
-    if (duration > 0 && audio != "") {
-      const times = $appdata.get("modules.media.times");
-      this.goToTime(times[index] || 0);
-    } else {
-      $appdata.set("modules.media.config.slide_index", index);
-    }
+    _slides.goToSlide(index);
   },
   goToTime(time) {
-    const audio = this.getElement();
-    const duration = $appdata.get("modules.media.config.duration");
-    if (time == undefined || time < 0) {
-      time = 0;
-    } else if (time > duration) {
-      time = duration;
-    }
-    audio.currentTime = time;
+    _audio.seekTo(time);
   },
   advanceTime(time = 10) {
-    const duration = $appdata.get("modules.media.config.duration");
-    const audio = $appdata.get("modules.media.config.audio");
-    const current_time = $appdata.get("modules.media.config.current_time");
-
-    if (duration > 0 && audio != "") {
-      this.goToTime(current_time + time);
+    if (_audio.duration.value > 0 && $appdata.get("modules.media.config.audio") != "") {
+      _audio.advanceTime(time);
     }
   },
 
@@ -442,110 +393,59 @@ export default {
     this.pause(false);
   },
   pause(bool = true, callback) {
-    const audio = this.getElement();
-    const fade_audio = $userdata.get("modules.media.fade_audio");
+    const fade_audio = $userdata.get("modules.media.fade_audio", false);
 
     if (bool) {
       if (fade_audio) {
-        this.fadeOutAudio(() => {
-          audio.pause();
-          $appdata.set("modules.media.config.is_paused", bool);
-          if (callback) callback();
+        _audio.fadeOut(() => {
+          _audio.pause(callback);
+          $appdata.set("modules.media.config.is_paused", true);
+          $appdata.set("modules.media.config.is_fading", false);
         });
       } else {
-        audio.pause();
-        $appdata.set("modules.media.config.is_paused", bool);
-        if (callback) callback();
+        _audio.pause(callback);
+        $appdata.set("modules.media.config.is_paused", true);
       }
     } else {
-      let self = this;
-      audio.play().catch((e) => {
-        $alert.error(
-          {
-            text: "modules.media.alerts.not_loaded",
-            error: e || "",
-          },
-          function (a) {
-            if (a) {
-              self.open($appdata.get("modules.media.id_music"));
-            }
-          },
-        );
+      const self = this;
+      _audio.play((e) => {
+        $alert.error({ text: "modules.media.alerts.not_loaded", error: e || "" }, function (a) {
+          if (a) self.open($appdata.get("modules.media.id_music"));
+        });
       });
       if (fade_audio) {
-        this.fadeInAudio(() => {
+        _audio.fadeIn($appdata.get("modules.media.config.volume"), () => {
+          $appdata.set("modules.media.config.is_fading", false);
           if (callback) callback();
         });
+        $appdata.set("modules.media.config.is_fading", true);
       } else {
-        const volume = $appdata.get("modules.media.config.volume") / 100;
-        audio.volume = volume;
+        _audio.setVolume($appdata.get("modules.media.config.volume"));
         if (callback) callback();
       }
-      $appdata.set("modules.media.config.is_paused", bool);
+      $appdata.set("modules.media.config.is_paused", false);
     }
-  },
-
-  fadeInAudio(callback) {
-    const audio = this.getElement();
-
-    $appdata.set("modules.media.config.is_fading", true);
-    const max_volume = $appdata.get("modules.media.config.volume") / 100;
-
-    const fadeOut = setInterval(() => {
-      if (audio.volume < max_volume) {
-        audio.volume = Math.min(audio.volume + 0.05, max_volume); // Incrementa suavemente.
-      } else {
-        $appdata.set("modules.media.config.is_fading", false);
-        clearInterval(fadeOut);
-        if (callback) callback();
-      }
-    }, 60);
-  },
-  fadeOutAudio(callback) {
-    const audio = this.getElement();
-
-    if (audio.paused) {
-      if (callback) callback();
-      return;
-    }
-
-    $appdata.set("modules.media.config.is_fading", true);
-
-    const fadeOut = setInterval(() => {
-      if (audio.volume > 0) {
-        audio.volume = Math.max(audio.volume - 0.05, 0);
-      } else {
-        $appdata.set("modules.media.config.is_fading", false);
-        clearInterval(fadeOut);
-        if (callback) callback();
-      }
-    }, 60);
   },
 
   firstSlide() {
-    this.goToSlide(0);
+    _slides.goFirst();
   },
   prevSlide() {
-    const slide_index = $appdata.get("modules.media.config.slide_index");
-    this.goToSlide(slide_index - 1);
+    _slides.goPrev();
   },
   nextSlide() {
-    const slide_index = $appdata.get("modules.media.config.slide_index");
-    this.goToSlide(slide_index + 1);
+    _slides.goNext();
   },
   lastSlide() {
-    const last_slide = $appdata.get("modules.media.config.last_slide");
-    this.goToSlide(last_slide - 1);
+    _slides.goLast();
   },
   setVolume(val) {
-    const audio = this.getElement();
-    audio.volume = val / 100;
+    _audio.setVolume(val);
     $appdata.set("modules.media.config.volume", val);
   },
   toogleVolume() {
-    let volume = $appdata.get("modules.media.config.volume");
-    volume = volume < 100 ? 100 : 0;
-    this.setVolume(volume);
+    const volume = $appdata.get("modules.media.config.volume");
+    this.setVolume(volume < 100 ? 100 : 0);
   },
 
   fullscreen(value = true) {
@@ -553,114 +453,8 @@ export default {
   },
 
   setAlbumInfo(id_album, module = "media") {
-    const data = $appdata.get(`modules.${module}.data`);
-    if (data.albums.length <= 0) {
-      $appdata.set(`modules.${module}.config.subtitle`, "");
-      $appdata.set(`modules.${module}.config.track`, 0);
-      $appdata.set(`modules.${module}.config.image`, "");
-      return;
-    }
-
-    let album = null;
-    if (id_album) {
-      album = data.albums.filter((item) => item.id_album == id_album)[0];
-    } else if (data.albums.length === 1) {
-      album = data.albums[0];
-    } else {
-      album = data.albums.sort((a, b) => a.order - b.order)[0];
-    }
-
-    if (!album) {
-      $appdata.set(`modules.${module}.config.subtitle`, "");
-      $appdata.set(`modules.${module}.config.track`, 0);
-      $appdata.set(`modules.${module}.config.image`, "");
-      return;
-    }
-
-    $appdata.set(`modules.${module}.config.subtitle`, album.name);
-    $appdata.set(`modules.${module}.config.track`, album.track);
-    $appdata.set(`modules.${module}.config.image`, album.url_image);
-  },
-
-  timeUpdate() {
-    const duration_db =
-      $appdata.get("modules.media.config.mode") == "audio"
-        ? $appdata.get("modules.media.data.duration", "00:00")
-        : $appdata.get("modules.media.data.instrumental_duration", "00:00");
-
-    const audio = this.getElement();
-    const current_time = isNaN(audio.currentTime) ? 0 : audio.currentTime;
-    const duration =
-      isNaN(audio.duration) || !isFinite(audio.duration)
-        ? $datetime.toNumber(duration_db)
-        : audio.duration;
-    const progress = duration <= 0 ? 0 : (current_time / duration) * 100;
-    let buffered = 0;
-
-    $appdata.set("modules.media.config.current_time", current_time);
-    $appdata.set("modules.media.config.duration", duration);
-    $appdata.set("modules.media.config.progress", progress);
-
-    if (!$appdata.get("modules.media.config.lazy")) {
-      try {
-        audio.buffered = 100;
-      } catch (error) {
-        //
-      }
-      buffered = 100;
-    } else {
-      buffered = 0;
-      let audio_buffered = audio.buffered; // Obter intervalos de buffer carregados
-      if (audio_buffered.length > 0) {
-        buffered = (audio_buffered.end(0) / audio.duration) * 100;
-      }
-    }
-
-    $appdata.set("modules.media.config.buffered", buffered);
-
-    const times = $appdata.get("modules.media.times");
-
-    const slide_index =
-      times && times?.length
-        ? times.filter((time) => time <= current_time).length - 1
-        : 1;
-    $appdata.set(
-      "modules.media.config.slide_index",
-      slide_index <= 0 ? 0 : slide_index,
-    );
-
-    const start_time = times && times?.length ? times[slide_index] : 0;
-    const end_time =
-      times && times?.length ? times[slide_index + 1] || duration : duration;
-    const slide_progress =
-      ((current_time - start_time) / (end_time - start_time)) * 100;
-    $appdata.set("modules.media.config.slide_progress", slide_progress);
-
-    this.checkTime();
-  },
-  checkTime() {
-    const is_paused = $appdata.get("modules.media.config.is_paused");
-    const current_time = $appdata.get("modules.media.config.current_time");
-    const duration = $appdata.get("modules.media.config.duration");
-    if (!is_paused && current_time >= duration && duration > 0) {
-      this.close(true);
-    }
-  },
-  getElement() {
-    let el;
-    let id = "__audio";
-    if (!document.getElementById(id)) {
-      el = document.createElement("audio");
-      el.setAttribute("id", id);
-      el.setAttribute("preload", "auto");
-      document.body.appendChild(el);
-      el.addEventListener("timeupdate", this.timeUpdate.bind(this));
-      el.addEventListener("progress", this.timeUpdate.bind(this));
-    } else {
-      el = document.getElementById(id);
-    }
-
-    el.setAttribute("autoplay", true);
-    return el;
+    _album.setAlbumInfo(id_album, module);
   },
 };
+
+export default _self;

@@ -1,20 +1,20 @@
 {
-    "title": "Control Remoto",
-    "messages": {
-        "url_not_provided": "Informe la IP de la conexión",
-        "failed_to_connect": "¡Error al conectar! Verifique si la URL es correcta y si el programa está transmitiendo.",
-        "http_error": "Error HTTP",
-        "invalid_url": "URL inválida",
-        "success": "¡Conexión realizada con éxito!",
-        "get_ip": "Obtenga la dirección IP utilizando la opción 'Transmitir' del programa.",
-        "invalid_token": "Token inválido",
-        "error": "Error al acceder al enlace"
-    },
-    "info_module": "Ejecuta las canciones de su aplicación de forma remota. Para que este recurso funcione, este sitio debe estar ejecutándose dentro de la misma red del programa. Es necesario que el programa esté al menos en la versión 26.3.",
-    "labels": {
-        "ip": "IP de la Conexión",
-        "test_connection": "Probar Conexión",
-        "disconnect": "Desconectar",
-        "token": "Token"
-    }
+  "title": "Control Remoto",
+  "messages": {
+    "url_not_provided": "Informe la IP de la conexión",
+    "failed_to_connect": "¡Error al conectar! Verifique si la URL es correcta y si el programa está transmitiendo.",
+    "http_error": "Error HTTP",
+    "invalid_url": "URL inválida",
+    "success": "¡Conexión realizada con éxito!",
+    "get_ip": "Obtenga la dirección IP utilizando la opción 'Transmitir' del programa.",
+    "invalid_token": "Token inválido",
+    "error": "Error al acceder al enlace"
+  },
+  "info_module": "Ejecuta las canciones de su aplicación de forma remota. Para que este recurso funcione, este sitio debe estar ejecutándose dentro de la misma red del programa. Es necesario que el programa esté al menos en la versión 26.3.",
+  "labels": {
+    "ip": "IP de la Conexión",
+    "test_connection": "Probar Conexión",
+    "disconnect": "Desconectar",
+    "token": "Token"
+  }
 }

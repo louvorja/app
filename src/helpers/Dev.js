@@ -14,10 +14,7 @@ export default {
   toggle() {
     const is_dev = $appdata.get("is_dev");
     $appdata.set("is_dev", !is_dev);
-    $alert.info(
-      "messages." +
-        (is_dev ? "developer_mode_disabled" : "developer_mode_enabled")
-    );
+    $alert.info("messages." + (is_dev ? "developer_mode_disabled" : "developer_mode_enabled"));
   },
 
   /** @deprecated Use `toggle` (correct spelling). Will be removed in a future release. */

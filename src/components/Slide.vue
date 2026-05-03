@@ -1,30 +1,16 @@
 <template>
   <div ref="container" class="w-100 h-100">
-    <transition
-      name="fade"
-      v-for="(slide, index) in slides.slice().reverse()"
-      :key="index"
-    >
+    <transition v-for="(slide, index) in slides.slice().reverse()" :key="index" name="fade">
       <div
         v-if="!slide.destroy"
         v-show="slide.active"
         class="position-absolute top-0 left-0 w-100 h-100"
         :style="style_bg(slide)"
       >
-        <div
-          class="position-absolute top-0 left-0 w-100 h-100 d-flex justify-center align-center"
-        >
+        <div class="position-absolute top-0 left-0 w-100 h-100 d-flex justify-center align-center">
           <div>
-            <div
-              v-if="slide.aux_text"
-              v-html="slide.aux_text"
-              :style="style_aux_text()"
-            />
-            <div
-              v-if="slide.text"
-              v-html="slide.text"
-              :style="style_text(slide)"
-            />
+            <div v-if="slide.aux_text" :style="style_aux_text()" v-html="slide.aux_text" />
+            <div v-if="slide.text" :style="style_text(slide)" v-html="slide.text" />
           </div>
         </div>
       </div>
@@ -75,11 +61,18 @@ export default {
       }, 100);
     },
   },
+  mounted() {
+    this.setSlide();
+    this.windowResize();
+    window.addEventListener("resize", this.windowResize);
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.windowResize);
+  },
   methods: {
     setSlide() {
       if (
-        this.$string.clean(this.slides[1].text) ==
-          this.$string.clean(this.props_slide.text) &&
+        this.$string.clean(this.slides[1].text) == this.$string.clean(this.props_slide.text) &&
         this.$string.clean(this.slides[1].aux_text) ==
           this.$string.clean(this.props_slide.aux_text) &&
         this.slides[1].image == this.props_slide.image &&
@@ -103,7 +96,7 @@ export default {
     style_bg(slide) {
       return {
         overflow: "hidden",
-        backgroundColor: "rgb(0, 0, 0)",
+        backgroundColor: "var(--lj-color-projection-bg)",
         backgroundImage: `url(${slide.image})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: [
@@ -122,20 +115,20 @@ export default {
     },
     style_aux_text() {
       return {
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
+        backgroundColor: "var(--lj-black-alpha-75)",
         fontSize: `${this.fontSizePc(10)}px`,
-        color: "rgb(246, 195, 42)",
+        color: "var(--lj-slide-text-gold)",
         padding: `0px ${this.fontSizePc(5)}px`,
-        fontFamily: "DINCondensedBold",
+        fontFamily: "var(--lj-font-projection)",
         textTransform: "uppercase",
       };
     },
     style_text(slide) {
       let style = {
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
+        backgroundColor: "var(--lj-black-alpha-75)",
         padding: `0px ${this.fontSizePc(5)}px`,
         textAlign: "center",
-        fontFamily: "DINCondensedBold",
+        fontFamily: "var(--lj-font-projection)",
         textTransform: "uppercase",
       };
 
@@ -143,13 +136,13 @@ export default {
         return {
           ...style,
           fontSize: `${this.fontSizePc(25)}px`,
-          color: "rgb(246, 195, 42)",
+          color: "var(--lj-slide-text-gold)",
         };
       } else {
         return {
           ...style,
           fontSize: `${this.fontSizePc(20)}px`,
-          color: this.repeat ? "rgb(246, 195, 42)" : "rgb(255, 255, 255)",
+          color: this.repeat ? "var(--lj-slide-text-gold)" : "var(--lj-white)",
         };
       }
     },
@@ -171,14 +164,6 @@ export default {
         }
       }
     },
-  },
-  mounted() {
-    this.setSlide();
-    this.windowResize();
-    window.addEventListener("resize", this.windowResize);
-  },
-  unmounted() {
-    window.removeEventListener("resize", this.windowResize);
   },
 };
 </script>

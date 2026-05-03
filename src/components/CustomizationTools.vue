@@ -1,26 +1,16 @@
 <template>
   <v-slide-group show-arrows class="__customization_tools px-1">
     <!-- BLOCOS -->
-    <v-slide-group-item
-      v-for="(block, indx_block) in menu_items"
-      :key="indx_block"
-    >
+    <v-slide-group-item v-for="(block, indx_block) in menu_items" :key="indx_block">
       <v-divider v-if="indx_block > 0" vertical class="mx-1" />
       <v-card flat class="d-flex flex-column pt-2">
         <v-card-text style="flex: 1" class="d-flex pa-0 ma-0">
           <!-- GRUPOS -->
-          <template
-            v-for="(group, indx_group) in block.items"
-            :key="indx_group"
-          >
+          <template v-for="(group, indx_group) in block.items" :key="indx_group">
             <v-divider v-if="indx_group > 0" vertical class="mx-1" />
             <div class="d-flex flex-column justify-center">
               <!-- ITEMS -->
-              <div
-                v-for="(item, indx_item) in group"
-                :key="indx_item"
-                class="my-2"
-              >
+              <div v-for="(item, indx_item) in group" :key="indx_item" class="my-2">
                 <v-text-field
                   v-if="item?.type == 'color'"
                   v-model="userdata[item.property]"
@@ -33,9 +23,7 @@
                   hide-details
                 />
                 <v-number-input
-                  v-else-if="
-                    ['font-size', 'border-spacing'].includes(item?.type)
-                  "
+                  v-else-if="['font-size', 'border-spacing'].includes(item?.type)"
                   v-model="userdata[item.property]"
                   :label="item?.label"
                   :width="150"
@@ -130,17 +118,10 @@
                   item-value="value"
                   hide-details
                 />
-                <div
-                  v-else-if="item?.type == 'opacity'"
-                  class="px-1"
-                  style="width: 200px"
-                >
+                <div v-else-if="item?.type == 'opacity'" class="px-1" style="width: 200px">
                   <span
                     class="text-label-small px-2"
-                    style="
-                      opacity: var(--v-medium-emphasis-opacity);
-                      font-size: 12px;
-                    "
+                    style="opacity: var(--v-medium-emphasis-opacity); font-size: 12px"
                   >
                     {{ item?.label }}
                   </span>
@@ -153,9 +134,7 @@
                     :track-size="1"
                   />
                 </div>
-                <div v-else class="text-error">
-                  Type "{{ item?.type }}" invalid!
-                </div>
+                <div v-else class="text-error">Type "{{ item?.type }}" invalid!</div>
               </div>
             </div>
           </template>
@@ -217,7 +196,7 @@ export default {
             this.$userdata.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
-        },
+        }
       );
     },
     fit() {
@@ -280,22 +259,19 @@ export default {
     },
     restore() {
       let self = this;
-      this.$alert.yesno(
-        "components.customization.restore_dialog",
-        function (btn) {
-          if (btn == "yes") {
-            self.menu_items?.map((block) => {
-              block.items?.map((group) => {
-                group.map((item) => {
-                  if (item.property) {
-                    self.userdata[item.property] = item.default;
-                  }
-                });
+      this.$alert.yesno("components.customization.restore_dialog", function (btn) {
+        if (btn == "yes") {
+          self.menu_items?.map((block) => {
+            block.items?.map((group) => {
+              group.map((item) => {
+                if (item.property) {
+                  self.userdata[item.property] = item.default;
+                }
               });
             });
-          }
-        },
-      );
+          });
+        }
+      });
     },
   },
 };

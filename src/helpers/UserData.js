@@ -2,16 +2,15 @@ import $dev from "@/helpers/Dev";
 import $storage from "@/helpers/Storage";
 import $appdata from "@/helpers/AppData";
 
+let _saveTimer = null;
+
 export default {
   save() {
-    $dev.write("salvando dados");
-    /*if (store.state.desktop) {
-          // SE FOR APLICAÇÃO DESKTOP, SALVA AS CONFIGURAÇÕES NA MAQUINA DO USUARIO
-          IPC.send('save_data', JSON.stringify(store.state.data));
-      }*/
-
-    //Salvar no Storage
-    $storage.set("user_data", $appdata.get("user_data"));
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(() => {
+      $dev.write("salvando dados");
+      $storage.set("user_data", $appdata.get("user_data"));
+    }, 300);
   },
   load() {
     $dev.write("carregando dados");

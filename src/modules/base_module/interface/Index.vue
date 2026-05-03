@@ -1,7 +1,5 @@
 <template>
-  <ModuleContainer ref="moduleContainer" :manifest="manifest">
-    Módulo Base
-  </ModuleContainer>
+  <ModuleContainer ref="moduleContainer" :manifest="manifest">Módulo Base</ModuleContainer>
 </template>
 
 <script setup>
