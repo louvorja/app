@@ -1,9 +1,13 @@
 /**
  * AppData.js — Estado volátil de sessão do LouvorJA.
  *
- * Responsabilidade: camada de leitura/escrita sobre o Vuex store usando
+ * Responsabilidade: camada de leitura/escrita sobre os stores Pinia usando
  * notação de ponto (dot-notation). Os dados vivem apenas na memória da
  * sessão atual — não persistem entre reloads.
+ *
+ * Stores usados:
+ *   - appStore  — estado de app (flags, módulos, alert, popup, etc.)
+ *   - userDataStore — preferências do usuário (tema, idioma, favoritos, etc.)
  *
  * Quem usa: helpers internos (UserData.js, Alert.js, Popup.js, etc.) e
  * composables. Componentes e módulos NÃO devem importar AppData diretamente
@@ -15,15 +19,16 @@
  *
  * Camadas de estado:
  *   AppData.set("user_data.theme", "dark")
- *     → store.commit("SET_USER_DATA_PATH", { path, value })
- *       → state.user_data.theme = "dark"
+ *     → userDataStore.SET_PATH({ path: "theme", value: "dark" })
+ *       → state.theme = "dark"
  *         → Storage.set("user_data", ...) [via UserData.save, debounce 300ms]
  */
 
-import store from "@/store";
+import { useAppStore } from "@/stores/appStore";
+import { useUserDataStore } from "@/stores/userDataStore";
 
-// Caminhos de primeiro nível que mapeiam 1:1 para uma mutation nomeada.
-const _SCALAR_MUTATIONS = {
+// Caminhos de primeiro nível que mapeiam 1:1 para uma action nomeada do appStore.
+const _SCALAR_ACTIONS = {
   loading: "SET_LOADING",
   is_dark: "SET_IS_DARK",
   is_dev: "SET_IS_DEV",
@@ -41,8 +46,8 @@ export default {
   /**
    * Escreve um valor no estado da sessão.
    *
-   * Roteia para a mutation Vuex mais específica disponível. Para paths não
-   * reconhecidos, usa a mutation genérica legada `setData` com aviso em DEV.
+   * Roteia para a action Pinia mais específica disponível. Paths que começam
+   * com `user_data.` vão para userDataStore; os demais vão para appStore.
    *
    * Após cada escrita, sincroniza a janela popup aberta via postMessage —
    * exceto para os campos `popup`, `is_popup` e `is_fullscreen`, que
@@ -55,25 +60,29 @@ export default {
     const parts = param.split(".");
     const root = parts[0];
 
-    if (_SCALAR_MUTATIONS[root] && parts.length === 1) {
-      // Scalar top-level flag — mutation nomeada direta.
-      store.commit(_SCALAR_MUTATIONS[root], value);
+    if (root === "user_data") {
+      const ud = useUserDataStore();
+      if (parts.length === 1) {
+        // Substitui o state inteiro de user_data (ex: load inicial).
+        ud.$patch(value);
+      } else {
+        const path = parts.slice(1).join(".");
+        ud.SET_PATH({ path, value });
+      }
+    } else if (_SCALAR_ACTIONS[root] && parts.length === 1) {
+      // Scalar top-level flag — action nomeada direta.
+      useAppStore()[_SCALAR_ACTIONS[root]](value);
     } else if (root === "alert") {
       // alert.<key> = value
-      store.commit("PATCH_ALERT", { key: parts[1], value });
+      useAppStore().PATCH_ALERT({ key: parts[1], value });
     } else if (root === "modules" && parts.length >= 2) {
       // modules.<id>[.<path>] = value
       const id = parts[1];
       const path = parts.slice(2).join(".");
-      store.commit("SET_MODULE_PATH", { id, path, value });
-    } else if (root === "user_data" && parts.length >= 2) {
-      // user_data.<path> = value
-      const path = parts.slice(1).join(".");
-      store.commit("SET_USER_DATA_PATH", { path, value });
+      useAppStore().SET_MODULE_PATH({ id, path, value });
     } else {
-      // Fallback deprecated — caminhos desconhecidos ou compostos (ex: Popup.vue
-      // recebe event.data.param dinamicamente e pode ser qualquer coisa).
-      store.commit("setData", [param, value]);
+      // Fallback deprecated — caminhos desconhecidos ou compostos.
+      useAppStore().setData([...parts, value]);
     }
 
     // Sincroniza popup quando appdata muda (mantém estado entre janelas).
@@ -94,16 +103,32 @@ export default {
   /**
    * Lê um valor do estado da sessão.
    *
-   * @param {string} param    Caminho dot-notation. Se omitido, retorna o state inteiro.
+   * @param {string} param    Caminho dot-notation. Se omitido, retorna o state mesclado (app + user_data).
    * @param {any}    ifnull   Valor padrão quando o path não existe.
    * @returns {any}
    */
   get(param, ifnull = null) {
-    if (param && !store.getters.exists(param)) {
-      return ifnull;
+    if (!param) {
+      // Retorna state completo (appStore + userDataStore) para serialização/popup sync.
+      const app = useAppStore();
+      const ud = useUserDataStore();
+      return { ...app.$state, user_data: ud.$state };
     }
 
-    return store.getters.getData(param);
+    const parts = param.split(".");
+    const root = parts[0];
+
+    if (root === "user_data") {
+      const ud = useUserDataStore();
+      if (parts.length === 1) return ud.$state;
+      const path = parts.slice(1).join(".");
+      const result = ud.getData(path);
+      return result === undefined ? ifnull : result;
+    }
+
+    const store = useAppStore();
+    if (!store.exists(param)) return ifnull;
+    return store.getData(param);
   },
 
   /**
@@ -127,7 +152,7 @@ export default {
    * @param {any}    value  Elemento a adicionar.
    */
   addElement(param, value) {
-    store.commit("addElementArray", [param, value]);
+    useAppStore().addElementArray([param, value]);
   },
 
   /**
@@ -137,7 +162,7 @@ export default {
    * @param {any}    value  Elemento a remover.
    */
   removeElement(param, value) {
-    store.commit("removeElementArray", [param, value]);
+    useAppStore().removeElementArray([param, value]);
   },
 
   /**
@@ -165,7 +190,15 @@ export default {
    * @returns {boolean}
    */
   exists(param) {
-    return store.getters.exists(param);
+    const parts = param.split(".");
+    const root = parts[0];
+    if (root === "user_data") {
+      const ud = useUserDataStore();
+      if (parts.length === 1) return true;
+      const path = parts.slice(1).join(".");
+      return ud.getData(path) !== undefined;
+    }
+    return useAppStore().exists(param);
   },
 
   /**

@@ -1,6 +1,7 @@
+import { watch } from "vue";
 import $dev from "@/helpers/Dev";
 import $appdata from "@/helpers/AppData";
-import store from "@/store";
+import { useAppStore } from "@/stores/appStore";
 
 export default {
   show(data, callback = function () {}) {
@@ -23,8 +24,11 @@ export default {
       data.buttons || [{ text: "alert.close", color: "error", value: "close" }]
     );
 
-    const unwatch = store.watch(
-      (state) => state.alert.show,
+    // Substituição de store.watch() do Vuex: usa watch() reativo do Vue
+    // diretamente sobre o state Pinia. O unwatch() é chamado quando show → false.
+    const store = useAppStore();
+    const unwatch = watch(
+      () => store.alert.show,
       (show) => {
         if (!show) {
           unwatch();

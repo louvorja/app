@@ -34,15 +34,14 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance } from "vue";
+import { computed } from "vue";
+import $appdata from "@/helpers/AppData";
 
-const { proxy } = getCurrentInstance();
-
-const alert = computed(() => proxy.$appdata.get("alert"));
+const alert = computed(() => $appdata.get("alert"));
 
 const show = computed({
   get: () => alert.value?.show === true,
-  set: (v) => proxy.$appdata.set("alert.show", v),
+  set: (v) => $appdata.set("alert.show", v),
 });
 
 const variant = computed(() => alert.value?.color || "info");
@@ -58,8 +57,8 @@ const iconForVariant = computed(() => {
 });
 
 function clickBtn(value) {
-  proxy.$appdata.set("alert.value", value);
-  proxy.$appdata.set("alert.show", false);
+  $appdata.set("alert.value", value);
+  $appdata.set("alert.show", false);
 }
 </script>
 

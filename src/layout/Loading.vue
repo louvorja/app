@@ -13,14 +13,16 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance } from "vue";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import $appdata from "@/helpers/AppData";
 
-const { proxy } = getCurrentInstance();
+const { t } = useI18n();
 
-const show = computed(() => !!proxy.$appdata.get("loading"));
+const show = computed(() => !!$appdata.get("loading"));
 const message = computed(() => {
-  const val = proxy.$appdata.get("loading");
-  return typeof val === "string" ? val : proxy.$t("alert.wait");
+  const val = $appdata.get("loading");
+  return typeof val === "string" ? val : t("alert.wait");
 });
 </script>
 

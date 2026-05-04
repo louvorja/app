@@ -7,9 +7,9 @@
 </template>
 
 <script setup>
-import { defineAsyncComponent, computed, getCurrentInstance } from "vue";
-
-const { proxy } = getCurrentInstance();
+import { defineAsyncComponent, computed } from "vue";
+import $appdata from "@/helpers/AppData";
+import $modules from "@/helpers/Modules";
 
 // Glob estático — Vite analisa em build-time e gera importações individuais.
 // Substitui template literals variáveis que falham no headless Chromium (Playwright).
@@ -55,8 +55,8 @@ function getComponent(moduleId) {
   return _componentCache.get(moduleId);
 }
 
-const modules = computed(() => proxy.$modules.get());
-const import_modules = computed(() => proxy.$appdata.get("import_modules"));
+const modules = computed(() => $modules.get());
+const import_modules = computed(() => $appdata.get("import_modules"));
 
 defineExpose({ getComponent });
 </script>

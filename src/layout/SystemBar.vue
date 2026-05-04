@@ -39,19 +39,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, getCurrentInstance } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 import Platform from "@/helpers/Platform";
+import $appdata from "@/helpers/AppData";
 
-const { proxy } = getCurrentInstance();
+const { t } = useI18n();
 
 const isMaximized = ref(false);
 let unsubscribe = null;
 
-const isDesktop = computed(() => proxy.$appdata.get("is_desktop"));
+const isDesktop = computed(() => $appdata.get("is_desktop"));
 const isMac = computed(() => Platform.platform === "darwin");
 
 const activeModuleId = computed(() => {
-  const modules = proxy.$appdata.get("modules") || {};
+  const modules = $appdata.get("modules") || {};
   const skip = new Set(["media", "lyric", "album"]);
   const ids = Object.keys(modules).reverse();
   for (const id of ids) {
@@ -64,8 +66,8 @@ const activeModuleId = computed(() => {
 const title = computed(() => {
   if (!activeModuleId.value) return "Louvor JA";
   const key = `modules.${activeModuleId.value}.title`;
-  const t = proxy.$t(key);
-  const moduleTitle = t === key ? activeModuleId.value.replace(/_/g, " ") : t;
+  const translated = t(key);
+  const moduleTitle = translated === key ? activeModuleId.value.replace(/_/g, " ") : translated;
   return `${moduleTitle} - Louvor JA`;
 });
 

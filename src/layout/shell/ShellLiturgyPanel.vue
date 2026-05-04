@@ -67,10 +67,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, getCurrentInstance } from "vue";
+import { ref, computed, onMounted } from "vue";
 import Liturgy from "@/helpers/Liturgy";
-
-const { proxy } = getCurrentInstance();
+import $userdata from "@/helpers/UserData";
+import $modules from "@/helpers/Modules";
+import $media from "@/composables/useMedia";
 
 const TYPE_ICONS = {
   musica: "mdi-music",
@@ -100,7 +101,7 @@ const totals = computed(() => {
 
 function toggleCollapsed() {
   collapsed.value = !collapsed.value;
-  proxy.$userdata.set("shell.liturgy_collapsed", collapsed.value);
+  $userdata.set("shell.liturgy_collapsed", collapsed.value);
 }
 
 function iconForType(tipo) {
@@ -112,13 +113,13 @@ function isChecked(item) {
 }
 
 function openLiturgy() {
-  proxy.$modules.open("liturgy");
+  $modules.open("liturgy");
 }
 
 function executeItem(item) {
   if (item.tipo === "musica" && item.id_music) {
     try {
-      proxy.$media?.open?.({
+      $media.open({
         id_music: item.id_music,
         mode: item.subtipo === "ja" ? "audio" : undefined,
       });
@@ -135,7 +136,7 @@ function executeItem(item) {
 }
 
 onMounted(() => {
-  collapsed.value = proxy.$userdata.get("shell.liturgy_collapsed", false);
+  collapsed.value = $userdata.get("shell.liturgy_collapsed", false);
 });
 </script>
 

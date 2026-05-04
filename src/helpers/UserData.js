@@ -1,19 +1,18 @@
 /**
  * UserData.js — Preferências do usuário com persistência automática.
  *
- * Responsabilidade: wrapper sobre AppData para o namespace `user_data`.
- * Toda leitura/escrita passa por AppData (que vai ao Vuex store) e as
- * escritas disparam um save com debounce de 300ms para não sobrecarregar
- * o Storage durante interações rápidas (ex: arrastar controle deslizante).
+ * Responsabilidade: wrapper sobre userDataStore (Pinia) para o namespace
+ * `user_data`. Toda escrita agenda um save com debounce de 300ms para não
+ * sobrecarregar o Storage durante interações rápidas (ex: drag-and-drop,
+ * sliders que disparam dezenas de eventos por segundo).
  *
  * Quem usa: componentes e módulos que precisam ler ou salvar preferências
  * do usuário (tema, idioma, favoritos, configurações de módulo, etc.).
  *
  * Fluxo completo de uma escrita:
  *   UserData.set("theme", "dark")
- *     → AppData.set("user_data.theme", "dark")
- *       → store.commit("SET_USER_DATA_PATH", { path: "theme", value: "dark" })
- *         → state.user_data.theme = "dark"
+ *     → userDataStore.SET_PATH({ path: "theme", value: "dark" })
+ *       → state.theme = "dark"
  *     → UserData.save() [debounce 300ms]
  *       → Storage.set("user_data", { theme: "dark", ... })
  */
@@ -38,7 +37,7 @@
 
 import $dev from "@/helpers/Dev";
 import $storage from "@/helpers/Storage";
-import $appdata from "@/helpers/AppData";
+import { useUserDataStore } from "@/stores/userDataStore";
 
 let _saveTimer = null;
 
@@ -54,7 +53,7 @@ export default {
     clearTimeout(_saveTimer);
     _saveTimer = setTimeout(() => {
       $dev.write("salvando dados");
-      $storage.set("user_data", $appdata.get("user_data"));
+      $storage.set("user_data", useUserDataStore().$state);
     }, 300);
   },
 
@@ -64,11 +63,12 @@ export default {
    */
   load() {
     $dev.write("carregando dados");
-    let data = $appdata.flatten($storage.get("user_data"));
-
-    Object.keys(data).map((item) => {
-      $appdata.set(`user_data.${item}`, data[item]);
-    });
+    const saved = $storage.get("user_data");
+    if (saved) {
+      // $patch faz deep-merge: preserva defaults e sobrescreve apenas
+      // os campos presentes no dado salvo.
+      useUserDataStore().$patch(saved);
+    }
   },
 
   /**
@@ -79,8 +79,7 @@ export default {
    */
   set(param, value) {
     $dev.write("set userdata", { param, value });
-    $appdata.set(`user_data.${param}`, value);
-
+    useUserDataStore().SET_PATH({ path: param, value });
     this.save();
   },
 
@@ -94,12 +93,10 @@ export default {
    * @param {any}    value  Valor padrão.
    */
   setIfNull(param, value) {
-    $dev.write("set userdata", { param, value });
-    if (
-      $appdata.get(`user_data.${param}`) === null ||
-      $appdata.get(`user_data.${param}`) === undefined
-    ) {
-      $appdata.set(`user_data.${param}`, value);
+    $dev.write("setIfNull userdata", { param, value });
+    const current = useUserDataStore().getData(param);
+    if (current === null || current === undefined) {
+      useUserDataStore().SET_PATH({ path: param, value });
     }
   },
 
@@ -111,9 +108,9 @@ export default {
    * @returns {any}
    */
   get(param, ifnull = null) {
-    if (!param) {
-      return $appdata.get("user_data", ifnull);
-    }
-    return $appdata.get(`user_data.${param}`, ifnull);
+    const ud = useUserDataStore();
+    if (!param) return ud.$state;
+    const result = ud.getData(param);
+    return result === undefined ? ifnull : result;
   },
 };

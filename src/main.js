@@ -1,8 +1,8 @@
 import { createApp } from "vue";
+import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 import vuetify from "./plugins/vuetify";
-import store from "./store";
 import { loadFonts } from "./plugins/webfontloader";
 import { createI18nInstance } from "./i18n";
 import VueFullscreen from "vue-fullscreen";
@@ -40,9 +40,9 @@ import Shortcuts from "@/helpers/Shortcuts";
 import Hotkeys from "@/helpers/Hotkeys";
 import { useShell } from "@/composables/useShell";
 
+app.use(createPinia());
 app.use(router);
 app.use(vuetify);
-app.use(store);
 app.use(VueFullscreen);
 
 // ---------------------------------------------------------------------------

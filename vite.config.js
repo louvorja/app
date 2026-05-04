@@ -118,7 +118,7 @@ export default async ({ mode }) => {
         output: {
           manualChunks: {
             // Framework core — raramente muda, longa vida no cache do browser
-            "vendor-vue": ["vue", "vue-router", "vuex"],
+            "vendor-vue": ["vue", "vue-router", "pinia"],
             // i18n — muda só com novas traduções
             "vendor-i18n": ["vue-i18n"],
             // Busca full-text
