@@ -61,8 +61,12 @@
 </template>
 
 <script setup>
-import { computed, watch, onMounted, getCurrentInstance } from "vue";
+import { computed, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import Window from "@/components/Window.vue";
+import Modules from "@/helpers/Modules";
+import AppData from "@/helpers/AppData";
+import UserData from "@/helpers/UserData";
 
 const props = defineProps({
   manifest: { type: Object, required: true },
@@ -75,20 +79,20 @@ const props = defineProps({
 
 const emit = defineEmits(["close", "minimize", "scroll", "hasScroll", "show"]);
 
-const { proxy } = getCurrentInstance();
+const { t: i18nT } = useI18n();
 
 const moduleId = computed(() => props.manifest?.id);
 
-const module_ = computed(() => (moduleId.value && proxy.$modules.get(moduleId.value)) || {});
+const module_ = computed(() => (moduleId.value && Modules.get(moduleId.value)) || {});
 
 const show = computed({
   get() {
     if (!moduleId.value) return false;
-    return proxy.$appdata.get(`modules.${moduleId.value}.show`) === true;
+    return AppData.get(`modules.${moduleId.value}.show`) === true;
   },
   set(v) {
     if (moduleId.value) {
-      proxy.$appdata.set(`modules.${moduleId.value}.show`, v);
+      AppData.set(`modules.${moduleId.value}.show`, v);
     }
   },
 });
@@ -99,18 +103,17 @@ const headerTitle = computed(() => {
   if (props.title) return props.title;
   if (!props.manifest) return "";
   const key = `modules.${moduleId.value}.title`;
-  const translated = proxy.$t(key);
+  const translated = i18nT(key);
   if (translated && translated !== key) return translated;
   return props.manifest.name || moduleId.value || "";
 });
 
 watch(show, (v) => {
-  console.warn(`[ModuleContainer] ${moduleId.value} show changed to: ${v}`);
   emit("show", v);
 });
 
 function close() {
-  proxy.$modules.close(moduleId.value);
+  Modules.close(moduleId.value);
   emit("close");
 }
 
@@ -122,9 +125,8 @@ function onHasScroll() {
 }
 
 onMounted(() => {
-  // Marca em $appdata.modules.<id>.popup para o Modules.open() saber se é popup
   if (moduleId.value) {
-    proxy.$appdata.set(`modules.${moduleId.value}.popup`, props.popup);
+    AppData.set(`modules.${moduleId.value}.popup`, props.popup);
   }
 });
 
@@ -134,16 +136,16 @@ const userdata = computed(() => {
   return new Proxy(
     {},
     {
-      get: (_, key) => proxy.$userdata.get(`modules.${id}.${String(key)}`, null),
+      get: (_, key) => UserData.get(`modules.${id}.${String(key)}`, null),
       set: (_, key, value) => {
-        proxy.$userdata.set(`modules.${id}.${String(key)}`, value);
+        UserData.set(`modules.${id}.${String(key)}`, value);
         return true;
       },
     }
   );
 });
 
-const t = (key) => proxy.$t(`modules.${moduleId.value}.${key}`);
+const t = (key) => i18nT(`modules.${moduleId.value}.${key}`);
 
 defineExpose({ userdata, t, moduleId, module: module_ });
 </script>
