@@ -68,12 +68,6 @@
   </ModuleContainer>
 </template>
 
-<script>
-export default {
-  name: "CounterModule",
-};
-</script>
-
 <script setup>
 import { ref, computed } from "vue";
 import AppData from "@/helpers/AppData";

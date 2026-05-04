@@ -163,7 +163,8 @@
   </ModuleContainer>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import TransmissionCard from "./TransmissionCard.vue";
@@ -172,230 +173,210 @@ import Platform from "@/helpers/Platform";
 const FULLSCREEN_ROUTES = ["/projection", "/projection/return", "/obs", "/obs/bible", "/clock"];
 const FRAMED_ROUTES = ["/operator"];
 
-export default {
-  name: "TransmissionModule",
-  components: { ModuleContainer, TransmissionCard },
-  data: () => ({
-    manifest,
-    windows: [
-      {
-        route: "/projection",
-        icon: "mdi-monitor",
-        titleKey: "windows.projection",
-        hintKey: "hints.projection",
-      },
-      {
-        route: "/projection/return",
-        icon: "mdi-monitor-eye",
-        titleKey: "windows.return",
-        hintKey: "hints.return",
-      },
-      {
-        route: "/operator",
-        icon: "mdi-view-grid-outline",
-        titleKey: "windows.operator",
-        hintKey: "hints.operator",
-      },
-      { route: "/obs", icon: "mdi-television-play", titleKey: "windows.obs", hintKey: "hints.obs" },
-      {
-        route: "/obs/bible",
-        icon: "mdi-book-open-variant",
-        titleKey: "windows.obs_bible",
-        hintKey: "hints.obs_bible",
-      },
-      {
-        route: "/clock",
-        icon: "mdi-clock-outline",
-        titleKey: "windows.clock",
-        hintKey: "hints.clock",
-      },
-    ],
-    monitors: [],
-    monitorPrefs: {},
-    // HTTP server state
-    server: { running: false, port: null, token: null },
-    serverLoading: false,
-    localIps: [],
-    autoStart: false,
-    copiedIp: null,
-    // D6 — Atalhos globais
-    shortcutsStatus: { enabled: false, registered: [] },
-    shortcutsEnabled: false,
-    shortcutsFailed: [],
-  }),
-  computed: {
-    origin() {
-      return window.location.origin;
-    },
-    isDesktop() {
-      return Platform?.isDesktop || false;
-    },
+const moduleContainer = ref(null);
+const windows = [
+  {
+    route: "/projection",
+    icon: "mdi-monitor",
+    titleKey: "windows.projection",
+    hintKey: "hints.projection",
   },
-  async mounted() {
-    if (this.isDesktop) {
-      if (Platform.displays) {
-        try {
-          this.monitors = await Platform.displays.list();
-          this.monitorPrefs = await Platform.displays.getPrefs();
-        } catch (e) {
-          console.warn("[Transmission] Falha ao carregar monitores:", e);
-        }
-      }
+  {
+    route: "/projection/return",
+    icon: "mdi-monitor-eye",
+    titleKey: "windows.return",
+    hintKey: "hints.return",
+  },
+  {
+    route: "/operator",
+    icon: "mdi-view-grid-outline",
+    titleKey: "windows.operator",
+    hintKey: "hints.operator",
+  },
+  { route: "/obs", icon: "mdi-television-play", titleKey: "windows.obs", hintKey: "hints.obs" },
+  {
+    route: "/obs/bible",
+    icon: "mdi-book-open-variant",
+    titleKey: "windows.obs_bible",
+    hintKey: "hints.obs_bible",
+  },
+  {
+    route: "/clock",
+    icon: "mdi-clock-outline",
+    titleKey: "windows.clock",
+    hintKey: "hints.clock",
+  },
+];
 
-      if (Platform.httpServer) {
-        try {
-          this.server = await Platform.httpServer.status();
-          this.localIps = await Platform.httpServer.localIps();
-        } catch (e) {
-          console.warn("[Transmission] Falha ao carregar status do servidor:", e);
-        }
+const monitors = ref([]);
+const monitorPrefs = ref({});
+const server = ref({ running: false, port: null, token: null });
+const serverLoading = ref(false);
+const localIps = ref([]);
+const autoStart = ref(false);
+const copiedIp = ref(null);
+const shortcutsStatus = ref({ enabled: false, registered: [] });
+const shortcutsEnabled = ref(false);
+const shortcutsFailed = ref([]);
 
-        // Carregar configuração de auto-start do userStore
-        try {
-          const cfg = (await Platform.userStore?.read("config")) || {};
-          this.autoStart = cfg.httpServer?.autoStart ?? false;
-        } catch (e) {
-          console.warn("[Transmission] Falha ao carregar configuração:", e);
-        }
-      }
+const origin = computed(() => window.location.origin);
+const isDesktop = computed(() => Platform?.isDesktop || false);
 
-      // D6 — Carregar status dos atalhos globais
-      if (Platform.shortcuts) {
-        try {
-          this.shortcutsStatus = await Platform.shortcuts.status();
-          this.shortcutsEnabled = this.shortcutsStatus.enabled;
-        } catch (e) {
-          console.warn("[Transmission] Falha ao carregar status dos atalhos:", e);
-        }
-      }
+const t = (key, args) => moduleContainer.value?.t(key, args) || key;
+
+onMounted(async () => {
+  if (!isDesktop.value) return;
+
+  if (Platform.displays) {
+    try {
+      monitors.value = await Platform.displays.list();
+      monitorPrefs.value = await Platform.displays.getPrefs();
+    } catch (e) {
+      console.warn("[Transmission] Falha ao carregar monitores:", e);
     }
-  },
-  methods: {
-    t(key, args) {
-      return this.$refs.moduleContainer?.t(key, args) || key;
-    },
+  }
 
-    featureKey(route) {
-      return `transmission:${route}`;
-    },
+  if (Platform.httpServer) {
+    try {
+      server.value = await Platform.httpServer.status();
+      localIps.value = await Platform.httpServer.localIps();
+    } catch (e) {
+      console.warn("[Transmission] Falha ao carregar status do servidor:", e);
+    }
 
-    async toggleServer() {
-      if (!Platform.httpServer) return;
-      this.serverLoading = true;
-      try {
-        if (this.server.running) {
-          await Platform.httpServer.stop();
-        } else {
-          await Platform.httpServer.start({ port: 7070 });
-        }
-        this.server = await Platform.httpServer.status();
-        if (this.server.running && this.localIps.length === 0) {
-          this.localIps = await Platform.httpServer.localIps();
-        }
-      } catch (e) {
-        console.error("[Transmission] Falha ao alternar servidor:", e);
-      } finally {
-        this.serverLoading = false;
-      }
-    },
+    try {
+      const cfg = (await Platform.userStore?.read("config")) || {};
+      autoStart.value = cfg.httpServer?.autoStart ?? false;
+    } catch (e) {
+      console.warn("[Transmission] Falha ao carregar configuração:", e);
+    }
+  }
 
-    async saveAutoStart(value) {
-      if (!Platform.userStore) return;
-      try {
-        const cfg = (await Platform.userStore.read("config")) || {};
-        if (!cfg.httpServer) cfg.httpServer = {};
-        cfg.httpServer.autoStart = value;
-        cfg.httpServer.port = 7070;
-        await Platform.userStore.write("config", cfg);
-      } catch (e) {
-        console.warn("[Transmission] Falha ao salvar auto-start:", e);
-      }
-    },
+  if (Platform.shortcuts) {
+    try {
+      shortcutsStatus.value = await Platform.shortcuts.status();
+      shortcutsEnabled.value = shortcutsStatus.value.enabled;
+    } catch (e) {
+      console.warn("[Transmission] Falha ao carregar status dos atalhos:", e);
+    }
+  }
+});
 
-    async copyServerUrl(ip) {
-      const url = `http://${ip}:${this.server.port}/?token=${this.server.token}`;
-      try {
-        await navigator.clipboard.writeText(url);
-        this.copiedIp = ip;
-        setTimeout(() => {
-          this.copiedIp = null;
-        }, 2000);
-      } catch {
-        /* noop */
-      }
-    },
+function featureKey(route) {
+  return `transmission:${route}`;
+}
 
-    async openWindow(win) {
-      const { route } = win;
+async function toggleServer() {
+  if (!Platform.httpServer) return;
+  serverLoading.value = true;
+  try {
+    if (server.value.running) {
+      await Platform.httpServer.stop();
+    } else {
+      await Platform.httpServer.start({ port: 7070 });
+    }
+    server.value = await Platform.httpServer.status();
+    if (server.value.running && localIps.value.length === 0) {
+      localIps.value = await Platform.httpServer.localIps();
+    }
+  } catch (e) {
+    console.error("[Transmission] Falha ao alternar servidor:", e);
+  } finally {
+    serverLoading.value = false;
+  }
+}
 
-      // Desktop: usar BrowserWindow do Electron com escolha de monitor
-      if (this.isDesktop && Platform.windows) {
-        const feature = this.featureKey(route);
-        const fullscreen = FULLSCREEN_ROUTES.some((r) => route.startsWith(r));
-        const frame = FRAMED_ROUTES.some((r) => route.startsWith(r));
-        const monitorId = this.monitorPrefs[feature] ?? null;
+async function saveAutoStart(value) {
+  if (!Platform.userStore) return;
+  try {
+    const cfg = (await Platform.userStore.read("config")) || {};
+    if (!cfg.httpServer) cfg.httpServer = {};
+    cfg.httpServer.autoStart = value;
+    cfg.httpServer.port = 7070;
+    await Platform.userStore.write("config", cfg);
+  } catch (e) {
+    console.warn("[Transmission] Falha ao salvar auto-start:", e);
+  }
+}
 
-        try {
-          await Platform.windows.open({
-            route,
-            feature,
-            fullscreen,
-            frame,
-            ...(monitorId !== null ? { monitorId } : {}),
-          });
-          return;
-        } catch (e) {
-          console.error("[Transmission] Falha ao abrir janela via Electron:", e);
-          // Fallback: window.open
-        }
-      }
+async function copyServerUrl(ip) {
+  const url = `http://${ip}:${server.value.port}/?token=${server.value.token}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    copiedIp.value = ip;
+    setTimeout(() => {
+      copiedIp.value = null;
+    }, 2000);
+  } catch {
+    /* noop */
+  }
+}
 
-      // Web/PWA ou fallback: window.open normal
-      window.open(window.location.origin + route, "_blank", "noopener,noreferrer");
-    },
+async function openWindow(win) {
+  const { route } = win;
 
-    async identifyMonitors() {
-      if (Platform?.displays) {
-        try {
-          const count = await Platform.displays.identify(5000);
-          console.log(`[Transmission] Identificando ${count} monitor(es)...`);
-        } catch (e) {
-          console.warn("[Transmission] Falha ao identificar monitores:", e);
-        }
-      }
-    },
+  if (isDesktop.value && Platform.windows) {
+    const feature = featureKey(route);
+    const fullscreen = FULLSCREEN_ROUTES.some((r) => route.startsWith(r));
+    const frame = FRAMED_ROUTES.some((r) => route.startsWith(r));
+    const monitorId = monitorPrefs.value[feature] ?? null;
 
-    async setMonitor(featureId, displayId) {
-      if (Platform?.displays) {
-        try {
-          await Platform.displays.setPreferred(featureId, displayId);
-          this.monitorPrefs = { ...this.monitorPrefs, [featureId]: displayId };
-        } catch (e) {
-          console.warn("[Transmission] Falha ao salvar preferência de monitor:", e);
-        }
-      }
-    },
+    try {
+      await Platform.windows.open({
+        route,
+        feature,
+        fullscreen,
+        frame,
+        ...(monitorId !== null ? { monitorId } : {}),
+      });
+      return;
+    } catch (e) {
+      console.error("[Transmission] Falha ao abrir janela via Electron:", e);
+    }
+  }
 
-    async toggleShortcuts(value) {
-      if (!Platform.shortcuts) return;
-      try {
-        if (value) {
-          const result = await Platform.shortcuts.enable();
-          this.shortcutsStatus = await Platform.shortcuts.status();
-          this.shortcutsFailed = result.failed || [];
-        } else {
-          await Platform.shortcuts.disable();
-          this.shortcutsStatus = { enabled: false, registered: [] };
-          this.shortcutsFailed = [];
-        }
-        // Persistir preferência para auto-enable no próximo boot
-        await Platform.shortcuts.savePreference(value);
-      } catch (e) {
-        console.error("[Transmission] Falha ao alternar atalhos globais:", e);
-      }
-    },
+  window.open(window.location.origin + route, "_blank", "noopener,noreferrer");
+}
 
-    close() {},
-  },
-};
+async function identifyMonitors() {
+  if (Platform?.displays) {
+    try {
+      const count = await Platform.displays.identify(5000);
+      console.log(`[Transmission] Identificando ${count} monitor(es)...`);
+    } catch (e) {
+      console.warn("[Transmission] Falha ao identificar monitores:", e);
+    }
+  }
+}
+
+async function setMonitor(featureId, displayId) {
+  if (Platform?.displays) {
+    try {
+      await Platform.displays.setPreferred(featureId, displayId);
+      monitorPrefs.value = { ...monitorPrefs.value, [featureId]: displayId };
+    } catch (e) {
+      console.warn("[Transmission] Falha ao salvar preferência de monitor:", e);
+    }
+  }
+}
+
+async function toggleShortcuts(value) {
+  if (!Platform.shortcuts) return;
+  try {
+    if (value) {
+      const result = await Platform.shortcuts.enable();
+      shortcutsStatus.value = await Platform.shortcuts.status();
+      shortcutsFailed.value = result.failed || [];
+    } else {
+      await Platform.shortcuts.disable();
+      shortcutsStatus.value = { enabled: false, registered: [] };
+      shortcutsFailed.value = [];
+    }
+    await Platform.shortcuts.savePreference(value);
+  } catch (e) {
+    console.error("[Transmission] Falha ao alternar atalhos globais:", e);
+  }
+}
+
+function close() {}
 </script>

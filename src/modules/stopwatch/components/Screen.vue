@@ -21,202 +21,144 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import manifest from "../manifest.json";
 import Modules from "@/helpers/Modules";
 import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
 
-export default {
-  name: "StopwatchPage",
-  data: () => ({
-    s_width: 0,
-    s_height: 0,
-    timer: null,
-    elapsedTime: 0,
-    now: null,
-  }),
-  computed: {
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    appdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return AppData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            AppData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    backgroundColor() {
-      return this.userdata.background_color || "#000000";
-    },
-    font() {
-      return this.userdata.font || "Arial, sans-serif";
-    },
-    fontColor() {
-      return this.userdata.font_color || "#FFFFFF";
-    },
-    fontSize() {
-      return this.userdata.font_size || 30;
-    },
-    borderSpacing() {
-      return this.userdata.border_spacing || 10;
-    },
-    verticalAlign() {
-      return this.userdata.vertical_align || "center";
-    },
-    horizontalAlign() {
-      return this.userdata.horizontal_align || "center";
-    },
-    image() {
-      return this.userdata.image || "";
-    },
-    imageOpacity() {
-      return (this.userdata.image_opacity || 100) / 100;
-    },
-    imageFit() {
-      return this.userdata.image_fit || "cover";
-    },
-    timeFormat() {
-      return this.userdata.time_format || "hh.mm.ss.ms";
-    },
-    alignClass() {
-      const vertical = {
-        start: "align-start",
-        center: "align-center",
-        end: "align-end",
-      };
-      const horizontal = {
-        start: "justify-start",
-        center: "justify-center",
-        end: "justify-end",
-      };
-      return `${vertical[this.verticalAlign]} ${horizontal[this.horizontalAlign]}`;
-    },
-    containerStyle() {
-      return {
-        background: this.backgroundColor,
-        width: "100%",
-        height: "100%",
-        position: "relative",
-        color: this.fontColor,
-        padding: `${this.borderSpacing}px`,
-      };
-    },
-    textStyle() {
-      return {
-        fontFamily: this.font,
-        color: this.fontColor,
-        zIndex: 1,
-        fontSize: `${this.fontSizePc(this.fontSize)}px`,
-        textAlign: `${this.horizontalAlign}`,
-      };
-    },
+const container = ref(null);
+const sWidth = ref(0);
+const sHeight = ref(0);
+let timer = null;
+const now = ref(null);
 
-    startTime() {
-      const value = this.appdata.start_time;
-      if (!value) return null;
-      return value instanceof Date ? value : new Date(value);
-    },
-    pausedTime() {
-      const value = this.appdata.paused_time;
-      if (!value) return null;
-      return value instanceof Date ? value : new Date(value);
-    },
-    isRunning() {
-      return this.appdata.is_running ?? null;
-    },
+const module_ = computed(() => Modules.get(manifest.id));
 
-    formattedTime() {
-      const elapsedTime = this.now ? this.now - (this.startTime ?? this.now) : 0;
-
-      const totalMilliseconds = elapsedTime;
-      const hours = Math.floor(totalMilliseconds / 3600000);
-      const minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
-      const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
-      const milliseconds = Math.floor((totalMilliseconds % 1000) / 10);
-
-      const pad = (v) => String(v).padStart(2, "0");
-
-      const tokens = {
-        hh: pad(hours),
-        mm: pad(minutes),
-        ss: pad(seconds),
-        ms: pad(milliseconds),
-      };
-
-      return this.timeFormat.replace(/hh|mm|ss|ms/g, (match) => tokens[match]);
-    },
-  },
-  watch: {
-    isRunning() {
-      if (this.isRunning) {
-        this.timer = setInterval(() => {
-          this.now = new Date();
-        }, 10);
-      } else {
-        clearInterval(this.timer);
-        this.now = this.pausedTime;
+const userdata = computed(
+  () =>
+    new Proxy(
+      {},
+      {
+        get: (_, key) => UserData.get(`modules.${module_.value.id}.${key}`, null),
+        set: (_, key, value) => {
+          UserData.set(`modules.${module_.value.id}.${key}`, value);
+          return true;
+        },
       }
-    },
-  },
-  mounted() {
-    this.windowResize();
-    window.addEventListener("resize", this.windowResize);
+    )
+);
 
-    if (this.isRunning) {
-      this.timer = setInterval(() => {
-        this.now = new Date();
-      }, 10);
+const appdata = computed(
+  () =>
+    new Proxy(
+      {},
+      {
+        get: (_, key) => AppData.get(`modules.${module_.value.id}.${key}`, null),
+        set: (_, key, value) => {
+          AppData.set(`modules.${module_.value.id}.${key}`, value);
+          return true;
+        },
+      }
+    )
+);
+
+const backgroundColor = computed(() => userdata.value.background_color || "#000000");
+const font = computed(() => userdata.value.font || "Arial, sans-serif");
+const fontColor = computed(() => userdata.value.font_color || "#FFFFFF");
+const fontSize = computed(() => userdata.value.font_size || 30);
+const borderSpacing = computed(() => userdata.value.border_spacing || 10);
+const verticalAlign = computed(() => userdata.value.vertical_align || "center");
+const horizontalAlign = computed(() => userdata.value.horizontal_align || "center");
+const timeFormat = computed(() => userdata.value.time_format || "hh.mm.ss.ms");
+
+const startTime = computed(() => {
+  const value = appdata.value.start_time;
+  if (!value) return null;
+  return value instanceof Date ? value : new Date(value);
+});
+const pausedTime = computed(() => {
+  const value = appdata.value.paused_time;
+  if (!value) return null;
+  return value instanceof Date ? value : new Date(value);
+});
+const isRunning = computed(() => appdata.value.is_running ?? null);
+
+const alignClass = computed(() => {
+  const vertical = { start: "align-start", center: "align-center", end: "align-end" };
+  const horizontal = { start: "justify-start", center: "justify-center", end: "justify-end" };
+  return `${vertical[verticalAlign.value]} ${horizontal[horizontalAlign.value]}`;
+});
+
+const containerStyle = computed(() => ({
+  background: backgroundColor.value,
+  width: "100%",
+  height: "100%",
+  position: "relative",
+  color: fontColor.value,
+  padding: `${borderSpacing.value}px`,
+}));
+
+const textStyle = computed(() => ({
+  fontFamily: font.value,
+  color: fontColor.value,
+  zIndex: 1,
+  fontSize: `${fontSizePc(fontSize.value)}px`,
+  textAlign: horizontalAlign.value,
+}));
+
+const formattedTime = computed(() => {
+  const elapsed = now.value ? now.value - (startTime.value ?? now.value) : 0;
+  const totalMs = elapsed;
+  const hours = Math.floor(totalMs / 3600000);
+  const minutes = Math.floor((totalMs % 3600000) / 60000);
+  const seconds = Math.floor((totalMs % 60000) / 1000);
+  const milliseconds = Math.floor((totalMs % 1000) / 10);
+  const pad = (v) => String(v).padStart(2, "0");
+  const tokens = { hh: pad(hours), mm: pad(minutes), ss: pad(seconds), ms: pad(milliseconds) };
+  return timeFormat.value.replace(/hh|mm|ss|ms/g, (match) => tokens[match]);
+});
+
+watch(isRunning, (running) => {
+  if (running) {
+    timer = setInterval(() => {
+      now.value = new Date();
+    }, 10);
+  } else {
+    clearInterval(timer);
+    now.value = pausedTime.value;
+  }
+});
+
+function fontSizePc(pc) {
+  const v = Math.min(sWidth.value, sHeight.value);
+  return (pc * v) / 100 / 2;
+}
+
+function windowResize() {
+  const el = container.value;
+  if (el) {
+    sWidth.value = el.offsetWidth;
+    sHeight.value = el.offsetHeight;
+    if (sWidth.value <= 0 || sHeight.value <= 0) {
+      setTimeout(windowResize, 100);
     }
-  },
-  unmounted() {
-    window.removeEventListener("resize", this.windowResize);
-    clearInterval(this.timer);
-  },
-  methods: {
-    fontSizePc(pc) {
-      const v = Math.min(this.s_width, this.s_height);
-      return (pc * v) / 100 / 2;
-    },
-    windowResize() {
-      const container = this.$refs.container;
-      if (container) {
-        this.s_width = container.offsetWidth;
-        this.s_height = container.offsetHeight;
+  }
+}
 
-        if (this.s_width <= 0 || this.s_height <= 0) {
-          const self = this;
-          setTimeout(function () {
-            self.windowResize();
-          }, 100);
-        }
-      }
-    },
-  },
-};
+onMounted(() => {
+  windowResize();
+  window.addEventListener("resize", windowResize);
+  if (isRunning.value) {
+    timer = setInterval(() => {
+      now.value = new Date();
+    }, 10);
+  }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", windowResize);
+  clearInterval(timer);
+});
 </script>

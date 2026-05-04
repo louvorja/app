@@ -36,65 +36,71 @@
   </ModuleContainer>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import UserData from "@/helpers/UserData";
 
-export default {
-  name: "ClockModule",
-  components: { ModuleContainer },
-  data: () => ({ manifest, time: "", date: "", timer: null, show24h: true, showSeconds: true }),
-  mounted() {
-    this.show24h = UserData.get("modules.clock.show24h", true);
-    this.showSeconds = UserData.get("modules.clock.showSeconds", true);
-    this.tick();
-    this.timer = setInterval(this.tick, 1000);
-  },
-  beforeUnmount() {
-    clearInterval(this.timer);
-  },
-  methods: {
-    t(key) {
-      return this.$refs.moduleContainer?.t(key) || key;
-    },
-    tick() {
-      const now = new Date();
-      this.time = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        ...(this.showSeconds ? { second: "2-digit" } : {}),
-        hour12: !this.show24h,
-      });
-      this.date = now.toLocaleDateString([], {
-        weekday: "long",
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-    },
-    toggle24h() {
-      this.show24h = !this.show24h;
-      UserData.set("modules.clock.show24h", this.show24h);
-      this.tick();
-    },
-    toggleSeconds() {
-      this.showSeconds = !this.showSeconds;
-      UserData.set("modules.clock.showSeconds", this.showSeconds);
-      this.tick();
-    },
-    openFullscreen() {
-      const params = new URLSearchParams({
-        h24: this.show24h ? "1" : "0",
-        sec: this.showSeconds ? "1" : "0",
-      });
-      window.open(`/clock?${params}`, "_blank", "noopener,noreferrer,width=800,height=400");
-    },
-    close() {
-      clearInterval(this.timer);
-    },
-  },
-};
+const moduleContainer = ref(null);
+const time = ref("");
+const date = ref("");
+const show24h = ref(true);
+const showSeconds = ref(true);
+let timer = null;
+
+const t = (key) => moduleContainer.value?.t(key) || key;
+
+function tick() {
+  const now = new Date();
+  time.value = now.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    ...(showSeconds.value ? { second: "2-digit" } : {}),
+    hour12: !show24h.value,
+  });
+  date.value = now.toLocaleDateString([], {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function toggle24h() {
+  show24h.value = !show24h.value;
+  UserData.set("modules.clock.show24h", show24h.value);
+  tick();
+}
+
+function toggleSeconds() {
+  showSeconds.value = !showSeconds.value;
+  UserData.set("modules.clock.showSeconds", showSeconds.value);
+  tick();
+}
+
+function openFullscreen() {
+  const params = new URLSearchParams({
+    h24: show24h.value ? "1" : "0",
+    sec: showSeconds.value ? "1" : "0",
+  });
+  window.open(`/clock?${params}`, "_blank", "noopener,noreferrer,width=800,height=400");
+}
+
+function close() {
+  clearInterval(timer);
+}
+
+onMounted(() => {
+  show24h.value = UserData.get("modules.clock.show24h", true);
+  showSeconds.value = UserData.get("modules.clock.showSeconds", true);
+  tick();
+  timer = setInterval(tick, 1000);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(timer);
+});
 </script>
 
 <style scoped>

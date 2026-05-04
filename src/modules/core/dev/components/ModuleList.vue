@@ -50,15 +50,9 @@
   </v-card>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
 import AppData from "@/helpers/AppData";
 
-export default {
-  name: "ModuleList",
-  computed: {
-    modules() {
-      return AppData.get("modules");
-    },
-  },
-};
+const modules = computed(() => AppData.get("modules"));
 </script>

@@ -1,18 +1,18 @@
 <template>
   <l-window
-    v-model="module.show"
+    v-model="moduleShow"
     :title="t('title')"
-    :icon="module.icon"
+    :icon="module_.icon"
     closable
     minimizable
-    :index="show ? 1 : 0"
+    :index="moduleShow ? 1 : 0"
     @close="close()"
     @minimize="minimize()"
     @resize="resize"
   >
     <template #customize>
       <l-customization-tools
-        :module="module"
+        :module="module_"
         :items="[
           {
             name: t('customization.background'),
@@ -137,7 +137,9 @@
   </l-window>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import manifest from "../manifest.json";
 import LWindow from "@/components/Window.vue";
 import Screen from "../components/Screen.vue";
@@ -150,164 +152,118 @@ import Modules from "@/helpers/Modules";
 import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
 
-export default {
-  name: manifest.id,
-  components: {
-    LWindow,
-    Screen,
-    LScreenBtn,
-    LSelect,
-    LCustomizationTools,
-    LToolbar,
-    LToolbarItem,
-  },
-  data: () => ({
-    width: 0,
-    height: 0,
-    isRunning: false,
-    startTime: null,
-    pausedTime: null,
-    savedTimes: [],
-    timeFormatOptions: [
-      { title: "hh:mm:ss.ms", value: "hh:mm:ss.ms" },
-      { title: "hh:mm:ss", value: "hh:mm:ss" },
-      { title: "mm:ss.ms", value: "mm:ss.ms" },
-      { title: "mm:ss", value: "mm:ss" },
-    ],
-  }),
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    appdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return AppData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            AppData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
+const { t: i18nT } = useI18n();
 
-    show() {
-      return this.module.show;
-    },
-  },
+const moduleId = manifest.id;
+const module_ = computed(() => Modules.get(moduleId));
+const moduleShow = computed(() => module_.value?.show);
 
-  watch: {
-    startTime() {
-      this.appdata.start_time = this.startTime;
-    },
-    pausedTime() {
-      this.appdata.paused_time = this.pausedTime;
-    },
-    isRunning() {
-      this.appdata.is_running = this.isRunning;
-    },
-  },
-
-  methods: {
-    /* METHODS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    t(text) {
-      return this.$t(`modules.${this.module_id}.${text}`);
-    },
-    /* METHODS OBRIGATÓRIAS - FIM */
-
-    resize(data) {
-      this.width = data.container_width;
-      this.height = data.container_height;
-    },
-
-    close() {
-      this.pauseStopwatch();
-      this.resetStopwatch();
-      Modules.close(this.module_id);
-    },
-
-    minimize() {
-      Modules.minimize(this.module_id);
-    },
-
-    startStopwatch() {
-      if (!this.startTime) {
-        this.startTime = new Date();
+const userdata = computed(
+  () =>
+    new Proxy(
+      {},
+      {
+        get: (_, key) => UserData.get(`modules.${moduleId}.${key}`, null),
+        set: (_, key, value) => {
+          UserData.set(`modules.${moduleId}.${key}`, value);
+          return true;
+        },
       }
-      this.pausedTime = null;
-      this.isRunning = true;
-    },
+    )
+);
 
-    pauseStopwatch() {
-      this.pausedTime = new Date();
-      this.isRunning = false;
-    },
-
-    resetStopwatch() {
-      this.startTime = null;
-      if (this.isRunning) {
-        this.startStopwatch();
+const appdata = computed(
+  () =>
+    new Proxy(
+      {},
+      {
+        get: (_, key) => AppData.get(`modules.${moduleId}.${key}`, null),
+        set: (_, key, value) => {
+          AppData.set(`modules.${moduleId}.${key}`, value);
+          return true;
+        },
       }
-      this.pausedTime = null;
-    },
+    )
+);
 
-    saveTime() {
-      const now = this.isRunning ? new Date() : this.pausedTime;
-      const elapsedTime = now ? now - (this.startTime ?? now) : 0;
+const isRunning = ref(false);
+const startTime = ref(null);
+const pausedTime = ref(null);
+const savedTimes = ref([]);
 
-      this.savedTimes.push(elapsedTime);
-    },
+const timeFormatOptions = [
+  { title: "hh:mm:ss.ms", value: "hh:mm:ss.ms" },
+  { title: "hh:mm:ss", value: "hh:mm:ss" },
+  { title: "mm:ss.ms", value: "mm:ss.ms" },
+  { title: "mm:ss", value: "mm:ss" },
+];
 
-    deleteSavedTime(index) {
-      this.savedTimes.splice(index, 1);
-    },
+const t = (text) => i18nT(`modules.${moduleId}.${text}`);
 
-    clearSavedTimes() {
-      this.savedTimes = [];
-    },
+watch(startTime, (val) => {
+  appdata.value.start_time = val;
+});
+watch(pausedTime, (val) => {
+  appdata.value.paused_time = val;
+});
+watch(isRunning, (val) => {
+  appdata.value.is_running = val;
+});
 
-    formatted(time) {
-      const totalMilliseconds = time;
-      const hours = Math.floor(totalMilliseconds / 3600000);
-      const minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
-      const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
-      const milliseconds = Math.floor((totalMilliseconds % 1000) / 10);
+function resize(_data) {}
 
-      const pad = (v) => String(v).padStart(2, "0");
+function close() {
+  pauseStopwatch();
+  resetStopwatch();
+  Modules.close(moduleId);
+}
 
-      const tokens = {
-        hh: pad(hours),
-        mm: pad(minutes),
-        ss: pad(seconds),
-        ms: pad(milliseconds),
-      };
+function minimize() {
+  Modules.minimize(moduleId);
+}
 
-      return this.userdata.time_format.replace(/hh|mm|ss|ms/g, (match) => tokens[match]);
-    },
-  },
-};
+function startStopwatch() {
+  if (!startTime.value) startTime.value = new Date();
+  pausedTime.value = null;
+  isRunning.value = true;
+}
+
+function pauseStopwatch() {
+  pausedTime.value = new Date();
+  isRunning.value = false;
+}
+
+function resetStopwatch() {
+  startTime.value = null;
+  if (isRunning.value) startStopwatch();
+  pausedTime.value = null;
+}
+
+function saveTime() {
+  const now = isRunning.value ? new Date() : pausedTime.value;
+  const elapsed = now ? now - (startTime.value ?? now) : 0;
+  savedTimes.value.push(elapsed);
+}
+
+function deleteSavedTime(index) {
+  savedTimes.value.splice(index, 1);
+}
+
+function clearSavedTimes() {
+  savedTimes.value = [];
+}
+
+function formatted(time) {
+  const totalMs = time;
+  const hours = Math.floor(totalMs / 3600000);
+  const minutes = Math.floor((totalMs % 3600000) / 60000);
+  const seconds = Math.floor((totalMs % 60000) / 1000);
+  const milliseconds = Math.floor((totalMs % 1000) / 10);
+  const pad = (v) => String(v).padStart(2, "0");
+  const tokens = { hh: pad(hours), mm: pad(minutes), ss: pad(seconds), ms: pad(milliseconds) };
+  return (userdata.value.time_format || "hh:mm:ss.ms").replace(
+    /hh|mm|ss|ms/g,
+    (match) => tokens[match]
+  );
+}
 </script>

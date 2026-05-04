@@ -1,18 +1,18 @@
 <template>
   <l-window
-    v-model="module.show"
+    v-model="moduleShow"
     :title="t('title')"
-    :icon="module.icon"
+    :icon="module_.icon"
     closable
     minimizable
-    :index="show ? 1 : 0"
+    :index="moduleShow ? 1 : 0"
     @close="close()"
     @minimize="minimize()"
     @resize="resize"
   >
     <template #customize>
       <l-customization-tools
-        :module="module"
+        :module="module_"
         :items="[
           {
             name: t('customization.background'),
@@ -69,7 +69,9 @@
   </l-window>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import manifest from "../manifest.json";
 import LWindow from "@/components/Window.vue";
 import Screen from "../components/Screen.vue";
@@ -81,88 +83,46 @@ import LToolbarItem from "@/components/ToolbarItem.vue";
 import Modules from "@/helpers/Modules";
 import UserData from "@/helpers/UserData";
 
-export default {
-  name: manifest.id,
-  components: {
-    LWindow,
-    Screen,
-    LScreenBtn,
-    LSelect,
-    LCustomizationTools,
-    LToolbar,
-    LToolbarItem,
-  },
-  data: () => ({
-    width: 0,
-    height: 0,
-    timeFormatOptions: [
-      { title: "24h", value: "24h" },
-      { title: "12h", value: "12h" },
-    ],
-    timeTypeOptions: [
-      { title: "hh:mm:ss", value: "hh:mm:ss" },
-      { title: "hh:mm", value: "hh:mm" },
-      { title: "hh", value: "hh" },
-    ],
-    fonts: [
-      "Arial, sans-serif",
-      "Helvetica, sans-serif",
-      "Times New Roman, serif",
-      "Georgia, serif",
-      "Courier New, monospace",
-      "Verdana, sans-serif",
-      "Roboto, sans-serif",
-    ],
-  }),
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
+const { t: i18nT } = useI18n();
 
-    show() {
-      return this.module.show;
-    },
-  },
-  methods: {
-    /* METHODS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    t(text) {
-      return this.$t(`modules.${this.module_id}.${text}`);
-    },
-    /* METHODS OBRIGATÓRIAS - FIM */
+const moduleId = manifest.id;
+const module_ = computed(() => Modules.get(moduleId));
+const moduleShow = computed(() => module_.value?.show);
 
-    resize(data) {
-      this.width = data.container_width;
-      this.height = data.container_height;
-    },
+const userdata = computed(
+  () =>
+    new Proxy(
+      {},
+      {
+        get: (_, key) => UserData.get(`modules.${moduleId}.${key}`, null),
+        set: (_, key, value) => {
+          UserData.set(`modules.${moduleId}.${key}`, value);
+          return true;
+        },
+      }
+    )
+);
 
-    close() {
-      Modules.close(this.module_id);
-    },
+const timeFormatOptions = [
+  { title: "24h", value: "24h" },
+  { title: "12h", value: "12h" },
+];
 
-    minimize() {
-      Modules.minimize(this.module_id);
-    },
-  },
-};
+const timeTypeOptions = [
+  { title: "hh:mm:ss", value: "hh:mm:ss" },
+  { title: "hh:mm", value: "hh:mm" },
+  { title: "hh", value: "hh" },
+];
+
+const t = (text) => i18nT(`modules.${moduleId}.${text}`);
+
+function resize(_data) {}
+
+function close() {
+  Modules.close(moduleId);
+}
+
+function minimize() {
+  Modules.minimize(moduleId);
+}
 </script>
