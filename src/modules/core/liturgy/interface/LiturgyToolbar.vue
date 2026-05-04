@@ -94,7 +94,8 @@
   </header>
 </template>
 
-<script>
+<script setup>
+import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 import LiturgyTimer from "./LiturgyTimer.vue";
@@ -113,41 +114,35 @@ function _t(key, locale) {
   return typeof cur === "string" ? cur : key;
 }
 
-export default {
-  name: "LiturgyToolbar",
-  components: { LiturgyTimer, LiturgyImportExport },
-  props: {
-    itemCount: { type: Number, default: 0 },
-    locked: { type: Boolean, default: false },
-    running: { type: Boolean, default: false },
-    timerSeconds: { type: Number, default: 0 },
-    timerDisplay: { type: String, default: "" },
-    activeWeek: { type: String, default: "" },
-    showNotes: { type: Boolean, default: false },
-    menuOpen: { type: Boolean, default: false },
-    changeWeek: { type: Function, required: true },
-    onWeekChange: { type: Function, required: true },
-    toggleTimer: { type: Function, required: true },
-    timerPrev: { type: Function, required: true },
-    timerNext: { type: Function, required: true },
-    toggleMenuOpen: { type: Function, required: true },
-    closeMenu: { type: Function, required: true },
-    markAll: { type: Function, required: true },
-    removeDone: { type: Function, required: true },
-    toggleNotes: { type: Function, required: true },
-    toggleLock: { type: Function, required: true },
-    openSchedulesDialog: { type: Function, required: true },
-    saveFile: { type: Function, required: true },
-    onFileLoad: { type: Function, required: true },
-    confirmClear: { type: Function, required: true },
-    closeModule: { type: Function, required: true },
-  },
-  methods: {
-    t(key) {
-      return _t(key, this.$i18n?.locale || "pt");
-    },
-  },
-};
+defineProps({
+  itemCount: { type: Number, default: 0 },
+  locked: { type: Boolean, default: false },
+  running: { type: Boolean, default: false },
+  timerSeconds: { type: Number, default: 0 },
+  timerDisplay: { type: String, default: "" },
+  activeWeek: { type: String, default: "" },
+  showNotes: { type: Boolean, default: false },
+  menuOpen: { type: Boolean, default: false },
+  changeWeek: { type: Function, required: true },
+  onWeekChange: { type: Function, required: true },
+  toggleTimer: { type: Function, required: true },
+  timerPrev: { type: Function, required: true },
+  timerNext: { type: Function, required: true },
+  toggleMenuOpen: { type: Function, required: true },
+  closeMenu: { type: Function, required: true },
+  markAll: { type: Function, required: true },
+  removeDone: { type: Function, required: true },
+  toggleNotes: { type: Function, required: true },
+  toggleLock: { type: Function, required: true },
+  openSchedulesDialog: { type: Function, required: true },
+  saveFile: { type: Function, required: true },
+  onFileLoad: { type: Function, required: true },
+  confirmClear: { type: Function, required: true },
+  closeModule: { type: Function, required: true },
+});
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
 </script>
 
 <style scoped>

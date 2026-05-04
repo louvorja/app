@@ -26,7 +26,7 @@
       :scroll="scroll"
       :has_scroll="has_scroll"
       sort_by="track"
-      :file="`${$i18n.locale}_hymnal`"
+      :file="`${locale}_hymnal`"
     >
       <thead>
         <tr>
@@ -80,89 +80,44 @@
   </ModuleContainer>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import manifest from "../manifest.json";
-
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import LTable from "@/components/DataTable.vue";
 import LSearch from "@/components/inputs/LjSearch.vue";
 import LMusicMenuTable from "@/components/MusicMenuTable.vue";
-import Modules from "@/helpers/Modules";
-import UserData from "@/helpers/UserData";
 import DateTime from "@/helpers/DateTime";
 
-export default {
-  name: "HymnalModule",
-  components: {
-    ModuleContainer,
-    LTable,
-    LSearch,
-    LMusicMenuTable,
-  },
+const { t: i18nT, locale } = useI18n();
+const moduleId = manifest.id;
 
-  data: () => ({
-    manifest,
-    search: "",
-    data: [],
-    scroll: {},
-    has_scroll: false,
-  }),
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
+const search = ref("");
+const data = ref([]);
+const scroll = ref({});
+const has_scroll = ref(false);
 
-    classform() {
-      return {
-        group: "d-flex flex-wrap",
-        group_item: "flex-shrink-1 flex-grow-1 d-flex flex-wrap justify-space-around",
-      };
-    },
-    compact: function () {
-      return this.$vuetify.display.width <= 800;
-    },
-  },
-  methods: {
-    /* METHODS OBRIGATÓRIOS - INÍCIO */
-    /* NÃO MODIFICAR */
-    t(text) {
-      return this.$t(`modules.${this.module_id}.${text}`);
-    },
-    /* METHODS OBRIGATÓRIOS - FIM */
+const classform = computed(() => ({
+  group: "d-flex flex-wrap",
+  group_item: "flex-shrink-1 flex-grow-1 d-flex flex-wrap justify-space-around",
+}));
 
-    shortTime(d) {
-      return DateTime.shortTime(d);
-    },
-    onScroll(data) {
-      this.scroll = data;
-    },
-    hasScroll(data) {
-      this.has_scroll = data;
-    },
-    close() {
-      //Se fechar a janela, não manter o histórico de pesquisa.
-      this.search = "";
-    },
-  },
-};
+const t = (text) => i18nT(`modules.${moduleId}.${text}`);
+
+function shortTime(d) {
+  return DateTime.shortTime(d);
+}
+
+function onScroll(val) {
+  scroll.value = val;
+}
+
+function hasScroll(val) {
+  has_scroll.value = val;
+}
+
+function close() {
+  search.value = "";
+}
 </script>

@@ -110,7 +110,7 @@
               class="lit-input"
               placeholder="https://"
               @input="setFormField('url', $event.target.value)"
-              @blur="setFormField('url', $liturgy.validateUrl(form.url))"
+              @blur="setFormField('url', Liturgy.validateUrl(form.url))"
             />
             <button class="lit-btn lit-btn--ghost" :title="t('actions.open')" @click="openSite">
               <v-icon icon="mdi-open-in-new" size="14" />
@@ -256,9 +256,11 @@
   </v-dialog>
 </template>
 
-<script>
+<script setup>
+import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
+import Liturgy from "@/helpers/Liturgy";
 
 const TRANSLATIONS = { pt, es };
 
@@ -273,34 +275,30 @@ function _t(key, locale) {
   return typeof cur === "string" ? cur : key;
 }
 
-export default {
-  name: "LiturgyItemForm",
-  props: {
-    modelValue: { type: Boolean, default: false },
-    editIndex: { type: Number, default: -1 },
-    form: { type: Object, required: true },
-    colors: { type: Array, default: () => [] },
-    musicsList: { type: Array, default: () => [] },
-    scheduledCategories: { type: Array, default: () => [] },
-    setFormField: { type: Function, required: true },
-    onTypeChange: { type: Function, required: true },
-    onMusicChange: { type: Function, required: true },
-    onScheduledCategoryChange: { type: Function, required: true },
-    setMusicChoice: { type: Function, required: true },
-    saveItem: { type: Function, required: true },
-    confirmRemove: { type: Function, required: true },
-    openSite: { type: Function, required: true },
-    chooseFolder: { type: Function, required: true },
-    chooseFile: { type: Function, required: true },
-    openSchedulesDialog: { type: Function, required: true },
-  },
-  emits: ["update:modelValue"],
-  methods: {
-    t(key) {
-      return _t(key, this.$i18n?.locale || "pt");
-    },
-  },
-};
+defineProps({
+  modelValue: { type: Boolean, default: false },
+  editIndex: { type: Number, default: -1 },
+  form: { type: Object, required: true },
+  colors: { type: Array, default: () => [] },
+  musicsList: { type: Array, default: () => [] },
+  scheduledCategories: { type: Array, default: () => [] },
+  setFormField: { type: Function, required: true },
+  onTypeChange: { type: Function, required: true },
+  onMusicChange: { type: Function, required: true },
+  onScheduledCategoryChange: { type: Function, required: true },
+  setMusicChoice: { type: Function, required: true },
+  saveItem: { type: Function, required: true },
+  confirmRemove: { type: Function, required: true },
+  openSite: { type: Function, required: true },
+  chooseFolder: { type: Function, required: true },
+  chooseFile: { type: Function, required: true },
+  openSchedulesDialog: { type: Function, required: true },
+});
+
+defineEmits(["update:modelValue"]);
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <Window
-    v-model="module.show"
+    v-model="module_.show"
     :title="config?.title"
     :subtitle="
       config?.subtitle + (config?.track > 0 ? ' | ' + t('general.track') + ' ' + config.track : '')
@@ -69,7 +69,7 @@
           <l-fullscreen-player v-if="fullscreen" />
         </fullscreen>
       </div>
-      <div v-if="$vuetify.display.width > 600">
+      <div v-if="width > 600">
         <v-list class="overflow h-100 ma-0 pa-0" bg-color="black" :width="250">
           <v-list-item
             v-for="(item, index) in slides"
@@ -114,11 +114,12 @@
   </Window>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import manifest from "../manifest.json";
-
 import Window from "@/components/Window.vue";
-
 import LSlide from "@/components/Slide.vue";
 import LPlayer from "@/components/Player.vue";
 import LFullscreenPlayer from "@/components/FullscreenPlayer.vue";
@@ -128,123 +129,67 @@ import AppData from "@/helpers/AppData";
 import Media from "@/composables/useMedia";
 import Path from "@/helpers/Path";
 
-export default {
-  name: "MediaComponent",
-  components: {
-    Window,
-    LSlide,
-    LPlayer,
-    LFullscreenPlayer,
-  },
-  data: () => ({
-    manifest,
-    preview_height: 0,
-    scrollPos: 0,
-  }),
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
-    is_online() {
-      return AppData.get("is_online");
-    },
-    loading() {
-      return this.module.loading;
-    },
-    config() {
-      return Media.config();
-    },
-    slide_index() {
-      return this.config?.slide_index;
-    },
-    slides() {
-      return Media.slides();
-    },
-    slide() {
-      return Media.slide();
-    },
-    fullscreen: {
-      get() {
-        return this.module.config.fullscreen;
-      },
-      set(value) {
-        Media.fullscreen(value);
-      },
-    },
-    lazy_load: {
-      get() {
-        return UserData.get("modules.media.lazy_load");
-      },
-      set(value) {
-        UserData.set("modules.media.lazy_load", value);
-      },
-    },
-    fade_audio: {
-      get() {
-        return UserData.get("modules.media.fade_audio");
-      },
-      set(value) {
-        UserData.set("modules.media.fade_audio", value);
-      },
-    },
-  },
-  watch: {
-    slide_index() {
-      if (!this.module.show) {
-        return;
-      }
+const { t: i18nT } = useI18n();
+const { width } = useDisplay();
+const moduleId = manifest.id;
+const module_ = computed(() => Modules.get(moduleId));
 
-      if (this.$refs?.slideItem && this.$refs?.slideItem[0]?.$el) {
-        let self = this;
-        let height = this.$refs.slideItem[0].$el.offsetHeight;
-        setTimeout(function () {
-          self.scrollPos = self.slide_index * height - height;
-        }, 100);
-      }
-    },
-  },
-  methods: {
-    /* METHODS OBRIGATÓRIOS - INÍCIO */
-    /* NÃO MODIFICAR */
-    t(text) {
-      return this.$t(`modules.${this.module_id}.${text}`);
-    },
-    /* METHODS OBRIGATÓRIOS - FIM */
-    pathFile(img) {
-      return Path.file(img);
-    },
-    closeMedia() {
-      Media.close();
-    },
-    minimizeMedia() {
-      Media.minimize();
-    },
-    goToSlide(index) {
-      Media.goToSlide(index);
-    },
-    resize(data) {
-      this.preview_height = data.container_height;
-    },
-  },
-};
+const preview_height = ref(0);
+const scrollPos = ref(0);
+const slideItem = ref(null);
+
+const t = (text) => i18nT(`modules.${moduleId}.${text}`);
+
+const is_online = computed(() => AppData.get("is_online"));
+const loading = computed(() => module_.value.loading);
+const config = computed(() => Media.config());
+const slide_index = computed(() => config.value?.slide_index);
+const slides = computed(() => Media.slides());
+const slide = computed(() => Media.slide());
+
+const fullscreen = computed({
+  get: () => module_.value.config?.fullscreen,
+  set: (value) => Media.fullscreen(value),
+});
+
+const lazy_load = computed({
+  get: () => UserData.get("modules.media.lazy_load"),
+  set: (value) => UserData.set("modules.media.lazy_load", value),
+});
+
+const fade_audio = computed({
+  get: () => UserData.get("modules.media.fade_audio"),
+  set: (value) => UserData.set("modules.media.fade_audio", value),
+});
+
+watch(slide_index, () => {
+  if (!module_.value.show) return;
+  const items = slideItem.value;
+  if (items && items[0]?.$el) {
+    const height = items[0].$el.offsetHeight;
+    setTimeout(() => {
+      scrollPos.value = slide_index.value * height - height;
+    }, 100);
+  }
+});
+
+function pathFile(img) {
+  return Path.file(img);
+}
+
+function closeMedia() {
+  Media.close();
+}
+
+function minimizeMedia() {
+  Media.minimize();
+}
+
+function goToSlide(index) {
+  Media.goToSlide(index);
+}
+
+function resize(data) {
+  preview_height.value = data.container_height;
+}
 </script>

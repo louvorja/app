@@ -1,9 +1,10 @@
 <template>
   <div
-    v-if="module && module.show"
+    v-if="module_ && module_.show"
+    ref="el"
     class="liturgy-page"
     @dragover.prevent="onDragOver"
-    @dragleave="onDragLeave"
+    @dragleave="onDragLeaveCustom"
     @drop.prevent="onDrop"
   >
     <div v-if="isDraggingOver" class="liturgy-drop-overlay">
@@ -34,7 +35,7 @@
       :open-schedules-dialog="openSchedulesDialog"
       :save-file="saveFile"
       :on-file-load="onFileLoad"
-      :confirm-clear="confirmClear"
+      :confirm-clear="confirmClearBound"
       :close-module="closeModule"
     />
 
@@ -102,7 +103,9 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
@@ -117,57 +120,144 @@ import LiturgyItemForm from "./LiturgyItemForm.vue";
 import LiturgySchedules from "./LiturgySchedules.vue";
 
 const TRANSLATIONS = { pt, es };
-export default {
-  name: "LiturgyModule",
-  components: { LiturgyToolbar, LiturgyList, LiturgyItemForm, LiturgySchedules },
-  setup() {
-    const persist = useLiturgyPersistence();
-    const litItems = useLiturgyItems(persist.activeWeek, persist.scheduledCategories);
-    const timer = useLiturgyTimer(litItems.items, litItems.totalDuration);
-    return {
-      ...persist,
-      ...litItems,
-      ...timer,
-      colors: COLORS,
-      defaultColor: DEFAULT_COLOR,
-      confirmClear: () => litItems.confirmClear(timer.stopTimer),
-    };
-  },
-  computed: {
-    module() {
-      return Modules.get("liturgy");
-    },
-  },
-  async mounted() {
-    await this.loadMusicsList();
-    this._broadcastUnlisten = Broadcast.listen((data) => {
-      if (data?.type === BROADCAST_TYPE.LITURGY_NEW_ANNOTATION) {
-        Modules.open("liturgy");
-        this.$nextTick(() => {
-          this.openItemDialog();
-          this.form.tipo = "anotacao";
-        });
-      }
-    });
-  },
-  beforeUnmount() {
-    this.stopTimer();
-    if (typeof this._broadcastUnlisten === "function") this._broadcastUnlisten();
-  },
-  methods: {
-    t(key) {
-      const d = TRANSLATIONS[this.$i18n?.locale || "pt"] || TRANSLATIONS.pt;
-      return key.split(".").reduce((o, k) => o?.[k], d) ?? key;
-    },
-    closeModule() {
-      this.stopTimer();
-      Modules.close("liturgy");
-    },
-    onDragLeave(e) {
-      if (!this.$el.contains(e.relatedTarget)) this.isDraggingOver = false;
-    },
-  },
-};
+
+function _t(key, locale) {
+  const dict = TRANSLATIONS[locale] || TRANSLATIONS.pt;
+  const path = key.split(".");
+  let cur = dict;
+  for (const k of path) {
+    if (cur && typeof cur === "object" && k in cur) cur = cur[k];
+    else return key;
+  }
+  return typeof cur === "string" ? cur : key;
+}
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
+
+const el = ref(null);
+const module_ = computed(() => Modules.get("liturgy"));
+
+const persist = useLiturgyPersistence();
+const litItems = useLiturgyItems(persist.activeWeek, persist.scheduledCategories);
+const timer = useLiturgyTimer(litItems.items, litItems.totalDuration);
+
+// useLiturgyPersistence
+const {
+  activeWeek,
+  locked,
+  showNotes,
+  noteDayIndex,
+  schedulesDialog,
+  activeCatId,
+  scheduledCategories,
+  activeCategory,
+  categoryItems,
+  noteDays,
+  currentNote,
+  setActiveCatId,
+  setNoteDayIndex,
+  toggleNotes,
+  onWeekChange,
+  changeWeek,
+  toggleLock,
+  onNoteInput,
+  openSchedulesDialog,
+  addCategory,
+  saveCategoryName,
+  removeCategory,
+  addScheduledItem,
+  updateScheduled,
+  removeScheduled,
+  saveFile,
+  onFileLoad,
+} = persist;
+
+// useLiturgyItems
+const {
+  dialog,
+  editIndex,
+  form,
+  isDraggingOver,
+  menuOpen,
+  items,
+  totalDuration,
+  musicsList,
+  isChecked,
+  toggleChecked,
+  onReorder,
+  iconForItem,
+  subtitleFor,
+  changeColor,
+  markAll,
+  removeDone,
+  openItemDialog,
+  quickAdd,
+  onTypeChange,
+  setMusicChoice,
+  onMusicChange,
+  onScheduledCategoryChange,
+  saveItem,
+  confirmRemove,
+  confirmClear,
+  executeItem,
+  playMusic,
+  openSite,
+  chooseFolder,
+  chooseFile,
+  onDragOver,
+  onDrop,
+  loadMusicsList,
+  setFormField,
+  toggleMenuOpen,
+  closeMenu,
+} = litItems;
+
+// useLiturgyTimer
+const {
+  running,
+  timerSeconds,
+  timerDisplay,
+  timerCurrentIndex,
+  timerItemProgress,
+  toggleTimer,
+  stopTimer,
+  timerNext,
+  timerPrev,
+} = timer;
+
+const colors = COLORS;
+const defaultColor = DEFAULT_COLOR;
+const confirmClearBound = () => confirmClear(stopTimer);
+
+let _broadcastUnlisten = null;
+
+onMounted(async () => {
+  await loadMusicsList();
+  _broadcastUnlisten = Broadcast.listen((data) => {
+    if (data?.type === BROADCAST_TYPE.LITURGY_NEW_ANNOTATION) {
+      Modules.open("liturgy");
+      nextTick(() => {
+        openItemDialog();
+        form.tipo = "anotacao";
+      });
+    }
+  });
+});
+
+onBeforeUnmount(() => {
+  stopTimer();
+  if (typeof _broadcastUnlisten === "function") _broadcastUnlisten();
+});
+
+function closeModule() {
+  stopTimer();
+  Modules.close("liturgy");
+}
+
+function onDragLeaveCustom(e) {
+  if (!el.value?.contains(e.relatedTarget)) isDraggingOver.value = false;
+}
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <Window
-    v-model="module.show"
+    v-model="module_.show"
     :title="lyConfig.title"
     :subtitle="
       lyConfig.subtitle + (lyConfig.track > 0 ? ' | ' + t('track') + ' ' + lyConfig.track : '')
@@ -20,66 +20,32 @@
   </Window>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import manifest from "../manifest.json";
 import Window from "@/components/Window.vue";
 import { useLyric } from "@/composables/useLyric";
 import Modules from "@/helpers/Modules";
-import UserData from "@/helpers/UserData";
 import Path from "@/helpers/Path";
 import Media from "@/composables/useMedia";
 
-export default {
-  name: "LyricModule",
-  components: {
-    Window,
-  },
-  setup() {
-    const ly = useLyric();
-    return {
-      lyLoading: ly.loading,
-      lyConfig: ly.config,
-      lyLines: ly.lyric,
-    };
-  },
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    lyricImageUrl() {
-      return this.lyConfig.image ? Path.file(this.lyConfig.image) : "";
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
-  },
-  methods: {
-    /* METHODS OBRIGATÓRIOS - INÍCIO */
-    /* NÃO MODIFICAR */
-    t(text) {
-      return this.$t(`modules.${this.module_id}.${text}`);
-    },
-    /* METHODS OBRIGATÓRIOS - FIM */
-    closeLyric() {
-      Media.closeLyric();
-    },
-  },
-};
+const { t: i18nT } = useI18n();
+const moduleId = manifest.id;
+const module_ = computed(() => Modules.get(moduleId));
+
+const ly = useLyric();
+const lyLoading = ly.loading;
+const lyConfig = ly.config;
+const lyLines = ly.lyric;
+
+const lyricImageUrl = computed(() =>
+  lyConfig.value?.image ? Path.file(lyConfig.value.image) : ""
+);
+
+const t = (text) => i18nT(`modules.${moduleId}.${text}`);
+
+function closeLyric() {
+  Media.closeLyric();
+}
 </script>

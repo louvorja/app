@@ -143,7 +143,8 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 
@@ -160,26 +161,22 @@ function _t(key, locale) {
   return typeof cur === "string" ? cur : key;
 }
 
-export default {
-  name: "LiturgyItem",
-  props: {
-    element: { type: Object, required: true },
-    index: { type: Number, required: true },
-    locked: { type: Boolean, default: false },
-    timerActive: { type: Boolean, default: false },
-    timerProgress: { type: Number, default: 0 },
-    defaultColor: { type: String, default: "#00004F" },
-    isChecked: { type: Function, required: true },
-    iconFor: { type: Function, required: true },
-    subtitleFor: { type: Function, required: true },
-  },
-  emits: ["edit", "remove", "execute", "play-music", "change-color", "toggle-checked"],
-  methods: {
-    t(key) {
-      return _t(key, this.$i18n?.locale || "pt");
-    },
-  },
-};
+defineProps({
+  element: { type: Object, required: true },
+  index: { type: Number, required: true },
+  locked: { type: Boolean, default: false },
+  timerActive: { type: Boolean, default: false },
+  timerProgress: { type: Number, default: 0 },
+  defaultColor: { type: String, default: "#00004F" },
+  isChecked: { type: Function, required: true },
+  iconFor: { type: Function, required: true },
+  subtitleFor: { type: Function, required: true },
+});
+
+defineEmits(["edit", "remove", "execute", "play-music", "change-color", "toggle-checked"]);
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
 </script>
 
 <style scoped>

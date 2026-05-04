@@ -10,43 +10,16 @@
   />
 </template>
 
-<script>
-import manifest from "../manifest.json";
-
+<script setup>
+import { computed } from "vue";
 import LSlide from "@/components/Slide.vue";
-import Modules from "@/helpers/Modules";
 import Media from "@/composables/useMedia";
 import Path from "@/helpers/Path";
 
-export default {
-  name: "PopupMediaPage",
-  components: {
-    LSlide,
-  },
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
-    config() {
-      return Media.config();
-    },
-    slide_index() {
-      return this.config.slide_index;
-    },
-    slide() {
-      return Media.slide();
-    },
-  },
-  methods: {
-    pathFile(img) {
-      return Path.file(img);
-    },
-  },
-};
+const config = computed(() => Media.config());
+const slide = computed(() => Media.slide());
+
+function pathFile(img) {
+  return Path.file(img);
+}
 </script>

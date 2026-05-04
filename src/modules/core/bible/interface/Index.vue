@@ -222,7 +222,10 @@
   </ModuleContainer>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import Screen from "../components/Screen.vue";
@@ -231,35 +234,99 @@ import LScreenBtn from "@/components/buttons/Screen.vue";
 import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
 import Hotkeys from "@/helpers/Hotkeys";
 import Modules from "@/helpers/Modules";
-import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
 import Database from "@/helpers/Database";
 import Broadcast from "@/helpers/Broadcast";
 
-export default {
-  name: "CollectionsModule",
-  components: {
-    ModuleContainer,
-    Screen,
-    LScreenBtn,
-    LSelect,
+const { t: i18nT, locale } = useI18n();
+const { width } = useDisplay();
+const moduleId = manifest.id;
+const module_ = computed(() => Modules.get(moduleId));
+const show = computed(() => module_.value?.show);
+
+const loading = ref(false);
+const loading_book = ref(false);
+const loading_verses = ref(false);
+const lang = ref(null);
+const last_verse = ref(1);
+const last_bible_file = ref(null);
+const versions = ref([]);
+const books = ref([]);
+const verses = ref({});
+
+const bible = reactive({
+  id_bible_version: null,
+  id_bible_book: null,
+  version: null,
+  book: null,
+  chapter: null,
+  verses: [],
+});
+
+const select_bible = reactive({
+  id_bible_version: null,
+  id_bible_book: null,
+  version: null,
+  book: null,
+  chapter: null,
+  verses: [],
+  scriptural_reference: null,
+  text: null,
+});
+
+const t = (text) => i18nT(`modules.${moduleId}.${text}`);
+
+const book = computed(() => books.value.find((b) => b.id_bible_book == bible.id_bible_book));
+const version = computed(() =>
+  versions.value.find((b) => b.id_bible_version == bible.id_bible_version)
+);
+const chapters = computed(() => book.value?.chapters);
+
+const versions_list = computed(() =>
+  versions.value.map((v) => ({
+    title: v.abbreviation + " - " + v.name,
+    value: v.id_bible_version,
+  }))
+);
+
+const compact = computed(() => width.value <= 750);
+
+const bible_verses = computed({
+  get: () => bible.verses,
+  set: (value) => {
+    if (value.length === 0) {
+      clean();
+      return;
+    }
+    if (value.length === 1) {
+      selVerse(null, value[0]);
+    } else {
+      const added = value.filter((v) => !bible.verses.includes(v));
+      const removed = bible.verses.filter((v) => !value.includes(v));
+      const event = { ctrlKey: true };
+      if (added.length > 0) {
+        selVerse(event, added[0]);
+      } else if (removed.length > 0) {
+        selVerse(event, removed[0]);
+      }
+    }
   },
-  data: () => ({
-    manifest,
-    lang: null,
-    loading: false,
-    loading_book: false,
-    loading_verses: false,
-    tab: null,
-    bible: {
+});
+
+watch(show, async (val) => {
+  if (val && lang.value !== locale.value) {
+    versions.value = [];
+    books.value = [];
+    verses.value = {};
+    Object.assign(bible, {
       id_bible_version: null,
       id_bible_book: null,
       version: null,
       book: null,
       chapter: null,
       verses: [],
-    },
-    select_bible: {
+    });
+    Object.assign(select_bible, {
       id_bible_version: null,
       id_bible_book: null,
       version: null,
@@ -268,456 +335,304 @@ export default {
       verses: [],
       scriptural_reference: null,
       text: null,
-    },
-    versions: [],
-    books: [],
-    verses: [],
-    last_verse: 1,
-    last_bible_file: null,
-  }),
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
-
-    show() {
-      return this.module.show;
-    },
-
-    bible_verses: {
-      get() {
-        //return Object.assign([], this.bible.verses);
-        return this.bible.verses;
-      },
-      set(value) {
-        if (value.length == 0) {
-          this.clean();
-          return;
-        }
-        if (value.length == 1) {
-          this.selVerse(null, value[0]);
-        } else {
-          const added = value.filter((v) => !this.bible.verses.includes(v));
-          const removed = this.bible.verses.filter((v) => !value.includes(v));
-
-          const event = { ctrlKey: true };
-          if (added.length > 0) {
-            this.selVerse(event, added[0]);
-          } else if (removed.length > 0) {
-            this.selVerse(event, removed[0]);
-          }
-        }
-      },
-    },
-
-    book() {
-      return this.books.find((b) => b.id_bible_book == this.bible.id_bible_book);
-    },
-    version() {
-      return this.versions.find((b) => b.id_bible_version == this.bible.id_bible_version);
-    },
-    chapters() {
-      return this.book?.chapters;
-    },
-    versions_list() {
-      return this.versions.map((version) => ({
-        title: version.abbreviation + " - " + version.name,
-        value: version.id_bible_version,
-      }));
-    },
-    compact: function () {
-      return this.$vuetify.display.width <= 750;
-    },
-    super_compact: function () {
-      return this.$vuetify.display.width <= 400;
-    },
-  },
-  watch: {
-    async show() {
-      if (this.show && this.lang != this.$i18n.locale) {
-        this.versions = [];
-        this.books = [];
-        this.verses = [];
-        this.bible = {
-          id_bible_version: null,
-          id_bible_book: null,
-          version: null,
-          book: null,
-          chapter: null,
-          verses: [],
-        };
-        this.select_bible = Object.assign({}, this.bible);
-        await this.loadData();
-      }
-    },
-    select_bible() {
-      this.send("scriptural_reference", this.select_bible.scriptural_reference);
-      this.send("text", this.select_bible.text);
-    },
-  },
-  async mounted() {
-    this._hotkeyPrev = () => {
-      if (this.select_bible?.verses?.length > 0) this.prevVerse();
-    };
-    this._hotkeyNext = () => {
-      if (this.select_bible?.verses?.length > 0) this.nextVerse();
-    };
-    this._hotkeyClean = () => {
-      if (this.select_bible?.verses?.length > 0) this.clean();
-    };
-    Hotkeys.register("ArrowLeft", this._hotkeyPrev, {
-      context: "bible",
-      description: "hotkeys.bible_prev_verse",
-      group: "bible",
-      label: "←",
     });
-    Hotkeys.register("ArrowRight", this._hotkeyNext, {
-      context: "bible",
-      description: "hotkeys.bible_next_verse",
-      group: "bible",
-      label: "→",
-    });
-    Hotkeys.register("Delete", this._hotkeyClean, {
-      context: "bible",
-      description: "hotkeys.bible_clear",
-      group: "bible",
-      label: "Del",
-    });
-    await this.loadData();
-  },
-  unmounted() {
-    Hotkeys.unregister("ArrowLeft", this._hotkeyPrev);
-    Hotkeys.unregister("ArrowRight", this._hotkeyNext);
-    Hotkeys.unregister("Delete", this._hotkeyClean);
-  },
-  methods: {
-    /* METHODS OBRIGATÓRIOS - INÍCIO */
-    /* NÃO MODIFICAR */
-    t(text) {
-      return this.$t(`modules.${this.module_id}.${text}`);
-    },
-    /* METHODS OBRIGATÓRIOS - FIM */
-    send(param, value) {
-      AppData.set(`modules.${this.module_id}.data.${param}`, value);
-    },
-    async loadData() {
-      this.loading = true;
+    await loadData();
+  }
+});
 
-      if (this.books.length <= 0) {
-        this.loading_book = true;
-        this.books = await Database.get(`${this.$i18n.locale}_bible_book`);
-        if (!this.bible.id_bible_book) {
-          await this.selBook(this.books[0].id_bible_book);
-        }
-        this.loading_book = false;
-      }
+watch(
+  () => ({ ...select_bible }),
+  () => {
+    send("scriptural_reference", select_bible.scriptural_reference);
+    send("text", select_bible.text);
+  }
+);
 
-      if (this.versions.length <= 0) {
-        this.versions = await Database.get(`${this.$i18n.locale}_bible_version`);
-        if (!this.bible.id_bible_version) {
-          await this.selVersion(this.versions[0].id_bible_version);
-        }
-      }
-
-      const bible_file = `bible_${this.bible.id_bible_version}_${this.bible.id_bible_book}_${this.bible.chapter}`;
-      if (bible_file != this.last_bible_file) {
-        this.loading_verses = true;
-        this.verses = {};
-        this.verses = await Database.get(bible_file);
-        this.last_bible_file = bible_file;
-        this.loading_verses = false;
-      }
-
-      if (
-        this.select_bible.id_bible_book == this.bible.id_bible_book &&
-        this.select_bible.chapter == this.bible.chapter &&
-        this.select_bible.id_bible_version == this.bible.id_bible_version
-      ) {
-        this.bible.verses = this.select_bible.verses;
-      }
-
-      this.lang = this.$i18n.locale;
-      this.loading = false;
-    },
-    async selVersion(id_bible_version) {
-      if (id_bible_version) {
-        this.bible.id_bible_version = id_bible_version;
-      }
-      this.bible.version = this.version?.abbreviation;
-      this.bible.verses = [];
-      this.last_verse = 1;
-      await this.loadData();
-    },
-    async selBook(id_bible_book) {
-      if (id_bible_book) {
-        this.bible.id_bible_book = id_bible_book;
-      }
-      this.bible.book = this.book.name;
-      this.bible.verses = [];
-      this.last_verse = 1;
-      if (!this.bible.chapter) {
-        this.selChapter(1);
-      } else if (this.bible.chapter > this.book.chapters) {
-        this.selChapter(this.book.chapters);
-      } else {
-        await this.loadData();
-      }
-
-      const element = document.getElementById(`listBook_${id_bible_book}`);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    },
-    async selChapter(chapter) {
-      if (chapter) {
-        this.bible.chapter = chapter;
-      }
-      this.bible.verses = [];
-      this.last_verse = 1;
-      await this.loadData();
-
-      const element = document.getElementById(`listChapter_${chapter}`);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    },
-    async selVerse(event, num) {
-      if (event) {
-        try {
-          event.preventDefault();
-        } catch (e) {
-          null;
-        }
-      }
-
-      num = parseInt(num, 10);
-      if (isNaN(num)) {
-        return;
-      }
-
-      if (event?.ctrlKey) {
-        const index = this.bible.verses.indexOf(num);
-        if (index === -1) {
-          this.bible.verses.push(num);
-        } else {
-          this.bible.verses.splice(index, 1);
-        }
-      } else if (event?.shiftKey) {
-        const start = Math.min(num, this.last_verse);
-        const end = Math.max(num, this.last_verse);
-        for (let i = start; i <= end; i++) {
-          if (!this.bible.verses.includes(i)) {
-            this.bible.verses.push(i);
-          }
-        }
-      } else {
-        if (this.bible.verses.length == 1 && this.bible.verses[0] == num) {
-          this.bible.verses.splice(0, 1);
-          this.clean();
-          return;
-        }
-        this.bible.verses = [num];
-      }
-
-      this.last_verse = num;
-      this.bible.verses.sort((a, b) => a - b);
-      this.select_bible = Object.assign({}, this.bible);
-      this.select_bible.scriptural_reference = this.scripturalReference(this.select_bible);
-      this.select_bible.text = this.getSelectedVerses(this.select_bible.verses);
-
-      Broadcast.send(BROADCAST_TYPE.BIBLE_VERSE, {
-        text: this.select_bible.text,
-        reference: this.select_bible.scriptural_reference,
-        active: true,
-      });
-
-      const element = document.getElementById(`listVerse_${this.last_verse}`);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    },
-    lastSelectedVerse(verse) {
-      this.selVerse(null, +verse);
-    },
-    async prevVerse() {
-      if (this.select_bible?.id_bible_version) {
-        await this.selVersion(this.select_bible.id_bible_version);
-      }
-      if (this.select_bible?.id_bible_book) {
-        await this.selBook(this.select_bible.id_bible_book);
-      }
-      if (this.select_bible?.chapter) {
-        await this.selChapter(this.select_bible.chapter);
-      }
-      if (this.select_bible?.verses && this.select_bible.verses.length > 0) {
-        let verse = Math.min(...this.select_bible.verses.filter((num) => num > 0));
-        if (verse > 1) {
-          verse--;
-        } else if (this.select_bible.chapter > 1) {
-          await this.selChapter(this.select_bible.chapter - 1);
-          verse = Math.max(0, ...Object.keys(this.verses).map(Number));
-        } else {
-          let bookIndex = this.books.findIndex((b) => b.id_bible_book == this.bible.id_bible_book);
-          const book =
-            bookIndex > 0 ? this.books[bookIndex - 1] : this.books[this.books.length - 1];
-          await this.selBook(book.id_bible_book);
-          await this.selChapter(book.chapters);
-          verse = Math.max(0, ...Object.keys(this.verses).map(Number));
-        }
-        this.selVerse(null, verse);
-      }
-    },
-    async nextVerse() {
-      if (this.select_bible?.id_bible_version) {
-        await this.selVersion(this.select_bible.id_bible_version);
-      }
-      if (this.select_bible?.id_bible_book) {
-        await this.selBook(this.select_bible.id_bible_book);
-      }
-      if (this.select_bible?.chapter) {
-        await this.selChapter(this.select_bible.chapter);
-      }
-      if (this.select_bible?.verses && this.select_bible.verses.length > 0) {
-        let verse = Math.max(...this.select_bible.verses);
-        const max_verse = Math.max(0, ...Object.keys(this.verses).map(Number));
-        const max_chapter = this.book.chapters;
-        if (verse < max_verse) {
-          verse++;
-        } else if (this.select_bible.chapter < max_chapter) {
-          await this.selChapter(this.select_bible.chapter + 1);
-          verse = 1;
-        } else {
-          let bookIndex = this.books.findIndex((b) => b.id_bible_book == this.bible.id_bible_book);
-          const book =
-            bookIndex < this.books.length - 1 ? this.books[bookIndex + 1] : this.books[0];
-          await this.selBook(book.id_bible_book);
-          await this.selChapter(1);
-          verse = 1;
-        }
-        this.selVerse(null, verse);
-      }
-    },
-    chaptersList() {
-      if (!this.chapters) {
-        return [];
-      }
-      return Array.from({ length: this.chapters }, (_, index) => {
-        return {
-          id: index + 1,
-          value: /*this.t("chapter") + " " +*/ index + 1,
-        };
-      });
-    },
-    versesList() {
-      if (!this?.verses) {
-        return [];
-      }
-      return Object.keys(this.verses).map((verse) => {
-        return { id: +verse, value: /*this.t("verse") + " "*/ +verse };
-      });
-    },
-    numbersInterval(numbers) {
-      if (!numbers || numbers.length === 0) return "";
-
-      numbers.sort((a, b) => a - b);
-
-      let result = [];
-      let start = numbers[0];
-      let end = numbers[0];
-
-      for (let i = 1; i < numbers.length; i++) {
-        if (numbers[i] === end + 1) {
-          end = numbers[i];
-        } else {
-          result.push(start === end ? `${start}` : `${start}-${end}`);
-          start = numbers[i];
-          end = numbers[i];
-        }
-      }
-      result.push(start === end ? `${start}` : `${start}-${end}`);
-
-      return result.join(", ");
-    },
-    scripturalReference(data) {
-      const verses_interval = this.numbersInterval(data.verses);
-
-      if (!data.book || !data.version) {
-        return "";
-      }
-
-      return (
-        data.book +
-        " " +
-        data.chapter +
-        (verses_interval ? `:${verses_interval}` : "") +
-        (data.version ? ` (${data.version})` : "")
-      ).trim();
-    },
-
-    getSelectedVerses(keys) {
-      keys.sort((a, b) => a - b); // Ordena os versículos para garantir a sequência correta
-      let result = "";
-      let previousKey = null;
-
-      keys.forEach((key) => {
-        if (previousKey !== null && key - previousKey > 1) {
-          result += " [...] "; // Adiciona "..." se os versos não forem sequenciais
-        } else if (result) {
-          result += " "; // Adiciona um espaço entre versos consecutivos
-        }
-        result += this.verses[key];
-        previousKey = key;
-      });
-
-      return result;
-    },
-    clean: function () {
-      this.bible.verses = [];
-      this.select_bible = {
-        id_bible_version: null,
-        id_bible_book: null,
-        version: null,
-        book: null,
-        chapter: null,
-        verses: [],
-        scriptural_reference: null,
-        text: null,
-      };
-    },
-
-    close() {
-      this.bible.verses = [];
-      this.select_bible = {
-        id_bible_version: null,
-        id_bible_book: null,
-        version: null,
-        book: null,
-        chapter: null,
-        verses: [],
-        scriptural_reference: null,
-        text: null,
-      };
-    },
-  },
+const _hotkeyPrev = () => {
+  if (select_bible?.verses?.length > 0) prevVerse();
 };
+const _hotkeyNext = () => {
+  if (select_bible?.verses?.length > 0) nextVerse();
+};
+const _hotkeyClean = () => {
+  if (select_bible?.verses?.length > 0) clean();
+};
+
+onMounted(async () => {
+  Hotkeys.register("ArrowLeft", _hotkeyPrev, {
+    context: "bible",
+    description: "hotkeys.bible_prev_verse",
+    group: "bible",
+    label: "←",
+  });
+  Hotkeys.register("ArrowRight", _hotkeyNext, {
+    context: "bible",
+    description: "hotkeys.bible_next_verse",
+    group: "bible",
+    label: "→",
+  });
+  Hotkeys.register("Delete", _hotkeyClean, {
+    context: "bible",
+    description: "hotkeys.bible_clear",
+    group: "bible",
+    label: "Del",
+  });
+  await loadData();
+});
+
+onUnmounted(() => {
+  Hotkeys.unregister("ArrowLeft", _hotkeyPrev);
+  Hotkeys.unregister("ArrowRight", _hotkeyNext);
+  Hotkeys.unregister("Delete", _hotkeyClean);
+});
+
+function send(param, value) {
+  AppData.set(`modules.${moduleId}.data.${param}`, value);
+}
+
+async function loadData() {
+  loading.value = true;
+
+  if (books.value.length <= 0) {
+    loading_book.value = true;
+    books.value = await Database.get(`${locale.value}_bible_book`);
+    if (!bible.id_bible_book) {
+      await selBook(books.value[0].id_bible_book);
+    }
+    loading_book.value = false;
+  }
+
+  if (versions.value.length <= 0) {
+    versions.value = await Database.get(`${locale.value}_bible_version`);
+    if (!bible.id_bible_version) {
+      await selVersion(versions.value[0].id_bible_version);
+    }
+  }
+
+  const bible_file = `bible_${bible.id_bible_version}_${bible.id_bible_book}_${bible.chapter}`;
+  if (bible_file !== last_bible_file.value) {
+    loading_verses.value = true;
+    verses.value = {};
+    verses.value = await Database.get(bible_file);
+    last_bible_file.value = bible_file;
+    loading_verses.value = false;
+  }
+
+  if (
+    select_bible.id_bible_book === bible.id_bible_book &&
+    select_bible.chapter === bible.chapter &&
+    select_bible.id_bible_version === bible.id_bible_version
+  ) {
+    bible.verses = select_bible.verses;
+  }
+
+  lang.value = locale.value;
+  loading.value = false;
+}
+
+async function selVersion(id_bible_version) {
+  if (id_bible_version) bible.id_bible_version = id_bible_version;
+  bible.version = version.value?.abbreviation;
+  bible.verses = [];
+  last_verse.value = 1;
+  await loadData();
+}
+
+async function selBook(id_bible_book) {
+  if (id_bible_book) bible.id_bible_book = id_bible_book;
+  bible.book = book.value.name;
+  bible.verses = [];
+  last_verse.value = 1;
+  if (!bible.chapter) {
+    selChapter(1);
+  } else if (bible.chapter > book.value.chapters) {
+    selChapter(book.value.chapters);
+  } else {
+    await loadData();
+  }
+
+  const element = document.getElementById(`listBook_${id_bible_book}`);
+  if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function selChapter(chapter) {
+  if (chapter) bible.chapter = chapter;
+  bible.verses = [];
+  last_verse.value = 1;
+  await loadData();
+
+  const element = document.getElementById(`listChapter_${chapter}`);
+  if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function selVerse(event, num) {
+  if (event) {
+    try {
+      event.preventDefault();
+    } catch {
+      /* noop */
+    }
+  }
+
+  num = parseInt(num, 10);
+  if (isNaN(num)) return;
+
+  if (event?.ctrlKey) {
+    const index = bible.verses.indexOf(num);
+    if (index === -1) {
+      bible.verses.push(num);
+    } else {
+      bible.verses.splice(index, 1);
+    }
+  } else if (event?.shiftKey) {
+    const start = Math.min(num, last_verse.value);
+    const end = Math.max(num, last_verse.value);
+    for (let i = start; i <= end; i++) {
+      if (!bible.verses.includes(i)) bible.verses.push(i);
+    }
+  } else {
+    if (bible.verses.length === 1 && bible.verses[0] === num) {
+      bible.verses.splice(0, 1);
+      clean();
+      return;
+    }
+    bible.verses = [num];
+  }
+
+  last_verse.value = num;
+  bible.verses.sort((a, b) => a - b);
+  Object.assign(select_bible, bible);
+  select_bible.scriptural_reference = scripturalReference(select_bible);
+  select_bible.text = getSelectedVerses(select_bible.verses);
+
+  Broadcast.send(BROADCAST_TYPE.BIBLE_VERSE, {
+    text: select_bible.text,
+    reference: select_bible.scriptural_reference,
+    active: true,
+  });
+
+  const element = document.getElementById(`listVerse_${last_verse.value}`);
+  if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function prevVerse() {
+  if (select_bible?.id_bible_version) await selVersion(select_bible.id_bible_version);
+  if (select_bible?.id_bible_book) await selBook(select_bible.id_bible_book);
+  if (select_bible?.chapter) await selChapter(select_bible.chapter);
+  if (select_bible?.verses && select_bible.verses.length > 0) {
+    let verse = Math.min(...select_bible.verses.filter((n) => n > 0));
+    if (verse > 1) {
+      verse--;
+    } else if (select_bible.chapter > 1) {
+      await selChapter(select_bible.chapter - 1);
+      verse = Math.max(0, ...Object.keys(verses.value).map(Number));
+    } else {
+      let bookIndex = books.value.findIndex((b) => b.id_bible_book == bible.id_bible_book);
+      const bk = bookIndex > 0 ? books.value[bookIndex - 1] : books.value[books.value.length - 1];
+      await selBook(bk.id_bible_book);
+      await selChapter(bk.chapters);
+      verse = Math.max(0, ...Object.keys(verses.value).map(Number));
+    }
+    selVerse(null, verse);
+  }
+}
+
+async function nextVerse() {
+  if (select_bible?.id_bible_version) await selVersion(select_bible.id_bible_version);
+  if (select_bible?.id_bible_book) await selBook(select_bible.id_bible_book);
+  if (select_bible?.chapter) await selChapter(select_bible.chapter);
+  if (select_bible?.verses && select_bible.verses.length > 0) {
+    let verse = Math.max(...select_bible.verses);
+    const max_verse = Math.max(0, ...Object.keys(verses.value).map(Number));
+    const max_chapter = book.value.chapters;
+    if (verse < max_verse) {
+      verse++;
+    } else if (select_bible.chapter < max_chapter) {
+      await selChapter(select_bible.chapter + 1);
+      verse = 1;
+    } else {
+      let bookIndex = books.value.findIndex((b) => b.id_bible_book == bible.id_bible_book);
+      const bk = bookIndex < books.value.length - 1 ? books.value[bookIndex + 1] : books.value[0];
+      await selBook(bk.id_bible_book);
+      await selChapter(1);
+      verse = 1;
+    }
+    selVerse(null, verse);
+  }
+}
+
+function chaptersList() {
+  if (!chapters.value) return [];
+  return Array.from({ length: chapters.value }, (_, i) => ({ id: i + 1, value: i + 1 }));
+}
+
+function versesList() {
+  if (!verses.value) return [];
+  return Object.keys(verses.value).map((v) => ({ id: +v, value: +v }));
+}
+
+function numbersInterval(numbers) {
+  if (!numbers || numbers.length === 0) return "";
+  numbers.sort((a, b) => a - b);
+  let result = [];
+  let start = numbers[0];
+  let end = numbers[0];
+  for (let i = 1; i < numbers.length; i++) {
+    if (numbers[i] === end + 1) {
+      end = numbers[i];
+    } else {
+      result.push(start === end ? `${start}` : `${start}-${end}`);
+      start = numbers[i];
+      end = numbers[i];
+    }
+  }
+  result.push(start === end ? `${start}` : `${start}-${end}`);
+  return result.join(", ");
+}
+
+function scripturalReference(data) {
+  const verses_interval = numbersInterval(data.verses);
+  if (!data.book || !data.version) return "";
+  return (
+    data.book +
+    " " +
+    data.chapter +
+    (verses_interval ? `:${verses_interval}` : "") +
+    (data.version ? ` (${data.version})` : "")
+  ).trim();
+}
+
+function getSelectedVerses(keys) {
+  keys.sort((a, b) => a - b);
+  let result = "";
+  let previousKey = null;
+  keys.forEach((key) => {
+    if (previousKey !== null && key - previousKey > 1) {
+      result += " [...] ";
+    } else if (result) {
+      result += " ";
+    }
+    result += verses.value[key];
+    previousKey = key;
+  });
+  return result;
+}
+
+function clean() {
+  bible.verses = [];
+  Object.assign(select_bible, {
+    id_bible_version: null,
+    id_bible_book: null,
+    version: null,
+    book: null,
+    chapter: null,
+    verses: [],
+    scriptural_reference: null,
+    text: null,
+  });
+}
+
+function close() {
+  clean();
+}
 </script>

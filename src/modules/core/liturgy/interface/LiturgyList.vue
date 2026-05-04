@@ -101,7 +101,8 @@
   </footer>
 </template>
 
-<script>
+<script setup>
+import { useI18n } from "vue-i18n";
 import draggable from "vuedraggable";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
@@ -120,41 +121,35 @@ function _t(key, locale) {
   return typeof cur === "string" ? cur : key;
 }
 
-export default {
-  name: "LiturgyList",
-  components: { draggable, LiturgyItem },
-  props: {
-    items: { type: Array, required: true },
-    locked: { type: Boolean, default: false },
-    running: { type: Boolean, default: false },
-    timerCurrentIndex: { type: Number, default: -1 },
-    timerItemProgress: { type: Number, default: 0 },
-    defaultColor: { type: String, default: "#00004F" },
-    showNotes: { type: Boolean, default: false },
-    noteDayIndex: { type: Number, default: 0 },
-    noteDays: { type: Array, default: () => [] },
-    currentNote: { type: String, default: "" },
-    totalDuration: { type: Number, default: 0 },
-    isChecked: { type: Function, required: true },
-    iconForItem: { type: Function, required: true },
-    subtitleFor: { type: Function, required: true },
-    onReorder: { type: Function, required: true },
-    openItemDialog: { type: Function, required: true },
-    confirmRemove: { type: Function, required: true },
-    executeItem: { type: Function, required: true },
-    playMusic: { type: Function, required: true },
-    changeColor: { type: Function, required: true },
-    toggleChecked: { type: Function, required: true },
-    quickAdd: { type: Function, required: true },
-    onNoteInput: { type: Function, required: true },
-    setNoteDayIndex: { type: Function, required: true },
-  },
-  methods: {
-    t(key) {
-      return _t(key, this.$i18n?.locale || "pt");
-    },
-  },
-};
+defineProps({
+  items: { type: Array, required: true },
+  locked: { type: Boolean, default: false },
+  running: { type: Boolean, default: false },
+  timerCurrentIndex: { type: Number, default: -1 },
+  timerItemProgress: { type: Number, default: 0 },
+  defaultColor: { type: String, default: "#00004F" },
+  showNotes: { type: Boolean, default: false },
+  noteDayIndex: { type: Number, default: 0 },
+  noteDays: { type: Array, default: () => [] },
+  currentNote: { type: String, default: "" },
+  totalDuration: { type: Number, default: 0 },
+  isChecked: { type: Function, required: true },
+  iconForItem: { type: Function, required: true },
+  subtitleFor: { type: Function, required: true },
+  onReorder: { type: Function, required: true },
+  openItemDialog: { type: Function, required: true },
+  confirmRemove: { type: Function, required: true },
+  executeItem: { type: Function, required: true },
+  playMusic: { type: Function, required: true },
+  changeColor: { type: Function, required: true },
+  toggleChecked: { type: Function, required: true },
+  quickAdd: { type: Function, required: true },
+  onNoteInput: { type: Function, required: true },
+  setNoteDayIndex: { type: Function, required: true },
+});
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
 </script>
 
 <style scoped>

@@ -144,7 +144,9 @@
   </v-dialog>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 
@@ -161,43 +163,38 @@ function _t(key, locale) {
   return typeof cur === "string" ? cur : key;
 }
 
-export default {
-  name: "LiturgySchedules",
-  props: {
-    modelValue: { type: Boolean, default: false },
-    scheduledCategories: { type: Array, default: () => [] },
-    activeCatId: { type: [String, Number], default: null },
-    activeCategory: { type: Object, default: null },
-    categoryItems: { type: Array, default: () => [] },
-    setActiveCatId: { type: Function, required: true },
-    addCategory: { type: Function, required: true },
-    saveCategoryName: { type: Function, required: true },
-    removeCategory: { type: Function, required: true },
-    addScheduledItem: { type: Function, required: true },
-    updateScheduled: { type: Function, required: true },
-    removeScheduled: { type: Function, required: true },
-  },
-  emits: ["update:modelValue"],
-  data() {
-    return {
-      editingCatId: null,
-      editingCatName: "",
-    };
-  },
-  methods: {
-    t(key) {
-      return _t(key, this.$i18n?.locale || "pt");
-    },
-    startEditingCategory(c) {
-      this.editingCatId = c.id;
-      this.editingCatName = c.nome;
-    },
-    doSaveCatName(id) {
-      this.saveCategoryName(id, this.editingCatName);
-      this.editingCatId = null;
-    },
-  },
-};
+const props = defineProps({
+  modelValue: { type: Boolean, default: false },
+  scheduledCategories: { type: Array, default: () => [] },
+  activeCatId: { type: [String, Number], default: null },
+  activeCategory: { type: Object, default: null },
+  categoryItems: { type: Array, default: () => [] },
+  setActiveCatId: { type: Function, required: true },
+  addCategory: { type: Function, required: true },
+  saveCategoryName: { type: Function, required: true },
+  removeCategory: { type: Function, required: true },
+  addScheduledItem: { type: Function, required: true },
+  updateScheduled: { type: Function, required: true },
+  removeScheduled: { type: Function, required: true },
+});
+
+defineEmits(["update:modelValue"]);
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
+
+const editingCatId = ref(null);
+const editingCatName = ref("");
+
+function startEditingCategory(c) {
+  editingCatId.value = c.id;
+  editingCatName.value = c.nome;
+}
+
+function doSaveCatName(id) {
+  props.saveCategoryName(id, editingCatName.value);
+  editingCatId.value = null;
+}
 </script>
 
 <style scoped>

@@ -16,7 +16,9 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 
@@ -33,18 +35,16 @@ function _t(key, locale) {
   return typeof cur === "string" ? cur : key;
 }
 
-export default {
-  name: "LiturgyImportExport",
-  emits: ["save", "file-load"],
-  methods: {
-    t(key) {
-      return _t(key, this.$i18n?.locale || "pt");
-    },
-    triggerLoad() {
-      this.$refs.fileInput.click();
-    },
-  },
-};
+defineEmits(["save", "file-load"]);
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
+
+const fileInput = ref(null);
+
+function triggerLoad() {
+  fileInput.value.click();
+}
 </script>
 
 <style scoped>

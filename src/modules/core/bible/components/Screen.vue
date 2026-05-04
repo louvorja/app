@@ -62,75 +62,61 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import manifest from "../manifest.json";
 import Modules from "@/helpers/Modules";
 import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
 
-export default {
-  name: "ScreenBiblePage",
-  props: {
-    height: Number,
-  },
-  data: () => ({
-    s_width: 0,
-    s_height: 0,
-  }),
-  computed: {
-    /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
-    /* NÃO MODIFICAR */
-    module_id() {
-      return manifest.id;
-    },
-    module() {
-      return Modules.get(this.module_id);
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    /* COMPUTEDS OBRIGATÓRIAS - FIM */
-    bible() {
-      return AppData.get("modules.bible.data");
-    },
-  },
-  mounted() {
-    this.windowResize();
-    window.addEventListener("resize", this.windowResize);
-  },
-  unmounted() {
-    window.removeEventListener("resize", this.windowResize);
-  },
-  methods: {
-    fontSizePc(pc) {
-      const v = Math.min(this.s_width, this.s_height);
-      return (pc * v) / 100 / 2;
-    },
-    windowResize() {
-      const container = this.$refs.container;
-      if (container) {
-        this.s_width = container.offsetWidth;
-        this.s_height = container.offsetHeight;
+defineProps({
+  height: Number,
+});
 
-        if (this.width <= 0 || this.height <= 0) {
-          const self = this;
-          setTimeout(function () {
-            self.windowResize();
-          }, 100);
-        }
+const container = ref(null);
+const sWidth = ref(0);
+const sHeight = ref(0);
+
+const module_ = computed(() => Modules.get(manifest.id));
+
+const userdata = computed(
+  () =>
+    new Proxy(
+      {},
+      {
+        get: (_, key) => UserData.get(`modules.${module_.value.id}.${key}`, null),
+        set: (_, key, value) => {
+          UserData.set(`modules.${module_.value.id}.${key}`, value);
+          return true;
+        },
       }
-    },
-  },
-};
+    )
+);
+
+const bible = computed(() => AppData.get("modules.bible.data"));
+
+function fontSizePc(pc) {
+  const v = Math.min(sWidth.value, sHeight.value);
+  return (pc * v) / 100 / 2;
+}
+
+function windowResize() {
+  const el = container.value;
+  if (el) {
+    sWidth.value = el.offsetWidth;
+    sHeight.value = el.offsetHeight;
+    if (sWidth.value <= 0 || sHeight.value <= 0) {
+      setTimeout(windowResize, 100);
+    }
+  }
+}
+
+onMounted(() => {
+  windowResize();
+  window.addEventListener("resize", windowResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", windowResize);
+});
 </script>

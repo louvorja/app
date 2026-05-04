@@ -67,7 +67,7 @@
       <v-card
         v-for="album in albums"
         :key="album.id_album"
-        :style="$vuetify.display.width > 350 ? 'min-width: 300px; max-width: 300px' : 'width:100%'"
+        :style="width > 350 ? 'min-width: 300px; max-width: 300px' : 'width:100%'"
         theme="dark"
         width="320"
         class="ma-2"
@@ -79,7 +79,7 @@
           <v-avatar
             v-if="album.url_image"
             class="ma-3"
-            :size="$vuetify.display.width > 350 ? 125 : 75"
+            :size="width > 350 ? 125 : 75"
             tile
             rounded="0"
           >
@@ -96,112 +96,96 @@
   </ModuleContainer>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
+import manifest from "../manifest.json";
+import ModuleContainer from "@/components/ModuleContainer.vue";
 import Strings from "@/helpers/Strings";
 import Database from "@/helpers/Database";
 import Modules from "@/helpers/Modules";
 import Media from "@/composables/useMedia";
-
-export default {
-  name: manifest.id,
-  data: () => ({
-    manifest,
-    categories: [],
-    lang: null,
-    id_category: null,
-    loading: false,
-    error: null,
-  }),
-  computed: {
-    /*show() {
-      let module = this.$modules.get(manifest.id);
-      return module.show;
-    },*/
-    albums() {
-      if (!this.categories) {
-        return [];
-      }
-      if (!this.id_category) {
-        return [
-          ...new Map(
-            this.categories
-              .reduce((acc, category) => acc.concat(category.albums), [])
-              .map((album) => [album.id_album, { ...album, subtitle: null }])
-          ).values(),
-        ].sort((a, b) => Strings.sort(a.name, b.name));
-      }
-
-      return this.categories
-        .filter((item) => item.id_category == this.id_category)[0]
-        ?.albums.sort((a, b) => a.order - b.order);
-    },
-    compact: function () {
-      return this.$vuetify.display.width <= 600;
-    },
-  },
-  async mounted() {
-    await this.loadData();
-  },
-  methods: {
-    async loadData() {
-      this.id_category = null;
-      this.categories = [];
-      this.loading = true;
-
-      this.categories = await Database.get(`${this.$i18n.locale}_categories`);
-
-      if (this.categories == null) {
-        Modules.close(manifest.id);
-        return;
-      }
-
-      if (this.categories.length > 0) {
-        this.categories.sort((a, b) => a.order - b.order);
-        this.id_category = this.categories[0].id_category;
-      } else {
-        this.id_category = 0;
-      }
-
-      this.lang = this.$i18n.locale;
-      this.loading = false;
-    },
-    setCategory(id = null) {
-      this.id_category = id;
-    },
-    openAlbum(id_album) {
-      Media.openAlbum(id_album);
-    },
-    async show(value) {
-      if (value && this.lang != this.$i18n.locale) {
-        await this.loadData();
-      } else if (value && this.categories.length > 0 && this.id_category == null) {
-        this.id_category = this.categories[0].id_category;
-      }
-    },
-    close() {
-      //Se fechar a janela, não manter o histórico.
-      this.id_category = null;
-    },
-  },
-};
-</script>
-
-<!-- ########################################################### -->
-<!-- ####### SETUP OBRIGATÓRIA PARA INSTALAÇÃO DO MODULO ####### -->
-<!-- ########################################################### -->
-<script setup>
-import manifest from "../manifest.json";
-import ModuleContainer from "@/components/ModuleContainer.vue";
-import { ref, computed } from "vue";
 import AppData from "@/helpers/AppData";
 import Path from "@/helpers/Path";
+
+const { locale } = useI18n();
+const { width } = useDisplay();
+
 const moduleContainer = ref(null);
-const t = (key) => {
-  return moduleContainer.value?.t(key) || key;
-};
+const categories = ref([]);
+const lang = ref(null);
+const id_category = ref(null);
+const loading = ref(false);
+const error = ref(null);
+
 const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
+
+const albums = computed(() => {
+  if (!categories.value) return [];
+  if (!id_category.value) {
+    return [
+      ...new Map(
+        categories.value
+          .reduce((acc, category) => acc.concat(category.albums), [])
+          .map((album) => [album.id_album, { ...album, subtitle: null }])
+      ).values(),
+    ].sort((a, b) => Strings.sort(a.name, b.name));
+  }
+  return categories.value
+    .filter((item) => item.id_category == id_category.value)[0]
+    ?.albums.sort((a, b) => a.order - b.order);
+});
+
+const compact = computed(() => width.value <= 600);
+
+const t = (key) => moduleContainer.value?.t(key) || key;
 const pathFile = (img) => Path.file(img);
+
+async function loadData() {
+  id_category.value = null;
+  categories.value = [];
+  loading.value = true;
+
+  categories.value = await Database.get(`${locale.value}_categories`);
+
+  if (categories.value == null) {
+    Modules.close(manifest.id);
+    return;
+  }
+
+  if (categories.value.length > 0) {
+    categories.value.sort((a, b) => a.order - b.order);
+    id_category.value = categories.value[0].id_category;
+  } else {
+    id_category.value = 0;
+  }
+
+  lang.value = locale.value;
+  loading.value = false;
+}
+
+function setCategory(id = null) {
+  id_category.value = id;
+}
+
+function openAlbum(id_album) {
+  Media.openAlbum(id_album);
+}
+
+async function show(value) {
+  if (value && lang.value !== locale.value) {
+    await loadData();
+  } else if (value && categories.value.length > 0 && id_category.value === null) {
+    id_category.value = categories.value[0].id_category;
+  }
+}
+
+function close() {
+  id_category.value = null;
+}
+
+onMounted(async () => {
+  await loadData();
+});
 </script>
-<!-- ########################################################### -->
-<!-- ########################################################### -->
-<!-- ########################################################### -->

@@ -21,7 +21,8 @@
   </button>
 </template>
 
-<script>
+<script setup>
+import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 
@@ -38,21 +39,17 @@ function _t(key, locale) {
   return typeof cur === "string" ? cur : key;
 }
 
-export default {
-  name: "LiturgyTimer",
-  props: {
-    running: { type: Boolean, default: false },
-    timerSeconds: { type: Number, default: 0 },
-    timerDisplay: { type: String, default: "00:00" },
-    hasItems: { type: Boolean, default: false },
-  },
-  emits: ["toggle", "prev", "next"],
-  methods: {
-    t(key) {
-      return _t(key, this.$i18n?.locale || "pt");
-    },
-  },
-};
+defineProps({
+  running: { type: Boolean, default: false },
+  timerSeconds: { type: Number, default: 0 },
+  timerDisplay: { type: String, default: "00:00" },
+  hasItems: { type: Boolean, default: false },
+});
+
+defineEmits(["toggle", "prev", "next"]);
+
+const { locale } = useI18n();
+const t = (key) => _t(key, locale.value);
 </script>
 
 <style scoped>
