@@ -83,7 +83,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 001 | [Padronizar Composition API + `<script setup>` em todo o projeto](tasks/001-composition-api-script-setup.md)   | H      | P1  | 24h | todo   | 1           |
+| 001 | [Padronizar Composition API + `<script setup>` em todo o projeto](tasks/001-composition-api-script-setup.md)   | H      | P1  | 24h | done   | 1           |
 | 002 | [Migração para TypeScript (faseada: helpers → store → components)](tasks/002-migracao-typescript.md)  | O      | P1  | 80h | todo   | 2, 7        |
 | 003 | [Substituir Vuex por Pinia](tasks/003-substituir-vuex-pinia.md)                                         | O      | P1  | 16h | todo   | 3           |
 | 004 | [Unificar Storage→AppData→UserData numa camada tipada](tasks/004-unificar-storage-appdata-userdata.md)              | O      | P1  | 12h | todo   | 4, 6        |
