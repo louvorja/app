@@ -167,6 +167,7 @@
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import TransmissionCard from "./TransmissionCard.vue";
+import Platform from "@/helpers/Platform";
 
 const FULLSCREEN_ROUTES = ["/projection", "/projection/return", "/obs", "/obs/bible", "/clock"];
 const FRAMED_ROUTES = ["/operator"];
@@ -227,31 +228,31 @@ export default {
       return window.location.origin;
     },
     isDesktop() {
-      return this.$platform?.isDesktop || false;
+      return Platform?.isDesktop || false;
     },
   },
   async mounted() {
     if (this.isDesktop) {
-      if (this.$platform.displays) {
+      if (Platform.displays) {
         try {
-          this.monitors = await this.$platform.displays.list();
-          this.monitorPrefs = await this.$platform.displays.getPrefs();
+          this.monitors = await Platform.displays.list();
+          this.monitorPrefs = await Platform.displays.getPrefs();
         } catch (e) {
           console.warn("[Transmission] Falha ao carregar monitores:", e);
         }
       }
 
-      if (this.$platform.httpServer) {
+      if (Platform.httpServer) {
         try {
-          this.server = await this.$platform.httpServer.status();
-          this.localIps = await this.$platform.httpServer.localIps();
+          this.server = await Platform.httpServer.status();
+          this.localIps = await Platform.httpServer.localIps();
         } catch (e) {
           console.warn("[Transmission] Falha ao carregar status do servidor:", e);
         }
 
         // Carregar configuração de auto-start do userStore
         try {
-          const cfg = (await this.$platform.userStore?.read("config")) || {};
+          const cfg = (await Platform.userStore?.read("config")) || {};
           this.autoStart = cfg.httpServer?.autoStart ?? false;
         } catch (e) {
           console.warn("[Transmission] Falha ao carregar configuração:", e);
@@ -259,9 +260,9 @@ export default {
       }
 
       // D6 — Carregar status dos atalhos globais
-      if (this.$platform.shortcuts) {
+      if (Platform.shortcuts) {
         try {
-          this.shortcutsStatus = await this.$platform.shortcuts.status();
+          this.shortcutsStatus = await Platform.shortcuts.status();
           this.shortcutsEnabled = this.shortcutsStatus.enabled;
         } catch (e) {
           console.warn("[Transmission] Falha ao carregar status dos atalhos:", e);
@@ -279,17 +280,17 @@ export default {
     },
 
     async toggleServer() {
-      if (!this.$platform.httpServer) return;
+      if (!Platform.httpServer) return;
       this.serverLoading = true;
       try {
         if (this.server.running) {
-          await this.$platform.httpServer.stop();
+          await Platform.httpServer.stop();
         } else {
-          await this.$platform.httpServer.start({ port: 7070 });
+          await Platform.httpServer.start({ port: 7070 });
         }
-        this.server = await this.$platform.httpServer.status();
+        this.server = await Platform.httpServer.status();
         if (this.server.running && this.localIps.length === 0) {
-          this.localIps = await this.$platform.httpServer.localIps();
+          this.localIps = await Platform.httpServer.localIps();
         }
       } catch (e) {
         console.error("[Transmission] Falha ao alternar servidor:", e);
@@ -299,13 +300,13 @@ export default {
     },
 
     async saveAutoStart(value) {
-      if (!this.$platform.userStore) return;
+      if (!Platform.userStore) return;
       try {
-        const cfg = (await this.$platform.userStore.read("config")) || {};
+        const cfg = (await Platform.userStore.read("config")) || {};
         if (!cfg.httpServer) cfg.httpServer = {};
         cfg.httpServer.autoStart = value;
         cfg.httpServer.port = 7070;
-        await this.$platform.userStore.write("config", cfg);
+        await Platform.userStore.write("config", cfg);
       } catch (e) {
         console.warn("[Transmission] Falha ao salvar auto-start:", e);
       }
@@ -328,14 +329,14 @@ export default {
       const { route } = win;
 
       // Desktop: usar BrowserWindow do Electron com escolha de monitor
-      if (this.isDesktop && this.$platform.windows) {
+      if (this.isDesktop && Platform.windows) {
         const feature = this.featureKey(route);
         const fullscreen = FULLSCREEN_ROUTES.some((r) => route.startsWith(r));
         const frame = FRAMED_ROUTES.some((r) => route.startsWith(r));
         const monitorId = this.monitorPrefs[feature] ?? null;
 
         try {
-          await this.$platform.windows.open({
+          await Platform.windows.open({
             route,
             feature,
             fullscreen,
@@ -354,9 +355,9 @@ export default {
     },
 
     async identifyMonitors() {
-      if (this.$platform?.displays) {
+      if (Platform?.displays) {
         try {
-          const count = await this.$platform.displays.identify(5000);
+          const count = await Platform.displays.identify(5000);
           console.log(`[Transmission] Identificando ${count} monitor(es)...`);
         } catch (e) {
           console.warn("[Transmission] Falha ao identificar monitores:", e);
@@ -365,9 +366,9 @@ export default {
     },
 
     async setMonitor(featureId, displayId) {
-      if (this.$platform?.displays) {
+      if (Platform?.displays) {
         try {
-          await this.$platform.displays.setPreferred(featureId, displayId);
+          await Platform.displays.setPreferred(featureId, displayId);
           this.monitorPrefs = { ...this.monitorPrefs, [featureId]: displayId };
         } catch (e) {
           console.warn("[Transmission] Falha ao salvar preferência de monitor:", e);
@@ -376,19 +377,19 @@ export default {
     },
 
     async toggleShortcuts(value) {
-      if (!this.$platform.shortcuts) return;
+      if (!Platform.shortcuts) return;
       try {
         if (value) {
-          const result = await this.$platform.shortcuts.enable();
-          this.shortcutsStatus = await this.$platform.shortcuts.status();
+          const result = await Platform.shortcuts.enable();
+          this.shortcutsStatus = await Platform.shortcuts.status();
           this.shortcutsFailed = result.failed || [];
         } else {
-          await this.$platform.shortcuts.disable();
+          await Platform.shortcuts.disable();
           this.shortcutsStatus = { enabled: false, registered: [] };
           this.shortcutsFailed = [];
         }
         // Persistir preferência para auto-enable no próximo boot
-        await this.$platform.shortcuts.savePreference(value);
+        await Platform.shortcuts.savePreference(value);
       } catch (e) {
         console.error("[Transmission] Falha ao alternar atalhos globais:", e);
       }

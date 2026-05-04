@@ -4,6 +4,7 @@
       v-if="userdata.image"
       :src="userdata.image"
       alt=""
+      loading="eager"
       :style="{
         top: 0,
         left: 0,
@@ -22,6 +23,9 @@
 
 <script>
 import manifest from "../manifest.json";
+import Modules from "@/helpers/Modules";
+import UserData from "@/helpers/UserData";
+import AppData from "@/helpers/AppData";
 
 export default {
   name: "StopwatchPage",
@@ -37,17 +41,17 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     userdata() {
       return new Proxy(
         {},
         {
           get: (_, key) => {
-            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+            return UserData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            UserData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
@@ -58,10 +62,10 @@ export default {
         {},
         {
           get: (_, key) => {
-            return this.$appdata.get(`modules.${this.module.id}.${key}`, null);
+            return AppData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$appdata.set(`modules.${this.module.id}.${key}`, value);
+            AppData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }

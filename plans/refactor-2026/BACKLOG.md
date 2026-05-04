@@ -88,7 +88,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 003 | [Substituir Vuex por Pinia](tasks/003-substituir-vuex-pinia.md)                                         | O      | P1  | 16h | todo   | 3           |
 | 004 | [Unificar Storage→AppData→UserData numa camada tipada](tasks/004-unificar-storage-appdata-userdata.md)              | O      | P1  | 12h | todo   | 4, 6        |
 | 011 | [Reorganizar fronteira helper/composable](tasks/011-fronteira-helper-composable.md)                           | O      | P2  | 12h | todo   | 11, 12      |
-| 012 | [Substituir `globalProperties` por imports/composables](tasks/012-remover-globalproperties.md)             | H      | P2  | 8h  | todo   | 12          |
+| 012 | [Substituir `globalProperties` por imports/composables](tasks/012-remover-globalproperties.md)             | H      | P2  | 8h  | done   | 12          |
 | 088 | [Setup Vitest + cobertura de helpers críticos](tasks/088-setup-vitest.md)                      | O      | P1  | 6h  | done   | 88, 91, 92  |
 | 089 | [Setup Playwright + smoke E2E (Operator → Projection)](tasks/089-setup-playwright.md)              | O      | P1  | 8h  | done   | 89          |
 | 090 | [Regressão visual (Percy/Chromatic) para Ribbon e Player](tasks/090-regressao-visual-percy.md)           | O      | P2  | 6h  | todo   | 90          |

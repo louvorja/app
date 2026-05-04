@@ -16,7 +16,7 @@
             class="player-btn"
             :title="$t('shell.player.first')"
             :disabled="!canPrev"
-            @click="$media.firstSlide()"
+            @click="firstSlide()"
           >
             <v-icon icon="mdi-skip-previous" size="22" />
           </button>
@@ -25,7 +25,7 @@
             class="player-btn"
             :title="$t('shell.player.prev')"
             :disabled="!canPrev"
-            @click="$media.prevSlide()"
+            @click="prevSlide()"
           >
             <v-icon icon="mdi-chevron-left" size="22" />
           </button>
@@ -43,7 +43,7 @@
             class="player-btn"
             :title="$t('shell.player.next')"
             :disabled="!canNext"
-            @click="$media.nextSlide()"
+            @click="nextSlide()"
           >
             <v-icon icon="mdi-chevron-right" size="22" />
           </button>
@@ -52,7 +52,7 @@
             class="player-btn"
             :title="$t('shell.player.last')"
             :disabled="!canNext"
-            @click="$media.lastSlide()"
+            @click="lastSlide()"
           >
             <v-icon icon="mdi-skip-next" size="22" />
           </button>
@@ -61,7 +61,7 @@
             type="button"
             class="player-btn player-btn--close"
             :title="$t('shell.player.close')"
-            @click="$media.close()"
+            @click="closeMedia()"
           >
             <v-icon icon="mdi-close" size="20" />
           </button>
@@ -71,16 +71,16 @@
 
         <div class="player-meta">
           <span v-if="hasAudio" class="player-time">
-            {{ $datetime.shortTime(currentTime) }}
+            {{ shortTime(currentTime) }}
             <span class="player-time-sep">/</span>
-            {{ $datetime.shortTime(duration) }}
+            {{ shortTime(duration) }}
           </span>
           <span class="player-counter">{{ slideIndex + 1 }} / {{ totalSlides }}</span>
           <button
             type="button"
             class="player-btn player-btn--small"
             :title="$t('shell.player.maximize')"
-            @click="$media.maximize()"
+            @click="maximizeMedia()"
           >
             <v-icon icon="mdi-open-in-app" size="16" />
           </button>
@@ -88,7 +88,7 @@
             type="button"
             class="player-btn player-btn--small"
             :title="$t('shell.player.fullscreen')"
-            @click="$media.fullscreen(true)"
+            @click="fullscreenMedia()"
           >
             <v-icon icon="mdi-fullscreen" size="16" />
           </button>
@@ -115,19 +115,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, getCurrentInstance } from "vue";
+import { ref, computed, onMounted } from "vue";
 import packageJson from "../../package.json";
-
-const { proxy } = getCurrentInstance();
+import Modules from "@/helpers/Modules";
+import Media from "@/composables/useMedia";
+import Database from "@/helpers/Database";
+import DateTime from "@/helpers/DateTime";
 
 const dbVersion = ref(0);
 
 const version = computed(() => `${packageJson.version}.${dbVersion.value}`);
-const media = computed(() => proxy.$modules.get("media"));
+const media = computed(() => Modules.get("media"));
 
 const hasPlayer = computed(() => {
   try {
-    return !!proxy.$media.isMinimized();
+    return !!Media.isMinimized();
   } catch (_) {
     return false;
   }
@@ -160,7 +162,7 @@ const playerTitle = computed(() => {
 
 const slideText = computed(() => {
   try {
-    const slides = proxy.$media.slides();
+    const slides = Media.slides();
     const slide = slides?.[slideIndex.value];
     if (!slide?.lyric) return "";
     return slide.lyric.replace(/<br>/gi, " / ").toUpperCase();
@@ -169,9 +171,18 @@ const slideText = computed(() => {
   }
 });
 
+const shortTime = (t) => DateTime.shortTime(t);
+const firstSlide = () => Media.firstSlide();
+const prevSlide = () => Media.prevSlide();
+const nextSlide = () => Media.nextSlide();
+const lastSlide = () => Media.lastSlide();
+const closeMedia = () => Media.close();
+const maximizeMedia = () => Media.maximize();
+const fullscreenMedia = () => Media.fullscreen(true);
+
 function togglePlay() {
-  if (isPaused.value) proxy.$media.play();
-  else proxy.$media.pause();
+  if (isPaused.value) Media.play();
+  else Media.pause();
 }
 
 function onTimelineClick(e) {
@@ -179,12 +190,12 @@ function onTimelineClick(e) {
   const rect = e.currentTarget.getBoundingClientRect();
   const ratio = (e.clientX - rect.left) / rect.width;
   const time = duration.value * Math.max(0, Math.min(1, ratio));
-  proxy.$media.goToTime(time);
+  Media.goToTime(time);
 }
 
 async function loadDBVersion() {
   try {
-    const config = await proxy.$database.get("config");
+    const config = await Database.get("config");
     dbVersion.value = config?.version_number ?? "?";
   } catch (_) {
     dbVersion.value = "?";

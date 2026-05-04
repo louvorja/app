@@ -42,6 +42,7 @@
             :value="form.item"
             type="text"
             class="lit-input"
+            data-testid="item-name"
             :placeholder="t('inputs.item_name_placeholder')"
             @input="setFormField('item', $event.target.value)"
           />
@@ -65,6 +66,7 @@
               :value="form.cor"
               type="color"
               class="lit-color-input"
+              :aria-label="t('inputs.color')"
               @input="setFormField('cor', $event.target.value)"
             />
             <div class="lit-color-presets">
@@ -245,7 +247,7 @@
         <button class="lit-btn lit-btn--ghost" @click="$emit('update:modelValue', false)">
           {{ t("actions.cancel") }}
         </button>
-        <button class="lit-btn lit-btn--primary" @click="saveItem">
+        <button class="lit-btn lit-btn--primary" data-testid="item-save" @click="saveItem">
           <v-icon :icon="editIndex >= 0 ? 'mdi-content-save' : 'mdi-plus'" size="14" />
           <span>{{ editIndex >= 0 ? t("actions.save") : t("actions.add") }}</span>
         </button>

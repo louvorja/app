@@ -21,7 +21,7 @@
             class="lj-window-image"
             :style="{ width: (imageSize || 65) + 'px', height: (imageSize || 65) + 'px' }"
           >
-            <img :src="image" alt="" />
+            <img :src="image" alt="" loading="lazy" />
           </div>
           <div class="lj-window-titles">
             <h2 v-if="title" class="lj-window-title" :class="titleClass">

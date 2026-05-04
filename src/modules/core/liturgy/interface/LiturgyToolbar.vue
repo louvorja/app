@@ -14,6 +14,7 @@
         type="week"
         class="lit-week-input"
         :value="activeWeek"
+        :aria-label="t('week.label')"
         :title="t('week.label')"
         @change="onWeekChange"
       />

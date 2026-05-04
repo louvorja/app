@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import Strings from "@/helpers/Strings";
+
 export default {
   name: "SlideComponent",
   props: {
@@ -72,9 +74,8 @@ export default {
   methods: {
     setSlide() {
       if (
-        this.$string.clean(this.slides[1].text) == this.$string.clean(this.props_slide.text) &&
-        this.$string.clean(this.slides[1].aux_text) ==
-          this.$string.clean(this.props_slide.aux_text) &&
+        Strings.clean(this.slides[1].text) == Strings.clean(this.props_slide.text) &&
+        Strings.clean(this.slides[1].aux_text) == Strings.clean(this.props_slide.aux_text) &&
         this.slides[1].image == this.props_slide.image &&
         this.slides[1].cover == this.props_slide.cover
       ) {

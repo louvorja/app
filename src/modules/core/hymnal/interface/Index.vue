@@ -44,7 +44,7 @@
           <td>
             {{ item.name }}
           </td>
-          <td class="text-right">{{ $datetime.shortTime(item.duration) }}</td>
+          <td class="text-right">{{ shortTime(item.duration) }}</td>
           <td>
             <div class="d-flex justify-end">
               <l-music-menu-table
@@ -87,6 +87,9 @@ import ModuleContainer from "@/components/ModuleContainer.vue";
 import LTable from "@/components/DataTable.vue";
 import LSearch from "@/components/inputs/LjSearch.vue";
 import LMusicMenuTable from "@/components/MusicMenuTable.vue";
+import Modules from "@/helpers/Modules";
+import UserData from "@/helpers/UserData";
+import DateTime from "@/helpers/DateTime";
 
 export default {
   name: "HymnalModule",
@@ -111,17 +114,17 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     userdata() {
       return new Proxy(
         {},
         {
           get: (_, key) => {
-            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+            return UserData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            UserData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
@@ -147,6 +150,9 @@ export default {
     },
     /* METHODS OBRIGATÓRIOS - FIM */
 
+    shortTime(d) {
+      return DateTime.shortTime(d);
+    },
     onScroll(data) {
       this.scroll = data;
     },

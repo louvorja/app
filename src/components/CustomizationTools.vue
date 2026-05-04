@@ -148,6 +148,9 @@
 </template>
 
 <script>
+import UserData from "@/helpers/UserData";
+import Alert from "@/helpers/Alert";
+
 export default {
   name: "CustomizationToolsComponent",
   props: {
@@ -190,10 +193,10 @@ export default {
         {},
         {
           get: (_, key) => {
-            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+            return UserData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            UserData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
@@ -259,7 +262,7 @@ export default {
     },
     restore() {
       let self = this;
-      this.$alert.yesno("components.customization.restore_dialog", function (btn) {
+      Alert.yesno("components.customization.restore_dialog", function (btn) {
         if (btn == "yes") {
           self.menu_items?.map((block) => {
             block.items?.map((group) => {

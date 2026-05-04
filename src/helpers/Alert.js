@@ -1,5 +1,6 @@
 import $dev from "@/helpers/Dev";
 import $appdata from "@/helpers/AppData";
+import store from "@/store";
 
 export default {
   show(data, callback = function () {}) {
@@ -22,12 +23,15 @@ export default {
       data.buttons || [{ text: "alert.close", color: "error", value: "close" }]
     );
 
-    let tmr = setInterval(function () {
-      if (!$appdata.get("alert.show")) {
-        clearInterval(tmr);
-        callback($appdata.get("alert.value"));
+    const unwatch = store.watch(
+      (state) => state.alert.show,
+      (show) => {
+        if (!show) {
+          unwatch();
+          callback($appdata.get("alert.value"));
+        }
       }
-    }, 100);
+    );
   },
 
   yesno(data, callback = function () {}) {

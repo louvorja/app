@@ -24,6 +24,8 @@
 
 <script>
 import CountryFlag from "vue-country-flag-next";
+import AppData from "@/helpers/AppData";
+import UserData from "@/helpers/UserData";
 
 export default {
   name: "LanguageSelectorComponent",
@@ -32,16 +34,16 @@ export default {
   },
   computed: {
     languages() {
-      return this.$appdata.get("languages");
+      return AppData.get("languages");
     },
     current_language() {
-      return this.$userdata.get("language");
+      return UserData.get("language");
     },
   },
   methods: {
     changeLanguage(language) {
       this.$i18n.locale = language;
-      this.$userdata.set("language", language);
+      UserData.set("language", language);
     },
   },
 };

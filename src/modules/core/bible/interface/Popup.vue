@@ -4,7 +4,8 @@
 
 <script>
 import manifest from "../manifest.json";
-
+import Modules from "@/helpers/Modules";
+import AppData from "@/helpers/AppData";
 import Screen from "../components/Screen.vue";
 
 export default {
@@ -19,12 +20,12 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
 
     bibleConfig() {
-      const savedConfig = this.$appdata.get(`modules.bible.config`);
+      const savedConfig = AppData.get(`modules.bible.config`);
       return (
         savedConfig || {
           background: "#000000",

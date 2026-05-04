@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     v-model="input"
-    :color="$theme.primary()"
+    :color="primaryColor"
     :disabled="disabled"
     :label="label"
     prepend-inner-icon="mdi-magnify"
@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import AppData from "@/helpers/AppData";
+
 export default {
   name: "SearchComponent",
   props: {
@@ -35,6 +37,9 @@ export default {
       set(value) {
         this.$emit("update:modelValue", value);
       },
+    },
+    primaryColor() {
+      return AppData.get("is_dark") ? undefined : "primary";
     },
   },
   methods: {

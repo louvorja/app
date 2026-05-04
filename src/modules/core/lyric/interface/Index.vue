@@ -5,10 +5,10 @@
     :subtitle="
       lyConfig.subtitle + (lyConfig.track > 0 ? ' | ' + t('track') + ' ' + lyConfig.track : '')
     "
-    :image="lyConfig.image ? $path.file(lyConfig.image) : ''"
+    :image="lyConfig.image ? lyricImageUrl : ''"
     closable
     size="small"
-    @close="$media.closeLyric()"
+    @close="closeLyric()"
   >
     <v-skeleton-loader v-if="lyLoading" type="text@5" />
     <div v-else>
@@ -24,6 +24,10 @@
 import manifest from "../manifest.json";
 import Window from "@/components/Window.vue";
 import { useLyric } from "@/composables/useLyric";
+import Modules from "@/helpers/Modules";
+import UserData from "@/helpers/UserData";
+import Path from "@/helpers/Path";
+import Media from "@/composables/useMedia";
 
 export default {
   name: "LyricModule",
@@ -45,21 +49,24 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     userdata() {
       return new Proxy(
         {},
         {
           get: (_, key) => {
-            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+            return UserData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            UserData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
       );
+    },
+    lyricImageUrl() {
+      return this.lyConfig.image ? Path.file(this.lyConfig.image) : "";
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
   },
@@ -70,6 +77,9 @@ export default {
       return this.$t(`modules.${this.module_id}.${text}`);
     },
     /* METHODS OBRIGATÓRIOS - FIM */
+    closeLyric() {
+      Media.closeLyric();
+    },
   },
 };
 </script>

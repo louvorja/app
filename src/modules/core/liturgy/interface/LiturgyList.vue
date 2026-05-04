@@ -6,7 +6,12 @@
         <v-icon icon="mdi-view-list-outline" size="80" class="text-disabled" />
         <div class="liturgy-empty-title">{{ t("data.empty") }}</div>
         <div class="liturgy-empty-hint">{{ t("data.empty_hint") }}</div>
-        <button v-if="!locked" class="lit-btn lit-btn--primary mt-4" @click="openItemDialog()">
+        <button
+          v-if="!locked"
+          class="lit-btn lit-btn--primary mt-4"
+          data-testid="liturgy-add-item"
+          @click="openItemDialog()"
+        >
           <v-icon icon="mdi-plus" size="16" />
           <span>{{ t("actions.add") }}</span>
         </button>
@@ -85,7 +90,11 @@
       <v-icon icon="mdi-note-text-outline" size="14" />
       <span>{{ t("types.anotacao") }}</span>
     </button>
-    <button class="lit-btn lit-btn--primary" @click="openItemDialog()">
+    <button
+      class="lit-btn lit-btn--primary"
+      data-testid="liturgy-add-item"
+      @click="openItemDialog()"
+    >
       <v-icon icon="mdi-plus" size="16" />
       <span>{{ t("actions.add") }}</span>
     </button>

@@ -12,6 +12,7 @@
         }"
         :disabled="!!btn.disabled"
         :title="btn.title"
+        :data-testid="'mmt-btn-' + btn.testid"
         @click="btn.click"
       >
         <v-icon :icon="btn.icon" size="16" />
@@ -37,7 +38,7 @@
             :key="key"
             :disabled="btn.disabled ? btn.disabled : false"
             variant="text"
-            :color="$theme.primary()"
+            :color="primaryColor"
             :icon="btn.icon"
             density="compact"
             class="mx-1"
@@ -76,6 +77,11 @@
 </template>
 
 <script>
+import Favorites from "@/helpers/Favorites";
+import Liturgy from "@/helpers/Liturgy";
+import Media from "@/composables/useMedia";
+import AppData from "@/helpers/AppData";
+
 export default {
   name: "MusicMenuTableComponent",
   props: {
@@ -90,42 +96,46 @@ export default {
   },
   computed: {
     is_favorite() {
-      return this.$favorites.isFavorite(this.id_music);
+      return Favorites.isFavorite(this.id_music);
     },
     buttons() {
       return [
         {
+          testid: "favorite",
           disabled: false,
           title: this.is_favorite
             ? this.$t("components.music_menu.remove_from_favorites")
             : this.$t("components.music_menu.add_to_favorites"),
           icon: this.is_favorite ? "mdi-star" : "mdi-star-outline",
-          click: () =>
-            this.$favorites.toggle(this.id_music, this.name, this.has_instrumental_music),
+          click: () => Favorites.toggle(this.id_music, this.name, this.has_instrumental_music),
         },
         {
+          testid: "sing",
           disabled: false,
           title: this.$t("ribbon.btn.sing"),
           icon: "mdi-play-box-multiple",
-          click: () => this.$media.open({ id_music: this.id_music, mode: "audio" }),
+          click: () => Media.open({ id_music: this.id_music, mode: "audio" }),
         },
         {
+          testid: "playback",
           disabled: !this.has_instrumental_music,
           title: this.$t("ribbon.btn.playback"),
           icon: "mdi-play-box-multiple-outline",
-          click: () => this.$media.open({ id_music: this.id_music, mode: "instrumental" }),
+          click: () => Media.open({ id_music: this.id_music, mode: "instrumental" }),
         },
         {
+          testid: "no-audio",
           disabled: false,
           title: this.$t("ribbon.btn.no_audio"),
           icon: "mdi-checkbox-multiple-blank-outline",
-          click: () => this.$media.open(this.id_music),
+          click: () => Media.open(this.id_music),
         },
         {
+          testid: "lyric",
           disabled: false,
           title: this.$t("ribbon.btn.lyric"),
           icon: "mdi-text-box-outline",
-          click: () => this.$media.openLyric(this.id_music),
+          click: () => Media.openLyric(this.id_music),
         },
       ];
     },
@@ -140,14 +150,12 @@ export default {
                 ? this.$t("components.music_menu.remove_from_favorites")
                 : this.$t("components.music_menu.add_to_favorites"),
               icon: this.is_favorite ? "mdi-star-off" : "mdi-star",
-              click: () =>
-                this.$favorites.toggle(this.id_music, this.name, this.has_instrumental_music),
+              click: () => Favorites.toggle(this.id_music, this.name, this.has_instrumental_music),
             },
             {
               title: this.$t("components.music_menu.add_to_liturgy"),
               icon: "mdi-view-list-outline",
-              click: () =>
-                this.$liturgy.addMusic(this.id_music, this.name, this.has_instrumental_music),
+              click: () => Liturgy.addMusic(this.id_music, this.name, this.has_instrumental_music),
             },
           ],
         },
@@ -158,13 +166,13 @@ export default {
             {
               title: this.$t("ribbon.btn.sing"),
               icon: "mdi-play-box-multiple",
-              click: () => this.$media.open({ id_music: this.id_music, mode: "audio" }),
+              click: () => Media.open({ id_music: this.id_music, mode: "audio" }),
             },
             {
               title: this.$t("ribbon.btn.playback"),
               icon: "mdi-play-box-multiple-outline",
               click: () =>
-                this.$media.open({
+                Media.open({
                   id_music: this.id_music,
                   mode: "instrumental",
                 }),
@@ -173,12 +181,12 @@ export default {
             {
               title: this.$t("ribbon.btn.no_audio"),
               icon: "mdi-checkbox-multiple-blank-outline",
-              click: () => this.$media.open(this.id_music),
+              click: () => Media.open(this.id_music),
             },
             {
               title: this.$t("ribbon.btn.lyric"),
               icon: "mdi-text-box-outline",
-              click: () => this.$media.openLyric(this.id_music),
+              click: () => Media.openLyric(this.id_music),
             },
             {
               title: "-",
@@ -186,13 +194,13 @@ export default {
             {
               title: this.$t("components.music_menu.file_sing"),
               icon: "mdi-file-music",
-              click: () => this.$media.openAudio(this.id_music),
+              click: () => Media.openAudio(this.id_music),
             },
             {
               title: this.$t("components.music_menu.file_playback"),
               icon: "mdi-file-music-outline",
               click: () =>
-                this.$media.openAudio({
+                Media.openAudio({
                   id_music: this.id_music,
                   mode: "instrumental",
                 }),
@@ -211,7 +219,10 @@ export default {
       return this.$vuetify.display.width <= 550;
     },
     is_mobile: function () {
-      return this.$appdata.get("is_mobile");
+      return AppData.get("is_mobile");
+    },
+    primaryColor() {
+      return AppData.get("is_dark") ? undefined : "primary";
     },
   },
 };

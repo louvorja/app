@@ -83,7 +83,8 @@ const module_ = computed(() => (moduleId.value && proxy.$modules.get(moduleId.va
 
 const show = computed({
   get() {
-    return moduleId.value ? !!module_.value.show : false;
+    if (!moduleId.value) return false;
+    return proxy.$appdata.get(`modules.${moduleId.value}.show`) === true;
   },
   set(v) {
     if (moduleId.value) {
@@ -103,7 +104,10 @@ const headerTitle = computed(() => {
   return props.manifest.name || moduleId.value || "";
 });
 
-watch(show, (v) => emit("show", v));
+watch(show, (v) => {
+  console.warn(`[ModuleContainer] ${moduleId.value} show changed to: ${v}`);
+  emit("show", v);
+});
 
 function close() {
   proxy.$modules.close(moduleId.value);

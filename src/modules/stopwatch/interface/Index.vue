@@ -7,7 +7,7 @@
     minimizable
     :index="show ? 1 : 0"
     @close="close()"
-    @minimize="$modules.minimize(module_id)"
+    @minimize="minimize()"
     @resize="resize"
   >
     <template #customize>
@@ -146,6 +146,9 @@ import LSelect from "@/components/inputs/LjSelect.vue";
 import LCustomizationTools from "@/components/CustomizationTools.vue";
 import LToolbar from "@/components/Toolbar.vue";
 import LToolbarItem from "@/components/ToolbarItem.vue";
+import Modules from "@/helpers/Modules";
+import UserData from "@/helpers/UserData";
+import AppData from "@/helpers/AppData";
 
 export default {
   name: manifest.id,
@@ -179,17 +182,17 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     userdata() {
       return new Proxy(
         {},
         {
           get: (_, key) => {
-            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+            return UserData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            UserData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
@@ -200,10 +203,10 @@ export default {
         {},
         {
           get: (_, key) => {
-            return this.$appdata.get(`modules.${this.module.id}.${key}`, null);
+            return AppData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$appdata.set(`modules.${this.module.id}.${key}`, value);
+            AppData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
@@ -244,7 +247,11 @@ export default {
     close() {
       this.pauseStopwatch();
       this.resetStopwatch();
-      this.$modules.close(this.module_id);
+      Modules.close(this.module_id);
+    },
+
+    minimize() {
+      Modules.minimize(this.module_id);
     },
 
     startStopwatch() {

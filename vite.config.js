@@ -94,6 +94,9 @@ export default async ({ mode }) => {
       "process.env": {},
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: "true",
     },
+    optimizeDeps: {
+      exclude: ["jszip"],
+    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),

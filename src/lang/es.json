@@ -55,7 +55,8 @@
     "close": "Cerrar",
     "yes": "Sí",
     "no": "No",
-    "wait": "Aguardar..."
+    "wait": "Aguardar...",
+    "migrating": "Migrando datos..."
   },
   "actions": {
     "close": "Cerrar",

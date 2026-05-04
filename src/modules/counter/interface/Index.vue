@@ -1,7 +1,7 @@
 <template>
   <ModuleContainer ref="moduleContainer" :manifest="manifest">
     <template #header>
-      <v-tabs v-model="tab" align-tabs="center" :color="$theme.primary()">
+      <v-tabs v-model="tab" align-tabs="center" :color="primaryColor">
         <v-tab :value="1">Simple Counter</v-tab>
         <v-tab :value="2">Advanced Counter</v-tab>
         <v-tab :value="3">Counter History</v-tab>
@@ -75,9 +75,12 @@ export default {
 </script>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import AppData from "@/helpers/AppData";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import manifest from "../manifest.json";
+
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
 
 // ---- Obrigatório para tradução -------
 const moduleContainer = ref(null);

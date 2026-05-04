@@ -39,14 +39,15 @@
 <script>
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
+import UserData from "@/helpers/UserData";
 
 export default {
   name: "ClockModule",
   components: { ModuleContainer },
   data: () => ({ manifest, time: "", date: "", timer: null, show24h: true, showSeconds: true }),
   mounted() {
-    this.show24h = this.$userdata.get("modules.clock.show24h", true);
-    this.showSeconds = this.$userdata.get("modules.clock.showSeconds", true);
+    this.show24h = UserData.get("modules.clock.show24h", true);
+    this.showSeconds = UserData.get("modules.clock.showSeconds", true);
     this.tick();
     this.timer = setInterval(this.tick, 1000);
   },
@@ -74,12 +75,12 @@ export default {
     },
     toggle24h() {
       this.show24h = !this.show24h;
-      this.$userdata.set("modules.clock.show24h", this.show24h);
+      UserData.set("modules.clock.show24h", this.show24h);
       this.tick();
     },
     toggleSeconds() {
       this.showSeconds = !this.showSeconds;
-      this.$userdata.set("modules.clock.showSeconds", this.showSeconds);
+      UserData.set("modules.clock.showSeconds", this.showSeconds);
       this.tick();
     },
     openFullscreen() {

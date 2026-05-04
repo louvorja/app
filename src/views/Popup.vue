@@ -6,6 +6,8 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import AppData from "@/helpers/AppData";
+import Alert from "@/helpers/Alert";
 
 export default {
   name: "PopupPage",
@@ -14,16 +16,16 @@ export default {
   }),
   computed: {
     module() {
-      return this.$appdata.get("popup_module");
+      return AppData.get("popup_module");
     },
   },
   mounted() {
-    this.$appdata.set("is_popup", true);
+    AppData.set("is_popup", true);
     window.addEventListener("message", (event) => {
       if (event.origin === window.location.origin) {
         this.message = event.data;
         if (event.data.param) {
-          this.$appdata.set(event.data.param, event.data.value);
+          AppData.set(event.data.param, event.data.value);
         }
       }
     });
@@ -41,7 +43,7 @@ export default {
         return import(`@/modules/core/${this.module}/interface/Popup.vue`).catch(() => {
           // Try to load from CUSTOM module interface directory
           return import(`@/modules/${this.module}/interface/Popup.vue`).catch((e) => {
-            this.$alert.error({
+            Alert.error({
               text: "messages.error_import_module",
               error: e,
             });

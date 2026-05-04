@@ -6,7 +6,7 @@
       </div>
       <div class="loading-content">
         <div class="loading-title">LouvorJA</div>
-        <div class="loading-message">{{ $t("alert.wait") }}</div>
+        <div class="loading-message">{{ message }}</div>
       </div>
     </div>
   </v-dialog>
@@ -17,9 +17,10 @@ import { computed, getCurrentInstance } from "vue";
 
 const { proxy } = getCurrentInstance();
 
-const show = computed({
-  get: () => proxy.$appdata.get("loading"),
-  set: (v) => proxy.$appdata.set("loading", v),
+const show = computed(() => !!proxy.$appdata.get("loading"));
+const message = computed(() => {
+  const val = proxy.$appdata.get("loading");
+  return typeof val === "string" ? val : proxy.$t("alert.wait");
 });
 </script>
 

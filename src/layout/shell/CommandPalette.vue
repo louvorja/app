@@ -104,6 +104,9 @@
 <script>
 import Fuse from "fuse.js";
 import CommandRegistry from "@/helpers/CommandRegistry";
+import Database from "@/helpers/Database";
+import UserData from "@/helpers/UserData";
+import AppData from "@/helpers/AppData";
 
 const MAX_RESULTS = 50;
 
@@ -222,7 +225,7 @@ export default {
 
         // Injetar toggle-theme real com acesso ao $vuetify
         const vuetify = this.$vuetify;
-        this.allCommands = await CommandRegistry.getAll(this.$database, this.$userdata, tFn);
+        this.allCommands = await CommandRegistry.getAll(Database, UserData, tFn);
 
         // Patch: substituir run do toggle-theme para usar $vuetify local
         const themeCmd = this.allCommands.find((c) => c.id === "theme:toggle");
@@ -230,8 +233,8 @@ export default {
           themeCmd.run = () => {
             const current = vuetify.theme.global.name.value;
             vuetify.theme.global.name.value = current === "dark" ? "light" : "dark";
-            this.$userdata.set("theme", vuetify.theme.global.name.value);
-            this.$appdata.set("is_dark", vuetify.theme.global.current.value.dark);
+            UserData.set("theme", vuetify.theme.global.name.value);
+            AppData.set("is_dark", vuetify.theme.global.current.value.dark);
           };
         }
 

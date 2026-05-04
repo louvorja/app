@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex align-center justify-center py-1 px-3">
     <div class="text-right text-caption">
-      {{ $datetime.shortTime(currentTime) }}
+      {{ shortTime(currentTime) }}
     </div>
     <div class="flex-grow-1 px-2">
       <v-progress-linear
@@ -16,7 +16,7 @@
       />
     </div>
     <div class="text-left text-caption">
-      {{ $datetime.shortTime(duration) }}
+      {{ shortTime(duration) }}
     </div>
     <div
       v-if="lastSlide > 0"
@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import DateTime from "@/helpers/DateTime";
+
 export default {
   name: "PlayerProgressComponent",
   props: {
@@ -48,6 +50,11 @@ export default {
       if (this.isPaused) return "warning";
       if (this.volume <= 0) return "red";
       return "info";
+    },
+  },
+  methods: {
+    shortTime(t) {
+      return DateTime.shortTime(t);
     },
   },
 };

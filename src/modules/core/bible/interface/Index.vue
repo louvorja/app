@@ -230,6 +230,11 @@ import LSelect from "@/components/inputs/LjSelect.vue";
 import LScreenBtn from "@/components/buttons/Screen.vue";
 import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
 import Hotkeys from "@/helpers/Hotkeys";
+import Modules from "@/helpers/Modules";
+import UserData from "@/helpers/UserData";
+import AppData from "@/helpers/AppData";
+import Database from "@/helpers/Database";
+import Broadcast from "@/helpers/Broadcast";
 
 export default {
   name: "CollectionsModule",
@@ -277,17 +282,17 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     userdata() {
       return new Proxy(
         {},
         {
           get: (_, key) => {
-            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+            return UserData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            UserData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
@@ -413,14 +418,14 @@ export default {
     },
     /* METHODS OBRIGATÓRIOS - FIM */
     send(param, value) {
-      this.$appdata.set(`modules.${this.module_id}.data.${param}`, value);
+      AppData.set(`modules.${this.module_id}.data.${param}`, value);
     },
     async loadData() {
       this.loading = true;
 
       if (this.books.length <= 0) {
         this.loading_book = true;
-        this.books = await this.$database.get(`${this.$i18n.locale}_bible_book`);
+        this.books = await Database.get(`${this.$i18n.locale}_bible_book`);
         if (!this.bible.id_bible_book) {
           await this.selBook(this.books[0].id_bible_book);
         }
@@ -428,7 +433,7 @@ export default {
       }
 
       if (this.versions.length <= 0) {
-        this.versions = await this.$database.get(`${this.$i18n.locale}_bible_version`);
+        this.versions = await Database.get(`${this.$i18n.locale}_bible_version`);
         if (!this.bible.id_bible_version) {
           await this.selVersion(this.versions[0].id_bible_version);
         }
@@ -438,7 +443,7 @@ export default {
       if (bible_file != this.last_bible_file) {
         this.loading_verses = true;
         this.verses = {};
-        this.verses = await this.$database.get(bible_file);
+        this.verses = await Database.get(bible_file);
         this.last_bible_file = bible_file;
         this.loading_verses = false;
       }
@@ -540,7 +545,7 @@ export default {
       this.select_bible.scriptural_reference = this.scripturalReference(this.select_bible);
       this.select_bible.text = this.getSelectedVerses(this.select_bible.verses);
 
-      this.$broadcast.send(BROADCAST_TYPE.BIBLE_VERSE, {
+      Broadcast.send(BROADCAST_TYPE.BIBLE_VERSE, {
         text: this.select_bible.text,
         reference: this.select_bible.scriptural_reference,
         active: true,

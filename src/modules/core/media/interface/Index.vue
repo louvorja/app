@@ -5,7 +5,7 @@
     :subtitle="
       config?.subtitle + (config?.track > 0 ? ' | ' + t('general.track') + ' ' + config.track : '')
     "
-    :image="config?.image ? $path.file(config.image) : ''"
+    :image="config?.image ? pathFile(config.image) : ''"
     title-class="text-h4 font-weight-light"
     closable
     minimizable
@@ -14,8 +14,8 @@
     size="large"
     :scroll-pos="scrollPos"
     dark
-    @close="$media.close()"
-    @minimize="$media.minimize()"
+    @close="closeMedia()"
+    @minimize="minimizeMedia()"
     @resize="resize"
   >
     <template #system_buttons>
@@ -63,7 +63,7 @@
             :cover="slide.cover == true"
             :text="slide.lyric"
             :aux_text="slide.aux_lyric"
-            :image="slide.url_image ? $path.file(slide.url_image) : null"
+            :image="slide.url_image ? pathFile(slide.url_image) : null"
             :image_position="slide.image_position"
           />
           <l-fullscreen-player v-if="fullscreen" />
@@ -79,7 +79,7 @@
             :active="config.slide_index === index"
             variant="tonal"
             :height="58"
-            @click="$media.goToSlide(index)"
+            @click="goToSlide(index)"
           >
             <template #prepend>
               <v-chip class="mr-2">{{ index + 1 }}</v-chip>
@@ -99,7 +99,7 @@
 
             <img
               v-if="item.url_image"
-              :src="$path.file(item.url_image)"
+              :src="pathFile(item.url_image)"
               alt=""
               style="display: none"
             />
@@ -122,6 +122,11 @@ import Window from "@/components/Window.vue";
 import LSlide from "@/components/Slide.vue";
 import LPlayer from "@/components/Player.vue";
 import LFullscreenPlayer from "@/components/FullscreenPlayer.vue";
+import Modules from "@/helpers/Modules";
+import UserData from "@/helpers/UserData";
+import AppData from "@/helpers/AppData";
+import Media from "@/composables/useMedia";
+import Path from "@/helpers/Path";
 
 export default {
   name: "MediaComponent",
@@ -143,17 +148,17 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     userdata() {
       return new Proxy(
         {},
         {
           get: (_, key) => {
-            return this.$userdata.get(`modules.${this.module.id}.${key}`, null);
+            return UserData.get(`modules.${this.module.id}.${key}`, null);
           },
           set: (_, key, value) => {
-            this.$userdata.set(`modules.${this.module.id}.${key}`, value);
+            UserData.set(`modules.${this.module.id}.${key}`, value);
             return true;
           },
         }
@@ -161,45 +166,45 @@ export default {
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
     is_online() {
-      return this.$appdata.get("is_online");
+      return AppData.get("is_online");
     },
     loading() {
       return this.module.loading;
     },
     config() {
-      return this.$media.config();
+      return Media.config();
     },
     slide_index() {
       return this.config?.slide_index;
     },
     slides() {
-      return this.$media.slides();
+      return Media.slides();
     },
     slide() {
-      return this.$media.slide();
+      return Media.slide();
     },
     fullscreen: {
       get() {
         return this.module.config.fullscreen;
       },
       set(value) {
-        this.$media.fullscreen(value);
+        Media.fullscreen(value);
       },
     },
     lazy_load: {
       get() {
-        return this.$userdata.get("modules.media.lazy_load");
+        return UserData.get("modules.media.lazy_load");
       },
       set(value) {
-        this.$userdata.set("modules.media.lazy_load", value);
+        UserData.set("modules.media.lazy_load", value);
       },
     },
     fade_audio: {
       get() {
-        return this.$userdata.get("modules.media.fade_audio");
+        return UserData.get("modules.media.fade_audio");
       },
       set(value) {
-        this.$userdata.set("modules.media.fade_audio", value);
+        UserData.set("modules.media.fade_audio", value);
       },
     },
   },
@@ -225,6 +230,18 @@ export default {
       return this.$t(`modules.${this.module_id}.${text}`);
     },
     /* METHODS OBRIGATÓRIOS - FIM */
+    pathFile(img) {
+      return Path.file(img);
+    },
+    closeMedia() {
+      Media.close();
+    },
+    minimizeMedia() {
+      Media.minimize();
+    },
+    goToSlide(index) {
+      Media.goToSlide(index);
+    },
     resize(data) {
       this.preview_height = data.container_height;
     },

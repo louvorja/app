@@ -1,7 +1,7 @@
 <template>
   <v-table fixed-header hover loading density="compact" class="__table-data">
     <template #bottom>
-      <v-progress-linear v-if="loading" :color="$theme.primary()" indeterminate />
+      <v-progress-linear v-if="loading" :color="primaryColor" indeterminate />
       <v-alert
         v-if="error"
         type="error"
@@ -16,6 +16,10 @@
 </template>
 
 <script>
+import Database from "@/helpers/Database";
+import Strings from "@/helpers/Strings";
+import AppData from "@/helpers/AppData";
+
 // Debounce leve: aguarda `ms` ms de inatividade antes de executar `fn`.
 function debounce(fn, ms = 300) {
   let timer;
@@ -47,6 +51,11 @@ export default {
     last_filter: {},
     loading: true,
   }),
+  computed: {
+    primaryColor() {
+      return AppData.get("is_dark") ? undefined : "primary";
+    },
+  },
   watch: {
     async file() {
       await this.loadData();
@@ -98,20 +107,20 @@ export default {
       this.data = [];
       this.loading = true;
 
-      this.all_data = await this.$database.get(this.file);
+      this.all_data = await Database.get(this.file);
 
       if (this.all_data == null) {
         this.error = this.$t("components.datatable.alerts.not_found");
       }
 
       if (this.sort_by) {
-        this.all_data.sort((a, b) => this.$string.sort(a[this.sort_by], b[this.sort_by]));
+        this.all_data.sort((a, b) => Strings.sort(a[this.sort_by], b[this.sort_by]));
       }
       this.filterData();
     },
     filterData() {
       this.limit = 0;
-      const value = this.$string.clean(this.search);
+      const value = Strings.clean(this.search);
 
       let searchable = this.searchable_fields
         ? Object.keys(this.searchable_fields).filter((key) => this.searchable_fields[key] === true)
@@ -135,7 +144,7 @@ export default {
               if (!isNaN(item[key]) && !isNaN(value)) {
                 return Number(item[key]) === Number(value);
               } else if (isNaN(item[key])) {
-                return this.$string.clean(item[key]).includes(value);
+                return Strings.clean(item[key]).includes(value);
               } else {
                 return false;
               }

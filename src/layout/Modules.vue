@@ -1,5 +1,7 @@
 <template>
   <template v-if="import_modules">
+    <!-- Marcador para testes E2E aguardarem o boot dos módulos (vide liturgy.spec.js) -->
+    <span data-testid="modules-ready" aria-hidden="true" style="display: none" />
     <component :is="getComponent(module.id)" v-for="module in modules" :key="module.id" />
   </template>
 </template>
@@ -9,6 +11,11 @@ import { defineAsyncComponent, computed, getCurrentInstance } from "vue";
 
 const { proxy } = getCurrentInstance();
 
+// Glob estático — Vite analisa em build-time e gera importações individuais.
+// Substitui template literals variáveis que falham no headless Chromium (Playwright).
+const _globCore = import.meta.glob("@/modules/core/*/interface/Index.vue");
+const _globBase = import.meta.glob("@/modules/*/interface/Index.vue");
+
 // Cache de async components por moduleId. Sem isto, cada render de Modules.vue
 // criaria um defineAsyncComponent novo, fazendo Vue desmontar e remontar todos
 // os módulos a cada interação — o que quebra o estado interno e causa erros de
@@ -17,10 +24,13 @@ const _componentCache = new Map();
 
 function buildAsyncComponent(moduleId) {
   return defineAsyncComponent({
-    loader: () =>
-      import(`@/modules/core/${moduleId}/interface/Index.vue`).catch(
-        () => import(`@/modules/${moduleId}/interface/Index.vue`)
-      ),
+    loader: () => {
+      const coreKey = `/src/modules/core/${moduleId}/interface/Index.vue`;
+      const baseKey = `/src/modules/${moduleId}/interface/Index.vue`;
+      if (_globCore[coreKey]) return _globCore[coreKey]();
+      if (_globBase[baseKey]) return _globBase[baseKey]();
+      return Promise.reject(new Error(`[Modules] módulo não encontrado: ${moduleId}`));
+    },
     onError(err, retry, fail) {
       console.error(`[Modules] erro ao carregar "${moduleId}":`, err);
       fail();

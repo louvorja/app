@@ -1,7 +1,7 @@
 <template>
   <ModuleContainer ref="moduleContainer" :manifest="manifest">
-    <template v-slot:header>
-      <v-tabs v-model="tab" align-tabs="center" :color="$theme.primary()">
+    <template #header>
+      <v-tabs v-model="tab" align-tabs="center" :color="primaryColor">
         <v-tab :value="1">{{ t("modules") }}</v-tab>
         <v-tab :value="2">{{ t("global-variables") }}</v-tab>
         <v-tab :value="3">{{ t("user-variables") }}</v-tab>
@@ -13,8 +13,8 @@
       <v-tabs-window-item v-for="n in 4" :key="n" :value="n">
         <v-container fluid>
           <ModuleList v-if="n == 1" />
-          <VueJsonPretty v-if="n == 2" :data="$appdata.get()" />
-          <VueJsonPretty v-if="n == 3" :data="$userdata.get()" />
+          <VueJsonPretty v-if="n == 2" :data="allAppData()" />
+          <VueJsonPretty v-if="n == 3" :data="allUserData()" />
           <VueJsonPretty v-if="n == 4" :data="$vuetify" />
         </v-container>
       </v-tabs-window-item>
@@ -46,11 +46,16 @@ export default {
 <script setup>
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import AppData from "@/helpers/AppData";
+import UserData from "@/helpers/UserData";
 const moduleContainer = ref(null);
 const t = (key) => {
   return moduleContainer.value?.t(key) || key;
 };
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
+const allAppData = () => AppData.get();
+const allUserData = () => UserData.get();
 </script>
 <!-- ########################################################### -->
 <!-- ########################################################### -->

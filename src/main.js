@@ -40,34 +40,6 @@ import Shortcuts from "@/helpers/Shortcuts";
 import Hotkeys from "@/helpers/Hotkeys";
 import { useShell } from "@/composables/useShell";
 
-Object.assign(app.config.globalProperties, {
-  $userdata: UserData,
-  $appdata: AppData,
-  $modules: Modules,
-  $dev: Dev,
-  $string: Strings,
-  $datetime: DateTime,
-  $path: Path,
-
-  $media: Media,
-
-  $alert: Alert,
-  $popup: Popup,
-  $database: Database,
-  $favorites: Favorites,
-  $history: History,
-  $broadcast: Broadcast,
-  $liturgy: Liturgy,
-  $platform: Platform,
-  $shortcuts: Shortcuts,
-  $hotkeys: Hotkeys,
-
-  // Alias de cor primária para componentes legados que usam $theme.primary()
-  $theme: {
-    primary: () => (AppData.get("is_dark") ? undefined : "primary"),
-  },
-});
-
 app.use(router);
 app.use(vuetify);
 app.use(store);

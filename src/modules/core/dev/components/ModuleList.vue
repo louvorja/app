@@ -51,11 +51,13 @@
 </template>
 
 <script>
+import AppData from "@/helpers/AppData";
+
 export default {
   name: "ModuleList",
   computed: {
     modules() {
-      return this.$appdata.get("modules");
+      return AppData.get("modules");
     },
   },
 };

@@ -106,6 +106,8 @@
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
+import Modules from "@/helpers/Modules";
+import Broadcast from "@/helpers/Broadcast";
 import { useLiturgyPersistence } from "../composables/useLiturgyPersistence";
 import { useLiturgyItems, COLORS, DEFAULT_COLOR } from "../composables/useLiturgyItems";
 import { useLiturgyTimer } from "../composables/useLiturgyTimer";
@@ -133,14 +135,14 @@ export default {
   },
   computed: {
     module() {
-      return this.$modules.get("liturgy");
+      return Modules.get("liturgy");
     },
   },
   async mounted() {
     await this.loadMusicsList();
-    this._broadcastUnlisten = this.$broadcast.listen((data) => {
+    this._broadcastUnlisten = Broadcast.listen((data) => {
       if (data?.type === BROADCAST_TYPE.LITURGY_NEW_ANNOTATION) {
-        this.$modules.open("liturgy");
+        Modules.open("liturgy");
         this.$nextTick(() => {
           this.openItemDialog();
           this.form.tipo = "anotacao";
@@ -159,7 +161,7 @@ export default {
     },
     closeModule() {
       this.stopTimer();
-      this.$modules.close("liturgy");
+      Modules.close("liturgy");
     },
     onDragLeave(e) {
       if (!this.$el.contains(e.relatedTarget)) this.isDraggingOver = false;

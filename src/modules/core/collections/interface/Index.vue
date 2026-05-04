@@ -7,7 +7,7 @@
             <template #activator="{ props }">
               <v-btn icon="$menu" v-bind="props" />
             </template>
-            <v-list :color="$theme.primary()" class="d-flex flex-column h-100">
+            <v-list :color="primaryColor" class="d-flex flex-column h-100">
               <v-list-item
                 v-for="category in categories"
                 :key="category.id_category"
@@ -42,13 +42,8 @@
     </template>
 
     <template #left>
-      <v-list
-        v-if="!compact"
-        :color="$theme.primary()"
-        :width="200"
-        class="d-flex flex-column h-100"
-      >
-        <v-progress-linear v-if="loading" :color="$theme.primary()" indeterminate />
+      <v-list v-if="!compact" :color="primaryColor" :width="200" class="d-flex flex-column h-100">
+        <v-progress-linear v-if="loading" :color="primaryColor" indeterminate />
         <v-list-item
           v-for="category in categories"
           :key="category.id_category"
@@ -88,7 +83,7 @@
             tile
             rounded="0"
           >
-            <v-img :src="$path.file(album.url_image)" />
+            <v-img :src="pathFile(album.url_image)" />
           </v-avatar>
           <div class="flex-grow-1 d-flex flex-column">
             <div class="text-h6 pt-2" v-text="album.name" />
@@ -102,6 +97,11 @@
 </template>
 
 <script>
+import Strings from "@/helpers/Strings";
+import Database from "@/helpers/Database";
+import Modules from "@/helpers/Modules";
+import Media from "@/composables/useMedia";
+
 export default {
   name: manifest.id,
   data: () => ({
@@ -128,7 +128,7 @@ export default {
               .reduce((acc, category) => acc.concat(category.albums), [])
               .map((album) => [album.id_album, { ...album, subtitle: null }])
           ).values(),
-        ].sort((a, b) => this.$string.sort(a.name, b.name));
+        ].sort((a, b) => Strings.sort(a.name, b.name));
       }
 
       return this.categories
@@ -148,10 +148,10 @@ export default {
       this.categories = [];
       this.loading = true;
 
-      this.categories = await this.$database.get(`${this.$i18n.locale}_categories`);
+      this.categories = await Database.get(`${this.$i18n.locale}_categories`);
 
       if (this.categories == null) {
-        this.$modules.close(this.module_id);
+        Modules.close(manifest.id);
         return;
       }
 
@@ -169,7 +169,7 @@ export default {
       this.id_category = id;
     },
     openAlbum(id_album) {
-      this.$media.openAlbum(id_album);
+      Media.openAlbum(id_album);
     },
     async show(value) {
       if (value && this.lang != this.$i18n.locale) {
@@ -192,11 +192,15 @@ export default {
 <script setup>
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import AppData from "@/helpers/AppData";
+import Path from "@/helpers/Path";
 const moduleContainer = ref(null);
 const t = (key) => {
   return moduleContainer.value?.t(key) || key;
 };
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
+const pathFile = (img) => Path.file(img);
 </script>
 <!-- ########################################################### -->
 <!-- ########################################################### -->

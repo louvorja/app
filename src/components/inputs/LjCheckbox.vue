@@ -2,7 +2,7 @@
   <v-switch
     v-if="is_switch"
     v-model="input"
-    :color="$theme.primary()"
+    :color="primaryColor"
     :disabled="disabled"
     :label="label"
     density="compact"
@@ -11,7 +11,7 @@
   <v-checkbox
     v-else
     v-model="input"
-    :color="$theme.primary()"
+    :color="primaryColor"
     :disabled="disabled"
     :label="label"
     density="compact"
@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import AppData from "@/helpers/AppData";
+
 export default {
   name: "CheckBoxComponent",
   props: {
@@ -39,6 +41,9 @@ export default {
     },
     is_switch() {
       return this.switch;
+    },
+    primaryColor() {
+      return AppData.get("is_dark") ? undefined : "primary";
     },
   },
 };

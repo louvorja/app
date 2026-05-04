@@ -175,7 +175,13 @@ liturgy/
     - `useLiturgyItems.js`: adicionado `setFormField(field, value)` exposto e passado como prop ao form.
     - CSS de dialog/form movido para LiturgyItemForm.vue; Index.vue retém apenas `.lit-input`, `.lit-hint` (usados no diálogo de agendados ainda em Index.vue).
     - Index.vue: 1302 → 960 linhas (−342 linhas).
-  - 017e: _pendente_ (LiturgyList + cleanup Index.vue < 200 linhas)
+  - 017e: ✅ `LiturgyList.vue`, `LiturgyToolbar.vue`, `LiturgySchedules.vue` extraídos:
+    - `LiturgyToolbar.vue` (292 linhas): header com week-picker, LiturgyTimer, dropdown, lock, agendados, import/export, clear, close. Props data + function props para todas as ações.
+    - `LiturgyList.vue` (310 linhas): corpo (list-area + draggable + LiturgyItem + empty state) + notes panel + footer. Props data + function props.
+    - `LiturgySchedules.vue` (372 linhas): dialog de itens agendados (antes inline no Index.vue). `editingCatId`/`editingCatName` como estado local; `saveCategoryName(id, name)` recebe nome como parâmetro.
+    - `useLiturgyPersistence.js`: adicionado `setActiveCatId`, `setNoteDayIndex`, `toggleNotes`; `saveCategoryName` aceita `name` como segundo parâmetro.
+    - `useLiturgyItems.js`: adicionado `toggleMenuOpen`, `closeMenu`.
+    - `Index.vue`: 958 → **195 linhas** (< 200 ✅); setup() usa spread `...persist, ...litItems, ...timer`; CSS restante: apenas `.liturgy-page` e `.liturgy-drop-overlay`.
 - **Surpresas:**
   - `$userdata.set/get` usa Vuex via `$appdata`, tornando `$liturgy.list()` reativo — sem necessidade de `onSuccess` callback em `onFileLoad`.
   - `useLiturgyItems` precisou de acesso a `$platform` via `getCurrentInstance()` para `chooseFolder/chooseFile/openFile` — padrão adotado nos demais composables de módulo.

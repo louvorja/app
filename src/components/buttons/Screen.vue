@@ -23,6 +23,9 @@
 </template>
 
 <script>
+import AppData from "@/helpers/AppData";
+import Popup from "@/helpers/Popup";
+
 export default {
   name: "ButtonScreenComponent",
   props: {
@@ -41,13 +44,13 @@ export default {
   },
   computed: {
     is_mobile: function () {
-      return this.$appdata.get("is_mobile");
+      return AppData.get("is_mobile");
     },
     is_popup_opened: function () {
-      return !!this.$appdata.get("popup");
+      return !!AppData.get("popup");
     },
     popup_module: function () {
-      return this.$appdata.get("popup_module");
+      return AppData.get("popup_module");
     },
     is_selected: function () {
       return this.is_popup_opened && this.popup_module == this.module;
@@ -56,13 +59,13 @@ export default {
   methods: {
     popup: function () {
       if (this.is_selected) {
-        this.$popup.exit();
+        Popup.exit();
       } else {
-        this.$popup.open(this.module);
+        Popup.open(this.module);
       }
     },
     close: function () {
-      this.$popup.close();
+      Popup.close();
     },
   },
 };

@@ -65,14 +65,18 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in data.data" :key="item.id_music">
+        <tr
+          v-for="item in data.data"
+          :key="item.id_music"
+          :data-testid="`music-row-${item.id_music}`"
+        >
           <td>
             {{ item.name }}
             <div v-if="compact" class="pb-1">
               <v-chip
                 v-for="album in item.albums"
                 :key="album.id_album"
-                :color="$theme.primary()"
+                :color="primaryColor"
                 size="x-small"
                 @click="openAlbum(album.id_album)"
               >
@@ -84,14 +88,14 @@
             <v-chip
               v-for="album in item.albums"
               :key="album.id_album"
-              :color="$theme.primary()"
+              :color="primaryColor"
               density="compact"
               @click="openAlbum(album.id_album)"
             >
               {{ album.name }}
             </v-chip>
           </td>
-          <td class="text-right">{{ $datetime.shortTime(item.duration) }}</td>
+          <td class="text-right">{{ shortTime(item.duration) }}</td>
           <td>
             <div class="d-flex justify-end">
               <MusicMenuTable
@@ -132,7 +136,11 @@
 /* ########################################################### */
 /* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
-import { ref, computed, getCurrentInstance } from "vue";
+import { ref, computed } from "vue";
+import { useDisplay } from "vuetify";
+import Media from "@/composables/useMedia";
+import AppData from "@/helpers/AppData";
+import DateTime from "@/helpers/DateTime";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 const moduleContainer = ref(null);
@@ -155,7 +163,7 @@ import LetterPaginate from "@/components/LetterPagination.vue";
 /* -------------------------------------------------- */
 /* STATE                                              */
 /* -------------------------------------------------- */
-const { proxy } = getCurrentInstance();
+const { width: displayWidth } = useDisplay();
 
 const search = ref("");
 const data = ref([]);
@@ -195,9 +203,9 @@ const classform = computed(() => ({
   group_item: "flex-shrink-1 flex-grow-1 d-flex flex-wrap justify-space-around",
 }));
 
-const compact = computed(() => {
-  return proxy.$vuetify.display.width <= 800;
-});
+const compact = computed(() => displayWidth.value <= 800);
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
+const shortTime = (t) => DateTime.shortTime(t);
 
 /* -------------------------------------------------- */
 /* METHODS                                            */
@@ -211,7 +219,7 @@ function hasScroll(value) {
 }
 
 function openAlbum(id_album) {
-  proxy.$media.openAlbum(id_album);
+  Media.openAlbum(id_album);
 }
 
 function close() {

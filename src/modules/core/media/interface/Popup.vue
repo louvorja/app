@@ -5,7 +5,7 @@
     :cover="slide.cover == true"
     :text="slide.lyric"
     :aux_text="slide.aux_lyric"
-    :image="slide.url_image ? $path.file(slide.url_image) : null"
+    :image="slide.url_image ? pathFile(slide.url_image) : null"
     :image_position="slide.image_position"
   />
 </template>
@@ -14,6 +14,9 @@
 import manifest from "../manifest.json";
 
 import LSlide from "@/components/Slide.vue";
+import Modules from "@/helpers/Modules";
+import Media from "@/composables/useMedia";
+import Path from "@/helpers/Path";
 
 export default {
   name: "PopupMediaPage",
@@ -27,17 +30,22 @@ export default {
       return manifest.id;
     },
     module() {
-      return this.$modules.get(this.module_id);
+      return Modules.get(this.module_id);
     },
     /* COMPUTEDS OBRIGATÓRIAS - FIM */
     config() {
-      return this.$media.config();
+      return Media.config();
     },
     slide_index() {
       return this.config.slide_index;
     },
     slide() {
-      return this.$media.slide();
+      return Media.slide();
+    },
+  },
+  methods: {
+    pathFile(img) {
+      return Path.file(img);
     },
   },
 };
