@@ -15,7 +15,9 @@
   </v-table>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 import Database from "@/helpers/Database";
 import Strings from "@/helpers/Strings";
 import AppData from "@/helpers/AppData";
@@ -29,181 +31,186 @@ function debounce(fn, ms = 300) {
   };
 }
 
-export default {
-  name: "DataTableComponent",
-  props: {
-    modelValue: Object,
-    file: String,
-    search: String,
-    scroll: { type: Object, default: () => ({}) },
-    has_scroll: Boolean,
-    searchable_fields: Object,
-    filter: Object,
-    letter: String,
-    sort_by: String,
-  },
-  data: () => ({
-    all_data: [],
-    filter_data: [],
-    data: [],
-    limit: 0,
-    error: null,
-    last_filter: {},
-    loading: true,
-  }),
-  computed: {
-    primaryColor() {
-      return AppData.get("is_dark") ? undefined : "primary";
-    },
-  },
-  watch: {
-    async file() {
-      await this.loadData();
-    },
-    search() {
-      this._debouncedFilterData();
-    },
-    searchable_fields() {
-      this.compareFilterData();
-    },
-    filter() {
-      this.compareFilterData();
-    },
-    letter() {
-      this.compareFilterData();
-    },
-    async data() {
-      this.$emit("update:modelValue", {
-        total_count: this.all_data.length,
-        filter_count: this.filter_data.length,
-        count: this.data.length,
-        data: this.data,
-      });
-    },
-    async scroll() {
-      if (this.scroll.scroll_bottom <= 50 && this.data.length < this.filter_data.length) {
-        this.paginateData();
-      }
-    },
-  },
-  created() {
-    // Cria versão com debounce de filterData para o watcher de search.
-    // O v-model do Search.vue continua atualizando em tempo real (UI responsiva),
-    // mas o filtro real só dispara após 300ms de inatividade.
-    this._debouncedFilterData = debounce(function () {
-      this.filterData();
-    }, 300);
-  },
-  async mounted() {
-    await this.loadData();
-  },
-  beforeUnmount() {
-    if (this._paginateRaf) cancelAnimationFrame(this._paginateRaf);
-  },
-  methods: {
-    async loadData() {
-      this.all_data = [];
-      this.filter_data = [];
-      this.data = [];
-      this.loading = true;
+const props = defineProps({
+  modelValue: Object,
+  file: String,
+  search: String,
+  scroll: { type: Object, default: () => ({}) },
+  has_scroll: Boolean,
+  searchable_fields: Object,
+  filter: Object,
+  letter: String,
+  sort_by: String,
+});
 
-      this.all_data = await Database.get(this.file);
+const emit = defineEmits(["update:modelValue"]);
 
-      if (this.all_data == null) {
-        this.error = this.$t("components.datatable.alerts.not_found");
-      }
+const { t } = useI18n();
 
-      if (this.sort_by) {
-        this.all_data.sort((a, b) => Strings.sort(a[this.sort_by], b[this.sort_by]));
-      }
-      this.filterData();
-    },
-    filterData() {
-      this.limit = 0;
-      const value = Strings.clean(this.search);
+const all_data = ref([]);
+const filter_data = ref([]);
+const data = ref([]);
+const limit = ref(0);
+const error = ref(null);
+const last_filter = ref({});
+const loading = ref(true);
+let _paginateRaf = null;
 
-      let searchable = this.searchable_fields
-        ? Object.keys(this.searchable_fields).filter((key) => this.searchable_fields[key] === true)
-        : [];
-      let filter = this.filter
-        ? Object.keys(this.filter).filter((key) => this.filter[key] === true)
-        : [];
-      this.filter_data = this.all_data
-        .filter((item) => {
-          const searchableCondition =
-            searchable.length === 0 ||
-            value == "" ||
-            searchable.some((key) => {
-              if (key === "track" && item.albums) {
-                return item.albums.some((album) => {
-                  const isHymnal = album.name && album.type == "hymnal";
-                  return isHymnal && album.pivot && Number(album.pivot.track) === Number(value);
-                });
-              }
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
 
-              if (!isNaN(item[key]) && !isNaN(value)) {
-                return Number(item[key]) === Number(value);
-              } else if (isNaN(item[key])) {
-                return Strings.clean(item[key]).includes(value);
-              } else {
-                return false;
-              }
+// Versão com debounce de filterData para o watcher de search.
+const debouncedFilterData = debounce(function () {
+  filterData();
+}, 300);
+
+watch(
+  () => props.file,
+  async () => {
+    await loadData();
+  }
+);
+
+watch(
+  () => props.search,
+  () => {
+    debouncedFilterData();
+  }
+);
+
+watch(
+  () => props.searchable_fields,
+  () => compareFilterData()
+);
+watch(
+  () => props.filter,
+  () => compareFilterData()
+);
+watch(
+  () => props.letter,
+  () => compareFilterData()
+);
+
+watch(data, () => {
+  emit("update:modelValue", {
+    total_count: all_data.value.length,
+    filter_count: filter_data.value.length,
+    count: data.value.length,
+    data: data.value,
+  });
+});
+
+watch(
+  () => props.scroll,
+  () => {
+    if (props.scroll.scroll_bottom <= 50 && data.value.length < filter_data.value.length) {
+      paginateData();
+    }
+  }
+);
+
+onMounted(async () => {
+  await loadData();
+});
+
+onBeforeUnmount(() => {
+  if (_paginateRaf) cancelAnimationFrame(_paginateRaf);
+});
+
+async function loadData() {
+  all_data.value = [];
+  filter_data.value = [];
+  data.value = [];
+  loading.value = true;
+
+  all_data.value = await Database.get(props.file);
+
+  if (all_data.value == null) {
+    error.value = t("components.datatable.alerts.not_found");
+  }
+
+  if (props.sort_by) {
+    all_data.value.sort((a, b) => Strings.sort(a[props.sort_by], b[props.sort_by]));
+  }
+  filterData();
+}
+
+function filterData() {
+  limit.value = 0;
+  const value = Strings.clean(props.search);
+
+  const searchable = props.searchable_fields
+    ? Object.keys(props.searchable_fields).filter((key) => props.searchable_fields[key] === true)
+    : [];
+  const filter = props.filter
+    ? Object.keys(props.filter).filter((key) => props.filter[key] === true)
+    : [];
+
+  filter_data.value = all_data.value
+    .filter((item) => {
+      const searchableCondition =
+        searchable.length === 0 ||
+        value == "" ||
+        searchable.some((key) => {
+          if (key === "track" && item.albums) {
+            return item.albums.some((album) => {
+              const isHymnal = album.name && album.type == "hymnal";
+              return isHymnal && album.pivot && Number(album.pivot.track) === Number(value);
             });
+          }
 
-          const filterCondition =
-            filter.length === 0 || filter.some((key) => item[key] === true || item[key] === 1);
-
-          const initialLetter =
-            this.letter === "" ||
-            (this.letter === "#"
-              ? /^[^a-zA-Z]/.test(item.name.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
-              : item.name
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .startsWith(this.letter));
-
-          return searchableCondition && filterCondition && initialLetter;
-        })
-        .slice();
-
-      this.paginateData();
-    },
-    paginateData() {
-      // Página maior reduz drasticamente o número de re-renders no boot
-      // (antes: 10/100ms = 70 ciclos para 700 itens). Agora: 100 por chunk.
-      const PAGE_SIZE = this.limit === 0 ? 100 : 100;
-      this.limit += PAGE_SIZE;
-      this.data = this.filter_data.slice(0, this.limit);
-      this.loading = false;
-
-      // Continua paginando em background apenas se ainda há itens não exibidos
-      // E o componente ainda não detectou scroll do usuário (lazy load).
-      // Usa rAF em vez de setTimeout para não bloquear UI thread.
-      if (!this.has_scroll && this.data.length < this.filter_data.length) {
-        if (this._paginateRaf) cancelAnimationFrame(this._paginateRaf);
-        this._paginateRaf = requestAnimationFrame(() => {
-          this.paginateData();
+          if (!isNaN(item[key]) && !isNaN(value)) {
+            return Number(item[key]) === Number(value);
+          } else if (isNaN(item[key])) {
+            return Strings.clean(item[key]).includes(value);
+          } else {
+            return false;
+          }
         });
-      }
-    },
 
-    compareFilterData() {
-      let filter = {
-        searchable_fields: this.searchable_fields,
-        filter: this.filter,
-        letter: this.letter,
-      };
+      const filterCondition =
+        filter.length === 0 || filter.some((key) => item[key] === true || item[key] === 1);
 
-      if (JSON.stringify(filter) === JSON.stringify(this.last_filter)) {
-        return;
-      }
+      const initialLetter =
+        props.letter === "" ||
+        (props.letter === "#"
+          ? /^[^a-zA-Z]/.test(item.name.normalize("NFD").replace(/[̀-ͯ]/g, ""))
+          : item.name.normalize("NFD").replace(/[̀-ͯ]/g, "").startsWith(props.letter));
 
-      this.last_filter = filter;
+      return searchableCondition && filterCondition && initialLetter;
+    })
+    .slice();
 
-      this.filterData();
-    },
-  },
-};
+  paginateData();
+}
+
+function paginateData() {
+  const PAGE_SIZE = 100;
+  limit.value += PAGE_SIZE;
+  data.value = filter_data.value.slice(0, limit.value);
+  loading.value = false;
+
+  if (!props.has_scroll && data.value.length < filter_data.value.length) {
+    if (_paginateRaf) cancelAnimationFrame(_paginateRaf);
+    _paginateRaf = requestAnimationFrame(() => {
+      paginateData();
+    });
+  }
+}
+
+function compareFilterData() {
+  const filter = {
+    searchable_fields: props.searchable_fields,
+    filter: props.filter,
+    letter: props.letter,
+  };
+
+  if (JSON.stringify(filter) === JSON.stringify(last_filter.value)) {
+    return;
+  }
+
+  last_filter.value = filter;
+  filterData();
+}
 </script>
 
 <style>

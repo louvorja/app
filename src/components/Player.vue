@@ -44,7 +44,7 @@
   </v-card>
 </template>
 
-<script>
+<script setup>
 import { computed } from "vue";
 import PlayerControls from "@/components/PlayerControls.vue";
 import PlayerProgress from "@/components/PlayerProgress.vue";
@@ -52,23 +52,27 @@ import PlayerGauge from "@/components/PlayerGauge.vue";
 import PlayerActions from "@/components/PlayerActions.vue";
 import { usePlayerState } from "@/composables/usePlayerState";
 
-export default {
-  name: "PlayerComponent",
-  components: {
-    PlayerControls,
-    PlayerProgress,
-    PlayerGauge,
-    PlayerActions,
-  },
-  props: {
-    location: { type: String, default: "" },
-  },
-  setup() {
-    const state = usePlayerState();
-    const compactButtons = computed(() =>
-      state.buttons.value.filter((item) => item.compact === true)
-    );
-    return { ...state, compactButtons };
-  },
-};
+defineProps({
+  location: { type: String, default: "" },
+});
+
+const {
+  media,
+  audio,
+  buttons,
+  compact,
+  mode,
+  menu_modes,
+  slides,
+  volume_icon,
+  seekToProgress,
+  goToSlide,
+  maximize,
+  fullscreen,
+  close,
+  toggleVolume,
+  setVolume,
+} = usePlayerState();
+
+const compactButtons = computed(() => buttons.value.filter((item) => item.compact === true));
 </script>

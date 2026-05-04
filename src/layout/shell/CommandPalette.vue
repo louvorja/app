@@ -101,7 +101,10 @@
   </v-dialog>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
+import { useTheme } from "vuetify";
 import Fuse from "fuse.js";
 import CommandRegistry from "@/helpers/CommandRegistry";
 import Database from "@/helpers/Database";
@@ -110,224 +113,206 @@ import AppData from "@/helpers/AppData";
 
 const MAX_RESULTS = 50;
 
-export default {
-  name: "CommandPalette",
+const props = defineProps({
+  modelValue: { type: Boolean, default: false },
+});
 
-  props: {
-    modelValue: { type: Boolean, default: false },
-  },
+const emit = defineEmits(["update:modelValue"]);
 
-  emits: ["update:modelValue"],
+const { t } = useI18n();
+const theme = useTheme();
 
-  data: () => ({
-    query: "",
-    selectedIndex: 0,
-    allCommands: [],
-    fuse: null,
-    loading: false,
-  }),
+const searchInput = ref(null);
+const resultsContainer = ref(null);
+const query = ref("");
+const selectedIndex = ref(0);
+const allCommands = ref([]);
+const fuse = ref(null);
+const loading = ref(false);
 
-  computed: {
-    open: {
-      get() {
-        return this.modelValue;
-      },
-      set(v) {
-        this.$emit("update:modelValue", v);
-      },
-    },
+const open = computed({
+  get: () => props.modelValue,
+  set: (v) => emit("update:modelValue", v),
+});
 
-    results() {
-      if (!this.query.trim()) {
-        // Sem query: mostrar histórico recente + favoritos primeiro, depois ações + módulos
-        const recents = this.allCommands.filter((c) => c.category === "recent").slice(0, 5);
-        const favs = this.allCommands.filter((c) => c.category === "favorite").slice(0, 5);
-        const actions = this.allCommands.filter((c) => c.category === "action").slice(0, 8);
-        const modules = this.allCommands.filter((c) => c.category === "module");
-        return [...recents, ...favs, ...actions, ...modules].slice(0, MAX_RESULTS);
-      }
+const results = computed(() => {
+  if (!query.value.trim()) {
+    const recents = allCommands.value.filter((c) => c.category === "recent").slice(0, 5);
+    const favs = allCommands.value.filter((c) => c.category === "favorite").slice(0, 5);
+    const actions = allCommands.value.filter((c) => c.category === "action").slice(0, 8);
+    const modules = allCommands.value.filter((c) => c.category === "module");
+    return [...recents, ...favs, ...actions, ...modules].slice(0, MAX_RESULTS);
+  }
 
-      if (!this.fuse) return [];
+  if (!fuse.value) return [];
 
-      // Detectar busca por número: "215" → busca música ID 215 primeiro
-      const numMatch = this.query.trim().match(/^\d+$/);
-      if (numMatch) {
-        const num = parseInt(numMatch[0], 10);
-        const exactHits = this.allCommands.filter(
-          (c) => c.category === "music" && c.id === `music:${num}`
-        );
-        if (exactHits.length > 0) {
-          const fuseHits = this.fuse
-            .search(this.query, { limit: MAX_RESULTS - exactHits.length })
-            .map((r) => r.item)
-            .filter((i) => !exactHits.includes(i));
-          return [...exactHits, ...fuseHits];
-        }
-      }
+  const numMatch = query.value.trim().match(/^\d+$/);
+  if (numMatch) {
+    const num = parseInt(numMatch[0], 10);
+    const exactHits = allCommands.value.filter(
+      (c) => c.category === "music" && c.id === `music:${num}`
+    );
+    if (exactHits.length > 0) {
+      const fuseHits = fuse.value
+        .search(query.value, { limit: MAX_RESULTS - exactHits.length })
+        .map((r) => r.item)
+        .filter((i) => !exactHits.includes(i));
+      return [...exactHits, ...fuseHits];
+    }
+  }
 
-      return this.fuse.search(this.query, { limit: MAX_RESULTS }).map((r) => r.item);
-    },
+  return fuse.value.search(query.value, { limit: MAX_RESULTS }).map((r) => r.item);
+});
 
-    groupedResults() {
-      // Manter ordem de categorias consistente
-      const ORDER = ["recent", "favorite", "action", "module", "music", "hymn", "bible"];
-      const groups = {};
-      this.results.forEach((item) => {
-        const cat = item.category || "action";
-        if (!groups[cat]) groups[cat] = [];
-        groups[cat].push(item);
-      });
-      // Reordenar chaves
-      const sorted = {};
-      ORDER.forEach((k) => {
-        if (groups[k]) sorted[k] = groups[k];
-      });
-      Object.keys(groups).forEach((k) => {
-        if (!sorted[k]) sorted[k] = groups[k];
-      });
-      return sorted;
-    },
+const groupedResults = computed(() => {
+  const ORDER = ["recent", "favorite", "action", "module", "music", "hymn", "bible"];
+  const groups = {};
+  results.value.forEach((item) => {
+    const cat = item.category || "action";
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(item);
+  });
+  const sorted = {};
+  ORDER.forEach((k) => {
+    if (groups[k]) sorted[k] = groups[k];
+  });
+  Object.keys(groups).forEach((k) => {
+    if (!sorted[k]) sorted[k] = groups[k];
+  });
+  return sorted;
+});
 
-    activeItem() {
-      return this.results[this.selectedIndex] || null;
-    },
-  },
+const activeItem = computed(() => results.value[selectedIndex.value] || null);
 
-  watch: {
-    open(v) {
-      if (v) {
-        this.query = "";
-        this.selectedIndex = 0;
-        this.loadCommands();
-        this.$nextTick(() => this.$refs.searchInput?.focus());
-      }
-    },
-    query() {
-      this.selectedIndex = 0;
-    },
-    selectedIndex() {
-      this.$nextTick(() => this.scrollIntoView());
-    },
-  },
+watch(open, (v) => {
+  if (v) {
+    query.value = "";
+    selectedIndex.value = 0;
+    loadCommands();
+    nextTick(() => searchInput.value?.focus());
+  }
+});
 
-  methods: {
-    async loadCommands() {
-      if (this.loading) return;
-      this.loading = true;
+watch(query, () => {
+  selectedIndex.value = 0;
+});
+
+watch(selectedIndex, () => {
+  nextTick(() => scrollIntoView());
+});
+
+async function loadCommands() {
+  if (loading.value) return;
+  loading.value = true;
+  try {
+    const tFn = (key) => {
       try {
-        const tFn = (key) => {
-          try {
-            return this.$t(key);
-          } catch {
-            return key;
-          }
-        };
-
-        // Injetar toggle-theme real com acesso ao $vuetify
-        const vuetify = this.$vuetify;
-        this.allCommands = await CommandRegistry.getAll(Database, UserData, tFn);
-
-        // Patch: substituir run do toggle-theme para usar $vuetify local
-        const themeCmd = this.allCommands.find((c) => c.id === "theme:toggle");
-        if (themeCmd && vuetify) {
-          themeCmd.run = () => {
-            const current = vuetify.theme.global.name.value;
-            vuetify.theme.global.name.value = current === "dark" ? "light" : "dark";
-            UserData.set("theme", vuetify.theme.global.name.value);
-            AppData.set("is_dark", vuetify.theme.global.current.value.dark);
-          };
-        }
-
-        this.fuse = new Fuse(this.allCommands, {
-          keys: [
-            { name: "title", weight: 2 },
-            { name: "keywords", weight: 1 },
-            { name: "subtitle", weight: 0.5 },
-          ],
-          threshold: 0.3,
-          ignoreLocation: true,
-          minMatchCharLength: 1,
-        });
-      } catch (e) {
-        console.error("[CommandPalette] Falha ao carregar:", e);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    isSelected(item) {
-      return this.activeItem === item;
-    },
-
-    setActive(item) {
-      const idx = this.results.indexOf(item);
-      if (idx >= 0) this.selectedIndex = idx;
-    },
-
-    moveDown() {
-      this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-    },
-
-    moveUp() {
-      this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-    },
-
-    executeSelected() {
-      if (this.activeItem) this.execute(this.activeItem);
-    },
-
-    execute(item) {
-      try {
-        item.run();
-      } catch (e) {
-        console.error("[CommandPalette] Erro ao executar comando:", item.id, e);
-      }
-      this.close();
-    },
-
-    close() {
-      this.open = false;
-    },
-
-    scrollIntoView() {
-      const items = this.$refs.resultsContainer?.querySelectorAll(".cmd-item");
-      if (items && items[this.selectedIndex]) {
-        items[this.selectedIndex].scrollIntoView({ block: "nearest" });
-      }
-    },
-
-    groupLabel(cat) {
-      const key = `shell.cat.${cat}`;
-      try {
-        const label = this.$t(key);
-        return label !== key ? label : cat;
+        return t(key);
       } catch {
-        return cat;
+        return key;
       }
-    },
+    };
 
-    highlightParts(text) {
-      const str = String(text || "");
-      if (!this.query) return [{ text: str, mark: false }];
-      const q = this.query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(`(${q})`, "gi");
-      const parts = [];
-      let lastIndex = 0;
-      let match;
-      while ((match = regex.exec(str)) !== null) {
-        if (match.index > lastIndex) {
-          parts.push({ text: str.slice(lastIndex, match.index), mark: false });
-        }
-        parts.push({ text: match[1], mark: true });
-        lastIndex = match.index + match[1].length;
-      }
-      if (lastIndex < str.length) {
-        parts.push({ text: str.slice(lastIndex), mark: false });
-      }
-      return parts.length ? parts : [{ text: str, mark: false }];
-    },
-  },
-};
+    allCommands.value = await CommandRegistry.getAll(Database, UserData, tFn);
+
+    const themeCmd = allCommands.value.find((c) => c.id === "theme:toggle");
+    if (themeCmd) {
+      themeCmd.run = () => {
+        const current = theme.global.name.value;
+        theme.global.name.value = current === "dark" ? "light" : "dark";
+        UserData.set("theme", theme.global.name.value);
+        AppData.set("is_dark", theme.global.current.value.dark);
+      };
+    }
+
+    fuse.value = new Fuse(allCommands.value, {
+      keys: [
+        { name: "title", weight: 2 },
+        { name: "keywords", weight: 1 },
+        { name: "subtitle", weight: 0.5 },
+      ],
+      threshold: 0.3,
+      ignoreLocation: true,
+      minMatchCharLength: 1,
+    });
+  } catch (e) {
+    console.error("[CommandPalette] Falha ao carregar:", e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+function isSelected(item) {
+  return activeItem.value === item;
+}
+
+function setActive(item) {
+  const idx = results.value.indexOf(item);
+  if (idx >= 0) selectedIndex.value = idx;
+}
+
+function moveDown() {
+  selectedIndex.value = Math.min(selectedIndex.value + 1, results.value.length - 1);
+}
+
+function moveUp() {
+  selectedIndex.value = Math.max(selectedIndex.value - 1, 0);
+}
+
+function executeSelected() {
+  if (activeItem.value) execute(activeItem.value);
+}
+
+function execute(item) {
+  try {
+    item.run();
+  } catch (e) {
+    console.error("[CommandPalette] Erro ao executar comando:", item.id, e);
+  }
+  close();
+}
+
+function close() {
+  open.value = false;
+}
+
+function scrollIntoView() {
+  const items = resultsContainer.value?.querySelectorAll(".cmd-item");
+  if (items && items[selectedIndex.value]) {
+    items[selectedIndex.value].scrollIntoView({ block: "nearest" });
+  }
+}
+
+function groupLabel(cat) {
+  const key = `shell.cat.${cat}`;
+  try {
+    const label = t(key);
+    return label !== key ? label : cat;
+  } catch {
+    return cat;
+  }
+}
+
+function highlightParts(text) {
+  const str = String(text || "");
+  if (!query.value) return [{ text: str, mark: false }];
+  const q = query.value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${q})`, "gi");
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  while ((match = regex.exec(str)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ text: str.slice(lastIndex, match.index), mark: false });
+    }
+    parts.push({ text: match[1], mark: true });
+    lastIndex = match.index + match[1].length;
+  }
+  if (lastIndex < str.length) {
+    parts.push({ text: str.slice(lastIndex), mark: false });
+  }
+  return parts.length ? parts : [{ text: str, mark: false }];
+}
 </script>
 
 <style scoped>

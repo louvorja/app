@@ -22,14 +22,12 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "PlayerGaugeComponent",
-  props: {
-    volume: { type: Number, default: 100 },
-    icon: { type: String, default: "mdi-volume-high" },
-    loading: { type: Boolean, default: false },
-  },
-  emits: ["toggle", "seek"],
-};
+<script setup>
+defineProps({
+  volume: { type: Number, default: 100 },
+  icon: { type: String, default: "mdi-volume-high" },
+  loading: { type: Boolean, default: false },
+});
+
+defineEmits(["toggle", "seek"]);
 </script>

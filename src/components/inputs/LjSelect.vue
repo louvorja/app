@@ -29,51 +29,41 @@
   </v-select>
 </template>
 
-<script>
-export default {
-  name: "SelectComponent",
+<script setup>
+import { ref, computed } from "vue";
 
-  props: {
-    modelValue: [String, Number, Array],
-    label: String,
-    icon: String,
-    multiple: {
-      type: Boolean,
-      default: false,
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
-    itemValue: {
-      type: String,
-      default: "id",
-    },
-    itemTitle: {
-      type: String,
-      default: "value",
-    },
-    itemSubtitle: {
-      type: String,
-      default: null,
-    },
+const props = defineProps({
+  modelValue: [String, Number, Array],
+  label: String,
+  icon: String,
+  multiple: {
+    type: Boolean,
+    default: false,
   },
+  items: {
+    type: Array,
+    default: () => [],
+  },
+  itemValue: {
+    type: String,
+    default: "id",
+  },
+  itemTitle: {
+    type: String,
+    default: "value",
+  },
+  itemSubtitle: {
+    type: String,
+    default: null,
+  },
+});
 
-  data() {
-    return {
-      menu: false,
-    };
-  },
+const emit = defineEmits(["update:modelValue"]);
 
-  computed: {
-    input: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", value);
-      },
-    },
-  },
-};
+const menu = ref(false);
+
+const input = computed({
+  get: () => props.modelValue,
+  set: (value) => emit("update:modelValue", value),
+});
 </script>

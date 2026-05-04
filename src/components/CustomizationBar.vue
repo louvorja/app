@@ -10,8 +10,4 @@
   </v-bottom-sheet>
 </template>
 
-<script>
-export default {
-  name: "CustomizationBarComponent",
-};
-</script>
+<script setup></script>

@@ -1,6 +1,10 @@
-import { computed, getCurrentInstance } from "vue";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import Media from "@/composables/useMedia";
 import { useAudioPlayback } from "@/composables/useAudioPlayback";
+import Modules from "@/helpers/Modules";
+import AppData from "@/helpers/AppData";
 
 /**
  * usePlayerState — agrega estado reativo + ações do player de mídia.
@@ -15,15 +19,16 @@ import { useAudioPlayback } from "@/composables/useAudioPlayback";
  * goToSlide/open/openLyric/maximize/close/fullscreen/toggleVolume/setVolume.
  */
 export function usePlayerState() {
-  const { proxy } = getCurrentInstance();
+  const { t } = useI18n();
+  const { width } = useDisplay();
   const audio = useAudioPlayback();
 
-  const media = computed(() => proxy.$modules.get("media"));
+  const media = computed(() => Modules.get("media"));
   const slides = computed(() => Media.slides());
   const has_instrumental_music = computed(() => !!media.value?.data?.url_instrumental_music);
 
-  const compact = computed(() => proxy.$vuetify.display.width <= 500);
-  const is_mobile = computed(() => proxy.$appdata.get("is_mobile"));
+  const compact = computed(() => width.value <= 500);
+  const is_mobile = computed(() => AppData.get("is_mobile"));
 
   const volume_icon = computed(() => {
     const v = audio.volume.value;
@@ -106,7 +111,6 @@ export function usePlayerState() {
   });
 
   const menu_modes = computed(() => {
-    const t = proxy.$t;
     const cfg = media.value?.config ?? {};
     const idMusic = media.value?.id_music;
     const minimized = media.value?.minimized;
@@ -155,7 +159,6 @@ export function usePlayerState() {
       menu_modes.value[0]
   );
 
-  // ações
   function playToggle() {
     if (audio.isPaused.value) Media.play();
     else Media.pause();

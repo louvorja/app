@@ -22,29 +22,20 @@
   </v-menu>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import CountryFlag from "vue-country-flag-next";
 import AppData from "@/helpers/AppData";
 import UserData from "@/helpers/UserData";
 
-export default {
-  name: "LanguageSelectorComponent",
-  components: {
-    CountryFlag,
-  },
-  computed: {
-    languages() {
-      return AppData.get("languages");
-    },
-    current_language() {
-      return UserData.get("language");
-    },
-  },
-  methods: {
-    changeLanguage(language) {
-      this.$i18n.locale = language;
-      UserData.set("language", language);
-    },
-  },
-};
+const { locale } = useI18n();
+
+const languages = computed(() => AppData.get("languages"));
+const current_language = computed(() => UserData.get("language"));
+
+function changeLanguage(language) {
+  locale.value = language;
+  UserData.set("language", language);
+}
 </script>

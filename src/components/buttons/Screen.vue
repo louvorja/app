@@ -22,53 +22,33 @@
   </v-btn-group>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
 import AppData from "@/helpers/AppData";
 import Popup from "@/helpers/Popup";
 
-export default {
-  name: "ButtonScreenComponent",
-  props: {
-    module: {
-      type: String,
-      required: true,
-    },
-    size: {
-      type: String,
-      default: "small",
-    },
-    variant: {
-      type: String,
-      default: "text",
-    },
-  },
-  computed: {
-    is_mobile: function () {
-      return AppData.get("is_mobile");
-    },
-    is_popup_opened: function () {
-      return !!AppData.get("popup");
-    },
-    popup_module: function () {
-      return AppData.get("popup_module");
-    },
-    is_selected: function () {
-      return this.is_popup_opened && this.popup_module == this.module;
-    },
-  },
-  methods: {
-    popup: function () {
-      if (this.is_selected) {
-        Popup.exit();
-      } else {
-        Popup.open(this.module);
-      }
-    },
-    close: function () {
-      Popup.close();
-    },
-  },
-};
+const props = defineProps({
+  module: { type: String, required: true },
+  size: { type: String, default: "small" },
+  variant: { type: String, default: "text" },
+});
+
+const is_mobile = computed(() => AppData.get("is_mobile"));
+const is_popup_opened = computed(() => !!AppData.get("popup"));
+const popup_module = computed(() => AppData.get("popup_module"));
+const is_selected = computed(() => is_popup_opened.value && popup_module.value == props.module);
+
+function popup() {
+  if (is_selected.value) {
+    Popup.exit();
+  } else {
+    Popup.open(props.module);
+  }
+}
+
+function close() {
+  Popup.close();
+}
 </script>
 
 <style scoped>

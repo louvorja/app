@@ -17,7 +17,7 @@
             <v-icon :icon="icon" size="20" />
           </div>
           <div
-            v-if="image && $vuetify.display.width > 500"
+            v-if="image && display.width.value > 500"
             class="lj-window-image"
             :style="{ width: (imageSize || 65) + 'px', height: (imageSize || 65) + 'px' }"
           >
@@ -98,160 +98,148 @@
   </v-dialog>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted } from "vue";
+import { useDisplay } from "vuetify";
 import LCustomizationBar from "@/components/CustomizationBar.vue";
 
-export default {
-  name: "WindowComponent",
-  components: {
-    LCustomizationBar,
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    scrollPos: Number,
-    title: String,
-    subtitle: String,
-    icon: String,
-    image: String,
-    compact: Boolean,
-    compact_footer: Boolean,
-    closable: Boolean,
-    minimizable: Boolean,
-    titleClass: String,
-    dark: Boolean,
-    index: [Boolean, Number, String],
-    size: String,
-    imageSize: Number,
-    color: String,
-    slotLeftClass: String,
-    slotRightClass: String,
-    slotLeftStyle: [String, Object],
-    slotRightStyle: [String, Object],
-  },
+  scrollPos: Number,
+  title: String,
+  subtitle: String,
+  icon: String,
+  image: String,
+  compact: Boolean,
+  compact_footer: Boolean,
+  closable: Boolean,
+  minimizable: Boolean,
+  titleClass: String,
+  dark: Boolean,
+  index: [Boolean, Number, String],
+  size: String,
+  imageSize: Number,
+  color: String,
+  slotLeftClass: String,
+  slotRightClass: String,
+  slotLeftStyle: [String, Object],
+  slotRightStyle: [String, Object],
+});
 
-  data: () => ({
-    container_height: 0,
-  }),
-  computed: {
-    visible: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", value);
-      },
-    },
-    compact_screen: function () {
-      return this.$vuetify.display.width <= 600;
-    },
-    compact_height: function () {
-      return this.$vuetify.display.height <= 600;
-    },
-    w_width() {
-      return this.compact_screen
-        ? "100%"
-        : this.size == "small"
-          ? "500px"
-          : this.size == "large"
-            ? "95%"
-            : "90%";
-    },
-    w_height() {
-      return this.compact_screen || this.compact_height
-        ? "100%"
-        : this.size == "small"
-          ? "550px"
-          : "90%";
-    },
-  },
-  watch: {
-    visible() {
-      this.listenerResize(this.visible);
-    },
-    index() {
-      this.checkScroll();
-      this.windowResize();
-    },
-    scrollPos(value) {
-      const container = this.$refs.main_container;
-      if (container) {
-        container.scrollTo({
-          top: value,
-          behavior: "smooth",
-        });
-      }
-    },
-  },
-  mounted() {
-    this.resizeObserver = new ResizeObserver(() => {
-      this.checkScroll();
-    });
+const emit = defineEmits([
+  "update:modelValue",
+  "close",
+  "minimize",
+  "scroll",
+  "hasScroll",
+  "resize",
+]);
 
-    if (this.visible) {
-      this.listenerResize(this.visible);
+const display = useDisplay();
+const container = ref(null);
+const main_container = ref(null);
+const container_height = ref(0);
+let resizeObserver = null;
+
+const visible = computed({
+  get: () => props.modelValue,
+  set: (value) => emit("update:modelValue", value),
+});
+
+const compact_screen = computed(() => display.width.value <= 600);
+const compact_height = computed(() => display.height.value <= 600);
+
+const w_width = computed(() => {
+  if (compact_screen.value) return "100%";
+  if (props.size == "small") return "500px";
+  if (props.size == "large") return "95%";
+  return "90%";
+});
+
+const w_height = computed(() => {
+  if (compact_screen.value || compact_height.value) return "100%";
+  if (props.size == "small") return "550px";
+  return "90%";
+});
+
+watch(visible, (val) => listenerResize(val));
+
+watch(
+  () => props.index,
+  () => {
+    checkScroll();
+    windowResize();
+  }
+);
+
+watch(
+  () => props.scrollPos,
+  (value) => {
+    const el = main_container.value;
+    if (el) {
+      el.scrollTo({ top: value, behavior: "smooth" });
     }
-  },
-  methods: {
-    close() {
-      this.$emit("close");
-    },
-    minimize() {
-      this.$emit("minimize");
-    },
-    scroll() {
-      let data = {};
-      data.scroll_top = this.$refs.main_container.scrollTop;
-      data.client_height = this.$refs.main_container.clientHeight;
-      data.scroll_height = this.$refs.main_container.scrollHeight;
-      data.scroll_bottom = data.scroll_height - data.scroll_top - data.client_height;
-      this.$emit("scroll", data);
-    },
-    checkScroll() {
-      if (this.$refs.main_container) {
-        const div = this.$refs.main_container;
-        const hasScroll = div.scrollHeight > div.clientHeight;
-        this.$emit("hasScroll", hasScroll);
-      } else {
-        this.$emit("hasScroll", false);
-      }
-    },
-    windowResize() {
-      let el = this.$refs?.container?.$el;
-      if (!el) {
-        return;
-      }
+  }
+);
 
-      let data = {
-        container_width: el.clientWidth,
-        container_height: el.clientHeight,
-      };
-      this.container_height = el.clientHeight;
-      this.$emit("resize", data);
-    },
+onMounted(() => {
+  resizeObserver = new ResizeObserver(() => checkScroll());
+  if (visible.value) listenerResize(true);
+});
 
-    listenerResize(active) {
-      if (active && this.visible) {
-        if (this.$refs.container) {
-          this.resizeObserver.observe(this.$refs.container.$el);
-          window.addEventListener("resize", this.windowResize);
-          this.windowResize();
-        } else {
-          const self = this;
-          setTimeout(function () {
-            self.listenerResize(active);
-            self.checkScroll();
-          }, 10);
-        }
-      } else {
-        this.resizeObserver.disconnect();
-        window.removeEventListener("resize", this.windowResize);
-      }
-    },
-  },
-};
+function close() {
+  emit("close");
+}
+
+function minimize() {
+  emit("minimize");
+}
+
+function scroll() {
+  const el = main_container.value;
+  emit("scroll", {
+    scroll_top: el.scrollTop,
+    client_height: el.clientHeight,
+    scroll_height: el.scrollHeight,
+    scroll_bottom: el.scrollHeight - el.scrollTop - el.clientHeight,
+  });
+}
+
+function checkScroll() {
+  const el = main_container.value;
+  emit("hasScroll", el ? el.scrollHeight > el.clientHeight : false);
+}
+
+function windowResize() {
+  const el = container.value?.$el;
+  if (!el) return;
+  container_height.value = el.clientHeight;
+  emit("resize", {
+    container_width: el.clientWidth,
+    container_height: el.clientHeight,
+  });
+}
+
+function listenerResize(active) {
+  if (active && visible.value) {
+    if (container.value) {
+      resizeObserver.observe(container.value.$el);
+      window.addEventListener("resize", windowResize);
+      windowResize();
+    } else {
+      setTimeout(() => {
+        listenerResize(active);
+        checkScroll();
+      }, 10);
+    }
+  } else {
+    resizeObserver?.disconnect();
+    window.removeEventListener("resize", windowResize);
+  }
+}
 </script>
 
 <style scoped>

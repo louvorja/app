@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex align-center justify-end pa-1 flex-grow-1">
-    <v-menu v-if="location !== 'fullscreen' && $vuetify.display.width > 350">
+    <v-menu v-if="location !== 'fullscreen' && display.width.value > 350">
       <template #activator="{ props }">
         <v-btn
           variant="text"
@@ -88,11 +88,11 @@
           <v-icon :icon="button.icon" />
         </v-list-item>
 
-        <v-divider v-if="$vuetify.display.width <= 350" />
+        <v-divider v-if="display.width.value <= 350" />
         <template v-for="(item, key) in menuModes" :key="key">
-          <v-divider v-if="item.title == '-' && $vuetify.display.width <= 350" />
+          <v-divider v-if="item.title == '-' && display.width.value <= 350" />
           <v-list-item
-            v-else-if="$vuetify.display.width <= 350"
+            v-else-if="display.width.value <= 350"
             :active="item.active"
             :disabled="item.disabled"
             @click="item.click"
@@ -107,23 +107,23 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { useDisplay } from "vuetify";
 import LScreenBtn from "@/components/buttons/Screen.vue";
 
-export default {
-  name: "PlayerActionsComponent",
-  components: { LScreenBtn },
-  props: {
-    location: { type: String, default: "" },
-    minimized: { type: Boolean, default: false },
-    compact: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
-    slideIndex: { type: Number, default: 0 },
-    mode: { type: Object, default: () => ({}) },
-    menuModes: { type: Array, default: () => [] },
-    slides: { type: Array, default: () => [] },
-    compactButtons: { type: Array, default: () => [] },
-  },
-  emits: ["go-to-slide", "maximize", "fullscreen", "close"],
-};
+defineProps({
+  location: { type: String, default: "" },
+  minimized: { type: Boolean, default: false },
+  compact: { type: Boolean, default: false },
+  loading: { type: Boolean, default: false },
+  slideIndex: { type: Number, default: 0 },
+  mode: { type: Object, default: () => ({}) },
+  menuModes: { type: Array, default: () => [] },
+  slides: { type: Array, default: () => [] },
+  compactButtons: { type: Array, default: () => [] },
+});
+
+defineEmits(["go-to-slide", "maximize", "fullscreen", "close"]);
+
+const display = useDisplay();
 </script>

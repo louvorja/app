@@ -17,52 +17,43 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onBeforeUnmount } from "vue";
 import LPlayer from "@/components/Player.vue";
 
-export default {
-  name: "FullscreenPlayerComponent",
-  components: {
-    LPlayer,
-  },
-  data() {
-    return {
-      visible: false,
-      start_timer: true,
-      timeout: null,
-    };
-  },
-  beforeUnmount() {
-    clearTimeout(this.timeout); // Limpa o temporizador ao destruir o componente
-  },
-  methods: {
-    mouseMove() {
-      if (!this.start_timer) {
-        return;
-      }
-      this.showChild();
-      this.startHideTimer();
-    },
-    mouseEnter() {
-      this.start_timer = false;
-      clearTimeout(this.timeout);
-    },
-    mouseLeave() {
-      this.start_timer = true;
-      this.startHideTimer();
-    },
-    showChild() {
-      this.visible = true; // Torna a div filho visível
-      clearTimeout(this.timeout); // Cancela qualquer temporizador ativo
-    },
-    startHideTimer() {
-      clearTimeout(this.timeout); // Cancela qualquer temporizador anterior
-      this.timeout = setTimeout(() => {
-        this.visible = false; // Oculta a div filho após um tempo
-      }, 1000);
-    },
-  },
-};
+const visible = ref(false);
+const start_timer = ref(true);
+let timeout = null;
+
+onBeforeUnmount(() => clearTimeout(timeout));
+
+function mouseMove() {
+  if (!start_timer.value) return;
+  showChild();
+  startHideTimer();
+}
+
+function mouseEnter() {
+  start_timer.value = false;
+  clearTimeout(timeout);
+}
+
+function mouseLeave() {
+  start_timer.value = true;
+  startHideTimer();
+}
+
+function showChild() {
+  visible.value = true;
+  clearTimeout(timeout);
+}
+
+function startHideTimer() {
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    visible.value = false;
+  }, 1000);
+}
 </script>
 
 <style scoped>

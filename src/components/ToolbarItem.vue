@@ -8,8 +8,4 @@
   </v-slide-group-item>
 </template>
 
-<script>
-export default {
-  name: "ToolbarItemComponent",
-};
-</script>
+<script setup></script>

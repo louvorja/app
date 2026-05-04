@@ -76,156 +76,138 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import Favorites from "@/helpers/Favorites";
 import Liturgy from "@/helpers/Liturgy";
 import Media from "@/composables/useMedia";
 import AppData from "@/helpers/AppData";
 
-export default {
-  name: "MusicMenuTableComponent",
-  props: {
-    id_music: Number,
-    name: String,
-    has_instrumental_music: [Boolean, Number],
-    color: String,
-    extraMenu: {
-      type: Array,
-      default: () => [],
-    },
+const props = defineProps({
+  id_music: Number,
+  name: String,
+  has_instrumental_music: [Boolean, Number],
+  color: String,
+  extraMenu: {
+    type: Array,
+    default: () => [],
   },
-  computed: {
-    is_favorite() {
-      return Favorites.isFavorite(this.id_music);
-    },
-    buttons() {
-      return [
-        {
-          testid: "favorite",
-          disabled: false,
-          title: this.is_favorite
-            ? this.$t("components.music_menu.remove_from_favorites")
-            : this.$t("components.music_menu.add_to_favorites"),
-          icon: this.is_favorite ? "mdi-star" : "mdi-star-outline",
-          click: () => Favorites.toggle(this.id_music, this.name, this.has_instrumental_music),
-        },
-        {
-          testid: "sing",
-          disabled: false,
-          title: this.$t("ribbon.btn.sing"),
-          icon: "mdi-play-box-multiple",
-          click: () => Media.open({ id_music: this.id_music, mode: "audio" }),
-        },
-        {
-          testid: "playback",
-          disabled: !this.has_instrumental_music,
-          title: this.$t("ribbon.btn.playback"),
-          icon: "mdi-play-box-multiple-outline",
-          click: () => Media.open({ id_music: this.id_music, mode: "instrumental" }),
-        },
-        {
-          testid: "no-audio",
-          disabled: false,
-          title: this.$t("ribbon.btn.no_audio"),
-          icon: "mdi-checkbox-multiple-blank-outline",
-          click: () => Media.open(this.id_music),
-        },
-        {
-          testid: "lyric",
-          disabled: false,
-          title: this.$t("ribbon.btn.lyric"),
-          icon: "mdi-text-box-outline",
-          click: () => Media.openLyric(this.id_music),
-        },
-      ];
-    },
-    menu() {
-      return [
-        {
-          title: this.$t("components.music_menu.add_to"),
-          icon: "mdi-plus",
-          menu: [
-            {
-              title: this.is_favorite
-                ? this.$t("components.music_menu.remove_from_favorites")
-                : this.$t("components.music_menu.add_to_favorites"),
-              icon: this.is_favorite ? "mdi-star-off" : "mdi-star",
-              click: () => Favorites.toggle(this.id_music, this.name, this.has_instrumental_music),
-            },
-            {
-              title: this.$t("components.music_menu.add_to_liturgy"),
-              icon: "mdi-view-list-outline",
-              click: () => Liturgy.addMusic(this.id_music, this.name, this.has_instrumental_music),
-            },
-          ],
-        },
-        {
-          title: this.$t("components.music_menu.execute"),
-          icon: "mdi-play",
-          menu: [
-            {
-              title: this.$t("ribbon.btn.sing"),
-              icon: "mdi-play-box-multiple",
-              click: () => Media.open({ id_music: this.id_music, mode: "audio" }),
-            },
-            {
-              title: this.$t("ribbon.btn.playback"),
-              icon: "mdi-play-box-multiple-outline",
-              click: () =>
-                Media.open({
-                  id_music: this.id_music,
-                  mode: "instrumental",
-                }),
-              disabled: !this.has_instrumental_music,
-            },
-            {
-              title: this.$t("ribbon.btn.no_audio"),
-              icon: "mdi-checkbox-multiple-blank-outline",
-              click: () => Media.open(this.id_music),
-            },
-            {
-              title: this.$t("ribbon.btn.lyric"),
-              icon: "mdi-text-box-outline",
-              click: () => Media.openLyric(this.id_music),
-            },
-            {
-              title: "-",
-            },
-            {
-              title: this.$t("components.music_menu.file_sing"),
-              icon: "mdi-file-music",
-              click: () => Media.openAudio(this.id_music),
-            },
-            {
-              title: this.$t("components.music_menu.file_playback"),
-              icon: "mdi-file-music-outline",
-              click: () =>
-                Media.openAudio({
-                  id_music: this.id_music,
-                  mode: "instrumental",
-                }),
-              disabled: !this.has_instrumental_music,
-            },
-          ],
-        },
-        ...this.extraMenu.map((item) => ({
-          title: item.title,
-          icon: item.icon,
-          menu: [{ title: item.title, icon: item.icon, click: item.click }],
-        })),
-      ];
-    },
-    compact: function () {
-      return this.$vuetify.display.width <= 550;
-    },
-    is_mobile: function () {
-      return AppData.get("is_mobile");
-    },
-    primaryColor() {
-      return AppData.get("is_dark") ? undefined : "primary";
-    },
+});
+
+const { t } = useI18n();
+const { width } = useDisplay();
+
+const is_favorite = computed(() => Favorites.isFavorite(props.id_music));
+const compact = computed(() => width.value <= 550);
+const is_mobile = computed(() => AppData.get("is_mobile"));
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
+
+const buttons = computed(() => [
+  {
+    testid: "favorite",
+    disabled: false,
+    title: is_favorite.value
+      ? t("components.music_menu.remove_from_favorites")
+      : t("components.music_menu.add_to_favorites"),
+    icon: is_favorite.value ? "mdi-star" : "mdi-star-outline",
+    click: () => Favorites.toggle(props.id_music, props.name, props.has_instrumental_music),
   },
-};
+  {
+    testid: "sing",
+    disabled: false,
+    title: t("ribbon.btn.sing"),
+    icon: "mdi-play-box-multiple",
+    click: () => Media.open({ id_music: props.id_music, mode: "audio" }),
+  },
+  {
+    testid: "playback",
+    disabled: !props.has_instrumental_music,
+    title: t("ribbon.btn.playback"),
+    icon: "mdi-play-box-multiple-outline",
+    click: () => Media.open({ id_music: props.id_music, mode: "instrumental" }),
+  },
+  {
+    testid: "no-audio",
+    disabled: false,
+    title: t("ribbon.btn.no_audio"),
+    icon: "mdi-checkbox-multiple-blank-outline",
+    click: () => Media.open(props.id_music),
+  },
+  {
+    testid: "lyric",
+    disabled: false,
+    title: t("ribbon.btn.lyric"),
+    icon: "mdi-text-box-outline",
+    click: () => Media.openLyric(props.id_music),
+  },
+]);
+
+const menu = computed(() => [
+  {
+    title: t("components.music_menu.add_to"),
+    icon: "mdi-plus",
+    menu: [
+      {
+        title: is_favorite.value
+          ? t("components.music_menu.remove_from_favorites")
+          : t("components.music_menu.add_to_favorites"),
+        icon: is_favorite.value ? "mdi-star-off" : "mdi-star",
+        click: () => Favorites.toggle(props.id_music, props.name, props.has_instrumental_music),
+      },
+      {
+        title: t("components.music_menu.add_to_liturgy"),
+        icon: "mdi-view-list-outline",
+        click: () => Liturgy.addMusic(props.id_music, props.name, props.has_instrumental_music),
+      },
+    ],
+  },
+  {
+    title: t("components.music_menu.execute"),
+    icon: "mdi-play",
+    menu: [
+      {
+        title: t("ribbon.btn.sing"),
+        icon: "mdi-play-box-multiple",
+        click: () => Media.open({ id_music: props.id_music, mode: "audio" }),
+      },
+      {
+        title: t("ribbon.btn.playback"),
+        icon: "mdi-play-box-multiple-outline",
+        click: () => Media.open({ id_music: props.id_music, mode: "instrumental" }),
+        disabled: !props.has_instrumental_music,
+      },
+      {
+        title: t("ribbon.btn.no_audio"),
+        icon: "mdi-checkbox-multiple-blank-outline",
+        click: () => Media.open(props.id_music),
+      },
+      {
+        title: t("ribbon.btn.lyric"),
+        icon: "mdi-text-box-outline",
+        click: () => Media.openLyric(props.id_music),
+      },
+      { title: "-" },
+      {
+        title: t("components.music_menu.file_sing"),
+        icon: "mdi-file-music",
+        click: () => Media.openAudio(props.id_music),
+      },
+      {
+        title: t("components.music_menu.file_playback"),
+        icon: "mdi-file-music-outline",
+        click: () => Media.openAudio({ id_music: props.id_music, mode: "instrumental" }),
+        disabled: !props.has_instrumental_music,
+      },
+    ],
+  },
+  ...props.extraMenu.map((item) => ({
+    title: item.title,
+    icon: item.icon,
+    menu: [{ title: item.title, icon: item.icon, click: item.click }],
+  })),
+]);
 </script>
 
 <style scoped>

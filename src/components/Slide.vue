@@ -18,155 +18,142 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import Strings from "@/helpers/Strings";
 
-export default {
-  name: "SlideComponent",
-  props: {
-    slide_number: Number,
-    cover: Boolean,
-    text: String,
-    aux_text: String,
-    image: String,
-    image_position: Number,
-  },
-  data: () => ({
-    slides: [{}, {}],
-    repeat: false,
-    width: 0,
-    height: 0,
-  }),
-  computed: {
-    props_slide() {
-      return {
-        slide_number: this.slide_number,
-        cover: this.cover,
-        text: this.text,
-        aux_text: this.aux_text,
-        image: this.image,
-        image_position: this.image_position,
-      };
-    },
-    screenSize() {
-      return { width: this.width, height: this.height };
-    },
-  },
-  watch: {
-    props_slide() {
-      this.setSlide();
-    },
-    screenSize() {
-      const self = this;
-      setTimeout(function () {
-        self.windowResize();
-      }, 100);
-    },
-  },
-  mounted() {
-    this.setSlide();
-    this.windowResize();
-    window.addEventListener("resize", this.windowResize);
-  },
-  unmounted() {
-    window.removeEventListener("resize", this.windowResize);
-  },
-  methods: {
-    setSlide() {
-      if (
-        Strings.clean(this.slides[1].text) == Strings.clean(this.props_slide.text) &&
-        Strings.clean(this.slides[1].aux_text) == Strings.clean(this.props_slide.aux_text) &&
-        this.slides[1].image == this.props_slide.image &&
-        this.slides[1].cover == this.props_slide.cover
-      ) {
-        this.repeat = !this.repeat;
-      } else {
-        this.repeat = false;
-      }
+const props = defineProps({
+  slide_number: Number,
+  cover: Boolean,
+  text: String,
+  aux_text: String,
+  image: String,
+  image_position: Number,
+});
 
-      this.slides.unshift({});
-      this.slides[1] = {
-        ...this.props_slide,
-        active: true,
-      };
+const container = ref(null);
+const slides = ref([{}, {}]);
+const repeat = ref(false);
+const width = ref(0);
+const height = ref(0);
 
-      if (this.slides.length > 3) {
-        this.slides[3].destroy = true;
-      }
-    },
-    style_bg(slide) {
-      return {
-        overflow: "hidden",
-        backgroundColor: "var(--lj-color-projection-bg)",
-        backgroundImage: `url(${slide.image})`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: [
-          "top left",
-          "top center",
-          "top right",
-          "center left",
-          "center center",
-          "center right",
-          "bottom left",
-          "bottom center",
-          "bottom right",
-        ][this.image_position || 5],
-        backgroundSize: "cover",
-      };
-    },
-    style_aux_text() {
-      return {
-        backgroundColor: "var(--lj-black-alpha-75)",
-        fontSize: `${this.fontSizePc(10)}px`,
-        color: "var(--lj-slide-text-gold)",
-        padding: `0px ${this.fontSizePc(5)}px`,
-        fontFamily: "var(--lj-font-projection)",
-        textTransform: "uppercase",
-      };
-    },
-    style_text(slide) {
-      let style = {
-        backgroundColor: "var(--lj-black-alpha-75)",
-        padding: `0px ${this.fontSizePc(5)}px`,
-        textAlign: "center",
-        fontFamily: "var(--lj-font-projection)",
-        textTransform: "uppercase",
-      };
+const props_slide = computed(() => ({
+  slide_number: props.slide_number,
+  cover: props.cover,
+  text: props.text,
+  aux_text: props.aux_text,
+  image: props.image,
+  image_position: props.image_position,
+}));
 
-      if (slide.cover) {
-        return {
-          ...style,
-          fontSize: `${this.fontSizePc(25)}px`,
-          color: "var(--lj-slide-text-gold)",
-        };
-      } else {
-        return {
-          ...style,
-          fontSize: `${this.fontSizePc(20)}px`,
-          color: this.repeat ? "var(--lj-slide-text-gold)" : "var(--lj-white)",
-        };
-      }
-    },
-    fontSizePc(pc) {
-      const v = Math.min(this.width, this.height);
-      return (pc * v) / 100 / 2;
-    },
-    windowResize() {
-      const container = this.$refs.container;
-      if (container) {
-        this.width = container.offsetWidth;
-        this.height = container.offsetHeight;
+const screenSize = computed(() => ({ width: width.value, height: height.value }));
 
-        if (this.width <= 0 || this.height <= 0) {
-          const self = this;
-          setTimeout(function () {
-            self.windowResize();
-          }, 100);
-        }
-      }
-    },
-  },
-};
+watch(props_slide, () => setSlide());
+
+watch(screenSize, () => {
+  setTimeout(() => windowResize(), 100);
+});
+
+onMounted(() => {
+  setSlide();
+  windowResize();
+  window.addEventListener("resize", windowResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", windowResize);
+});
+
+function setSlide() {
+  const current = slides.value[1];
+  const next = props_slide.value;
+
+  if (
+    Strings.clean(current.text) == Strings.clean(next.text) &&
+    Strings.clean(current.aux_text) == Strings.clean(next.aux_text) &&
+    current.image == next.image &&
+    current.cover == next.cover
+  ) {
+    repeat.value = !repeat.value;
+  } else {
+    repeat.value = false;
+  }
+
+  slides.value.unshift({});
+  slides.value[1] = { ...next, active: true };
+
+  if (slides.value.length > 3) {
+    slides.value[3].destroy = true;
+  }
+}
+
+function style_bg(slide) {
+  return {
+    overflow: "hidden",
+    backgroundColor: "var(--lj-color-projection-bg)",
+    backgroundImage: `url(${slide.image})`,
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: [
+      "top left",
+      "top center",
+      "top right",
+      "center left",
+      "center center",
+      "center right",
+      "bottom left",
+      "bottom center",
+      "bottom right",
+    ][props.image_position || 5],
+    backgroundSize: "cover",
+  };
+}
+
+function style_aux_text() {
+  return {
+    backgroundColor: "var(--lj-black-alpha-75)",
+    fontSize: `${fontSizePc(10)}px`,
+    color: "var(--lj-slide-text-gold)",
+    padding: `0px ${fontSizePc(5)}px`,
+    fontFamily: "var(--lj-font-projection)",
+    textTransform: "uppercase",
+  };
+}
+
+function style_text(slide) {
+  const base = {
+    backgroundColor: "var(--lj-black-alpha-75)",
+    padding: `0px ${fontSizePc(5)}px`,
+    textAlign: "center",
+    fontFamily: "var(--lj-font-projection)",
+    textTransform: "uppercase",
+  };
+
+  if (slide.cover) {
+    return { ...base, fontSize: `${fontSizePc(25)}px`, color: "var(--lj-slide-text-gold)" };
+  }
+  return {
+    ...base,
+    fontSize: `${fontSizePc(20)}px`,
+    color: repeat.value ? "var(--lj-slide-text-gold)" : "var(--lj-white)",
+  };
+}
+
+function fontSizePc(pc) {
+  const v = Math.min(width.value, height.value);
+  return (pc * v) / 100 / 2;
+}
+
+function windowResize() {
+  const el = container.value;
+  if (el) {
+    width.value = el.offsetWidth;
+    height.value = el.offsetHeight;
+
+    if (width.value <= 0 || height.value <= 0) {
+      setTimeout(() => windowResize(), 100);
+    }
+  }
+}
 </script>
 
 <style scoped>

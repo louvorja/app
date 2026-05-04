@@ -17,35 +17,28 @@
   />
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
 import AppData from "@/helpers/AppData";
 
-export default {
-  name: "SearchComponent",
-  props: {
-    modelValue: String,
-    label: String,
-    disabled: Boolean,
-    disabledHint: String,
-    error: Boolean,
-  },
-  computed: {
-    input: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", value);
-      },
-    },
-    primaryColor() {
-      return AppData.get("is_dark") ? undefined : "primary";
-    },
-  },
-  methods: {
-    reset() {
-      this.input = "";
-    },
-  },
-};
+const props = defineProps({
+  modelValue: String,
+  label: String,
+  disabled: Boolean,
+  disabledHint: String,
+  error: Boolean,
+});
+
+const emit = defineEmits(["update:modelValue"]);
+
+const input = computed({
+  get: () => props.modelValue,
+  set: (value) => emit("update:modelValue", value),
+});
+
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
+
+function reset() {
+  input.value = "";
+}
 </script>

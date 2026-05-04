@@ -147,137 +147,117 @@
   </v-slide-group>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import UserData from "@/helpers/UserData";
 import Alert from "@/helpers/Alert";
 
-export default {
-  name: "CustomizationToolsComponent",
-  props: {
-    module: Object,
-    items: Array,
-  },
-  data: () => ({
-    fonts: [
-      { label: "Arial", value: "Arial, sans-serif" },
-      { label: "Helvetica", value: "Helvetica, sans-serif" },
-      { label: "Times New Roman", value: "Times New Roman, serif" },
-      { label: "Georgia", value: "Georgia, serif" },
-      { label: "Courier New", value: "Courier New, monospace" },
-      { label: "Verdana", value: "Verdana, sans-serif" },
-      { label: "DIN Condensed", value: "DINCondensedBold, sans-serif" },
-      { label: "Roboto", value: "Roboto, sans-serif" },
-    ],
-  }),
-  computed: {
-    menu_items() {
-      return [
-        ...this.items.map((block) => {
-          return this.toBlock(block);
-        }),
-        {
-          name: this.$t("components.customization.restore"),
-          items: [
-            [
-              {
-                type: "restore",
-                label: this.$t("components.customization.restore_configs"),
-              },
-            ],
-          ],
-        },
-      ];
-    },
-    userdata() {
-      return new Proxy(
-        {},
-        {
-          get: (_, key) => {
-            return UserData.get(`modules.${this.module.id}.${key}`, null);
-          },
-          set: (_, key, value) => {
-            UserData.set(`modules.${this.module.id}.${key}`, value);
-            return true;
-          },
-        }
-      );
-    },
-    fit() {
-      return [
-        { label: this.$t("components.customization.fit.none"), value: "none" },
-        { label: this.$t("components.customization.fit.fill"), value: "fill" },
-        {
-          label: this.$t("components.customization.fit.contain"),
-          value: "contain",
-        },
-        {
-          label: this.$t("components.customization.fit.cover"),
-          value: "cover",
-        },
-      ];
-    },
-  },
-  methods: {
-    t(text) {
-      return this.$t(`modules.${this.module.id}.${text}`);
-    },
-    toBlock(item) {
-      /* Blocos */
-      if (typeof item == "string") {
-        item = { name: this.label(item), items: this.toArray(item) };
-      } else if (Array.isArray(item)) {
-        item = { name: "", items: item };
-      }
+const props = defineProps({
+  module: Object,
+  items: Array,
+});
 
-      item.items = this.toArray(item?.items).map((group) => {
-        /* Grupos */
-        return this.toArray(group).map((el) => {
-          /* Elementos */
-          return {
-            ...this.properties(el),
-            property: el,
-            label: this.label(el),
-          };
+const { t } = useI18n();
+
+const fonts = [
+  { label: "Arial", value: "Arial, sans-serif" },
+  { label: "Helvetica", value: "Helvetica, sans-serif" },
+  { label: "Times New Roman", value: "Times New Roman, serif" },
+  { label: "Georgia", value: "Georgia, serif" },
+  { label: "Courier New", value: "Courier New, monospace" },
+  { label: "Verdana", value: "Verdana, sans-serif" },
+  { label: "DIN Condensed", value: "DINCondensedBold, sans-serif" },
+  { label: "Roboto", value: "Roboto, sans-serif" },
+];
+
+const menu_items = computed(() => [
+  ...props.items.map((block) => toBlock(block)),
+  {
+    name: t("components.customization.restore"),
+    items: [
+      [
+        {
+          type: "restore",
+          label: t("components.customization.restore_configs"),
+        },
+      ],
+    ],
+  },
+]);
+
+const userdata = computed(
+  () =>
+    new Proxy(
+      {},
+      {
+        get: (_, key) => UserData.get(`modules.${props.module.id}.${key}`, null),
+        set: (_, key, value) => {
+          UserData.set(`modules.${props.module.id}.${key}`, value);
+          return true;
+        },
+      }
+    )
+);
+
+const fit = computed(() => [
+  { label: t("components.customization.fit.none"), value: "none" },
+  { label: t("components.customization.fit.fill"), value: "fill" },
+  { label: t("components.customization.fit.contain"), value: "contain" },
+  { label: t("components.customization.fit.cover"), value: "cover" },
+]);
+
+function moduleT(text) {
+  return t(`modules.${props.module.id}.${text}`);
+}
+
+function label(item) {
+  return moduleT(props.module?.manifest?.customization[item]?.label);
+}
+
+function properties(item) {
+  return props.module?.manifest?.customization[item];
+}
+
+function toArray(item) {
+  if (item == null) return [];
+  if (typeof item == "string") return [item];
+  if (!Array.isArray(item)) return [];
+  return item;
+}
+
+function toBlock(item) {
+  if (typeof item == "string") {
+    item = { name: label(item), items: toArray(item) };
+  } else if (Array.isArray(item)) {
+    item = { name: "", items: item };
+  }
+
+  item.items = toArray(item?.items).map((group) =>
+    toArray(group).map((el) => ({
+      ...properties(el),
+      property: el,
+      label: label(el),
+    }))
+  );
+  return item;
+}
+
+function restore() {
+  Alert.yesno("components.customization.restore_dialog", function (btn) {
+    if (btn == "yes") {
+      menu_items.value?.forEach((block) => {
+        block.items?.forEach((group) => {
+          group.forEach((item) => {
+            if (item.property) {
+              userdata.value[item.property] = item.default;
+            }
+          });
         });
       });
-      return item;
-    },
-    toArray(item) {
-      if (item == null) {
-        return [];
-      }
-      if (typeof item == "string") {
-        return [item];
-      }
-      if (!Array.isArray(item)) {
-        return [];
-      }
-      return item;
-    },
-    label(item) {
-      return this.t(this.module?.manifest?.customization[item]?.label);
-    },
-    properties(item) {
-      return this.module?.manifest?.customization[item];
-    },
-    restore() {
-      let self = this;
-      Alert.yesno("components.customization.restore_dialog", function (btn) {
-        if (btn == "yes") {
-          self.menu_items?.map((block) => {
-            block.items?.map((group) => {
-              group.map((item) => {
-                if (item.property) {
-                  self.userdata[item.property] = item.default;
-                }
-              });
-            });
-          });
-        }
-      });
-    },
-  },
-};
+    }
+  });
+}
 </script>
 
 <style lang="scss">

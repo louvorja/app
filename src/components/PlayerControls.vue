@@ -15,13 +15,10 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "PlayerControlsComponent",
-  props: {
-    buttons: { type: Array, required: true },
-    compact: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
-  },
-};
+<script setup>
+defineProps({
+  buttons: { type: Array, required: true },
+  compact: { type: Boolean, default: false },
+  loading: { type: Boolean, default: false },
+});
 </script>

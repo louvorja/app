@@ -19,32 +19,24 @@
   />
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
 import AppData from "@/helpers/AppData";
 
-export default {
-  name: "CheckBoxComponent",
-  props: {
-    modelValue: Boolean,
-    label: String,
-    disabled: Boolean,
-    switch: Boolean,
-  },
-  computed: {
-    input: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", value);
-      },
-    },
-    is_switch() {
-      return this.switch;
-    },
-    primaryColor() {
-      return AppData.get("is_dark") ? undefined : "primary";
-    },
-  },
-};
+const props = defineProps({
+  modelValue: Boolean,
+  label: String,
+  disabled: Boolean,
+  switch: Boolean,
+});
+
+const emit = defineEmits(["update:modelValue"]);
+
+const input = computed({
+  get: () => props.modelValue,
+  set: (value) => emit("update:modelValue", value),
+});
+
+const is_switch = computed(() => props.switch);
+const primaryColor = computed(() => (AppData.get("is_dark") ? undefined : "primary"));
 </script>

@@ -28,34 +28,29 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
 import DateTime from "@/helpers/DateTime";
 
-export default {
-  name: "PlayerProgressComponent",
-  props: {
-    progress: { type: Number, default: 0 },
-    currentTime: { type: Number, default: 0 },
-    duration: { type: Number, default: 0 },
-    buffered: { type: Number, default: 0 },
-    loading: { type: Boolean, default: false },
-    isPaused: { type: Boolean, default: false },
-    volume: { type: Number, default: 100 },
-    slideIndex: { type: Number, default: 0 },
-    lastSlide: { type: Number, default: 0 },
-  },
-  emits: ["seek"],
-  computed: {
-    progressColor() {
-      if (this.isPaused) return "warning";
-      if (this.volume <= 0) return "red";
-      return "info";
-    },
-  },
-  methods: {
-    shortTime(t) {
-      return DateTime.shortTime(t);
-    },
-  },
-};
+const props = defineProps({
+  progress: { type: Number, default: 0 },
+  currentTime: { type: Number, default: 0 },
+  duration: { type: Number, default: 0 },
+  buffered: { type: Number, default: 0 },
+  loading: { type: Boolean, default: false },
+  isPaused: { type: Boolean, default: false },
+  volume: { type: Number, default: 100 },
+  slideIndex: { type: Number, default: 0 },
+  lastSlide: { type: Number, default: 0 },
+});
+
+defineEmits(["seek"]);
+
+const progressColor = computed(() => {
+  if (props.isPaused) return "warning";
+  if (props.volume <= 0) return "red";
+  return "info";
+});
+
+const shortTime = (t) => DateTime.shortTime(t);
 </script>

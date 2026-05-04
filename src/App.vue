@@ -5,13 +5,8 @@
   </v-app>
 </template>
 
-<script>
+<script setup>
 import AppLoading from "@/layout/Loading.vue";
-
-export default {
-  name: "App",
-  components: { AppLoading },
-};
 </script>
 
 <style>

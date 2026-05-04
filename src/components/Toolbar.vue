@@ -4,8 +4,4 @@
   </v-slide-group>
 </template>
 
-<script>
-export default {
-  name: "ToolbarComponent",
-};
-</script>
+<script setup></script>
