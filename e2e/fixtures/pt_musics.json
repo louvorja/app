@@ -1,0 +1,12 @@
+[
+  {
+    "id_music": 1,
+    "name": "Aleluia",
+    "duration": 180,
+    "has_instrumental_music": 0,
+    "track": "001",
+    "albums": [{ "id_album": 1, "name": "Coletânea 1" }],
+    "albums_names": "Coletânea 1",
+    "lyric": "Aleluia glória ao Senhor"
+  }
+]

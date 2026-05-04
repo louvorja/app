@@ -36,6 +36,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
     "coverage": "vitest run --coverage",
     "prepare": "husky"
   },
@@ -58,6 +59,7 @@
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitest/coverage-v8": "^4.1.5",
     "@vitest/ui": "^4.1.5",

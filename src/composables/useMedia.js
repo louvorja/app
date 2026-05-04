@@ -215,6 +215,8 @@ const _self = {
         try {
           request.open("GET", audioUrl, true);
         } catch (error) {
+          $appdata.set("modules.media.loading", false);
+          self.close(true);
           $alert.error({ text: "modules.media.alerts.not_loaded", error }, function (a) {
             if (a) self.open(id_music);
           });
@@ -223,10 +225,12 @@ const _self = {
 
         request.responseType = "blob";
         request.onload = function () {
+          if (_loadingId !== id_music) return;
           if (this.status == 200) {
             _audio.setSrc(URL.createObjectURL(this.response), false);
             self.pause(false);
           } else {
+            self.close(true);
             $alert.error(
               { text: "modules.media.alerts.not_loaded", error: request.statusText || "" },
               function (a) {
@@ -236,6 +240,8 @@ const _self = {
           }
         };
         request.onerror = function () {
+          if (_loadingId !== id_music) return;
+          self.close(true);
           $alert.error(
             { text: "modules.media.alerts.not_loaded", error: request.statusText || "" },
             function (a) {
@@ -250,6 +256,8 @@ const _self = {
     } else {
       $appdata.set("modules.media.config.audio", "");
       $appdata.set("modules.media.loading", false);
+      // Modo sem áudio: broadcast imediato do slide de capa para a projeção
+      _slides.broadcastSlide();
     }
 
     $appdata.set("modules.media.config.mode", mode);

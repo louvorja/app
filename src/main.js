@@ -49,6 +49,8 @@ Object.assign(app.config.globalProperties, {
   $datetime: DateTime,
   $path: Path,
 
+  $media: Media,
+
   $alert: Alert,
   $popup: Popup,
   $database: Database,
@@ -59,6 +61,11 @@ Object.assign(app.config.globalProperties, {
   $platform: Platform,
   $shortcuts: Shortcuts,
   $hotkeys: Hotkeys,
+
+  // Alias de cor primária para componentes legados que usam $theme.primary()
+  $theme: {
+    primary: () => (AppData.get("is_dark") ? undefined : "primary"),
+  },
 });
 
 app.use(router);
@@ -99,9 +106,6 @@ function _shell() {
 // No Electron carrega os dados de userData/storage/ para o cache em memória.
 // ---------------------------------------------------------------------------
 $storage.hydrate().then(async () => {
-  // Migração one-time de dados legados da liturgia (modules.liturgy.items → modules.liturgy.weeks.*)
-  Liturgy.migrate();
-
   // D2 — Configurar URLs remotas no main process para o protocolo louvorja://.
   // O renderer lê as variáveis Vite e envia ao main antes de montar a UI.
   if (Platform.isDesktop && Platform.protocol) {
@@ -159,11 +163,26 @@ $storage.hydrate().then(async () => {
     ModuleManager.init(i18n);
 
     if (import.meta.env.DEV) {
-      const { default: VueAxe } = await import("vue-axe");
-      app.use(VueAxe, { clearConsoleOnUpdate: false });
+      try {
+        const { default: VueAxe } = await import("vue-axe");
+        app.use(VueAxe, { clearConsoleOnUpdate: false });
+      } catch (e) {
+        console.warn("[main] vue-axe não inicializado:", e.message);
+      }
     }
 
     app.mount("#app");
+
+    // [077] Migração one-time após mount: Loading.vue já está no DOM e pode mostrar feedback.
+    // Para 99% dos usuários (sem dados legados) é no-op instantâneo.
+    const _legacyItems = UserData.get("modules.liturgy.items");
+    if (Array.isArray(_legacyItems) && _legacyItems.length > 0) {
+      AppData.set("loading", i18n.global.t("alert.migrating"));
+      await Liturgy.migrate();
+      AppData.set("loading", false);
+    } else {
+      await Liturgy.migrate();
+    }
 
     // ---------------------------------------------------------------------------
     // M2 — Registrar atalhos de teclado in-window após o app montar.
