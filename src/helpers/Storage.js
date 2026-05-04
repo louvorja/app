@@ -1,5 +1,8 @@
 /**
- * Storage.js — Abstração de armazenamento para o LouvorJA.
+ * Storage.js — Adapter de persistência para o LouvorJA.
+ *
+ * Responsabilidade: único ponto de leitura/escrita em localStorage (web) ou
+ * userData via IPC (Electron). Não contém lógica de negócio.
  *
  * Suporta dois modos de operação:
  *
@@ -13,6 +16,14 @@
  *                       As assinaturas dos métodos permanecem síncronas graças
  *                       ao cache em memória que é hidratado ANTES do app montar.
  *    - type="session" → sessionStorage (igual ao web — sessão não precisa persistir)
+ *
+ * Callers autorizados:
+ *   - UserData.js    — persiste preferências do usuário em "local"
+ *   - Database.js    — usa "session" para cache de JSONs do banco (sem lógica de negócio)
+ *   - main.js        — chama hydrate() antes de montar o app
+ *
+ * Componentes e módulos NÃO devem importar Storage diretamente.
+ * Use UserData.js para preferências persistidas ou AppData.js para estado volátil.
  *
  * ATENÇÃO: NÃO alterar as assinaturas de set/get/remove/removeAll.
  * UserData.js e Database.js dependem das assinaturas síncronas atuais.

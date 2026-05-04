@@ -1,3 +1,25 @@
+/**
+ * AppData.js — Estado volátil de sessão do LouvorJA.
+ *
+ * Responsabilidade: camada de leitura/escrita sobre o Vuex store usando
+ * notação de ponto (dot-notation). Os dados vivem apenas na memória da
+ * sessão atual — não persistem entre reloads.
+ *
+ * Quem usa: helpers internos (UserData.js, Alert.js, Popup.js, etc.) e
+ * composables. Componentes e módulos NÃO devem importar AppData diretamente
+ * — use UserData para preferências persistidas ou composables do store.
+ *
+ * Sincronização cross-window: toda chamada a `set()` propaga a mudança para
+ * a janela popup aberta (se houver) via `window.postMessage`. Isso mantém o
+ * estado consistente entre a janela principal e janelas popup de módulos.
+ *
+ * Camadas de estado:
+ *   AppData.set("user_data.theme", "dark")
+ *     → store.commit("SET_USER_DATA_PATH", { path, value })
+ *       → state.user_data.theme = "dark"
+ *         → Storage.set("user_data", ...) [via UserData.save, debounce 300ms]
+ */
+
 import store from "@/store";
 
 // Caminhos de primeiro nível que mapeiam 1:1 para uma mutation nomeada.
@@ -16,6 +38,19 @@ const _SCALAR_MUTATIONS = {
 };
 
 export default {
+  /**
+   * Escreve um valor no estado da sessão.
+   *
+   * Roteia para a mutation Vuex mais específica disponível. Para paths não
+   * reconhecidos, usa a mutation genérica legada `setData` com aviso em DEV.
+   *
+   * Após cada escrita, sincroniza a janela popup aberta via postMessage —
+   * exceto para os campos `popup`, `is_popup` e `is_fullscreen`, que
+   * controlariam loops de sincronização.
+   *
+   * @param {string} param  Caminho dot-notation (ex: "user_data.theme", "loading").
+   * @param {any}    value  Valor a armazenar.
+   */
   set(param, value) {
     const parts = param.split(".");
     const root = parts[0];
@@ -56,6 +91,13 @@ export default {
     }
   },
 
+  /**
+   * Lê um valor do estado da sessão.
+   *
+   * @param {string} param    Caminho dot-notation. Se omitido, retorna o state inteiro.
+   * @param {any}    ifnull   Valor padrão quando o path não existe.
+   * @returns {any}
+   */
   get(param, ifnull = null) {
     if (param && !store.getters.exists(param)) {
       return ifnull;
@@ -64,6 +106,12 @@ export default {
     return store.getters.getData(param);
   },
 
+  /**
+   * Retorna o state serializado e achatado em notação de ponto.
+   * Remove `popup` e `is_popup` (não serializáveis via postMessage).
+   *
+   * @returns {Record<string, any>}
+   */
   getFlatten() {
     let data = Object.assign({}, this.get());
     delete data.popup;
@@ -72,14 +120,31 @@ export default {
     return this.flatten(data);
   },
 
+  /**
+   * Adiciona um elemento a um array no estado.
+   *
+   * @param {string} param  Caminho dot-notation para o array.
+   * @param {any}    value  Elemento a adicionar.
+   */
   addElement(param, value) {
     store.commit("addElementArray", [param, value]);
   },
 
+  /**
+   * Remove um elemento de um array no estado (por igualdade de valor).
+   *
+   * @param {string} param  Caminho dot-notation para o array.
+   * @param {any}    value  Elemento a remover.
+   */
   removeElement(param, value) {
     store.commit("removeElementArray", [param, value]);
   },
 
+  /**
+   * Inverte o valor booleano de um campo.
+   *
+   * @param {string} param  Caminho dot-notation.
+   */
   toggle(param) {
     this.set(param, !this.get(param));
   },
@@ -93,10 +158,25 @@ export default {
     return this.toggle(param);
   },
 
+  /**
+   * Verifica se um path existe no state (sem lançar erro).
+   *
+   * @param {string} param  Caminho dot-notation.
+   * @returns {boolean}
+   */
   exists(param) {
     return store.getters.exists(param);
   },
 
+  /**
+   * Achata um objeto aninhado em notação de ponto.
+   * Ex: `{ a: { b: 1 } }` → `{ "a.b": 1 }`.
+   *
+   * @param {Record<string, any>} data    Objeto a achatar.
+   * @param {string}              parent  Prefixo acumulado (uso interno).
+   * @param {Record<string, any>} result  Objeto de resultado (uso interno).
+   * @returns {Record<string, any>}
+   */
   flatten(data, parent = "", result = {}) {
     for (let key in data) {
       const prop = data[key];
