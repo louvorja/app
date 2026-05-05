@@ -4,6 +4,10 @@ import vuetify from "vite-plugin-vuetify";
 import { VitePWA } from "vite-plugin-pwa";
 import path from "path";
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 // https://vitejs.dev/config/
 export default async ({ mode }) => {
   const { visualizer } = await import("rollup-plugin-visualizer");
@@ -34,14 +38,62 @@ export default async ({ mode }) => {
 
   // VitePWA só para target web — no Electron o protocolo file:// não suporta Service Workers
   if (!isDesktop) {
+    const dbUrl = process.env.VITE_URL_DATABASE ?? "";
+    const filesUrl = process.env.VITE_URL_FILES ?? "";
+
+    // Runtime caching: DB JSONs (stale-while-revalidate) + mídia (cache-first 30 dias).
+    // Quando VITE_URL_* está definido, usa padrão preciso de URL; caso contrário, cai
+    // em padrão por extensão (amplo mas seguro para este app de apresentação).
+    const runtimeCaching = [
+      // JSONs do banco — serve do cache enquanto atualiza em background
+      ...(dbUrl
+        ? [
+            {
+              urlPattern: new RegExp(`^${escapeRegex(dbUrl)}`),
+              handler: "StaleWhileRevalidate",
+              options: {
+                cacheName: "louvorja-db",
+                expiration: { maxEntries: 100, maxAgeSeconds: 7 * 24 * 3600 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+          ]
+        : []),
+      // Áudio (mp3, ogg, wav) — cache-first, TTL 30 dias
+      {
+        urlPattern: filesUrl
+          ? new RegExp(`^${escapeRegex(filesUrl)}.*\\.(mp3|ogg|wav)(\\?.*)?$`, "i")
+          : /\.(mp3|ogg|wav)(\?.*)?$/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "louvorja-audio",
+          expiration: { maxEntries: 500, maxAgeSeconds: 30 * 24 * 3600 },
+          cacheableResponse: { statuses: [0, 200] },
+        },
+      },
+      // Imagens externas — cache-first, TTL 30 dias
+      {
+        urlPattern: filesUrl
+          ? new RegExp(`^${escapeRegex(filesUrl)}.*\\.(jpg|jpeg|png|webp|gif)(\\?.*)?$`, "i")
+          : /\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "louvorja-images",
+          expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 3600 },
+          cacheableResponse: { statuses: [0, 200] },
+        },
+      },
+    ];
+
     plugins.push(
       VitePWA({
-        registerType: "autoUpdate", // Registra o Service Worker para atualizar automaticamente
+        registerType: "autoUpdate",
         devOptions: {
-          enabled: true, // Ativa o PWA também durante o desenvolvimento
+          enabled: true,
         },
         workbox: {
-          globPatterns: ["**/*.{html,js,css,svg,png}"], // Arquivos que o Service Worker deve cachear
+          globPatterns: ["**/*.{html,js,css,svg,png,woff,woff2}"],
+          runtimeCaching,
         },
         manifest: {
           name: "LouvorJA",
