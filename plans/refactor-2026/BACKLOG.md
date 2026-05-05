@@ -171,6 +171,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 059 | [Travar versão Vue / decisão de upgrade](tasks/done/059-travar-vue-versao.md)                            | S      | P3  | 0.5h| done   | 59          |
 | 065 | [Remover `browserslist` se inutilizado pelo Vite](tasks/done/065-remover-browserslist.md)                   | S      | P3  | 0.25h| done  | 65          |
 | 128 | [Commit Shell layout refactor (Ribbon + CommandPalette + LiturgyPanel)](tasks/done/128-shell-layout-refactor.md) | S | P1 | 8h | done | |
+| 129 | [Migrar helpers puros para TypeScript (Strings, DateTime, AudioBeep, Dom)](tasks/done/129-migrar-helpers-puros-ts.md) | S | P2 | 1h | done | 2 |
 
 ---
 
