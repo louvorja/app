@@ -163,3 +163,5 @@ src/modules/*/lang/
 ## 🤝 Contribuindo
 
 Veja [CONTRIBUTING.md](CONTRIBUTING.md) para o guia completo: ambiente, comandos, criação de módulos, convenções de commit e fluxo de PR.
+
+Para entender a arquitetura interna (camadas, estado, BroadcastChannel, composables vs helpers), veja [ARCHITECTURE.md](ARCHITECTURE.md).
