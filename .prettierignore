@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dev-dist/
+build/
+electron/
+src/modules/animation/dependencies/
+*.min.js
+package-lock.json
