@@ -5,15 +5,21 @@ import $storage from "@/helpers/Storage";
 
 const CACHE_TTL_MS = 3600 * 1000;
 
-function getVersion() {
+interface CacheEntry<T> {
+  data: T;
+  ts: number;
+  v: string;
+}
+
+function getVersion(): string {
   return import.meta.env.VITE_DB_VERSION || "";
 }
 
 export default {
-  async get(file) {
+  async get<T = unknown>(file: string): Promise<T | null> {
     try {
       const cache_name = `db:${file}`;
-      const cached = $storage.get(cache_name, null, "session");
+      const cached = $storage.get<CacheEntry<T>>(cache_name, null, "session");
 
       if (cached && typeof cached === "object" && "ts" in cached) {
         const { data, ts, v } = cached;
@@ -27,12 +33,12 @@ export default {
       $dev.write("Abrindo BD", `${$path.db(`/${file}`)}?${date}`);
       const response = await fetch(`${$path.db(`/${file}`)}?${date}`, {
         headers: {
-          "Api-Token": import.meta.env.VITE_API_TOKEN,
+          "Api-Token": import.meta.env.VITE_API_TOKEN as string,
         },
       });
 
       if (!response.ok) throw new Error();
-      const data = await response.json();
+      const data = (await response.json()) as T;
 
       $dev.write("Salvando BD em cache", file);
       try {

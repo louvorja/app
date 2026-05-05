@@ -87,8 +87,7 @@ export const useUserDataStore = defineStore("userData", {
   actions: {
     /**
      * Escreve um valor via notação de ponto dentro do state de user_data.
-     * @param {string} path  Caminho dot-notation (ex: "theme", "modules.media.fade_audio").
-     * @param {any}    value Valor a armazenar.
+     * @param {{ path: string, value: any }} param
      */
     SET_PATH({ path, value }) {
       _walkSet(this, path, value);

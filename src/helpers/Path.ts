@@ -10,10 +10,9 @@ export default {
    *   protocolo customizado com cache local em userData/json_db/.
    * No web/PWA: retorna VITE_URL_DATABASE + <path> diretamente.
    *
-   * @param {string} path  Ex: "/pt_musics" ou "/music_123"
-   * @returns {string}
+   * @param path  Ex: "/pt_musics" ou "/music_123"
    */
-  db(path) {
+  db(path: string): string {
     const key = path.startsWith("/") ? path.slice(1) : path;
     if (!DB_KEY_RE.test(key)) {
       throw new Error(`Path.db: chave inválida "${key}"`);
@@ -31,10 +30,9 @@ export default {
    *   protocolo customizado a partir de userData/files/ (populado em D3).
    * No web/PWA: retorna VITE_URL_FILES + <path> diretamente.
    *
-   * @param {string} path  Ex: "/audio/12345.mp3"
-   * @returns {string}
+   * @param path  Ex: "/audio/12345.mp3"
    */
-  file(path) {
+  file(path: string): string {
     if (path.includes("..") || /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//i.test(path)) {
       throw new Error(`Path.file: caminho inválido "${path}"`);
     }

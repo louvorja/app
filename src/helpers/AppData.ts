@@ -1,5 +1,5 @@
 /**
- * AppData.js — Estado volátil de sessão do LouvorJA.
+ * AppData.ts — Estado volátil de sessão do LouvorJA.
  *
  * Responsabilidade: camada de leitura/escrita sobre os stores Pinia usando
  * notação de ponto (dot-notation). Os dados vivem apenas na memória da
@@ -9,7 +9,7 @@
  *   - appStore  — estado de app (flags, módulos, alert, popup, etc.)
  *   - userDataStore — preferências do usuário (tema, idioma, favoritos, etc.)
  *
- * Quem usa: helpers internos (UserData.js, Alert.js, Popup.js, etc.) e
+ * Quem usa: helpers internos (UserData.ts, Alert.js, Popup.js, etc.) e
  * composables. Componentes e módulos NÃO devem importar AppData diretamente
  * — use UserData para preferências persistidas ou composables do store.
  *
@@ -27,8 +27,7 @@
 import { useAppStore } from "@/stores/appStore";
 import { useUserDataStore } from "@/stores/userDataStore";
 
-// Caminhos de primeiro nível que mapeiam 1:1 para uma action nomeada do appStore.
-const _SCALAR_ACTIONS = {
+const _SCALAR_ACTIONS: Record<string, string> = {
   loading: "SET_LOADING",
   is_dark: "SET_IS_DARK",
   is_dev: "SET_IS_DEV",
@@ -43,6 +42,9 @@ const _SCALAR_ACTIONS = {
 };
 
 export default {
+  /** @internal usado apenas pela deprecação de toogle() */
+  _toogleWarned: false,
+
   /**
    * Escreve um valor no estado da sessão.
    *
@@ -53,46 +55,40 @@ export default {
    * exceto para os campos `popup`, `is_popup` e `is_fullscreen`, que
    * controlariam loops de sincronização.
    *
-   * @param {string} param  Caminho dot-notation (ex: "user_data.theme", "loading").
-   * @param {any}    value  Valor a armazenar.
+   * @param param  Caminho dot-notation (ex: "user_data.theme", "loading").
+   * @param value  Valor a armazenar.
    */
-  set(param, value) {
+  set(param: string, value: unknown): void {
     const parts = param.split(".");
     const root = parts[0];
 
     if (root === "user_data") {
       const ud = useUserDataStore();
       if (parts.length === 1) {
-        // Substitui o state inteiro de user_data (ex: load inicial).
-        ud.$patch(value);
+        ud.$patch(value as Record<string, unknown>);
       } else {
         const path = parts.slice(1).join(".");
         ud.SET_PATH({ path, value });
       }
     } else if (_SCALAR_ACTIONS[root] && parts.length === 1) {
-      // Scalar top-level flag — action nomeada direta.
-      useAppStore()[_SCALAR_ACTIONS[root]](value);
+      (useAppStore() as unknown as Record<string, (v: unknown) => void>)[_SCALAR_ACTIONS[root]](value);
     } else if (root === "alert") {
-      // alert.<key> = value
       useAppStore().PATCH_ALERT({ key: parts[1], value });
     } else if (root === "modules" && parts.length >= 2) {
-      // modules.<id>[.<path>] = value
       const id = parts[1];
       const path = parts.slice(2).join(".");
       useAppStore().SET_MODULE_PATH({ id, path, value });
     } else {
-      // Fallback deprecated — caminhos desconhecidos ou compostos.
       useAppStore().setData([...parts, value]);
     }
 
-    // Sincroniza popup quando appdata muda (mantém estado entre janelas).
     const popup = this.get("popup");
     if (popup && param != "popup" && param != "is_popup" && param != "is_fullscreen") {
-      if (popup.closed) {
+      if ((popup as Window).closed) {
         this.set("popup", null);
       } else {
         try {
-          popup.postMessage({ param, value }, window.location.origin);
+          (popup as Window).postMessage({ param, value }, window.location.origin);
         } catch (e) {
           console.log(e);
         }
@@ -103,16 +99,14 @@ export default {
   /**
    * Lê um valor do estado da sessão.
    *
-   * @param {string} param    Caminho dot-notation. Se omitido, retorna o state mesclado (app + user_data).
-   * @param {any}    ifnull   Valor padrão quando o path não existe.
-   * @returns {any}
+   * @param param    Caminho dot-notation. Se omitido, retorna o state mesclado (app + user_data).
+   * @param ifnull   Valor padrão quando o path não existe.
    */
-  get(param, ifnull = null) {
+  get<T = unknown>(param?: string, ifnull: T | null = null): T | null {
     if (!param) {
-      // Retorna state completo (appStore + userDataStore) para serialização/popup sync.
       const app = useAppStore();
       const ud = useUserDataStore();
-      return { ...app.$state, user_data: ud.$state };
+      return { ...app.$state, user_data: ud.$state } as unknown as T;
     }
 
     const parts = param.split(".");
@@ -120,62 +114,60 @@ export default {
 
     if (root === "user_data") {
       const ud = useUserDataStore();
-      if (parts.length === 1) return ud.$state;
+      if (parts.length === 1) return ud.$state as unknown as T;
       const path = parts.slice(1).join(".");
       const result = ud.getData(path);
-      return result === undefined ? ifnull : result;
+      return result === undefined ? ifnull : (result as T);
     }
 
     const store = useAppStore();
     if (!store.exists(param)) return ifnull;
-    return store.getData(param);
+    return store.getData(param) as T;
   },
 
   /**
    * Retorna o state serializado e achatado em notação de ponto.
    * Remove `popup` e `is_popup` (não serializáveis via postMessage).
-   *
-   * @returns {Record<string, any>}
    */
-  getFlatten() {
-    let data = Object.assign({}, this.get());
-    delete data.popup;
-    delete data.is_popup;
-    data = JSON.parse(JSON.stringify(data));
-    return this.flatten(data);
+  getFlatten(): Record<string, unknown> {
+    const raw = Object.assign({}, this.get()) as Record<string, unknown>;
+    delete raw["popup"];
+    delete raw["is_popup"];
+    const cleaned = JSON.parse(JSON.stringify(raw)) as Record<string, unknown>;
+    return this.flatten(cleaned);
   },
 
   /**
    * Adiciona um elemento a um array no estado.
    *
-   * @param {string} param  Caminho dot-notation para o array.
-   * @param {any}    value  Elemento a adicionar.
+   * @param param  Caminho dot-notation para o array.
+   * @param value  Elemento a adicionar.
    */
-  addElement(param, value) {
+  addElement(param: string, value: unknown): void {
     useAppStore().addElementArray([param, value]);
   },
 
   /**
    * Remove um elemento de um array no estado (por igualdade de valor).
    *
-   * @param {string} param  Caminho dot-notation para o array.
-   * @param {any}    value  Elemento a remover.
+   * @param param  Caminho dot-notation para o array.
+   * @param value  Elemento a remover.
    */
-  removeElement(param, value) {
+  removeElement(param: string, value: unknown): void {
     useAppStore().removeElementArray([param, value]);
   },
 
   /**
    * Inverte o valor booleano de um campo.
    *
-   * @param {string} param  Caminho dot-notation.
+   * @param param  Caminho dot-notation.
    */
-  toggle(param) {
+  toggle(param: string): void {
     this.set(param, !this.get(param));
   },
 
   /** @deprecated Use `toggle` (correct spelling). Will be removed in a future release. */
-  toogle(param) {
+  toogle(param: string): void {
     if (import.meta.env.DEV && !this._toogleWarned) {
       console.warn("[AppData] toogle() is deprecated; use toggle() instead.");
       this._toogleWarned = true;
@@ -186,10 +178,9 @@ export default {
   /**
    * Verifica se um path existe no state (sem lançar erro).
    *
-   * @param {string} param  Caminho dot-notation.
-   * @returns {boolean}
+   * @param param  Caminho dot-notation.
    */
-  exists(param) {
+  exists(param: string): boolean {
     const parts = param.split(".");
     const root = parts[0];
     if (root === "user_data") {
@@ -205,17 +196,20 @@ export default {
    * Achata um objeto aninhado em notação de ponto.
    * Ex: `{ a: { b: 1 } }` → `{ "a.b": 1 }`.
    *
-   * @param {Record<string, any>} data    Objeto a achatar.
-   * @param {string}              parent  Prefixo acumulado (uso interno).
-   * @param {Record<string, any>} result  Objeto de resultado (uso interno).
-   * @returns {Record<string, any>}
+   * @param data    Objeto a achatar.
+   * @param parent  Prefixo acumulado (uso interno).
+   * @param result  Objeto de resultado (uso interno).
    */
-  flatten(data, parent = "", result = {}) {
-    for (let key in data) {
+  flatten(
+    data: Record<string, unknown>,
+    parent = "",
+    result: Record<string, unknown> = {}
+  ): Record<string, unknown> {
+    for (const key in data) {
       const prop = data[key];
       const newKey = parent ? `${parent}.${key}` : key;
       if (typeof prop === "object" && !Array.isArray(prop) && prop !== null) {
-        this.flatten(prop, newKey, result);
+        this.flatten(prop as Record<string, unknown>, newKey, result);
       } else {
         result[newKey] = prop;
       }

@@ -1,5 +1,5 @@
 /**
- * Storage.js — Adapter de persistência para o LouvorJA.
+ * Storage.ts — Adapter de persistência para o LouvorJA.
  *
  * Responsabilidade: único ponto de leitura/escrita em localStorage (web) ou
  * userData via IPC (Electron). Não contém lógica de negócio.
@@ -18,22 +18,24 @@
  *    - type="session" → sessionStorage (igual ao web — sessão não precisa persistir)
  *
  * Callers autorizados:
- *   - UserData.js    — persiste preferências do usuário em "local"
- *   - Database.js    — usa "session" para cache de JSONs do banco (sem lógica de negócio)
+ *   - UserData.ts    — persiste preferências do usuário em "local"
+ *   - Database.ts    — usa "session" para cache de JSONs do banco (sem lógica de negócio)
  *   - main.js        — chama hydrate() antes de montar o app
  *
  * Componentes e módulos NÃO devem importar Storage diretamente.
- * Use UserData.js para preferências persistidas ou AppData.js para estado volátil.
+ * Use UserData.ts para preferências persistidas ou AppData.ts para estado volátil.
  *
  * ATENÇÃO: NÃO alterar as assinaturas de set/get/remove/removeAll.
- * UserData.js e Database.js dependem das assinaturas síncronas atuais.
+ * UserData.ts e Database.ts dependem das assinaturas síncronas atuais.
  *
  * Fase D1 — Storage persistente via userStore IPC.
  */
 
 import Platform from "@/helpers/Platform";
 
-const _devLog = (...args) => {
+export type StorageType = "local" | "session";
+
+const _devLog = (...args: unknown[]): void => {
   if (import.meta.env.DEV) console.log(...args);
 };
 
@@ -41,16 +43,11 @@ const _devLog = (...args) => {
 // Cache em memória para modo desktop
 // ---------------------------------------------------------------------------
 
-/** @type {Record<string, any>} Cache em memória das chaves "local" no Electron */
-let _desktopCache = {};
-
-/** true quando a hidratação inicial foi concluída */
+let _desktopCache: Record<string, unknown> = {};
 let _desktopHydrated = false;
+let _hydrationPromise: Promise<void> | null = null;
 
-/** Promise da hidratação (singleton — evita múltiplas hidratações paralelas) */
-let _hydrationPromise = null;
-
-function assertHydrated(op) {
+function assertHydrated(op: string): void {
   if (Platform.isDesktop && !_desktopHydrated) {
     throw new Error(
       `[Storage] ${op}() chamado antes de Storage.hydrate() — aguarde a hidratação antes de montar o app.`
@@ -62,33 +59,26 @@ function assertHydrated(op) {
 // Migração de localStorage → userStore
 // ---------------------------------------------------------------------------
 
-/**
- * Na primeira vez que o Electron abre (userStore vazio), copia os dados do
- * localStorage para o userStore. Isso preserva as preferências do usuário que
- * usou o PWA antes de instalar o desktop.
- *
- * Não deleta o localStorage — mantém compatibilidade com o PWA.
- */
-async function migrateFromLocalStorage() {
+async function migrateFromLocalStorage(): Promise<void> {
   if (!Platform.isDesktop) return;
 
   try {
-    const existingKeys = await Platform.userStore.keys();
-    if (existingKeys.length > 0) return; // já migrado
+    const existingKeys: string[] = await Platform.userStore.keys();
+    if (existingKeys.length > 0) return;
 
     const count = localStorage.length;
     if (count === 0) return;
 
     _devLog(`[Storage] Migrando ${count} chaves do localStorage para userStore...`);
 
-    const writes = [];
+    const writes: Promise<void>[] = [];
     for (let i = 0; i < count; i++) {
       const key = localStorage.key(i);
       if (!key) continue;
 
-      let value;
+      let value: unknown;
       try {
-        value = JSON.parse(localStorage.getItem(key));
+        value = JSON.parse(localStorage.getItem(key)!);
       } catch {
         value = localStorage.getItem(key);
       }
@@ -108,14 +98,7 @@ async function migrateFromLocalStorage() {
 // Hidratação
 // ---------------------------------------------------------------------------
 
-/**
- * Carrega todas as chaves do userStore para o cache em memória.
- * Deve ser chamado ANTES de montar o app no Electron.
- * No web/PWA é no-op.
- *
- * @returns {Promise<void>}
- */
-async function hydrate() {
+async function hydrate(): Promise<void> {
   if (_desktopHydrated) return;
 
   if (!Platform.isDesktop) {
@@ -126,16 +109,14 @@ async function hydrate() {
   if (!_hydrationPromise) {
     _hydrationPromise = (async () => {
       try {
-        // Migrar do localStorage na primeira vez (se userStore vazio)
         await migrateFromLocalStorage();
 
-        // Carregar todas as chaves do userStore para o cache em memória
-        const storedKeys = await Platform.userStore.keys();
+        const storedKeys: string[] = await Platform.userStore.keys();
 
         await Promise.all(
-          storedKeys.map(async (k) => {
+          storedKeys.map(async (k: string) => {
             try {
-              const value = await Platform.userStore.read(k);
+              const value: unknown = await Platform.userStore.read(k);
               if (value !== null) _desktopCache[k] = value;
             } catch (e) {
               console.warn(`[Storage] Falha ao ler chave "${k}" do userStore:`, e);
@@ -143,9 +124,8 @@ async function hydrate() {
           })
         );
 
-        // Logar caminho do storage para facilitar debug
         try {
-          const storageDir = await Platform.userStore.dir();
+          const storageDir: string = await Platform.userStore.dir();
           _devLog(`[Storage] Diretório de storage: ${storageDir}`);
         } catch (_) {
           /* ignorar */
@@ -169,94 +149,87 @@ export default {
   /**
    * Armazena um valor.
    *
-   * @param {string} item  Chave
-   * @param {any}    data  Valor (objetos são serializados em JSON)
-   * @param {"local"|"session"} type  Tipo de storage
+   * @param item  Chave
+   * @param data  Valor (objetos são serializados em JSON)
+   * @param type  Tipo de storage
    */
-  set(item, data, type = "local") {
-    // Sessão: sempre usa sessionStorage (mesmo no Electron)
+  set(item: string, data: unknown, type: StorageType = "local"): void {
     if (type === "session") {
-      const serialized = typeof data === "object" ? JSON.stringify(data) : data;
+      const serialized = typeof data === "object" ? JSON.stringify(data) : String(data);
       sessionStorage.setItem(item, serialized);
       return;
     }
 
-    // Desktop: cache em memória + escrita assíncrona no userStore
     if (Platform.isDesktop) {
       assertHydrated("set");
       _desktopCache[item] = data;
       Platform.userStore
         .write(item, data)
-        .catch((e) => console.warn(`[Storage] set("${item}") IPC falhou:`, e));
+        .catch((e: unknown) => console.warn(`[Storage] set("${item}") IPC falhou:`, e));
       return;
     }
 
-    // Web: localStorage normal
-    if (typeof data === "object") data = JSON.stringify(data);
-    localStorage.setItem(item, data);
+    const serialized = typeof data === "object" ? JSON.stringify(data) : String(data);
+    localStorage.setItem(item, serialized);
   },
 
   /**
    * Recupera um valor armazenado.
    *
-   * @param {string} item     Chave
-   * @param {any}    ifnull   Valor padrão se não encontrado
-   * @param {"local"|"session"} type  Tipo de storage
-   * @returns {any}
+   * @param item     Chave
+   * @param ifnull   Valor padrão se não encontrado
+   * @param type     Tipo de storage
    */
-  get(item, ifnull = null, type = "local") {
-    // Sessão: sempre usa sessionStorage (mesmo no Electron)
+  get<T = unknown>(item: string, ifnull: T | null = null, type: StorageType = "local"): T | null {
     if (type === "session") {
-      let data = sessionStorage.getItem(item);
+      const data = sessionStorage.getItem(item);
       if (!data) return ifnull;
 
       if (ifnull === null) {
         try {
-          return JSON.parse(data);
+          return JSON.parse(data) as T;
         } catch {
-          return data;
+          return data as unknown as T;
         }
       } else if (typeof ifnull === "object") {
-        return JSON.parse(data);
+        return JSON.parse(data) as T;
       } else {
-        return data;
+        return data as unknown as T;
       }
     }
 
-    // Desktop: lê do cache em memória (populado pela hidratação)
     if (Platform.isDesktop) {
       assertHydrated("get");
       const value = _desktopCache[item];
       if (value === undefined || value === null) return ifnull;
-      return value;
+      return value as T;
     }
 
-    // Web: localStorage normal (código original)
-    let data = localStorage.getItem(item);
+    const data = localStorage.getItem(item);
     if (!data) return ifnull;
 
     if (ifnull === null) {
-      let parsed;
+      let parsed: unknown;
       try {
         parsed = JSON.parse(data);
       } catch {
         parsed = data;
       }
-      return parsed;
+      return parsed as T;
     } else if (typeof ifnull === "object") {
-      return JSON.parse(data);
+      return JSON.parse(data) as T;
     } else {
-      return data;
+      return data as unknown as T;
     }
   },
 
   /**
    * Remove uma chave do storage.
    *
-   * @param {string} item
-   * @param {"local"|"session"} type
+   * @param item
+   * @param type
    */
-  remove(item, type = "local") {
+  remove(item: string, type: StorageType = "local"): void {
     if (type === "session") {
       sessionStorage.removeItem(item);
       return;
@@ -266,7 +239,7 @@ export default {
       delete _desktopCache[item];
       Platform.userStore
         .remove(item)
-        .catch((e) => console.warn(`[Storage] remove("${item}") IPC falhou:`, e));
+        .catch((e: unknown) => console.warn(`[Storage] remove("${item}") IPC falhou:`, e));
       return;
     }
 
@@ -277,10 +250,10 @@ export default {
    * Remove todas as chaves cujo prefixo (antes de ":") corresponda ao item.
    * Ex: removeAll("db") remove "db:pt_musics", "db:bible_pt", etc.
    *
-   * @param {string} item    Prefixo
-   * @param {"local"|"session"} type
+   * @param item    Prefixo
+   * @param type
    */
-  removeAll(item, type = "local") {
+  removeAll(item: string, type: StorageType = "local"): void {
     if (type === "session") {
       for (let i = sessionStorage.length - 1; i >= 0; i--) {
         const key = sessionStorage.key(i);
@@ -297,7 +270,9 @@ export default {
         delete _desktopCache[k];
         Platform.userStore
           .remove(k)
-          .catch((e) => console.warn(`[Storage] removeAll remove("${k}") IPC falhou:`, e));
+          .catch((e: unknown) =>
+            console.warn(`[Storage] removeAll remove("${k}") IPC falhou:`, e)
+          );
       });
       return;
     }
@@ -314,10 +289,9 @@ export default {
    * Retorna o objeto de storage nativo para o tipo dado.
    * Mantido para compatibilidade retroativa.
    *
-   * @param {"local"|"session"} type
-   * @returns {Storage}
+   * @param type
    */
-  storage(type = "local") {
+  storage(type: StorageType = "local"): globalThis.Storage {
     if (type === "session") return sessionStorage;
     return localStorage;
   },
@@ -325,8 +299,6 @@ export default {
   /**
    * Hidratação assíncrona — deve ser chamado antes de montar o app.
    * No-op no web/PWA.
-   *
-   * @returns {Promise<void>}
    */
   hydrate,
 };
