@@ -1,0 +1,29 @@
+# Template para auto-build e auto-release via GitHub Actions.
+#
+# Como ativar:
+#   1. Renomeie este arquivo para release.yml (remova o .template)
+#   2. Adicione o secret GH_TOKEN no repositório GitHub (Settings → Secrets)
+#      ou use o GITHUB_TOKEN automático (já disponível em Actions)
+#   3. Crie uma tag vX.Y.Z e faça push — o workflow dispara automaticamente
+#
+# name: Release
+# on:
+#   push:
+#     tags:
+#       - 'v*'
+# jobs:
+#   build:
+#     runs-on: ${{ matrix.os }}
+#     strategy:
+#       matrix:
+#         os: [windows-latest, macos-latest]
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#       - run: npm ci
+#       - name: Build e publicar release
+#         run: npm run electron:build
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

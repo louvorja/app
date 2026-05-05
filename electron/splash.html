@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LouvorJA</title>
+  <style>
+    /* Replica do fmIniciando.dfm — 508×117, fundo #2D2D28 */
+    :root {
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #2D2D28;
+      color: #fff;
+      font-family: "Tahoma", "Segoe UI", "Helvetica Neue", sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .splash {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: stretch;
+      animation: splash-fade-in 256ms ease-out;
+    }
+    @keyframes splash-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .splash--leaving {
+      animation: splash-fade-out 256ms ease-out forwards;
+    }
+    @keyframes splash-fade-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    .splash-icon {
+      width: 144px;
+      height: 117px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1b2a41 0%, #29569b 100%);
+    }
+
+    .splash-icon-inner {
+      font-family: "Tahoma", sans-serif;
+      font-size: 64px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.04em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .splash-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 14px 22px;
+      gap: 6px;
+    }
+
+    .splash-title {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .splash-subtitle {
+      font-size: 13px;
+      font-weight: 400;
+      color: #b8b8b0;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .splash-info {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #d1cfc4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .splash-spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,0.18);
+      border-top-color: #efb400;
+      border-radius: 50%;
+      animation: splash-spin 0.7s linear infinite;
+    }
+
+    @keyframes splash-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .splash-version {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.4);
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+  <div class="splash" id="splash-root">
+    <div class="splash-icon">
+      <span class="splash-icon-inner">L</span>
+    </div>
+    <div class="splash-content">
+      <div class="splash-title">LouvorJA</div>
+      <div class="splash-subtitle">Sistema de apresentação</div>
+      <div class="splash-info">
+        <span class="splash-spinner"></span>
+        <span id="splash-status">Inicializando programa...</span>
+      </div>
+    </div>
+    <div class="splash-version" id="splash-version"></div>
+  </div>
+
+  <script>
+    // O main process pode atualizar a mensagem via webContents.send
+    if (window.electronAPI?.onStatus) {
+      window.electronAPI.onStatus((msg) => {
+        const el = document.getElementById('splash-status');
+        if (el) el.textContent = msg;
+      });
+    }
+    if (window.electronAPI?.version) {
+      const v = document.getElementById('splash-version');
+      if (v) v.textContent = 'v' + window.electronAPI.version;
+    }
+    // Se receber comando de fechar, anima o fade-out
+    if (window.electronAPI?.onClose) {
+      window.electronAPI.onClose(() => {
+        const root = document.getElementById('splash-root');
+        if (root) root.classList.add('splash--leaving');
+      });
+    }
+  </script>
+</body>
+</html>

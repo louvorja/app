@@ -1,0 +1,88 @@
+# electron-builder configuration for LouvorJA Desktop
+# Docs: https://www.electron.build/configuration/configuration
+
+appId: br.com.louvorja.app
+productName: LouvorJA
+
+# Entry point do main process (referenciado em package.json "main")
+extraMetadata:
+  main: electron/main.cjs
+
+# Diretório de saída dos builds
+directories:
+  output: dist_electron
+  buildResources: build
+
+# Arquivos incluídos no pacote asar
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+
+# Compressão máxima para reduzir tamanho do instalador
+compression: maximum
+
+# Empacotar em asar (melhor performance e segurança)
+asar: true
+
+# ---------------------------------------------------------------------------
+# Publicação de releases — GitHub Releases (electron-updater)
+# ---------------------------------------------------------------------------
+# O electron-updater vai buscar aqui por novas versões.
+# GH_TOKEN precisa estar definido no ambiente de build para publicar.
+publish:
+  - provider: github
+    owner: juanaleixo
+    repo: louvorja
+    private: false
+    releaseType: release
+
+# ---------------------------------------------------------------------------
+# Windows — NSIS installer
+# ---------------------------------------------------------------------------
+win:
+  target: nsis
+  icon: public/ico/favicon-180x180.png
+  # Code signing (opcional — requer certificado pago):
+  # certificateFile: cert.pfx
+  # certificatePassword: ${env.CERT_PWD}
+  # signtoolOptions:
+  #   signingHashAlgorithms: [sha256]
+
+# Para customizar o visual do instalador NSIS, criar os seguintes arquivos em build/:
+#   icon.ico        — ícone do app (256x256, formato ICO)
+#   header.bmp      — cabeçalho do instalador (150x57 px, formato BMP)
+#   sidebar.bmp     — barra lateral do instalador (164x314 px, formato BMP)
+nsis:
+  # Instalador com wizard (não one-click) — usuário pode escolher pasta
+  oneClick: false
+  # Solicitar elevação de privilégios se necessário
+  allowElevation: true
+  # Permitir ao usuário escolher o diretório de instalação
+  allowToChangeInstallationDirectory: true
+  # Criar atalho na área de trabalho
+  createDesktopShortcut: true
+  # Criar atalho no menu iniciar
+  createStartMenuShortcut: true
+  # Nome do atalho
+  shortcutName: LouvorJA
+  # Idioma principal do instalador: 1046 = Portuguese (Brazil)
+  language: "1046"
+  # Suporte a múltiplos idiomas no instalador
+  multiLanguageInstaller: true
+  # Script NSIS customizado (protocolo louvorja://, etc.)
+  include: build/installer.nsh
+  # Arquivos de licença por idioma (exibidos na tela de licença do instalador)
+  # licenseFile: build/license_pt.txt
+
+# ---------------------------------------------------------------------------
+# macOS — DMG
+# ---------------------------------------------------------------------------
+mac:
+  target: dmg
+
+# ---------------------------------------------------------------------------
+# Linux — AppImage
+# ---------------------------------------------------------------------------
+linux:
+  target: AppImage

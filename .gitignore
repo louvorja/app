@@ -2,6 +2,21 @@
 /tmp/
 /dev-dist
 
+# Documentação interna e planos (mantidos apenas localmente)
+/docs/adr/
+/plans/
+
+# Configuração local do Claude Code
+/.claude/
+
+# Saídas de testes/cobertura
+/coverage/
+/playwright-report/
+/test-results/
+
+# Capturas locais
+/prints/
+
 # env files com segredos — commitar apenas .env.example
 .env
 .env.production
