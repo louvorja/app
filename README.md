@@ -1,167 +1,50 @@
-# 🎵 LouvorJA
+# LouvorJA
 
-Sistema web do software LouvorJA. Conheça o projeto em <https://louvorja.com.br>.
-
----
-
-## 📌 Sobre o Projeto
-
-O **LouvorJA** é uma aplicação SPA desenvolvida com Vue 3 e Vuetify 4, estruturada em módulos independentes, permitindo expansão e personalização de funcionalidades como:
-
-- 📖 Bíblia
-- 🎶 Hinários
-- 🎼 Músicas
-- 🎞 Mídia
-- 🕒 Relógio
-- 🎬 Animações
-- 🎨 Temas
-- 📚 Coleções
-
-O sistema foi projetado com uma arquitetura modular escalável.
+Sistema de apresentação de letras de músicas e conteúdo bíblico para uso em cultos e eventos religiosos. Versão web/PWA e desktop (Electron) do software original em Delphi. Visite [louvorja.com.br](https://louvorja.com.br).
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+## Quick start
 
-- Vue 3
-- Vite
-- Vuetify 4
-- Vue Router
-- Vuex
-- Vue I18n
-- Vite PWA Plugin
-- SASS
-
----
-
-## 📦 Instalação e Execução
-
-### Pré-requisitos
-
-- [Node.js 18+](https://nodejs.org/pt-br/download)
-- [NPM 9+](https://www.npmjs.com/)
-
-### Instalação
-
-#### Clonar o repositório
+**Pré-requisitos:** Node.js 18+, npm 9+
 
 ```bash
 git clone https://github.com/louvorja/app
 cd app
-```
-
-#### Instalar dependências
-
-```bash
 npm install
+npm run dev        # http://localhost:5002
 ```
 
-### Execução e Compilação
-
-#### Rodar em modo desenvolvimento
-
-```bash
-npm run dev
-```
-
-#### Build para produção
-
-```bash
-npm run build
-```
-
-#### Preview da build
-
-```bash
-npm run serve
-```
-
-***Obs.:** Para executar este comando, é necessário ter rodado a build primeiro.*
+Para expor na rede local (testes mobile): `npm run host`.  
+Para build de produção: `npm run build`.
 
 ---
 
-## 📂 Estrutura de Pastas
+## Stack
 
-```bash
-src/
- ├── assets/          # Fontes, estilos e recursos estáticos
- ├── components/      # Componentes reutilizáveis globais
- ├── helpers/         # Utilitários e classes auxiliares
- ├── helpers/         # Arquivos de tradução global
- ├── layout/          # Componentes estruturais (Header, Menu, Footer, etc.)
- ├── modules/         # Módulos da aplicação (músicas, utilitários, bíblia, ...)
- ├── plugins/         # Plugins da aplicação
- ├── router/          # Configuração de rotas
- ├── store/           # Vuex (state, actions, mutations, getters)
- ├── views/           # Views principais (Main para a aplicação, Popup para janela externa)
- ├── i18n.js          # Configuração de internacionalização
- └── main.js          # Entry point da aplicação
- ```
+| Tecnologia | Versão | Nota |
+|---|---|---|
+| Vue 3 + Composition API | ^3.x | `<script setup>` em todo o projeto |
+| Vuetify 4 | ~4.0.6 | Travado — ver [ADR 0001](docs/adr/0001-vuetify-versao-estavel.md) |
+| Pinia | ^2.x | Estado global |
+| Vue Router | 5.x | Travado — ver [ADR 0002](docs/adr/0002-vue-router-version.md) |
+| Vue I18n | ^11.x | PT/ES |
+| Vite 7 | ^7.x | Build + dev server (porta 5002) |
+| Electron | ^34.x | Target desktop (opcional) |
 
 ---
 
-## 🧩 Módulos
+## Documentação
 
-### Arquitetura Modular
-
-#### Estrutura de Pastas do Módulo
-
-Cada módulo possui:
-
-```bash
-module/
- ├── index.js
- ├── manifest.json
- ├── interface/
- ├── components/
- └── lang/
- ```
-
-#### Estrutura Padrão de Módulo
-
-- index.js → Ponto de entrada do módulo
-- manifest.json → Metadados
-- interface/ → Interface do módulo
-- lang/ → Traduções específicas
-- components/ → Componentes internos
-
-Isso permite:
-
-- Extensão fácil
-- Separação de responsabilidades
-- Manutenção simplificada
-
-#### Internacionalização
-
-Dentro de cada módulo, as traduções devem ser colocadas dentro da pasta *src/modules/\*/lang/*
+| Documento | Conteúdo |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | Convenções, stack, estrutura — lido pelo Claude Code |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Ambiente, comandos, criação de módulos, fluxo de PR |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Camadas, composables vs helpers, BroadcastChannel, estado |
+| [docs/adr/](docs/adr/) | Decisões arquiteturais formalizadas (Vuetify, Vue Router, etc.) |
 
 ---
 
-## 🧩 Internacionalização
+## Licença
 
-Idiomas suportados:
-
-- 🇧🇷 Português
-- 🇪🇸 Espanhol
-
-Arquivos localizados em:
-
-```bash
-src/lang/
-src/modules/*/lang/
-```
-
----
-
-## 🎨 UI & Layout
-
-- Baseado em Vuetify 4
-- Layout com sistema de janelas
-
----
-
-## 🤝 Contribuindo
-
-Veja [CONTRIBUTING.md](CONTRIBUTING.md) para o guia completo: ambiente, comandos, criação de módulos, convenções de commit e fluxo de PR.
-
-Para entender a arquitetura interna (camadas, estado, BroadcastChannel, composables vs helpers), veja [ARCHITECTURE.md](ARCHITECTURE.md).
+Distribuído sob a licença MIT.
