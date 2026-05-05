@@ -52,7 +52,7 @@
 
     <div class="d-flex flex-no-wrap align-stretch flex-row justify-space-between">
       <div class="w-100">
-        <fullscreen
+        <Fullscreen
           v-model="fullscreen"
           class="position-sticky w-100"
           :style="`top: 0; height:${preview_height}px; overflow: hidden;`"
@@ -67,7 +67,7 @@
             :image_position="slide.image_position"
           />
           <l-fullscreen-player v-if="fullscreen" />
-        </fullscreen>
+        </Fullscreen>
       </div>
       <div v-if="width > 600">
         <v-list class="overflow h-100 ma-0 pa-0" bg-color="black" :width="250">
@@ -118,6 +118,7 @@
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
+import { component as Fullscreen } from "vue-fullscreen";
 import manifest from "../manifest.json";
 import Window from "@/components/Window.vue";
 import LSlide from "@/components/Slide.vue";

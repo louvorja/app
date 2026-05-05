@@ -36,8 +36,11 @@ defineProps({
   padding: var(--lj-space-1) 0;
   min-height: 0;
   /* Limita a 3 botões small empilhados em coluna (estilo Office Ribbon).
-     Botões large quebram em coluna nova naturalmente. */
+     Botões large quebram em coluna nova naturalmente.
+     overflow: hidden previne sobreposição visual com o label do grupo
+     se o conteúdo tentar estourar. */
   max-height: calc(var(--lj-ribbon-body-height) - var(--lj-group-label-height) - 8px);
+  overflow: hidden;
   align-content: flex-start;
 }
 

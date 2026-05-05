@@ -135,7 +135,7 @@ export const RIBBON_PAGES = [
   {
     id: "bible",
     title: "ribbon.pages.bible",
-    defaultModule: "bible",
+    defaultModule: null,
     groups: [
       {
         id: "bible_general",
@@ -260,7 +260,7 @@ export const RIBBON_PAGES = [
   {
     id: "favorites",
     title: "ribbon.pages.favorites",
-    defaultModule: "favorites",
+    defaultModule: null,
     groups: [
       {
         id: "favorites_list",
