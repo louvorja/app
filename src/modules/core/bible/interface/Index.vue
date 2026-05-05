@@ -25,7 +25,7 @@
         <l-select
           v-model="bible.chapter"
           :label="t('chapter')"
-          :items="chaptersList()"
+          :items="chaptersList"
           item-value="id"
           item-title="value"
           icon="mdi-bookmark"
@@ -34,7 +34,7 @@
         <l-select
           v-model="bible_verses"
           :label="t('verses')"
-          :items="versesList()"
+          :items="versesList"
           item-value="id"
           item-title="value"
           multiple
@@ -104,7 +104,7 @@
             <l-select
               v-model="bible.chapter"
               :label="t('chapter')"
-              :items="chaptersList()"
+              :items="chaptersList"
               item-value="id"
               item-title="value"
               icon="mdi-bookmark"
@@ -156,7 +156,7 @@
             v-if="!compact"
             v-model="bible_verses"
             :label="t('verses')"
-            :items="versesList()"
+            :items="versesList"
             item-value="id"
             item-title="value"
             multiple
@@ -561,15 +561,15 @@ async function nextVerse() {
   }
 }
 
-function chaptersList() {
+const chaptersList = computed(() => {
   if (!chapters.value) return [];
   return Array.from({ length: chapters.value }, (_, i) => ({ id: i + 1, value: i + 1 }));
-}
+});
 
-function versesList() {
+const versesList = computed(() => {
   if (!verses.value) return [];
   return Object.keys(verses.value).map((v) => ({ id: +v, value: +v }));
-}
+});
 
 function numbersInterval(numbers) {
   if (!numbers || numbers.length === 0) return "";
