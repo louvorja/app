@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import DateTime from "../DateTime.js";
+import DateTime from "../DateTime";
 
 describe("DateTime.shortTime", () => {
   it("formata 0 segundos como 0:00", () => {

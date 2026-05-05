@@ -1,10 +1,10 @@
 /** @category helper-puro — Formatação de tempo HH:MM:SS. Sem APIs Vue; sem acesso ao store. */
 export default {
-  shortTime(time) {
+  shortTime(time: number | string): string {
     let hours = 0;
     let minutes = 0;
     let seconds = 0;
-    if (isNaN(time)) {
+    if (typeof time === "string") {
       const [h, m, s] = time.split(":").map(Number);
       hours = h;
       minutes = m;
@@ -19,7 +19,7 @@ export default {
     return `${minutes}:${String(Math.floor(seconds)).padStart(2, "0")}`;
   },
 
-  toNumber(time) {
+  toNumber(time: string): number {
     const parts = time.split(":").map(Number);
 
     const hours = parts[0] || 0;

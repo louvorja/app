@@ -1,5 +1,5 @@
 import { ref, computed } from "vue";
-import { playBeep } from "@helpers/AudioBeep.js";
+import { playBeep } from "@helpers/AudioBeep";
 
 /**
  * @param {import('vue').ComputedRef<Array>} items

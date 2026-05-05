@@ -56,7 +56,7 @@
 import { ref, computed, watch, onBeforeUnmount } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
-import { playBeep } from "@helpers/AudioBeep.js";
+import { playBeep } from "@helpers/AudioBeep";
 import AppData from "@/helpers/AppData";
 
 function playAlarm() {

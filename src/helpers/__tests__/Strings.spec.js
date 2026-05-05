@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import Strings from "../Strings.js";
+import Strings from "../Strings";
 
 describe("Strings.clean", () => {
   it("converte para minúsculas", () => {
