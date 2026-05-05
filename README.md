@@ -41,6 +41,7 @@ Para build de produção: `npm run build`.
 | [CLAUDE.md](CLAUDE.md) | Convenções, stack, estrutura — lido pelo Claude Code |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Ambiente, comandos, criação de módulos, fluxo de PR |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Camadas, composables vs helpers, BroadcastChannel, estado |
+| [docs/design-system.md](docs/design-system.md) | Tokens CSS, paleta, tipografia, espaçamento, utilitárias |
 | [docs/adr/](docs/adr/) | Decisões arquiteturais formalizadas (Vuetify, Vue Router, etc.) |
 
 ---
