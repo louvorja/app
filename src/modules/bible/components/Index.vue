@@ -237,6 +237,7 @@ import Modules from "@/helpers/Modules";
 import AppData from "@/helpers/AppData";
 import Database from "@/helpers/Database";
 import Broadcast from "@/helpers/Broadcast";
+import { scrollToElement } from "@/helpers/Dom";
 
 const { t: i18nT, locale } = useI18n();
 const { width } = useDisplay();
@@ -451,8 +452,7 @@ async function selBook(id_bible_book) {
     await loadData();
   }
 
-  const element = document.getElementById(`listBook_${id_bible_book}`);
-  if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+  scrollToElement(document.getElementById(`listBook_${id_bible_book}`));
 }
 
 async function selChapter(chapter) {
@@ -461,8 +461,7 @@ async function selChapter(chapter) {
   last_verse.value = 1;
   await loadData();
 
-  const element = document.getElementById(`listChapter_${chapter}`);
-  if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+  scrollToElement(document.getElementById(`listChapter_${chapter}`));
 }
 
 async function selVerse(event, num) {
@@ -511,8 +510,7 @@ async function selVerse(event, num) {
     active: true,
   });
 
-  const element = document.getElementById(`listVerse_${last_verse.value}`);
-  if (element) element.scrollIntoView({ behavior: "smooth", block: "center" });
+  scrollToElement(document.getElementById(`listVerse_${last_verse.value}`));
 }
 
 async function prevVerse() {
