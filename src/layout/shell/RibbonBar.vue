@@ -98,7 +98,7 @@
           :icon-color="btn.color"
           :label="$t(btn.label)"
           :size="btn.size || 'large'"
-          :active="isModuleOpen(btn.module)"
+          :active="isButtonActive(btn)"
           :testid="`ribbon-btn-${btn.id}`"
           @click="executeButton(btn)"
         />
@@ -156,16 +156,10 @@ watch(openModuleIds, () => {
   }
 });
 
-watch(openModuleIds, (newIds, oldIds = []) => {
-  const justOpened = newIds.filter((id) => !oldIds.includes(id));
-  if (justOpened.length === 0) return;
-  for (const ctxPage of RIBBON_PAGES.filter((p) => p.contextual)) {
-    if ((ctxPage.activeOnModules || []).some((id) => justOpened.includes(id))) {
-      activePage.value = ctxPage.id;
-      return;
-    }
-  }
-});
+// Tabs contextuais ficam visíveis quando o módulo está aberto, mas NÃO assumem
+// foco automaticamente — usuário troca de tab explicitamente clicando.
+// (Auto-activate era considerado disruptivo: clicar Hinário trocava para
+// "Configurar Hinos" no meio do clique do usuário.)
 
 function selectPage(id) {
   activePage.value = id;
@@ -177,8 +171,23 @@ function isModuleOpen(moduleId) {
   return moduleId ? openModuleIds.value.includes(moduleId) : false;
 }
 
+// Quando dois botões mapeiam ao mesmo módulo (ex.: stopwatch_culto/stopwatch
+// ou diverse/personal), só o último botão clicado fica destacado.
+function isButtonActive(btn) {
+  if (!btn.module) return false;
+  if (!openModuleIds.value.includes(btn.module)) return false;
+  const lastBtn = $appdata.get(`modules.${btn.module}.last_btn`);
+  // Se nenhum botão registrado ainda, considera ativo só botões sem irmãos
+  if (!lastBtn) return true;
+  return lastBtn === btn.id;
+}
+
 function executeButton(btn) {
   if (btn.module) {
+    // Marca qual botão originou a abertura — evita destacar todos os botões
+    // que mapeiam ao mesmo módulo (collections "Diversas" vs "Personalizadas",
+    // stopwatch "de Culto" vs "Cronômetro", etc).
+    $appdata.set(`modules.${btn.module}.last_btn`, btn.id);
     $modules.open(btn.module);
   }
 }
