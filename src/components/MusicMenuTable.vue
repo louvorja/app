@@ -77,6 +77,12 @@
 </template>
 
 <script setup>
+/**
+ * Widget de ações por linha de tabela de músicas: botões rápidos (favorito, cantar,
+ * playback, sem áudio, letra) + menu dropdown com submenus. O sufixo "Table" no nome
+ * indica o contexto onde é renderizado, não a presença de lógica de tabela — não há
+ * duplicação com DataTable.vue.
+ */
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";

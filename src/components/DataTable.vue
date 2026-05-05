@@ -16,6 +16,11 @@
 </template>
 
 <script setup>
+/**
+ * Container genérico de tabela: carrega JSON via Database, filtra por busca/letra/filter,
+ * ordena e pagina (100 por vez via scroll ou RAF). Emite o estado via v-model.
+ * Ver MusicMenuTable.vue para o widget de ações por linha — são componentes distintos.
+ */
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import Database from "@/helpers/Database";
