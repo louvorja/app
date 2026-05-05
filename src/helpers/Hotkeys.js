@@ -17,6 +17,26 @@
  */
 
 // ---------------------------------------------------------------------------
+// Candidatos a globalShortcut (Electron D6)
+// ---------------------------------------------------------------------------
+
+/**
+ * Atalhos in-window que são candidatos a tornar-se globalShortcut no Electron.
+ * Se um desses for registrado via globalShortcut E via Hotkeys.register, pode
+ * ocorrer double-fire quando a janela tiver foco.
+ *
+ * Formato: chave normalizada por _normalizeCombo (módificadores maiúsculos, tecla minúscula).
+ * Ver tabela completa em docs/architecture.md — seção "Atalhos de Teclado".
+ */
+export const GLOBAL_CANDIDATES = new Set([
+  "f1", // Cheatsheet — útil system-wide durante apresentação
+  "Ctrl+k", // Command Palette
+  "Meta+k", // Command Palette (Mac)
+  "Ctrl+arrowleft", // Música anterior — útil com app minimizado durante culto
+  "Ctrl+arrowright", // Próxima música — útil com app minimizado durante culto
+]);
+
+// ---------------------------------------------------------------------------
 // Registro interno
 // ---------------------------------------------------------------------------
 
@@ -158,6 +178,14 @@ function register(combo, handler, options = {}) {
 
   const key = _normalizeCombo(combo);
   if (!_registry.has(key)) _registry.set(key, []);
+
+  // Avisa se o atalho é candidato a globalShortcut — double-fire potencial no Electron.
+  if (GLOBAL_CANDIDATES.has(key)) {
+    console.warn(
+      `[Hotkeys] "${key}" é candidato a globalShortcut — pode causar double-fire ` +
+        `se o Electron registrar o mesmo atalho via D6. Ver docs/architecture.md.`
+    );
+  }
 
   _registry
     .get(key)
