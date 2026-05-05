@@ -157,3 +157,9 @@ src/modules/*/lang/
 
 - Baseado em Vuetify 4
 - Layout com sistema de janelas
+
+---
+
+## 🤝 Contribuindo
+
+Veja [CONTRIBUTING.md](CONTRIBUTING.md) para o guia completo: ambiente, comandos, criação de módulos, convenções de commit e fluxo de PR.
