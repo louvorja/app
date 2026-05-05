@@ -89,6 +89,7 @@ import AppMenuOpcoes from "./AppMenuOpcoes.vue";
 import AppMenuSobre from "./AppMenuSobre.vue";
 import $modules from "@/helpers/Modules";
 import $database from "@/helpers/Database";
+import $appdata from "@/helpers/AppData";
 
 const open = ref(false);
 const dbVersion = ref(0);
@@ -104,6 +105,11 @@ const versionLabel = computed(() => `LouvorJA v${packageJson.version}.${dbVersio
 const items = computed(() => [
   { id: "about", label: "shell.appmenu_items.about", inline: true },
   { id: "settings", label: "shell.appmenu_items.settings", inline: true },
+  {
+    id: "formatacao",
+    label: "formatacao.menu",
+    action: () => $appdata.set("ui.formatacao_open", true),
+  },
   {
     id: "transmission",
     label: "shell.appmenu_items.transmission",

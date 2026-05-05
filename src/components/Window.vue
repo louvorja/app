@@ -32,11 +32,7 @@
           <div class="lj-window-actions">
             <slot name="system_buttons" />
 
-            <l-customization-bar v-if="$slots.customize">
-              <slot name="customize" />
-            </l-customization-bar>
-
-            <span v-if="$slots.customize || $slots.system_buttons" class="lj-window-divider" />
+            <span v-if="$slots.system_buttons" class="lj-window-divider" />
 
             <button
               v-if="minimizable"
@@ -101,7 +97,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { useDisplay } from "vuetify";
-import LCustomizationBar from "@/components/CustomizationBar.vue";
 
 const props = defineProps({
   modelValue: {

@@ -3,5 +3,57 @@
   "name": "Sorteio de Nomes",
   "description": "Sorteador de nomes a partir de uma lista.",
   "category": "utilities",
-  "icon": "mdi-account-multiple-outline"
+  "icon": "mdi-account-multiple-outline",
+  "customization": {
+    "font": {
+      "type": "font",
+      "label": "customization.font",
+      "default": "Arial, sans-serif"
+    },
+    "font_color": {
+      "type": "color",
+      "label": "customization.color",
+      "default": "#FFFFFF"
+    },
+    "font_size": {
+      "type": "font-size",
+      "label": "customization.size",
+      "default": 40
+    },
+    "background_color": {
+      "type": "color",
+      "label": "customization.color",
+      "default": "#000000"
+    },
+    "border_spacing": {
+      "type": "border-spacing",
+      "label": "customization.border",
+      "default": 10
+    },
+    "vertical_align": {
+      "type": "v-align",
+      "label": "customization.vertical",
+      "default": "center"
+    },
+    "horizontal_align": {
+      "type": "h-align",
+      "label": "customization.horizontal",
+      "default": "center"
+    },
+    "image": {
+      "type": "image",
+      "label": "customization.image",
+      "default": ""
+    },
+    "image_opacity": {
+      "type": "opacity",
+      "label": "customization.transparency",
+      "default": 100
+    },
+    "image_fit": {
+      "type": "object-fit",
+      "label": "customization.adjust",
+      "default": "cover"
+    }
+  }
 }

@@ -325,6 +325,42 @@
     "proj_open_return": "Abrir retorno (operador)",
     "proj_open_operator": "Abrir grade do operador"
   },
+  "formatacao": {
+    "title": "Formatação",
+    "menu": "Formatação",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "restore": "Restaurar padrão",
+    "restore_confirm": "Restaurar formatação padrão deste item? As alterações atuais serão perdidas.",
+    "empty": "Selecione um item à esquerda para configurar a formatação.",
+    "slides_title": "Slides de Música",
+    "slides_hint": "Aplica-se a todas as músicas: Projeção, Retorno e Operador.",
+    "section": {
+      "cover": "Capa",
+      "lyric": "Letra",
+      "next": "Próximo slide (Retorno)",
+      "font_bg": "Fonte e fundo",
+      "behavior": "Comportamento"
+    },
+    "field": {
+      "color": "Cor da letra",
+      "size": "Tamanho (% da tela)",
+      "font": "Fonte",
+      "bg_color": "Cor de fundo",
+      "progress_color": "Cor da barra de progresso",
+      "show_progress": "Mostrar barra de progresso",
+      "show_title_first_slide": "Mostrar título da música no primeiro slide",
+      "text_align": "Alinhamento vertical",
+      "align_top": "Topo",
+      "align_center": "Centro",
+      "align_bottom": "Rodapé"
+    }
+  },
+  "customization": {
+    "alert_color": "Cor de alerta",
+    "hour_cycle": "Formato de hora",
+    "time_format": "Formato"
+  },
   "hotkeys": {
     "title": "Atalhos de Teclado",
     "groups": {

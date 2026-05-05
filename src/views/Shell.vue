@@ -28,6 +28,7 @@
 
     <CommandPalette v-model="cmdPaletteOpen" />
     <HotkeysCheatsheet v-model="hotkeysOpen" />
+    <FormatacaoDialog />
   </v-app>
 </template>
 
@@ -47,6 +48,7 @@ import OpenModulesTabs from "@/layout/shell/OpenModulesTabs.vue";
 import ShellStatusBar from "@/layout/shell/StatusBar.vue";
 import ShellLiturgyPanel from "@/layout/shell/ShellLiturgyPanel.vue";
 import HotkeysCheatsheet from "@/layout/shell/HotkeysCheatsheet.vue";
+import FormatacaoDialog from "@/layout/shell/FormatacaoDialog.vue";
 import $appdata from "@/helpers/AppData";
 import $userdata from "@/helpers/UserData";
 import $popup from "@/helpers/Popup";

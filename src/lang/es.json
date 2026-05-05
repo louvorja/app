@@ -325,6 +325,42 @@
     "proj_open_return": "Abrir retorno (operador)",
     "proj_open_operator": "Abrir cuadrícula del operador"
   },
+  "formatacao": {
+    "title": "Formato",
+    "menu": "Formato",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "restore": "Restaurar predeterminado",
+    "restore_confirm": "¿Restaurar el formato predeterminado de este ítem? Los cambios actuales se perderán.",
+    "empty": "Seleccione un ítem a la izquierda para configurar el formato.",
+    "slides_title": "Diapositivas de Música",
+    "slides_hint": "Se aplica a todas las músicas: Proyección, Retorno y Operador.",
+    "section": {
+      "cover": "Portada",
+      "lyric": "Letra",
+      "next": "Próxima diapositiva (Retorno)",
+      "font_bg": "Fuente y fondo",
+      "behavior": "Comportamiento"
+    },
+    "field": {
+      "color": "Color de letra",
+      "size": "Tamaño (% de la pantalla)",
+      "font": "Fuente",
+      "bg_color": "Color de fondo",
+      "progress_color": "Color de barra de progreso",
+      "show_progress": "Mostrar barra de progreso",
+      "show_title_first_slide": "Mostrar título en la primera diapositiva",
+      "text_align": "Alineación vertical",
+      "align_top": "Arriba",
+      "align_center": "Centro",
+      "align_bottom": "Abajo"
+    }
+  },
+  "customization": {
+    "alert_color": "Color de alerta",
+    "hour_cycle": "Formato de hora",
+    "time_format": "Formato"
+  },
   "hotkeys": {
     "title": "Atajos de Teclado",
     "groups": {

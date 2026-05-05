@@ -4,10 +4,10 @@
     <div class="return-current">
       <!-- Imagem de fundo do slide atual -->
       <div
-        v-if="slide && slide.url_image"
-        :key="slide.url_image"
+        v-if="(slide && slide.url_image) || slideStyle.cfg.value.background_image"
+        :key="slide?.url_image || slideStyle.cfg.value.background_image"
         class="return-bg"
-        :style="bgImgStyle"
+        :style="slideStyle.bgStyle(slide)"
       />
 
       <div class="return-current-text">
@@ -24,8 +24,11 @@
       <div v-if="title" class="return-title">{{ title }}</div>
 
       <!-- Barra de progresso fina no rodapé do painel atual -->
-      <div class="return-progress-bar">
-        <div class="return-progress-fill" :style="{ width: progress + '%' }" />
+      <div v-if="slideStyle.cfg.value.show_progress_bar" class="return-progress-bar">
+        <div
+          class="return-progress-fill"
+          :style="{ width: progress + '%', background: slideStyle.cfg.value.progress_color }"
+        />
       </div>
     </div>
 
@@ -34,7 +37,11 @@
       <div class="return-bottom-grid">
         <div class="return-next-text">
           <span class="return-next-label">{{ t("shell.proj_return_next") }}</span>
-          <span class="return-next-content" v-html="nextSlide?.lyric || nextSlide?.name || '—'" />
+          <span
+            class="return-next-content"
+            :style="slideStyle.nextStyle(nextSlide)"
+            v-html="nextSlide?.lyric || nextSlide?.name || '—'"
+          />
         </div>
         <div class="return-counter">{{ slideIndex + 1 }} / {{ totalSlides || 0 }}</div>
       </div>
@@ -45,24 +52,26 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { useProjectionState, COLOR_COVER_GOLD } from "@/composables/useProjectionState";
+import { useProjectionState } from "@/composables/useProjectionState";
+import { useSlideStyle } from "@/composables/useSlideStyle";
 
 const { t } = useI18n();
-const { slide, isCover, bgImgStyle, progress, title, slideIndex, totalSlides, nextSlide } =
+const { slide, isCover, progress, title, slideIndex, totalSlides, nextSlide } =
   useProjectionState();
+const slideStyle = useSlideStyle();
 
 const ready = ref(false);
 
-// textStyle é específico desta view (tamanhos e fallbacks diferentes de Projection.vue).
+// Reusa coverStyle / lyricStyle do composable, com tamanhos menores
+// para o stage display (Return é menor que Projection fullscreen).
 const textStyle = computed(() => {
-  const color = isCover.value
-    ? slide.value?.color || COLOR_COVER_GOLD
-    : slide.value?.color || "#FFFFFF";
-  const sizePercent = Number(slide.value?.font_size_pct) || (isCover.value ? 14 : 11);
+  const base = isCover.value
+    ? slideStyle.coverStyle(slide.value)
+    : slideStyle.lyricStyle(slide.value);
+  // Ajuste para o painel de retorno (font menor, mantém cores e família).
   return {
-    color,
-    fontSize: `clamp(24px, ${sizePercent}vh, 160px)`,
-    fontWeight: isCover.value ? 700 : 600,
+    ...base,
+    fontSize: `clamp(24px, ${isCover.value ? 14 : 11}vh, 160px)`,
   };
 });
 

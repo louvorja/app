@@ -1,16 +1,27 @@
 <template>
   <div
     class="projection-root"
-    :class="{ 'projection-root--ready': ready, 'projection-root--leaving': leaving }"
-    :style="{ background: config.bg }"
+    :class="[
+      { 'projection-root--ready': ready, 'projection-root--leaving': leaving },
+      `projection-root--align-${slideStyle.cfg.value.text_align}`,
+    ]"
+    :style="rootStyle"
   >
     <!-- Fundo com imagem (sem transição: troca instantânea como no Delphi) -->
     <div
-      v-if="slide && slide.url_image"
-      :key="slide.url_image"
+      v-if="(slide && slide.url_image) || slideStyle.cfg.value.background_image"
+      :key="slide?.url_image || slideStyle.cfg.value.background_image"
       class="projection-bg"
-      :style="bgImgStyle"
+      :style="slideStyle.bgStyle(slide)"
     />
+
+    <!-- Título da música no primeiro slide (configurável) -->
+    <div
+      v-if="slideStyle.cfg.value.show_title_first_slide && isCover && title"
+      class="projection-title"
+    >
+      {{ title }}
+    </div>
 
     <!-- Texto: troca INSTANTÂNEA entre slides (fiel ao Delphi) -->
     <div class="projection-content">
@@ -28,68 +39,36 @@
     <div v-if="slide && slide.lyric_aux" class="projection-content projection-content--aux">
       <div
         class="projection-text projection-text--aux"
-        :style="auxTextStyle"
+        :style="slideStyle.auxStyle(slide)"
         v-html="slide.lyric_aux"
       />
     </div>
 
     <!-- Barra de progresso inferior -->
     <div
+      v-if="slideStyle.cfg.value.show_progress_bar"
       class="projection-progress"
-      :style="{ width: progress + '%', background: config.progress_color }"
+      :style="{ width: progress + '%', background: slideStyle.cfg.value.progress_color }"
     />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import {
-  useProjectionState,
-  COLOR_COVER_GOLD,
-  COLOR_LYRIC_WHITE,
-} from "@/composables/useProjectionState";
+import { useProjectionState } from "@/composables/useProjectionState";
+import { useSlideStyle } from "@/composables/useSlideStyle";
 
-const { slide, isCover, bgImgStyle, progress } = useProjectionState();
+const { slide, isCover, progress, title } = useProjectionState();
+const slideStyle = useSlideStyle();
+const rootStyle = slideStyle.rootStyle;
 
 const ready = ref(false);
 const leaving = ref(false);
-const config = ref({
-  bg: "#000",
-  text_color: "#fff",
-  font_size: 54,
-  progress_color: "#EFB400",
-});
 
-// textStyle e auxTextStyle são específicos desta view (isCover e bgImgStyle vêm do composable).
-const textStyle = computed(() => {
-  const baseColor = isCover.value
-    ? slide.value?.color || COLOR_COVER_GOLD
-    : slide.value?.color || config.value.text_color || COLOR_LYRIC_WHITE;
-  const sizePercent = Number(slide.value?.font_size_pct) || (isCover.value ? 18 : 14);
-  return {
-    color: baseColor,
-    fontSize: `clamp(28px, ${sizePercent}vh, 200px)`,
-    textAlign: "center",
-    textShadow: "0 2px 12px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.6)",
-    lineHeight: 1.3,
-    fontWeight: isCover.value ? 700 : 600,
-    maxWidth: "92vw",
-  };
-});
-
-const auxTextStyle = computed(() => {
-  const baseColor = slide.value?.color_aux || COLOR_COVER_GOLD;
-  const sizePercent = Number(slide.value?.font_size_aux_pct) || 8;
-  return {
-    color: baseColor,
-    fontSize: `clamp(20px, ${sizePercent}vh, 120px)`,
-    textAlign: "center",
-    textShadow: "0 2px 12px rgba(0,0,0,0.9)",
-    lineHeight: 1.3,
-    fontWeight: 600,
-    maxWidth: "92vw",
-  };
-});
+// Decide entre estilo de capa e letra com base em isCover.
+const textStyle = computed(() =>
+  isCover.value ? slideStyle.coverStyle(slide.value) : slideStyle.lyricStyle(slide.value)
+);
 
 function _beginLeave() {
   leaving.value = true;
@@ -156,9 +135,35 @@ onBeforeUnmount(() => {
   padding: 60px;
 }
 
+/* Alinhamento configurável (options.slides.text_align) */
+.projection-root--align-top .projection-content {
+  align-items: flex-start;
+  padding-top: 8vh;
+}
+.projection-root--align-bottom .projection-content {
+  align-items: flex-end;
+  padding-bottom: 8vh;
+}
+
 .projection-content--aux {
   align-items: flex-start;
   padding-top: 6vh;
+}
+
+.projection-title {
+  position: absolute;
+  top: 2vh;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(14px, 2.5vh, 30px);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .projection-text {
