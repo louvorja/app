@@ -77,7 +77,8 @@
       "title": "General",
       "fade_form": "Agregar efecto de esmaecimiento en las pantallas",
       "theme": "Apariencia del programa:",
-      "language": "Idioma:"
+      "language": "Idioma:",
+      "start_with_os": "Iniciar con el sistema operativo"
     },
     "monitors": {
       "title": "Monitores",
@@ -354,7 +355,15 @@
       "align_top": "Arriba",
       "align_center": "Centro",
       "align_bottom": "Abajo"
-    }
+    },
+    "profiles": "Perfiles",
+    "profile_save": "Guardar como perfil…",
+    "profile_name_prompt": "Nombre del perfil:",
+    "profile_load_confirm": "Cargar este perfil reemplaza el formato actual. ¿Continuar?",
+    "profile_delete_confirm": "¿Eliminar este perfil?",
+    "export": "Exportar (.json)",
+    "import": "Importar (.json)",
+    "import_error": "Falló al importar: archivo inválido."
   },
   "customization": {
     "alert_color": "Color de alerta",

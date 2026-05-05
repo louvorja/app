@@ -174,6 +174,15 @@ contextBridge.exposeInMainWorld("louvorjaApi", {
     close: (feature) => ipcRenderer.invoke("windows:close", feature),
     /** Lista features com janelas abertas */
     listOpen: () => ipcRenderer.invoke("windows:listOpen"),
+    /** Liga/desliga always-on-top de uma janela aberta */
+    setAlwaysOnTop: (feature, on) =>
+      ipcRenderer.invoke("windows:setAlwaysOnTop", feature, on),
+  },
+
+  // F5.1 — Iniciar com o sistema operacional
+  appLogin: {
+    set: (enabled) => ipcRenderer.invoke("app:setLoginItem", enabled),
+    get: () => ipcRenderer.invoke("app:getLoginItem"),
   },
 
   // -------------------------------------------------------------------------

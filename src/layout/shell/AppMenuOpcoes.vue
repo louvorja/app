@@ -39,6 +39,17 @@
           <option value="es">Español</option>
         </select>
       </div>
+
+      <div v-if="isDesktop" class="opt-row">
+        <label class="opt-checkbox">
+          <input
+            type="checkbox"
+            :checked="userdata.start_with_os"
+            @change="toggleStartWithOS($event.target.checked)"
+          />
+          <span>{{ $t("options.general.start_with_os") }}</span>
+        </label>
+      </div>
     </section>
 
     <!-- Monitores -->
@@ -260,12 +271,15 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "vuetify";
 import { useDisplays } from "@/composables/useDisplays";
 import $appdata from "@/helpers/AppData";
 import $userdata from "@/helpers/UserData";
+import Platform from "@/helpers/Platform";
+
+const isDesktop = computed(() => Platform.isDesktop);
 
 const { locale } = useI18n();
 const theme = useTheme();
@@ -328,6 +342,34 @@ function changeLanguage(lang) {
   locale.value = lang;
   $userdata.set("language", lang);
 }
+
+async function toggleStartWithOS(enabled) {
+  setUd("start_with_os", !!enabled);
+  const api = Platform?.appLogin;
+  if (api?.set) {
+    try {
+      await api.set(!!enabled);
+    } catch (e) {
+      console.warn("[AppMenuOpcoes] setLoginItem falhou:", e);
+    }
+  }
+}
+
+onMounted(async () => {
+  // Sincroniza o estado real do SO com a preferência salva (caso o
+  // usuário tenha alterado fora do app).
+  const api = Platform?.appLogin;
+  if (api?.get) {
+    try {
+      const cur = await api.get();
+      if (cur && typeof cur.openAtLogin === "boolean") {
+        $userdata.set("options.start_with_os", cur.openAtLogin);
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+});
 </script>
 
 <style scoped>

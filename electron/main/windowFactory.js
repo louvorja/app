@@ -29,7 +29,7 @@ const _openWindows = new Map();
  * @param {string} [options.prodHtmlPath]  Em prod: dist/index.html
  * @returns {BrowserWindow}
  */
-function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = false, preloadPath, devUrl, prodHtmlPath, width, height }) {
+function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = false, preloadPath, devUrl, prodHtmlPath, width, height, alwaysOnTop = false }) {
   // Se já existe janela para essa feature, foca-a
   const existing = _openWindows.get(feature);
   if (existing && !existing.isDestroyed()) {
@@ -53,6 +53,7 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     height: fullscreen ? bounds.height : (height || 600),
     fullscreen,
     frame,
+    alwaysOnTop,
     title: feature,
     show: false,
     autoHideMenuBar: true,
@@ -104,4 +105,13 @@ function listOpen() {
   });
 }
 
-module.exports = { openOnMonitor, close, listOpen };
+/**
+ * Retorna a BrowserWindow associada a uma feature (ou undefined).
+ * @param {string} feature
+ */
+function getWindow(feature) {
+  const w = _openWindows.get(feature);
+  return w && !w.isDestroyed() ? w : null;
+}
+
+module.exports = { openOnMonitor, close, listOpen, getWindow };

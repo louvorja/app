@@ -58,6 +58,59 @@
           <v-icon icon="mdi-restore" size="18" class="mr-1" />
           {{ $t("formatacao.restore") }}
         </v-btn>
+
+        <v-menu>
+          <template #activator="{ props: menuProps }">
+            <v-btn v-bind="menuProps" variant="text">
+              <v-icon icon="mdi-content-save-cog" size="18" class="mr-1" />
+              {{ $t("formatacao.profiles") }}
+            </v-btn>
+          </template>
+          <v-list density="compact">
+            <v-list-item
+              prepend-icon="mdi-content-save-plus"
+              :title="$t('formatacao.profile_save')"
+              @click="saveProfile"
+            />
+            <v-divider v-if="profiles.length" />
+            <v-list-item
+              v-for="p in profiles"
+              :key="p.name"
+              prepend-icon="mdi-folder-open"
+              :title="p.name"
+              @click="loadProfile(p)"
+            >
+              <template #append>
+                <v-btn
+                  icon="mdi-delete"
+                  size="x-small"
+                  variant="text"
+                  @click.stop="deleteProfile(p)"
+                />
+              </template>
+            </v-list-item>
+            <v-divider />
+            <v-list-item
+              prepend-icon="mdi-export"
+              :title="$t('formatacao.export')"
+              @click="exportJson"
+            />
+            <v-list-item
+              prepend-icon="mdi-import"
+              :title="$t('formatacao.import')"
+              @click="importJson"
+            />
+          </v-list>
+        </v-menu>
+
+        <input
+          ref="fileInput"
+          type="file"
+          accept="application/json"
+          style="display: none"
+          @change="onFileSelected"
+        />
+
         <v-spacer />
         <v-btn variant="text" @click="cancel">{{ $t("formatacao.cancel") }}</v-btn>
         <v-btn color="primary" variant="flat" @click="save">{{ $t("formatacao.save") }}</v-btn>
@@ -182,6 +235,92 @@ function restore() {
       });
     }
   });
+}
+
+// ─── Perfis ──────────────────────────────────────────────────────────────
+const profiles = computed(() => $userdata.get("profiles", []) ?? []);
+const fileInput = ref(null);
+
+function _currentSnapshot() {
+  return {
+    version: 1,
+    created_at: new Date().toISOString(),
+    slides: $userdata.get("options.slides", {}) ?? {},
+    modules: Object.fromEntries(
+      moduleEntries.value.map((e) => [
+        e.module.id,
+        $userdata.get(`modules.${e.module.id}`, {}) ?? {},
+      ])
+    ),
+  };
+}
+
+function _applySnapshot(snapshot) {
+  if (!snapshot || typeof snapshot !== "object") return;
+  if (snapshot.slides) $userdata.set("options.slides", snapshot.slides);
+  if (snapshot.modules) {
+    Object.entries(snapshot.modules).forEach(([id, val]) => {
+      $userdata.set(`modules.${id}`, val);
+    });
+  }
+}
+
+function saveProfile() {
+  const name = window.prompt(t("formatacao.profile_name_prompt"));
+  if (!name) return;
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const snap = _currentSnapshot();
+  const existing = profiles.value.filter((p) => p.name !== trimmed);
+  $userdata.set("profiles", [...existing, { name: trimmed, ...snap }]);
+}
+
+function loadProfile(p) {
+  $alert.yesno("formatacao.profile_load_confirm", (btn) => {
+    if (btn !== "yes") return;
+    _applySnapshot(p);
+  });
+}
+
+function deleteProfile(p) {
+  $alert.yesno("formatacao.profile_delete_confirm", (btn) => {
+    if (btn !== "yes") return;
+    $userdata.set(
+      "profiles",
+      profiles.value.filter((x) => x.name !== p.name)
+    );
+  });
+}
+
+function exportJson() {
+  const snap = _currentSnapshot();
+  const blob = new Blob([JSON.stringify(snap, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `louvorja-formatacao-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJson() {
+  fileInput.value?.click();
+}
+
+function onFileSelected(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(String(ev.target.result));
+      _applySnapshot(data);
+    } catch (err) {
+      $alert.error({ text: "formatacao.import_error", error: err });
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
 }
 </script>
 

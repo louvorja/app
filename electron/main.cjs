@@ -477,3 +477,45 @@ ipcMain.handle("updater:install", () => updater.quitAndInstall());
 
 /** Retorna o estado atual do updater (snapshot). */
 ipcMain.handle("updater:status", () => updater.status());
+
+// ---------------------------------------------------------------------------
+// IPC: Login item (F5.1) — iniciar com Windows/macOS
+// ---------------------------------------------------------------------------
+
+ipcMain.handle("app:setLoginItem", (_event, enabled) => {
+  try {
+    app.setLoginItemSettings({
+      openAtLogin: !!enabled,
+      // No Windows o launcher EXE é resolvido automaticamente.
+    });
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
+ipcMain.handle("app:getLoginItem", () => {
+  try {
+    const s = app.getLoginItemSettings();
+    return { openAtLogin: !!s.openAtLogin };
+  } catch {
+    return { openAtLogin: false };
+  }
+});
+
+// ---------------------------------------------------------------------------
+// IPC: Always on top (F5.2) — aplica em janelas auxiliares
+// ---------------------------------------------------------------------------
+
+ipcMain.handle("windows:setAlwaysOnTop", (_event, feature, alwaysOnTop) => {
+  try {
+    const win = windowFactory.getWindow ? windowFactory.getWindow(feature) : null;
+    if (win && !win.isDestroyed()) {
+      win.setAlwaysOnTop(!!alwaysOnTop);
+      return { ok: true };
+    }
+    return { ok: false, error: "window not found" };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+});

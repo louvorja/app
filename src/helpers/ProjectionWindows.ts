@@ -15,7 +15,14 @@ import Platform from "@/helpers/Platform";
 import $userdata from "@/helpers/UserData";
 
 interface DisplayPlatform {
-  open: (opts: { route: string; feature: string; monitorId?: number | null; fullscreen?: boolean; frame?: boolean }) => Promise<{ id: number }>;
+  open: (opts: {
+    route: string;
+    feature: string;
+    monitorId?: number | null;
+    fullscreen?: boolean;
+    frame?: boolean;
+    alwaysOnTop?: boolean;
+  }) => Promise<{ id: number }>;
   close: (feature: string) => Promise<void>;
 }
 
@@ -29,7 +36,13 @@ const FEATURE_RETURN     = "retorno";  // /projection/return
 
 const _openWebWindows: Record<string, Window | null> = {};
 
-async function _open(route: string, feature: string, monitorId: number | null, fullscreen: boolean): Promise<void> {
+async function _open(
+  route: string,
+  feature: string,
+  monitorId: number | null,
+  fullscreen: boolean,
+  alwaysOnTop = false
+): Promise<void> {
   const desktopApi = (Platform as { windows?: DisplayPlatform }).windows;
   if (Platform.isDesktop && desktopApi) {
     try {
@@ -39,6 +52,7 @@ async function _open(route: string, feature: string, monitorId: number | null, f
         monitorId: monitorId ?? null,
         fullscreen,
         frame: !fullscreen,
+        alwaysOnTop,
       });
       return;
     } catch (e) {
@@ -98,22 +112,31 @@ async function _readPrefs(): Promise<Record<string, number | null>> {
 export async function openProjectionWindows(): Promise<void> {
   const prefs = await _readPrefs();
   const fullscreen = ($userdata.get("options.fullscreen", true) as unknown) !== false;
+  const alwaysOnTop = ($userdata.get("options.always_on_top", true) as unknown) !== false;
   const openOperator = ($userdata.get("options.open_operator", false) as unknown) === true;
   const openReturn = ($userdata.get("options.open_return", false) as unknown) === true;
 
   const projMonitor = prefs[FEATURE_PROJECTION] ?? null;
   if (projMonitor != null) {
     // Monitor explícito (atual ou outro) → janela separada respeitando
-    // a opção de fullscreen.
-    await _open("/projection", FEATURE_PROJECTION, projMonitor, fullscreen);
+    // a opção de fullscreen e always-on-top.
+    await _open("/projection", FEATURE_PROJECTION, projMonitor, fullscreen, alwaysOnTop);
   }
 
   if (openReturn) {
-    await _open("/projection/return", FEATURE_RETURN, prefs[FEATURE_RETURN] ?? null, fullscreen);
+    await _open(
+      "/projection/return",
+      FEATURE_RETURN,
+      prefs[FEATURE_RETURN] ?? null,
+      fullscreen,
+      alwaysOnTop
+    );
   }
 
   if (openOperator) {
-    await _open("/operator", FEATURE_OPERATOR, prefs[FEATURE_OPERATOR] ?? null, false);
+    // Operador NÃO usa always-on-top (o operador precisa interagir com a
+    // janela principal sem que o overlay roube foco).
+    await _open("/operator", FEATURE_OPERATOR, prefs[FEATURE_OPERATOR] ?? null, false, false);
   }
 }
 
