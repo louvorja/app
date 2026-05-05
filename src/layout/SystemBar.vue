@@ -6,6 +6,7 @@
     @dblclick="toggleMaximize"
   >
     <div class="systembar-drag">
+      <LjLogo :size="16" class="systembar-logo" />
       <span class="systembar-title">{{ title }}</span>
     </div>
 
@@ -43,6 +44,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import Platform from "@/helpers/Platform";
 import $appdata from "@/helpers/AppData";
+import LjLogo from "@/components/LjLogo.vue";
 
 const { t } = useI18n();
 
@@ -138,10 +140,17 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--lj-space-3);
   padding: 0 var(--lj-space-5);
   overflow: hidden;
   white-space: nowrap;
   -webkit-app-region: drag;
+}
+
+.systembar-logo {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  opacity: 0.9;
 }
 
 .systembar--mac .systembar-drag {

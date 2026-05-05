@@ -2,11 +2,13 @@
   <div class="about">
     <div class="about-hero">
       <div class="about-logo">
-        <span class="about-logo-letter">L</span>
-        <span class="about-logo-letter about-logo-letter--accent">JA</span>
+        <LjLogo :size="72" />
       </div>
       <div class="about-hero-text">
-        <h1 class="about-product">LouvorJA</h1>
+        <h1 class="about-product">
+          Louvor
+          <b>JA</b>
+        </h1>
         <p class="about-tagline">{{ $t("about.tagline") }}</p>
       </div>
     </div>
@@ -58,6 +60,7 @@ import { ref, computed, onMounted } from "vue";
 import packageJson from "@root/package.json";
 import Platform from "@/helpers/Platform";
 import $database from "@/helpers/Database";
+import LjLogo from "@/components/LjLogo.vue";
 
 const dbVersion = ref(0);
 
@@ -111,28 +114,17 @@ onMounted(loadDBVersion);
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--lj-color-cover-gold) 0%, var(--lj-navy) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--lj-navy-darker, #0e1a2f) 0%,
+    var(--lj-navy, #1b2a41) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px var(--lj-navy-alpha-30);
-}
-
-.about-logo-letter {
-  font-size: 36px;
-  font-weight: var(--lj-weight-bold);
-  color: var(--lj-white);
-  letter-spacing: -0.02em;
-  text-shadow: 0 2px 4px var(--lj-black-alpha-30);
-}
-
-.about-logo-letter--accent {
-  color: var(--lj-color-cover-gold);
-  font-size: 22px;
-  margin-left: 2px;
-  align-self: flex-end;
-  margin-bottom: 4px;
+  box-shadow: 0 4px 16px var(--lj-navy-alpha-30, rgba(0, 0, 0, 0.3));
+  padding: 12px;
 }
 
 .about-product {
@@ -140,6 +132,11 @@ onMounted(loadDBVersion);
   font-weight: var(--lj-weight-regular);
   margin: 0;
   letter-spacing: -0.01em;
+}
+
+.about-product b {
+  color: var(--lj-color-cover-gold, #efb400);
+  font-weight: var(--lj-weight-bold);
 }
 
 .about-tagline {

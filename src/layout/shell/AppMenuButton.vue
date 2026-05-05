@@ -11,17 +11,7 @@
       :title="$t('shell.appmenu')"
       @click="toggle"
     >
-      <span class="app-menu-grid" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </span>
+      <LjLogo :size="22" class="app-menu-logo" aria-hidden="true" />
     </button>
 
     <Teleport to="body">
@@ -87,6 +77,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import packageJson from "@root/package.json";
 import AppMenuOpcoes from "./AppMenuOpcoes.vue";
 import AppMenuSobre from "./AppMenuSobre.vue";
+import LjLogo from "@/components/LjLogo.vue";
 import $modules from "@/helpers/Modules";
 import $database from "@/helpers/Database";
 import $appdata from "@/helpers/AppData";
@@ -234,19 +225,9 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onKeydown));
   background: var(--lj-navy-darker);
 }
 
-.app-menu-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 2px;
-  width: 16px;
-  height: 16px;
+.app-menu-logo {
   pointer-events: none;
-}
-
-.app-menu-grid > span {
-  background: var(--lj-white);
-  border-radius: 1px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 
 /* Painel fullscreen */
