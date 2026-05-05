@@ -163,7 +163,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 124 | [Auditar duplicação MusicMenuTable vs DataTable](tasks/done/124-music-menu-vs-datatable.md)                    | O      | P2  | 3h  | done   | 124         |
 | 125 | [Bible: 3 watchers consecutivos chamando mesma função](tasks/125-bible-watchers-redundantes.md)              | S      | P2  | 0.5h| done   | 125         |
 | 036 | [Variantes de elevação/sombra como tokens](tasks/done/036-tokens-elevacao.md)                     | S      | P3  | 1h  | done   | 36          |
-| 039 | [Documentar design system (`DESIGN.md`)](tasks/039-design-md.md)                            | O      | P2  | 4h  | todo   | 39          |
+| 039 | [Documentar design system (`DESIGN.md`)](tasks/done/039-design-md.md)                       | O      | P2  | 4h  | done   | 39          |
 | 048 | [a11y: color/week/file inputs com descrição assistiva](tasks/048-a11y-color-week-file.md)              | S      | P2  | 1h  | done   | 48          |
 | 055 | [Validar idioma `es` end-to-end](tasks/055-validar-es-end-to-end.md)                                    | S      | P3  | 2h  | todo   | 55          |
 | 059 | [Travar versão Vue / decisão de upgrade](tasks/059-travar-vue-versao.md)                            | S      | P3  | 0.5h| todo   | 59          |
