@@ -103,9 +103,6 @@
     ],
     "rules": {}
   },
-  "lint-staged": {
-    "*.{js,ts,vue}": "eslint --fix"
-  },
   "browserslist": [
     "> 1%",
     "last 2 versions",

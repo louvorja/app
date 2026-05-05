@@ -138,7 +138,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 109 | [Criar `ARCHITECTURE.md` (camadas, composables vs helpers)](tasks/done/109-architecture-md.md)         | O      | P2  | 4h  | done   | 109         |
 | 110 | [Atualizar README com onboarding humano](tasks/done/110-readme-onboarding.md)                       | S      | P3  | 1h  | done   | 110         |
 | 111 | [Documentar BroadcastChannel schemas (depois de #015)](tasks/111-broadcast-schemas-docs.md)              | S      | P2  | 1h  | done   | 111         |
-| 112 | [Documentar variáveis de ambiente Vite](tasks/112-env-vars-docs.md)                             | S      | P2  | 0.5h| todo   | 112         |
+| 112 | [Documentar variáveis de ambiente Vite](tasks/done/112-env-vars-docs.md)                             | S      | P2  | 0.5h| done   | 112         |
 
 ---
 
