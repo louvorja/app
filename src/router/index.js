@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 import Popup from "@/views/Popup.vue";
 
 const routes = [
@@ -44,8 +44,15 @@ const routes = [
   },
 ];
 
+// Em Electron prod o app é servido via file:// — vue-router NÃO consegue
+// usar history mode (não há servidor pra reescrever rotas), então cai
+// pra hash mode. No web/PWA mantém history (URLs limpas).
+const isFileProtocol = typeof window !== "undefined" && window.location.protocol === "file:";
+
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL ?? "/"),
+  history: isFileProtocol
+    ? createWebHashHistory()
+    : createWebHistory(import.meta.env.BASE_URL ?? "/"),
   routes,
 });
 
