@@ -186,7 +186,7 @@ async function loadDBVersion() {
   try {
     const config = await proxy.$database.get("config");
     dbVersion.value = config?.version_number ?? "?";
-  } catch (_) {
+  } catch {
     dbVersion.value = "?";
   }
 }

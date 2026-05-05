@@ -170,6 +170,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 055 | [Validar idioma `es` end-to-end](tasks/done/055-validar-es-end-to-end.md)                               | S      | P3  | 2h  | done   | 55          |
 | 059 | [Travar versão Vue / decisão de upgrade](tasks/done/059-travar-vue-versao.md)                            | S      | P3  | 0.5h| done   | 59          |
 | 065 | [Remover `browserslist` se inutilizado pelo Vite](tasks/done/065-remover-browserslist.md)                   | S      | P3  | 0.25h| done  | 65          |
+| 128 | [Commit Shell layout refactor (Ribbon + CommandPalette + LiturgyPanel)](tasks/done/128-shell-layout-refactor.md) | S | P1 | 8h | done | |
 
 ---
 

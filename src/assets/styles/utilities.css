@@ -1,0 +1,92 @@
+/**
+ * utilities.css — Classes utilitárias LouvorJA
+ *
+ * Regra: usar apenas padrões que aparecem 3+ vezes no projeto.
+ * Prefixo: lj-u- (LouvorJA utility)
+ * NÃO substituir em módulos (src/modules/) — cada módulo mantém CSS scoped próprio.
+ */
+
+/* ── Flexbox ─────────────────────────────────────────────── */
+.lj-u-row {
+  display: flex;
+  align-items: center;
+}
+
+.lj-u-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Ocupa espaço disponível sem transbordar (padrão fill de coluna flex) */
+.lj-u-fill {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Texto ───────────────────────────────────────────────── */
+
+/* Truncar com reticências — aplicar em spans/divs de largura limitada */
+.lj-u-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Interação ───────────────────────────────────────────── */
+.lj-u-no-select {
+  user-select: none;
+}
+
+/* ── Gap (escala de tokens) ──────────────────────────────── */
+.lj-u-gap-1 {
+  gap: var(--lj-space-1);
+}
+.lj-u-gap-2 {
+  gap: var(--lj-space-2);
+}
+.lj-u-gap-3 {
+  gap: var(--lj-space-3);
+}
+.lj-u-gap-4 {
+  gap: var(--lj-space-4);
+}
+.lj-u-gap-5 {
+  gap: var(--lj-space-5);
+}
+.lj-u-gap-6 {
+  gap: var(--lj-space-6);
+}
+
+/* ── Larguras percentuais (migrado de layout.scss) ───────── */
+.w-10 {
+  width: 10% !important;
+}
+.w-20 {
+  width: 20% !important;
+}
+.w-30 {
+  width: 30% !important;
+}
+.w-40 {
+  width: 40% !important;
+}
+.w-50 {
+  width: 50% !important;
+}
+.w-60 {
+  width: 60% !important;
+}
+.w-70 {
+  width: 70% !important;
+}
+.w-80 {
+  width: 80% !important;
+}
+.w-90 {
+  width: 90% !important;
+}
+.w-100 {
+  width: 100% !important;
+}
