@@ -319,7 +319,11 @@
     "operator_slide_label": "Diapositiva {n} de {total}",
     "operator_waiting": "Esperando música...",
     "operator_hint": "← → navegar · Enter presentar",
-    "proj_return_next": "SIG"
+    "proj_return_next": "SIG",
+    "proj_windows": "Abrir ventanas de proyección",
+    "proj_open_projection": "Abrir proyección (pantalla completa)",
+    "proj_open_return": "Abrir retorno (operador)",
+    "proj_open_operator": "Abrir cuadrícula del operador"
   },
   "hotkeys": {
     "title": "Atajos de Teclado",

@@ -73,6 +73,36 @@
     />
     <LScreenBtn v-if="location !== 'fullscreen'" module="media" />
 
+    <!-- Atalhos para abrir as janelas auxiliares (replica fmMusica + fmMusicaRetorno + fmMusicaOperador do Delphi) -->
+    <v-menu v-if="location !== 'fullscreen'">
+      <template #activator="{ props }">
+        <v-btn
+          v-bind="props"
+          variant="text"
+          size="small"
+          icon="mdi-monitor-multiple"
+          :title="$t('shell.proj_windows')"
+        />
+      </template>
+      <v-list density="compact">
+        <v-list-item
+          prepend-icon="mdi-monitor"
+          :title="$t('shell.proj_open_projection')"
+          @click="openWindow('/projection')"
+        />
+        <v-list-item
+          prepend-icon="mdi-monitor-eye"
+          :title="$t('shell.proj_open_return')"
+          @click="openWindow('/projection/return')"
+        />
+        <v-list-item
+          prepend-icon="mdi-view-grid-outline"
+          :title="$t('shell.proj_open_operator')"
+          @click="openWindow('/operator')"
+        />
+      </v-list>
+    </v-menu>
+
     <v-menu v-if="location !== 'fullscreen' && compact">
       <template #activator="{ props }">
         <v-btn icon="mdi-menu" variant="text" size="small" v-bind="props"></v-btn>
@@ -126,4 +156,10 @@ defineProps({
 defineEmits(["go-to-slide", "maximize", "fullscreen", "close"]);
 
 const display = useDisplay();
+
+function openWindow(route) {
+  // Em dev/prod o origin já é o servidor correto. window.open dispara o
+  // setWindowOpenHandler do Electron que cria uma BrowserWindow nova.
+  window.open(route, "_blank", "noopener,noreferrer");
+}
 </script>

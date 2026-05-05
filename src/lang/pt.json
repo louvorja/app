@@ -319,7 +319,11 @@
     "operator_slide_label": "Slide {n} de {total}",
     "operator_waiting": "Aguardando música...",
     "operator_hint": "← → navegar · Enter apresentar",
-    "proj_return_next": "PRÓX"
+    "proj_return_next": "PRÓX",
+    "proj_windows": "Abrir janelas de projeção",
+    "proj_open_projection": "Abrir projeção (tela cheia)",
+    "proj_open_return": "Abrir retorno (operador)",
+    "proj_open_operator": "Abrir grade do operador"
   },
   "hotkeys": {
     "title": "Atalhos de Teclado",
