@@ -221,6 +221,25 @@ onBeforeUnmount(() => {
   flex: 1;
   overflow: auto;
   position: relative;
+  /* Fundo Delphi-style (Office 2010 silver/blue): cinza-azulado claro
+     com marca d'água do logo centralizada quando vazio. */
+  background:
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.6) 0%, transparent 70%),
+    linear-gradient(180deg, #e6ebf2 0%, #d3dae5 100%);
+  color: var(--lj-text);
+}
+
+.shell-content::before {
+  /* Marca d'água do logo — visível só com o conteúdo vazio. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/ico/favicon-180x180.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 200px 200px;
+  opacity: 0.12;
+  pointer-events: none;
 }
 .shell-sidebar {
   flex-shrink: 0;

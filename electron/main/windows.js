@@ -20,12 +20,18 @@ function createMainWindow(devUrl, prodHtmlPath, preloadPath) {
     process.env.ELECTRON_DEV === "1" ||
     !require("electron").app.isPackaged;
 
+  // Caminho do ícone — em dev e prod, usa o PNG do logo do LouvorJA.
+  const iconPath = isDev
+    ? path.join(__dirname, "..", "..", "public", "ico", "favicon-180x180.png")
+    : path.join(process.resourcesPath, "app.asar.unpacked", "public", "ico", "favicon-180x180.png");
+
   const win = new BrowserWindow({
     width: 1370,
     height: 800,
     minWidth: 900,
     minHeight: 600,
     title: "LouvorJA",
+    icon: iconPath,
     show: false, // Mostrar só quando pronto (evita flash branco)
     backgroundColor: "#1b2a41",
     // Title bar custom (replicar Delphi):

@@ -123,6 +123,18 @@ function createWindow() {
 // ---------------------------------------------------------------------------
 
 app.whenReady().then(() => {
+  // Dock icon no macOS (em dev) — em prod o icns vem do bundle .app.
+  if (process.platform === "darwin" && app.dock) {
+    try {
+      const iconPath = path.join(__dirname, "..", "public", "ico", "favicon-180x180.png");
+      const { nativeImage } = require("electron");
+      const img = nativeImage.createFromPath(iconPath);
+      if (!img.isEmpty()) app.dock.setIcon(img);
+    } catch (e) {
+      console.warn("[LouvorJA] Falha ao definir dock icon:", e?.message || e);
+    }
+  }
+
   // D2 — Instalar handler do protocolo louvorja://
   protocolModule.handle();
 

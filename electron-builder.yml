@@ -18,6 +18,13 @@ files:
   - dist/**/*
   - electron/**/*
   - package.json
+  - public/ico/**/*
+
+# Os PNGs do logo precisam ficar fora do asar para que o BrowserWindow
+# possa carregá-los pelo path em runtime (Electron lê PNG bem do asar
+# normalmente, mas mantemos unpacked como precaução cross-platform).
+asarUnpack:
+  - public/ico/**/*
 
 # Compressão máxima para reduzir tamanho do instalador
 compression: maximum
@@ -80,9 +87,13 @@ nsis:
 # ---------------------------------------------------------------------------
 mac:
   target: dmg
+  icon: public/ico/favicon-180x180.png
+  category: public.app-category.music
 
 # ---------------------------------------------------------------------------
 # Linux — AppImage
 # ---------------------------------------------------------------------------
 linux:
   target: AppImage
+  icon: public/ico/favicon-180x180.png
+  category: AudioVideo
