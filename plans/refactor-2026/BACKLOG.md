@@ -131,7 +131,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 096 | [Padronizar capitalização de arquivos (Index.vue vs index.vue)](tasks/done/096-capitalizacao-arquivos.md)     | S      | P3  | 1h  | done   | 96          |
 | 097 | [Padronizar imports relativos vs alias `@`](tasks/done/097-imports-alias.md)                     | S      | P3  | 1h  | done   | 97          |
 | 098 | [Decidir: `modules/core/` permanece ou achata](tasks/done/098-modules-core-flat.md)                      | S      | P3  | 0.5h| done   | 98          |
-| 105 | [Refatorar `state.js` (`module_group` pre-declarado)](tasks/105-state-module-group.md)               | S      | P3  | 0.5h| todo   | 105         |
+| 105 | [Refatorar `state.js` (`module_group` pre-declarado)](tasks/done/105-state-module-group.md)          | S      | P3  | 0.5h| done   | 105         |
 | 106 | [Limpar comentários de rationale antigos](tasks/106-comentarios-rationale.md)                           | S      | P3  | 0.5h| todo   | 106         |
 | 107 | [Confirmar zero refs a TrayArea/Header/Apps/AppsRibbon/Menu/Main](tasks/107-confirmar-zero-refs-deletados.md)   | S      | P1  | 0.5h| done   | 107         |
 | 108 | [Criar `CONTRIBUTING.md` (fluxo de criação de módulo)](tasks/108-contributing-md.md)              | O      | P2  | 2h  | todo   | 108         |
