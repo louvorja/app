@@ -71,6 +71,26 @@ function cancelDownload() {
   return false;
 }
 
+function pauseDownload() {
+  if (_activeQueue && !_activeQueue.paused) {
+    _activeQueue.pause();
+    return true;
+  }
+  return false;
+}
+
+function resumeDownload() {
+  if (_activeQueue && _activeQueue.paused) {
+    _activeQueue.resume();
+    return true;
+  }
+  return false;
+}
+
+function isDownloading() {
+  return !!(_activeQueue && _activeQueue.running);
+}
+
 function checkFiles(files) {
   return integrity.diff(files);
 }
@@ -81,5 +101,8 @@ module.exports = {
   checkConnection,
   startDownload,
   cancelDownload,
+  pauseDownload,
+  resumeDownload,
+  isDownloading,
   checkFiles,
 };

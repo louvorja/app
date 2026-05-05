@@ -99,6 +99,27 @@
       "show_title": "Mostrar título de la música en la primera diapositiva",
       "same_window": "Misma ventana"
     },
+    "storage": {
+      "title": "Almacenamiento",
+      "folder": "Carpeta de medios",
+      "open_folder": "Abrir carpeta",
+      "change_folder": "Cambiar carpeta…",
+      "media_size": "Medios (mp3, imágenes)",
+      "cache_size": "Caché del banco",
+      "total": "Total",
+      "auto_cache": "Guardar automáticamente al reproducir",
+      "auto_cache_hint": "Cuando está activado, las músicas reproducidas online quedan disponibles offline después.",
+      "quota": "Límite de espacio",
+      "no_limit": "Sin límite",
+      "quota_hint": "Al alcanzar el límite, los archivos más antiguos se eliminan automáticamente.",
+      "clear_cache": "Limpiar caché del banco",
+      "clear_files": "Limpiar medios (mp3/imágenes)",
+      "refresh": "Recargar",
+      "clear_cache_confirm": "¿Limpiar todo el caché del banco? El programa descargará todo de nuevo al abrir.",
+      "clear_files_confirm": "¿Eliminar TODOS los archivos de medios descargados? Esta acción no se puede deshacer.",
+      "move_confirm": "¿Mover el contenido actual a la nueva carpeta?",
+      "change_failed": "Falló el cambio de la carpeta de medios."
+    },
     "videos": {
       "title": "Vídeos On-line",
       "fullscreen": "Mostrar en pantalla completa",

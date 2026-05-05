@@ -119,6 +119,12 @@ contextBridge.exposeInMainWorld("louvorjaApi", {
     start: (files) => ipcRenderer.invoke("download:start", files),
     /** Cancela o download em andamento */
     cancel: () => ipcRenderer.invoke("download:cancel"),
+    /** Pausa o download (mantém conexão FTP). */
+    pause: () => ipcRenderer.invoke("download:pause"),
+    /** Retoma um download pausado. */
+    resume: () => ipcRenderer.invoke("download:resume"),
+    /** True se houver download em andamento. */
+    isDownloading: () => ipcRenderer.invoke("download:isDownloading"),
     /** Verifica integridade local de uma lista de arquivos */
     checkFiles: (files) => ipcRenderer.invoke("download:checkFiles", files),
 
@@ -183,6 +189,32 @@ contextBridge.exposeInMainWorld("louvorjaApi", {
   appLogin: {
     set: (enabled) => ipcRenderer.invoke("app:setLoginItem", enabled),
     get: () => ipcRenderer.invoke("app:getLoginItem"),
+  },
+
+  // S2 — Armazenamento (visibilidade + gerenciamento)
+  storage: {
+    /** Estatísticas: tamanho ocupado por categoria + caminhos. */
+    stats: () => ipcRenderer.invoke("storage:stats"),
+    /** Limpa cache de JSON (banco). */
+    clearJson: () => ipcRenderer.invoke("storage:clearJson"),
+    /** Limpa toda a mídia local (mp3, imagens). */
+    clearFiles: () => ipcRenderer.invoke("storage:clearFiles"),
+    /** Remove arquivos locais que não estão na lista do servidor. */
+    clearUnused: (remoteFiles) => ipcRenderer.invoke("storage:clearUnused", remoteFiles),
+    /** Compara servidor vs local — retorna { missing, damaged, extra }. */
+    verify: (remoteFiles) => ipcRenderer.invoke("storage:verify", remoteFiles),
+    /** Abre a pasta de mídia no explorer do SO. */
+    openDir: () => ipcRenderer.invoke("storage:openDir"),
+    /** Mostra dialog de seleção de pasta. */
+    chooseDir: () => ipcRenderer.invoke("storage:chooseDir"),
+    /** Define nova pasta de mídia (com opção de mover conteúdo). */
+    setFilesDir: (newDir, opts) => ipcRenderer.invoke("storage:setFilesDir", newDir, opts),
+    /** Auto-limpeza FIFO ao ultrapassar maxBytes. */
+    enforceQuota: (maxBytes) => ipcRenderer.invoke("storage:enforceQuota", maxBytes),
+    /** Verifica quais arquivos remotos já estão no disco. */
+    checkLocal: (remotePaths) => ipcRenderer.invoke("storage:checkLocal", remotePaths),
+    /** Liga/desliga auto-cache ao reproduzir mídia. */
+    setAutoCache: (enabled) => ipcRenderer.invoke("storage:setAutoCache", enabled),
   },
 
   // -------------------------------------------------------------------------

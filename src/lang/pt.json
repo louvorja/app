@@ -99,6 +99,27 @@
       "show_title": "Exibir título da música no primeiro slide",
       "same_window": "Mesma janela"
     },
+    "storage": {
+      "title": "Armazenamento",
+      "folder": "Pasta de mídia",
+      "open_folder": "Abrir pasta",
+      "change_folder": "Alterar pasta…",
+      "media_size": "Mídia (mp3, imagens)",
+      "cache_size": "Cache do banco",
+      "total": "Total",
+      "auto_cache": "Salvar automaticamente ao reproduzir",
+      "auto_cache_hint": "Quando ligado, músicas tocadas online ficam disponíveis offline depois.",
+      "quota": "Limite de espaço",
+      "no_limit": "Sem limite",
+      "quota_hint": "Quando atingir o limite, os arquivos mais antigos são removidos automaticamente.",
+      "clear_cache": "Limpar cache do banco",
+      "clear_files": "Limpar mídia (mp3/imagens)",
+      "refresh": "Recarregar",
+      "clear_cache_confirm": "Limpar todo o cache de banco? O programa vai baixar tudo de novo na próxima abertura.",
+      "clear_files_confirm": "Apagar TODOS os arquivos de mídia baixados? Esta ação não pode ser desfeita.",
+      "move_confirm": "Mover o conteúdo atual para a nova pasta?",
+      "change_failed": "Falha ao alterar a pasta de mídia."
+    },
     "videos": {
       "title": "Vídeos On-line",
       "fullscreen": "Exibir em tela cheia",

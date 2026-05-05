@@ -17,8 +17,9 @@
  *   D6: globalShortcut
  */
 
-const { app, BrowserWindow, ipcMain, session } = require("electron");
+const { app, BrowserWindow, ipcMain, session, dialog } = require("electron");
 const path = require("path");
+const fs = require("fs-extra");
 
 const paths = require("./main/paths.js");
 const { createMainWindow } = require("./main/windows.js");
@@ -34,6 +35,7 @@ const shortcuts = require("./main/shortcuts.js");
 const updater = require("./main/updater.js");
 const powerBlocker = require("./main/powerBlocker.js");
 const splash = require("./main/splash.js");
+const storage = require("./main/storage.js");
 
 // ---------------------------------------------------------------------------
 // D2 — Registrar scheme louvorja:// como privilegiado ANTES do app.whenReady
@@ -185,6 +187,19 @@ app.whenReady().then(() => {
     }
   });
 
+  // S2 — Aplicar config de armazenamento salva (pasta custom, auto-cache).
+  try {
+    const storageCfg = userStore.read("storage") || {};
+    if (storageCfg.filesDir) {
+      paths.setFilesDir(storageCfg.filesDir);
+    }
+    if (typeof storageCfg.autoCache === "boolean") {
+      protocolModule.setAutoCacheEnabled(storageCfg.autoCache);
+    }
+  } catch (e) {
+    console.warn("[main] Falha ao aplicar storage config:", e.message);
+  }
+
   // D5/D6 — Auto-start do servidor HTTP e atalhos globais se configurado em userStore
   setTimeout(async () => {
     try {
@@ -197,6 +212,16 @@ app.whenReady().then(() => {
       }
       if (cfg.shortcuts?.globalEnabled) {
         shortcuts.enable();
+      }
+
+      // S2 — Quota: roda auto-limpeza ao iniciar se houver limite configurado.
+      try {
+        const storageCfg = userStore.read("storage") || {};
+        if (storageCfg.maxBytes && storageCfg.maxBytes > 0) {
+          await storage.enforceQuota(storageCfg.maxBytes);
+        }
+      } catch (_) {
+        /* ignore */
       }
     } catch (e) {
       console.warn("[main] Auto-start falhou:", e.message);
@@ -297,6 +322,9 @@ ipcMain.handle("download:start", (event, files) => downloader.startDownload(file
 
 /** Cancela o download em andamento */
 ipcMain.handle("download:cancel", () => downloader.cancelDownload());
+ipcMain.handle("download:pause", () => downloader.pauseDownload());
+ipcMain.handle("download:resume", () => downloader.resumeDownload());
+ipcMain.handle("download:isDownloading", () => downloader.isDownloading());
 
 /** Verifica integridade local de uma lista de arquivos (missing/damaged/ok) */
 ipcMain.handle("download:checkFiles", (_event, files) => downloader.checkFiles(files));
@@ -530,4 +558,60 @@ ipcMain.handle("windows:setAlwaysOnTop", (_event, feature, alwaysOnTop) => {
   } catch (err) {
     return { ok: false, error: String(err) };
   }
+});
+
+// ---------------------------------------------------------------------------
+// IPC: Storage (S2) — visibilidade e gerenciamento da pasta de mídia + cache
+// ---------------------------------------------------------------------------
+
+ipcMain.handle("storage:stats", () => storage.stats());
+ipcMain.handle("storage:clearJson", () => storage.clearJson());
+ipcMain.handle("storage:clearFiles", () => storage.clearFiles());
+ipcMain.handle("storage:clearUnused", (_e, remoteFiles) => storage.clearUnused(remoteFiles));
+ipcMain.handle("storage:verify", (_e, remoteFiles) => storage.verify(remoteFiles));
+ipcMain.handle("storage:openDir", () => storage.openFilesDir());
+ipcMain.handle("storage:setFilesDir", (_e, newDir, opts) => storage.setFilesDir(newDir, opts));
+ipcMain.handle("storage:enforceQuota", (_e, maxBytes) => storage.enforceQuota(maxBytes));
+
+ipcMain.handle("storage:chooseDir", async (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const result = await dialog.showOpenDialog(win, {
+    properties: ["openDirectory", "createDirectory"],
+    title: "Escolher pasta para mídia",
+  });
+  if (result.canceled || !result.filePaths?.length) return null;
+  return result.filePaths[0];
+});
+
+/**
+ * Verifica quais dos arquivos remotos JÁ ESTÃO no disco. Usado para
+ * mostrar o indicador "✓ baixado / ⬇ online" nas listas de música.
+ *
+ * @param {string[]} remotePaths
+ * @returns {Object<string, boolean>}
+ */
+ipcMain.handle("storage:checkLocal", async (_e, remotePaths) => {
+  const filesDir = paths.filesDir();
+  const out = {};
+  for (const rel of (remotePaths || [])) {
+    if (typeof rel !== "string") continue;
+    const cleaned = rel.replace(/^\/+/, "");
+    const localPath = path.resolve(filesDir, cleaned);
+    if (!localPath.startsWith(filesDir + path.sep) && localPath !== filesDir) {
+      out[rel] = false;
+      continue;
+    }
+    try {
+      out[rel] = await fs.pathExists(localPath);
+    } catch {
+      out[rel] = false;
+    }
+  }
+  return out;
+});
+
+/** Liga/desliga o auto-cache de mídia ao reproduzir (S1). */
+ipcMain.handle("storage:setAutoCache", (_e, enabled) => {
+  protocolModule.setAutoCacheEnabled(!!enabled);
+  return { ok: true };
 });

@@ -3,7 +3,10 @@
   "actions": {
     "check": "Verificar conexão",
     "download": "Baixar selecionados",
+    "download_all": "Baixar tudo",
     "cancel": "Cancelar",
+    "pause": "Pausar",
+    "resume": "Continuar",
     "select_all": "Selecionar todas",
     "deselect_all": "Limpar seleção"
   },

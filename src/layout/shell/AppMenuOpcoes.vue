@@ -267,16 +267,109 @@
         </label>
       </div>
     </section>
+
+    <!-- Armazenamento (S2) -->
+    <section v-if="isDesktop" class="opt-section">
+      <h3 class="opt-section-title">{{ $t("options.storage.title") }}</h3>
+
+      <!-- Pasta de mídia -->
+      <div class="opt-row opt-row--col">
+        <label class="opt-label">{{ $t("options.storage.folder") }}</label>
+        <div class="opt-folder">
+          <code class="opt-folder-path">{{ storageStats?.filesDir || "—" }}</code>
+          <div class="opt-folder-actions">
+            <button type="button" class="opt-btn" @click="openFolder">
+              {{ $t("options.storage.open_folder") }}
+            </button>
+            <button type="button" class="opt-btn" @click="changeFolder">
+              {{ $t("options.storage.change_folder") }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="opt-stats">
+        <div class="opt-stat">
+          <span class="opt-stat-label">{{ $t("options.storage.media_size") }}</span>
+          <span class="opt-stat-value">
+            {{ humanSize(storageStats?.files?.bytes) }}
+            <small>({{ storageStats?.files?.count || 0 }} arq.)</small>
+          </span>
+        </div>
+        <div class="opt-stat">
+          <span class="opt-stat-label">{{ $t("options.storage.cache_size") }}</span>
+          <span class="opt-stat-value">
+            {{ humanSize(storageStats?.json?.bytes) }}
+            <small>({{ storageStats?.json?.count || 0 }} arq.)</small>
+          </span>
+        </div>
+        <div class="opt-stat opt-stat--total">
+          <span class="opt-stat-label">{{ $t("options.storage.total") }}</span>
+          <span class="opt-stat-value">{{ humanSize(storageStats?.total?.bytes) }}</span>
+        </div>
+      </div>
+
+      <!-- Auto-cache toggle -->
+      <div class="opt-row">
+        <label class="opt-checkbox">
+          <input
+            type="checkbox"
+            :checked="autoCache"
+            @change="toggleAutoCache($event.target.checked)"
+          />
+          <span>{{ $t("options.storage.auto_cache") }}</span>
+        </label>
+      </div>
+      <p class="opt-hint">{{ $t("options.storage.auto_cache_hint") }}</p>
+
+      <!-- Limite de espaço -->
+      <div class="opt-row">
+        <label class="opt-label" for="opt-quota">{{ $t("options.storage.quota") }}</label>
+        <select
+          id="opt-quota"
+          class="opt-select"
+          :value="quotaGb"
+          @change="setQuotaGb(Number($event.target.value))"
+        >
+          <option :value="0">{{ $t("options.storage.no_limit") }}</option>
+          <option :value="1">1 GB</option>
+          <option :value="2">2 GB</option>
+          <option :value="5">5 GB</option>
+          <option :value="10">10 GB</option>
+          <option :value="20">20 GB</option>
+          <option :value="50">50 GB</option>
+        </select>
+      </div>
+      <p class="opt-hint">{{ $t("options.storage.quota_hint") }}</p>
+
+      <!-- Ações -->
+      <div class="opt-actions">
+        <button type="button" class="opt-btn" @click="clearJson">
+          <v-icon icon="mdi-database-remove" size="14" class="mr-1" />
+          {{ $t("options.storage.clear_cache") }}
+        </button>
+        <button type="button" class="opt-btn opt-btn--danger" @click="clearFiles">
+          <v-icon icon="mdi-delete" size="14" class="mr-1" />
+          {{ $t("options.storage.clear_files") }}
+        </button>
+        <button type="button" class="opt-btn" :disabled="loading" @click="reloadStats">
+          <v-icon icon="mdi-refresh" size="14" class="mr-1" />
+          {{ $t("options.storage.refresh") }}
+        </button>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "vuetify";
 import { useDisplays } from "@/composables/useDisplays";
 import $appdata from "@/helpers/AppData";
 import $userdata from "@/helpers/UserData";
+import $alert from "@/helpers/Alert";
 import Platform from "@/helpers/Platform";
 
 const isDesktop = computed(() => Platform.isDesktop);
@@ -356,8 +449,6 @@ async function toggleStartWithOS(enabled) {
 }
 
 onMounted(async () => {
-  // Sincroniza o estado real do SO com a preferência salva (caso o
-  // usuário tenha alterado fora do app).
   const api = Platform?.appLogin;
   if (api?.get) {
     try {
@@ -369,7 +460,105 @@ onMounted(async () => {
       /* ignore */
     }
   }
+  await reloadStats();
 });
+
+// ─── Storage (S2) ───────────────────────────────────────────────────────
+const storageStats = ref(null);
+const loading = ref(false);
+
+const autoCache = computed({
+  get: () => $userdata.get("options.auto_cache_media", true) !== false,
+  set: (v) => $userdata.set("options.auto_cache_media", !!v),
+});
+
+const quotaGb = computed({
+  get: () => Number($userdata.get("options.storage_quota_gb", 0)) || 0,
+  set: (v) => $userdata.set("options.storage_quota_gb", Number(v) || 0),
+});
+
+function humanSize(bytes) {
+  if (!bytes || bytes <= 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let i = 0;
+  let val = Number(bytes);
+  while (val >= 1024 && i < units.length - 1) {
+    val /= 1024;
+    i += 1;
+  }
+  return `${val.toFixed(val < 10 ? 1 : 0)} ${units[i]}`;
+}
+
+async function reloadStats() {
+  if (!Platform?.storage?.stats) return;
+  loading.value = true;
+  try {
+    storageStats.value = await Platform.storage.stats();
+  } catch (e) {
+    console.warn("[Opcoes] storage.stats falhou:", e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function openFolder() {
+  await Platform?.storage?.openDir?.();
+}
+
+async function changeFolder() {
+  const newDir = await Platform?.storage?.chooseDir?.();
+  if (!newDir) return;
+  $alert.yesno("options.storage.move_confirm", async (btn) => {
+    if (btn === "cancel") return;
+    const move = btn === "yes";
+    try {
+      await Platform.storage.setFilesDir(newDir, { moveExisting: move });
+      // Persiste em userStore para aplicar no próximo boot
+      const cur = (await Platform.userStore?.read("storage")) || {};
+      await Platform.userStore?.write("storage", { ...cur, filesDir: newDir });
+      await reloadStats();
+    } catch (e) {
+      $alert.error({ text: "options.storage.change_failed", error: e });
+    }
+  });
+}
+
+async function toggleAutoCache(enabled) {
+  $userdata.set("options.auto_cache_media", !!enabled);
+  if (Platform?.storage?.setAutoCache) {
+    await Platform.storage.setAutoCache(!!enabled);
+  }
+  // Persiste em userStore para o boot do próximo session
+  const cur = (await Platform.userStore?.read("storage")) || {};
+  await Platform.userStore?.write("storage", { ...cur, autoCache: !!enabled });
+}
+
+async function setQuotaGb(gb) {
+  $userdata.set("options.storage_quota_gb", gb);
+  const maxBytes = gb > 0 ? gb * 1024 * 1024 * 1024 : 0;
+  const cur = (await Platform.userStore?.read("storage")) || {};
+  await Platform.userStore?.write("storage", { ...cur, maxBytes });
+  if (maxBytes > 0 && Platform?.storage?.enforceQuota) {
+    await Platform.storage.enforceQuota(maxBytes);
+    await reloadStats();
+  }
+}
+
+async function clearJson() {
+  $alert.yesno("options.storage.clear_cache_confirm", async (btn) => {
+    if (btn !== "yes") return;
+    await Platform?.storage?.clearJson?.();
+    await reloadStats();
+  });
+}
+
+async function clearFiles() {
+  $alert.yesno("options.storage.clear_files_confirm", async (btn) => {
+    if (btn !== "yes") return;
+    await Platform?.storage?.clearFiles?.();
+    await reloadStats();
+  });
+}
 </script>
 
 <style scoped>
@@ -470,6 +659,81 @@ onMounted(async () => {
 
 .opt-btn:hover {
   background: var(--lj-surface-bg-hover);
+}
+
+.opt-btn--danger {
+  border-color: var(--lj-danger, #c0392b);
+  color: var(--lj-danger, #c0392b);
+}
+.opt-btn--danger:hover {
+  background: rgba(192, 57, 43, 0.08);
+}
+
+/* Storage section */
+.opt-row--col {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lj-space-2);
+}
+.opt-folder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lj-space-2);
+  width: 100%;
+}
+.opt-folder-path {
+  background: var(--lj-surface-bg);
+  border: 1px solid var(--lj-surface-border);
+  border-radius: var(--lj-radius-sm);
+  padding: var(--lj-space-2) var(--lj-space-3);
+  font-size: var(--lj-text-sm);
+  font-family: monospace;
+  color: var(--lj-text-muted);
+  word-break: break-all;
+  white-space: normal;
+}
+.opt-folder-actions {
+  display: flex;
+  gap: var(--lj-space-3);
+  flex-wrap: wrap;
+}
+.opt-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lj-space-2);
+  background: var(--lj-surface-bg);
+  border: 1px solid var(--lj-surface-border);
+  border-radius: var(--lj-radius-sm);
+  padding: var(--lj-space-3) var(--lj-space-4);
+  margin-bottom: var(--lj-space-4);
+}
+.opt-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--lj-text-base);
+}
+.opt-stat--total {
+  border-top: 1px solid var(--lj-surface-divider);
+  padding-top: var(--lj-space-2);
+  font-weight: var(--lj-weight-semibold);
+}
+.opt-stat-label {
+  color: var(--lj-text-muted);
+}
+.opt-stat-value {
+  font-variant-numeric: tabular-nums;
+}
+.opt-stat-value small {
+  color: var(--lj-text-subtle, var(--lj-text-muted));
+  margin-left: var(--lj-space-2);
+  font-weight: var(--lj-weight-regular);
+}
+.opt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lj-space-3);
+  margin-top: var(--lj-space-3);
 }
 
 /* Monitores */

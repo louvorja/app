@@ -22,9 +22,11 @@ class FtpQueue extends EventEmitter {
     this.queue = [];
     this.running = false;
     this.cancelled = false;
+    this.paused = false;
     this.client = null;
     this._creds = null;
     this._credsExpiry = 0;
+    this._resumeWaiters = [];
   }
 
   /**
@@ -42,9 +44,31 @@ class FtpQueue extends EventEmitter {
 
   cancel() {
     this.cancelled = true;
+    this.paused = false;
+    this._resumeWaiters.forEach((res) => res());
+    this._resumeWaiters = [];
     if (this.client) {
       try { this.client.close(); } catch (_) { /* ignore */ }
     }
+  }
+
+  pause() {
+    if (!this.running) return;
+    this.paused = true;
+    this.emit("paused");
+  }
+
+  resume() {
+    if (!this.paused) return;
+    this.paused = false;
+    this._resumeWaiters.forEach((res) => res());
+    this._resumeWaiters = [];
+    this.emit("resumed");
+  }
+
+  _waitIfPaused() {
+    if (!this.paused) return Promise.resolve();
+    return new Promise((res) => this._resumeWaiters.push(res));
   }
 
   async _getCredentials() {
@@ -98,6 +122,10 @@ class FtpQueue extends EventEmitter {
       }
 
       while (this.queue.length > 0 && !this.cancelled) {
+        // Aguarda se pausado (sem fechar a conexão FTP)
+        await this._waitIfPaused();
+        if (this.cancelled) break;
+
         const item = this.queue.shift();
         const idx = total - this.queue.length;
 

@@ -51,6 +51,55 @@ function setRemoteConfig(cfg) {
   });
 }
 
+/**
+ * Liga/desliga o auto-cache de mídia (S1). Quando OFF, stream remoto
+ * passa direto para o renderer sem gravar no disco.
+ */
+let _autoCacheEnabled = true;
+function setAutoCacheEnabled(enabled) {
+  _autoCacheEnabled = !!enabled;
+}
+
+/**
+ * Grava um ReadableStream em um arquivo via .tmp + rename atômico.
+ * Usado pelo auto-cache do host "files".
+ */
+async function _writeStreamToFile(readable, finalPath) {
+  await fs.ensureDir(path.dirname(finalPath));
+  const tmp = `${finalPath}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+  const writer = fs.createWriteStream(tmp);
+  const reader = readable.getReader();
+
+  try {
+    /* eslint-disable no-constant-condition */
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      // value é Uint8Array — converte pra Buffer antes de gravar
+      writer.write(Buffer.from(value));
+    }
+    /* eslint-enable no-constant-condition */
+    await new Promise((resolve, reject) => {
+      writer.end((err) => (err ? reject(err) : resolve()));
+    });
+    await fs.move(tmp, finalPath, { overwrite: true });
+    console.log("[protocol] Auto-cached:", finalPath);
+  } catch (e) {
+    try {
+      await fs.remove(tmp);
+    } catch (_) {
+      /* ignore */
+    }
+    throw e;
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch (_) {
+      /* ignore */
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Registro do scheme (antes do app.whenReady)
 // ---------------------------------------------------------------------------
@@ -116,10 +165,12 @@ function handle() {
 
       // ------------------------------------------------------------------
       // louvorja://files/<caminho>
-      // Serve arquivos locais de userData/files/ (populado em D3 via FTP)
+      // Serve arquivos locais de userData/files/. Se faltar, busca remoto
+      // E grava no disco em paralelo (auto-cache S1) — exceto para Range
+      // requests (não cacheamos partials).
       // ------------------------------------------------------------------
       if (host === "files") {
-        const filesDir = path.join(paths.userData(), "files");
+        const filesDir = paths.filesDir();
         const rawRelative = pathname.replace(/^\/+/, "");
         const localPath = path.resolve(filesDir, rawRelative);
 
@@ -129,19 +180,38 @@ function handle() {
           return new Response("Forbidden", { status: 403 });
         }
 
-        // Se existe localmente, servir do disco (suporta Range, streaming, mime)
+        // Prioriza arquivo local sempre que existe (suporta Range, streaming, mime).
         if (fs.existsSync(localPath)) {
           const fileUrl = pathToFileURL(localPath).toString();
           return electron.net.fetch(fileUrl);
         }
 
-        // Fallback: stream do servidor remoto (necessita internet, modo "online")
-        // Permite usar o app antes de baixar tudo via FTP (D3)
+        // Fallback: stream remoto. Cacheia se for request "completo" (sem Range).
         if (_config.filesUrl) {
           const remoteUrl = _config.filesUrl + (pathname.startsWith("/") ? pathname : "/" + pathname);
+          const isRangeRequest = !!request.headers.get("range");
+          const headers = _config.apiToken ? { "Api-Token": _config.apiToken } : {};
+
           try {
-            return await electron.net.fetch(remoteUrl, {
-              headers: _config.apiToken ? { "Api-Token": _config.apiToken } : {},
+            const response = await electron.net.fetch(remoteUrl, { headers });
+
+            if (!response.ok || response.status !== 200 || isRangeRequest) {
+              return response; // não cacheamos parciais nem erros
+            }
+
+            if (!_autoCacheEnabled || !response.body) {
+              return response;
+            }
+
+            // Tee: uma branch vai pro renderer, outra grava em .tmp e renomeia.
+            const [forRenderer, forDisk] = response.body.tee();
+            _writeStreamToFile(forDisk, localPath).catch((e) =>
+              console.warn("[protocol] Auto-cache falhou:", e.message || e)
+            );
+
+            return new Response(forRenderer, {
+              status: 200,
+              headers: response.headers,
             });
           } catch (fetchErr) {
             console.warn("[protocol] Falha ao buscar remoto:", remoteUrl, fetchErr.message);
@@ -165,4 +235,4 @@ function handle() {
   console.log("[protocol] Handler louvorja:// registrado.");
 }
 
-module.exports = { register, handle, setRemoteConfig };
+module.exports = { register, handle, setRemoteConfig, setAutoCacheEnabled };

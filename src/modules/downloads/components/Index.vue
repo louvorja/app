@@ -133,20 +133,39 @@
 
       <!-- Action buttons -->
       <div
-        class="pa-3 d-flex justify-end"
+        class="pa-3 d-flex justify-end align-center"
         style="gap: 8px; border-top: 1px solid rgba(128, 128, 128, 0.2)"
       >
         <v-btn
-          v-if="downloading"
-          color="error"
+          v-if="!downloading"
           variant="tonal"
-          prepend-icon="mdi-cancel"
-          @click="cancelDownload"
+          prepend-icon="mdi-select-all"
+          :disabled="!connectionOk"
+          @click="downloadAll"
         >
-          {{ t("actions.cancel") }}
+          {{ t("actions.download_all") }}
         </v-btn>
+
+        <template v-if="downloading">
+          <v-btn v-if="!paused" variant="tonal" prepend-icon="mdi-pause" @click="pauseDownload">
+            {{ t("actions.pause") }}
+          </v-btn>
+          <v-btn
+            v-else
+            :color="primaryColor"
+            variant="tonal"
+            prepend-icon="mdi-play"
+            @click="resumeDownload"
+          >
+            {{ t("actions.resume") }}
+          </v-btn>
+          <v-btn color="error" variant="tonal" prepend-icon="mdi-cancel" @click="cancelDownload">
+            {{ t("actions.cancel") }}
+          </v-btn>
+        </template>
+
         <v-btn
-          v-else
+          v-if="!downloading"
           :color="primaryColor"
           prepend-icon="mdi-cloud-download"
           :disabled="selected.length === 0 || !connectionOk"
@@ -184,6 +203,7 @@ const categories = ref([]);
 const selected = ref([]);
 
 const downloading = ref(false);
+const paused = ref(false);
 const currentFile = ref(null);
 const downloadedCount = ref(0);
 const failedCount = ref(0);
@@ -364,6 +384,27 @@ function cancelDownload() {
   if (Platform.download) {
     Platform.download.cancel();
   }
+  paused.value = false;
+}
+
+async function pauseDownload() {
+  if (Platform.download?.pause) {
+    await Platform.download.pause();
+    paused.value = true;
+  }
+}
+
+async function resumeDownload() {
+  if (Platform.download?.resume) {
+    await Platform.download.resume();
+    paused.value = false;
+  }
+}
+
+async function downloadAll() {
+  if (!categories.value || categories.value.length === 0) return;
+  selected.value = categories.value.map((c) => c.id_category);
+  await startDownload();
 }
 
 function removeListeners() {
