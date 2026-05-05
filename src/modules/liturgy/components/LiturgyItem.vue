@@ -223,7 +223,7 @@ const t = (key: string) => _t(key, locale.value);
 }
 .lit-card--timer-active {
   border-color: rgba(var(--lj-navy-ch), 0.8);
-  box-shadow: 0 0 0 2px rgba(var(--lj-navy-ch), 0.2);
+  box-shadow: var(--lj-shadow-focus-navy);
 }
 .lit-card--locked {
   border-left: 3px solid rgba(var(--lj-navy-ch), 0.3);
@@ -403,7 +403,7 @@ const t = (key: string) => _t(key, locale.value);
   letter-spacing: 0.02em;
   padding-right: 4px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--lj-shadow-1);
 }
 .lit-category:hover {
   filter: brightness(1.1);

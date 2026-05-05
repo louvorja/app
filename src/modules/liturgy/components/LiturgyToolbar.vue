@@ -235,7 +235,7 @@ const t = (key: string) => _t(key, locale.value);
   background: var(--lj-surface-bg);
   border: 1px solid rgba(var(--v-border-color), 0.5);
   border-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--lj-shadow-3);
   min-width: 220px;
   display: flex;
   flex-direction: column;

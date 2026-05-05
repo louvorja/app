@@ -408,7 +408,7 @@ function inputNum(e: Event): number {
 .lit-input:focus,
 .lit-select:focus {
   border-color: var(--lj-navy);
-  box-shadow: 0 0 0 2px rgba(var(--lj-navy-ch), 0.15);
+  box-shadow: var(--lj-shadow-focus-navy-sm);
 }
 textarea.lit-input {
   height: auto;

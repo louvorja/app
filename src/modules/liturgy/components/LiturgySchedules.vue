@@ -350,7 +350,7 @@ function doSaveCatName(id: string | number) {
 }
 .lit-input:focus {
   border-color: var(--lj-navy);
-  box-shadow: 0 0 0 2px rgba(var(--lj-navy-ch), 0.15);
+  box-shadow: var(--lj-shadow-focus-navy-sm);
 }
 .lit-hint {
   font-size: 11px;

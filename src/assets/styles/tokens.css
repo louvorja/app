@@ -1,0 +1,394 @@
+/**
+ * tokens.css — Single source of truth dos tokens visuais do LouvorJA.
+ *
+ * Inspiração: paleta e dimensões extraídas dos screenshots reais do app
+ * Delphi (skin "officetab" do BusinessSkinForm).
+ *
+ * Convenção: TODA a UI do shell deve usar exclusivamente esses tokens.
+ * Cores hex hardcoded no CSS dos componentes = inconsistência. Use sempre var().
+ */
+
+:root {
+  /* =================================================================
+   * 1. PALETA BASE
+   * ================================================================= */
+  --lj-navy: #1b4f8a;
+  --lj-navy-dark: #143a66;
+  --lj-navy-darker: #0e2a4c;
+  --lj-navy-active: #2563a4;
+  --lj-navy-ch: 27 79 138; /* canais RGB de --lj-navy para rgba() */
+
+  --lj-orange: #f39c12;
+  --lj-orange-dark: #cd771b;
+  --lj-orange-darker: #b56514;
+  --lj-orange-soft: #fef5e9;
+
+  /* Cores Delphi específicas (projeção, listas) */
+  --lj-color-cover-gold: #efb400;
+  --lj-slide-text-gold: #f6c32a; /* gold do texto de slide (cover + repeat) */
+  --lj-color-projection-bg: #000000;
+  --lj-color-return-bg: #293329;
+  --lj-color-operator-panel: #353535;
+  --lj-color-operator-grid: #232323;
+  --lj-color-operator-line: #524752;
+  --lj-color-list-bg: #232323;
+  --lj-color-splash-bg: #2d2d28;
+  --lj-color-favorites-line: #e8e8e8;
+
+  /* Cores funcionais */
+  --lj-danger: #dc2626;
+  --lj-danger-dark: #b91c1c;
+  --lj-danger-light: #fca5a5;
+  --lj-danger-soft: rgba(220, 38, 38, 0.12);
+  --lj-danger-border: rgba(220, 38, 38, 0.3);
+
+  --lj-success: #16a34a;
+  --lj-success-soft: rgba(22, 163, 74, 0.12);
+
+  --lj-warning: #ea580c;
+  --lj-warning-dark: #d97706;
+  --lj-info: #2563eb;
+  --lj-info-light: #6ea0d0;
+
+  --lj-orange-alpha-12: rgba(243, 156, 18, 0.12);
+  --lj-orange-alpha-30: rgba(243, 156, 18, 0.3);
+
+  /* =================================================================
+   * 2. ESCALA DE CINZAS (light)
+   * ================================================================= */
+  --lj-gray-50: #f7f9fc;
+  --lj-gray-100: #eef2f7;
+  --lj-gray-200: #dde4ed;
+  --lj-gray-300: #c5d0dc;
+  --lj-gray-400: #9aa6b5;
+  --lj-gray-500: #6b7888;
+  --lj-gray-600: #505e6e;
+  --lj-gray-700: #3a4654;
+  --lj-gray-800: #232c38;
+  --lj-gray-900: #131820;
+
+  /* =================================================================
+   * 3. SUPERFÍCIES (light theme)
+   * ================================================================= */
+  --lj-surface-bg: #ffffff;
+  --lj-surface-bg-soft: var(--lj-gray-50);
+  --lj-surface-bg-hover: var(--lj-gray-100);
+  --lj-surface-bg-active: var(--lj-gray-200);
+  --lj-surface-border: var(--lj-gray-200);
+  --lj-surface-border-strong: var(--lj-gray-300);
+  --lj-surface-divider: var(--lj-gray-100);
+
+  /* Texto sobre superfícies claras */
+  --lj-text: var(--lj-gray-800);
+  --lj-on-surface-ch: 35 44 56; /* canais RGB de --lj-text (light) para rgba() */
+  --lj-text-muted: var(--lj-gray-600);
+  --lj-text-subtle: var(--lj-gray-500);
+  --lj-text-on-navy: rgba(255, 255, 255, 0.92);
+  --lj-text-on-navy-muted: rgba(255, 255, 255, 0.7);
+
+  /* =================================================================
+   * 4. COMPONENTES — ribbon
+   * ================================================================= */
+
+  /* Tabs (fundo navy, item ativo branco) */
+  --lj-tabs-bg: var(--lj-navy);
+  --lj-tabs-color: var(--lj-text-on-navy);
+  --lj-tabs-color-hover: #ffffff;
+  --lj-tabs-hover-bg: rgba(255, 255, 255, 0.08);
+  --lj-tabs-active-bg: #ffffff;
+  --lj-tabs-active-color: var(--lj-gray-800);
+
+  /* Tabs contextuais (laranja) */
+  --lj-tabs-ctx-bg: var(--lj-orange);
+  --lj-tabs-ctx-color: #ffffff;
+  --lj-tabs-ctx-hover-bg: #f8a849;
+  --lj-tabs-ctx-active-bg: linear-gradient(180deg, var(--lj-orange) 0%, var(--lj-orange-dark) 100%);
+
+  /* TitleBar (acima das tabs) */
+  --lj-titlebar-bg: var(--lj-navy);
+  --lj-titlebar-color: #ffffff;
+
+  /* Body do Ribbon (sempre branco — sem variação contextual) */
+  --lj-body-bg: var(--lj-surface-bg);
+  --lj-body-bg-ctx: var(--lj-surface-bg);
+  --lj-body-border: var(--lj-surface-border-strong);
+  --lj-body-divider: var(--lj-surface-divider);
+
+  /* Botões do Ribbon */
+  --lj-rbtn-color: var(--lj-text);
+  --lj-rbtn-hover-bg: var(--lj-surface-bg-hover);
+  --lj-rbtn-hover-border: var(--lj-surface-border-strong);
+  --lj-rbtn-active-bg: var(--lj-surface-bg-active);
+  --lj-rbtn-active-border: var(--lj-gray-400);
+
+  /* Group label */
+  --lj-group-label-color: var(--lj-text-subtle);
+
+  /* =================================================================
+   * 5. COMPONENTES — sub tabs (PageControl interno)
+   * ================================================================= */
+  --lj-subtabs-bg: var(--lj-gray-100);
+  --lj-subtabs-border: var(--lj-surface-border-strong);
+  --lj-subtab-bg: var(--lj-gray-200);
+  --lj-subtab-color: var(--lj-text-muted);
+  --lj-subtab-hover-bg: var(--lj-surface-bg);
+  --lj-subtab-active-bg: var(--lj-surface-bg);
+  --lj-subtab-active-color: var(--lj-text);
+  --lj-subtab-close-color: var(--lj-orange);
+  --lj-subtab-close-hover-bg: rgba(243, 156, 18, 0.18);
+
+  /* =================================================================
+   * 6. COMPONENTES — status bar
+   * ================================================================= */
+  --lj-statusbar-bg: var(--lj-surface-bg);
+  --lj-statusbar-border: var(--lj-surface-border);
+  --lj-statusbar-color: var(--lj-text-muted);
+  --lj-statusbar-divider: var(--lj-surface-divider);
+
+  /* =================================================================
+   * 7. COMPONENTES — footer (player)
+   * ================================================================= */
+  --lj-footer-bg: var(--lj-surface-bg);
+  --lj-footer-border: var(--lj-surface-border-strong);
+
+  /* Gauge do player */
+  --lj-player-gauge-light-start: #c4d8ef;
+  --lj-player-gauge-light-end: #aabfd5;
+  --lj-player-gauge-dark-end: #0f172a;
+  --lj-color-cover-gold-dark: #c89500;
+  --lj-gold-alpha-60: rgba(239, 180, 0, 0.6);
+
+  /* Player text e gauge (variam entre temas) */
+  --lj-player-slide-text-color: var(--lj-text);
+  --lj-player-gauge-bg: linear-gradient(
+    180deg,
+    var(--lj-player-gauge-light-start),
+    var(--lj-player-gauge-light-end)
+  );
+  --lj-player-gauge-buffer-bg: var(--lj-white-alpha-25);
+
+  /* =================================================================
+   * 8. POPUPS / DIALOGS
+   * ================================================================= */
+  --lj-popup-bg: var(--lj-surface-bg);
+  --lj-popup-border: var(--lj-surface-border-strong);
+  --lj-popup-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  /* App Menu sidebar (Sobre/Opções) */
+  --lj-appmenu-sidebar-bg: var(--lj-navy);
+  --lj-appmenu-sidebar-color: var(--lj-text-on-navy-muted);
+  --lj-appmenu-sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+  --lj-appmenu-sidebar-active-bg: var(--lj-orange);
+  --lj-appmenu-sidebar-active-color: #ffffff;
+
+  /* Link e kbd badge */
+  --lj-link-color: var(--lj-navy);
+  --lj-kbd-bg: var(--lj-surface-bg);
+  --lj-kbd-border: var(--lj-surface-border-strong);
+
+  /* =================================================================
+   * 9. UTILITÁRIOS GENÉRICOS
+   * ================================================================= */
+  --lj-white: #ffffff;
+
+  /* Alpha utilities (overlays, hovers, sombras) */
+  --lj-white-alpha-08: rgba(255, 255, 255, 0.08);
+  --lj-white-alpha-10: rgba(255, 255, 255, 0.1);
+  --lj-white-alpha-18: rgba(255, 255, 255, 0.18);
+  --lj-white-alpha-20: rgba(255, 255, 255, 0.2);
+  --lj-white-alpha-25: rgba(255, 255, 255, 0.25);
+  --lj-black-alpha-18: rgba(0, 0, 0, 0.18);
+  --lj-black-alpha-20: rgba(0, 0, 0, 0.2);
+  --lj-black-alpha-30: rgba(0, 0, 0, 0.3);
+  --lj-black-alpha-40: rgba(0, 0, 0, 0.4);
+  --lj-black-alpha-75: rgba(0, 0, 0, 0.75);
+  --lj-navy-alpha-30: rgba(27, 79, 138, 0.3);
+
+  --lj-divider: var(--lj-surface-divider);
+  --lj-hover-bg: var(--lj-surface-bg-hover);
+  --lj-active-bg: rgba(27, 79, 138, 0.08);
+  --lj-focus-ring: 0 0 0 2px rgba(27, 79, 138, 0.4);
+
+  /* Scrollbar e alertas */
+  --lj-scrollbar-thumb-bg: var(--lj-black-alpha-18);
+  --lj-alert-error-color: var(--lj-danger-dark);
+
+  /* Live mode (banner pulsante) */
+  --lj-live-bg: linear-gradient(90deg, var(--lj-danger-dark), var(--lj-danger));
+  --lj-live-color: var(--lj-white);
+
+  /* =================================================================
+   * 10. DIMENSÕES (px) — replicam fmMenu.dfm
+   * ================================================================= */
+  --lj-systembar-height: 28px;
+  --lj-tab-height: 28px;
+  --lj-ribbon-body-height: 80px;
+  --lj-group-label-height: 18px;
+  --lj-subtabs-height: 28px;
+  --lj-player-height: 88px;
+  --lj-player-title-height: 22px;
+  --lj-player-row-height: 46px;
+  --lj-player-gauge-height: 20px;
+  --lj-statusbar-height: 24px;
+  --lj-sidebar-width: 250px;
+  --lj-sidebar-collapsed: 28px;
+  --lj-appmenu-width: 44px;
+
+  --lj-fixed-btn-width: 30px;
+  --lj-large-btn-width: 76px;
+  --lj-large-btn-height: 70px;
+  --lj-small-btn-height: 22px;
+
+  --lj-player-btn-width: 36px;
+  --lj-player-btn-primary-width: 55px;
+  --lj-player-btn-height: 38px;
+
+  /* =================================================================
+   * 11. ESPAÇAMENTO (escala 4px)
+   * ================================================================= */
+  --lj-space-1: 2px;
+  --lj-space-2: 4px;
+  --lj-space-3: 6px;
+  --lj-space-4: 8px;
+  --lj-space-5: 12px;
+  --lj-space-6: 16px;
+  --lj-space-7: 20px;
+  --lj-space-8: 24px;
+
+  /* =================================================================
+   * 12. RAIO DE BORDA
+   * ================================================================= */
+  --lj-radius-xs: 2px; /* tags, badges */
+  --lj-radius-sm: 3px; /* botões padrão */
+  --lj-radius-md: 4px; /* popups, cards */
+  --lj-radius-lg: 6px; /* dialogs */
+  --lj-radius-tab: 4px 4px 0 0; /* tabs */
+
+  /* =================================================================
+   * 13. TIPOGRAFIA
+   * ================================================================= */
+  --lj-font-shell: "Tahoma", "Segoe UI", "Helvetica Neue", sans-serif;
+  --lj-font-projection:
+    "DINCondensedBold", "DIN Condensed", "Bebas Neue", "Arial Narrow", sans-serif;
+  --lj-font-mono: "SF Mono", "Consolas", monospace;
+
+  /* Escala de tamanhos */
+  --lj-text-xs: 10px; /* badges, group labels */
+  --lj-text-sm: 11px; /* status bar */
+  --lj-text-base: 12px; /* ribbon body padrão */
+  --lj-text-md: 12.5px; /* tabs */
+  --lj-text-lg: 14px; /* títulos de módulos */
+  --lj-text-xl: 16px; /* títulos popups */
+  --lj-text-2xl: 22px; /* hero (about, opções) */
+
+  /* Pesos */
+  --lj-weight-regular: 400;
+  --lj-weight-medium: 500;
+  --lj-weight-semibold: 600;
+  --lj-weight-bold: 700;
+
+  /* =================================================================
+   * 14. ELEVAÇÃO / SOMBRAS
+   * ================================================================= */
+
+  /* Sombras de elevação (z-axis) */
+  --lj-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --lj-shadow-2: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --lj-shadow-3: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+  /* Focus rings com cor navy */
+  --lj-shadow-focus-navy: 0 0 0 2px rgba(var(--lj-navy-ch), 0.2);
+  --lj-shadow-focus-navy-sm: 0 0 0 2px rgba(var(--lj-navy-ch), 0.15);
+
+  /* =================================================================
+   * 15. ANIMAÇÕES
+   * ================================================================= */
+  --lj-fade-duration: 256ms;
+  --lj-transition-fast: 0.08s ease;
+  --lj-transition-normal: 0.15s ease;
+  --lj-transition-slow: 0.25s ease;
+}
+
+/* =====================================================================
+ * Tema dark — overrides (mesmas keys, valores escuros)
+ * ===================================================================== */
+:root.v-theme--dark,
+.v-theme--dark {
+  /* Surface */
+  --lj-surface-bg: #1f2937;
+  --lj-surface-bg-soft: #161e2c;
+  --lj-surface-bg-hover: #243248;
+  --lj-surface-bg-active: #2d3a52;
+  --lj-surface-border: #2a3441;
+  --lj-surface-border-strong: #3a4654;
+  --lj-surface-divider: #2a3441;
+
+  /* Texto */
+  --lj-text: #e5e7eb;
+  --lj-on-surface-ch: 229 231 235; /* canais RGB de --lj-text (dark) para rgba() */
+  --lj-text-muted: #9aa3ad;
+  --lj-text-subtle: #6b7280;
+
+  /* Tabs (mais escuras) */
+  --lj-tabs-bg: var(--lj-navy-darker);
+  --lj-tabs-active-bg: #243248;
+  --lj-tabs-active-color: #ffffff;
+
+  --lj-titlebar-bg: var(--lj-navy-darker);
+
+  /* Body (sempre igual, sem variação contextual) */
+  --lj-body-bg: #1f2937;
+  --lj-body-bg-ctx: #1f2937;
+  --lj-body-border: #374151;
+  --lj-body-divider: #2a3441;
+
+  /* Subtabs */
+  --lj-subtabs-bg: #161e2c;
+  --lj-subtabs-border: #2a3441;
+  --lj-subtab-bg: #1f2937;
+  --lj-subtab-hover-bg: #1c2330;
+  --lj-subtab-active-bg: #243248;
+  --lj-subtab-active-color: #ffffff;
+
+  /* StatusBar */
+  --lj-statusbar-bg: #161e2c;
+  --lj-statusbar-color: #aab4c0;
+  --lj-statusbar-border: #2a3441;
+
+  /* Footer */
+  --lj-footer-bg: #1f2937;
+  --lj-footer-border: #374151;
+
+  /* Player */
+  --lj-player-slide-text-color: var(--lj-color-cover-gold);
+  --lj-player-gauge-bg: linear-gradient(
+    180deg,
+    var(--lj-surface-bg),
+    var(--lj-player-gauge-dark-end)
+  );
+  --lj-player-gauge-buffer-bg: var(--lj-white-alpha-08);
+
+  /* Botões */
+  --lj-rbtn-hover-bg: rgba(255, 255, 255, 0.06);
+  --lj-rbtn-hover-border: rgba(255, 255, 255, 0.16);
+  --lj-rbtn-active-bg: rgba(255, 255, 255, 0.1);
+  --lj-rbtn-active-border: rgba(255, 255, 255, 0.24);
+
+  /* Popups */
+  --lj-popup-bg: #1f2937;
+  --lj-popup-border: #374151;
+  --lj-popup-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
+
+  /* Link e kbd */
+  --lj-link-color: var(--lj-info-light);
+  --lj-kbd-bg: var(--lj-surface-bg-soft);
+  --lj-kbd-border: var(--lj-surface-border);
+
+  /* Hover/active genéricos */
+  --lj-hover-bg: rgba(255, 255, 255, 0.06);
+  --lj-active-bg: rgba(100, 160, 255, 0.15);
+
+  /* Scrollbar e alertas */
+  --lj-scrollbar-thumb-bg: var(--lj-white-alpha-18);
+  --lj-alert-error-color: var(--lj-danger-light);
+}
