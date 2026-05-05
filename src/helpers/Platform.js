@@ -191,4 +191,22 @@ export default {
   onHttpEvent(cb) {
     return api?.onHttpEvent ? api.onHttpEvent(cb) : () => {};
   },
+
+  /**
+   * Gerenciamento de armazenamento local (S2): stats, clear, verify,
+   * setFilesDir, openDir, checkLocal, setAutoCache.
+   * null no browser/PWA — controle só no desktop.
+   */
+  get storage() {
+    return api?.storage ?? null;
+  },
+
+  /**
+   * Iniciar com sistema operacional (F5.1).
+   * { set(enabled), get() } via app.setLoginItemSettings.
+   * null no browser/PWA.
+   */
+  get appLogin() {
+    return api?.appLogin ?? null;
+  },
 };

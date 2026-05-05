@@ -92,7 +92,17 @@ import $database from "@/helpers/Database";
 import $appdata from "@/helpers/AppData";
 import Platform from "@/helpers/Platform";
 
-const isMac = computed(() => Platform.platform === "darwin");
+// Detecta macOS via Platform (Electron) ou navigator (web fallback) —
+// usado para ajustar o header da AppMenu (não sobrepor traffic lights)
+// e usar botão retangular em vez de circular.
+const isMac = computed(() => {
+  if (Platform.platform === "darwin") return true;
+  if (typeof navigator !== "undefined") {
+    const p = (navigator.platform || navigator.userAgent || "").toLowerCase();
+    return p.includes("mac");
+  }
+  return false;
+});
 
 const open = ref(false);
 const dbVersion = ref(0);

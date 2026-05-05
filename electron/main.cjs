@@ -79,9 +79,10 @@ function createWindow() {
 
   mainWindow = createMainWindow(DEV_URL, prodHtmlPath, preloadPath);
 
-  // DevTools sempre aberto por enquanto — debug de prod. Pode reverter
-  // depois pra `if (isDev) {...}`.
-  mainWindow.webContents.openDevTools({ mode: "detach" });
+  // DevTools só em dev OU quando LJ_DEVTOOLS=1 no env (debug pontual).
+  if (isDev || process.env.LJ_DEVTOOLS === "1") {
+    mainWindow.webContents.openDevTools({ mode: "detach" });
+  }
 
   mainWindow.on("closed", () => {
     mainWindow = null;
