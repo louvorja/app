@@ -216,6 +216,11 @@ channel.onmessage = (e) => { ... };
 
 A janela de projeção (`/projection`) e stage display (`/projection/return`) recebem estado do player via este canal.
 
+**Electron**: `BroadcastChannel` **funciona entre `BrowserWindow`s distintas** no Electron 41+. Requisitos
+já garantidos no código: `sandbox: false` em todas as janelas (main, windowFactory, setWindowOpenHandler),
+mesma origem em dev (`http://localhost:5002`) e prod (`file://`), mesma partition padrão.
+Bridge IPC **não é necessária**. Ver `docs/broadcast.md` e task #116.
+
 ## Banco de Dados
 
 Os dados são arquivos JSON servidos pelo backend configurado em `.env`:
