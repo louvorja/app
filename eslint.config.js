@@ -42,6 +42,8 @@ export default [
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "no-console": "off",
       radix: "error",
+      // Imports cruzando 2+ níveis devem usar alias (@/helpers/X) — nunca ../../
+      "no-restricted-imports": ["error", { patterns: ["../../*"] }],
     },
   },
   {

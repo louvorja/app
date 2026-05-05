@@ -65,3 +65,21 @@ Regra: imports cruzando 2+ níveis usar alias. Imports do mesmo diretório ou ir
 
 - Item audit: #97.
 - Task #064 — aliases já configurados.
+
+---
+
+## Notas pós-execução
+
+Executado em 2026-05-05.
+
+**Auditoria de imports profundos:**
+- `grep -rn "from ['\"]\.\./\.\./" src/` → 0 resultados. Nenhum import `../../` existe no código.
+- Imports `../X` (nível único dentro do mesmo módulo, ex: `../lang/pt.json`, `../types`) são legítimos e foram mantidos como relativos conforme regra da task.
+
+**Regra ESLint adicionada (opcional conforme task):**
+- `"no-restricted-imports": ["error", { patterns: ["../../*"] }]` no bloco de regras globais do `eslint.config.js`. Garante que regressões futuras de imports profundos sejam bloqueadas como erro (não warning).
+
+**Validações:**
+- `grep -rn "from ['\"]\.\./\.\./" src/` → 0 ✅
+- `npm run lint` → 0 erros ✅
+- `npm run build` → sucesso ✅
