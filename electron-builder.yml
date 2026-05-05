@@ -49,7 +49,7 @@ publish:
 # ---------------------------------------------------------------------------
 win:
   target: nsis
-  icon: public/ico/favicon-180x180.png
+  icon: build/icon-512.png
   # Code signing (opcional — requer certificado pago):
   # certificateFile: cert.pfx
   # certificatePassword: ${env.CERT_PWD}
@@ -87,7 +87,7 @@ nsis:
 # ---------------------------------------------------------------------------
 mac:
   target: dmg
-  icon: public/ico/favicon-180x180.png
+  icon: build/icon-512.png
   category: public.app-category.music
 
 # ---------------------------------------------------------------------------
@@ -95,5 +95,5 @@ mac:
 # ---------------------------------------------------------------------------
 linux:
   target: AppImage
-  icon: public/ico/favicon-180x180.png
+  icon: build/icon-512.png
   category: AudioVideo
