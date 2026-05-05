@@ -128,7 +128,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
 | 095 | [Padronizar nomenclatura `interface/` vs `components/`](tasks/done/095-interface-vs-components.md)        | S      | P3  | 2h  | done   | 95          |
-| 096 | [Padronizar capitalização de arquivos (Index.vue vs index.vue)](tasks/096-capitalizacao-arquivos.md)     | S      | P3  | 1h  | todo   | 96          |
+| 096 | [Padronizar capitalização de arquivos (Index.vue vs index.vue)](tasks/done/096-capitalizacao-arquivos.md)     | S      | P3  | 1h  | done   | 96          |
 | 097 | [Padronizar imports relativos vs alias `@`](tasks/097-imports-alias.md)                         | S      | P3  | 1h  | todo   | 97          |
 | 098 | [Decidir: `modules/core/` permanece ou achata](tasks/098-modules-core-flat.md)                      | S      | P3  | 0.5h| todo   | 98          |
 | 105 | [Refatorar `state.js` (`module_group` pre-declarado)](tasks/105-state-module-group.md)               | S      | P3  | 0.5h| todo   | 105         |
