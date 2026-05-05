@@ -143,25 +143,27 @@ app.whenReady().then(() => {
   // CSP via headers (defense-in-depth).
   // Em produção reforça a política para recursos carregados via file:// e louvorja://.
   // Em dev libera 'unsafe-inline' e 'unsafe-eval' para o HMR do Vite funcionar.
+  // file: precisa estar explícito em prod porque o Chromium trata file://
+  // como origem null e NÃO casa com 'self'.
   const scriptSrc = isDev
     ? "'self' 'unsafe-inline' 'unsafe-eval' louvorja: http://localhost:*"
-    : "'self' louvorja:";
+    : "'self' file: louvorja:";
   const styleSrc = isDev
     ? "'self' 'unsafe-inline' louvorja: http://localhost:* https://fonts.googleapis.com"
-    : "'self' 'unsafe-inline' louvorja: https://fonts.googleapis.com";
+    : "'self' 'unsafe-inline' file: louvorja: https://fonts.googleapis.com";
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         "Content-Security-Policy": [
-          "default-src 'self' louvorja:" + (isDev ? " http://localhost:* ws://localhost:*" : "") + ";" +
+          "default-src 'self' file: louvorja:" + (isDev ? " http://localhost:* ws://localhost:*" : "") + ";" +
           ` script-src ${scriptSrc};` +
           ` style-src ${styleSrc};` +
-          " font-src 'self' data: louvorja: https://fonts.gstatic.com;" +
-          " img-src 'self' data: https: louvorja:" + (isDev ? " http://localhost:*" : "") + ";" +
-          " media-src 'self' blob: https: louvorja: http://localhost:*;" +
+          " font-src 'self' data: file: louvorja: https://fonts.gstatic.com;" +
+          " img-src 'self' data: https: file: louvorja:" + (isDev ? " http://localhost:*" : "") + ";" +
+          " media-src 'self' blob: https: file: louvorja: http://localhost:*;" +
           " connect-src 'self' louvorja: https://api.louvorja.com.br https://*.louvorja.com.br http://localhost:* ws://localhost:*;" +
-          " worker-src 'self' louvorja:" + (isDev ? " blob:" : "") + ";",
+          " worker-src 'self' file: louvorja:" + (isDev ? " blob:" : "") + ";",
         ],
       },
     });

@@ -18,16 +18,20 @@ export default async ({ mode }) => {
   const isDesktop = process.env.VITE_TARGET === "desktop";
 
   // CSP só em build de produção. Em dev, Vite HMR injeta inline scripts.
+  // No desktop (Electron) o app carrega via file:// — `'self'` NÃO casa
+  // com origem null do file:// no Chromium, então precisamos liberar
+  // file: e louvorja: explicitamente. No web/PWA, mantém estrito.
+  const cspExtra = isDesktop ? " file: louvorja:" : "";
   const cspMeta =
     `<meta http-equiv="Content-Security-Policy" content="` +
-    `default-src 'self';` +
-    ` script-src 'self';` +
-    ` style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;` +
-    ` font-src 'self' data: https://fonts.gstatic.com;` +
-    ` img-src 'self' data: https:;` +
-    ` media-src 'self' blob: https:;` +
-    ` connect-src 'self' https://api.louvorja.com.br https://*.louvorja.com.br http://localhost:* ws://localhost:*;` +
-    ` worker-src 'self';` +
+    `default-src 'self'${cspExtra};` +
+    ` script-src 'self'${cspExtra};` +
+    ` style-src 'self' 'unsafe-inline'${cspExtra} https://fonts.googleapis.com;` +
+    ` font-src 'self' data:${cspExtra} https://fonts.gstatic.com;` +
+    ` img-src 'self' data: https:${cspExtra};` +
+    ` media-src 'self' blob: https:${cspExtra};` +
+    ` connect-src 'self'${cspExtra} https://api.louvorja.com.br https://*.louvorja.com.br http://localhost:* ws://localhost:*;` +
+    ` worker-src 'self'${cspExtra};` +
     `">`;
 
   // Plugins base — sempre incluídos
