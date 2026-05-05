@@ -1,4 +1,4 @@
-import BaseModule from "../../BaseModule";
+import BaseModule from "@modules/BaseModule";
 import es from "./lang/es.json";
 import pt from "./lang/pt.json";
 import manifest from "./manifest.json";

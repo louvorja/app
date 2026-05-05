@@ -116,7 +116,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import packageJson from "../../package.json";
+import packageJson from "@root/package.json";
 import Modules from "@/helpers/Modules";
 import Media from "@/composables/useMedia";
 import Database from "@/helpers/Database";

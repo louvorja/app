@@ -55,7 +55,7 @@
 
 <script setup>
 import { ref, computed, onMounted, getCurrentInstance } from "vue";
-import packageJson from "../../../package.json";
+import packageJson from "@root/package.json";
 import Platform from "@/helpers/Platform";
 
 const { proxy } = getCurrentInstance();

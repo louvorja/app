@@ -152,6 +152,7 @@ export default async ({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
+        "@root": path.resolve(__dirname),
         "@helpers": path.resolve(__dirname, "src/helpers"),
         "@components": path.resolve(__dirname, "src/components"),
         "@modules": path.resolve(__dirname, "src/modules"),

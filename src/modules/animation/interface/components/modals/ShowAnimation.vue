@@ -87,10 +87,10 @@
 <!-- OFFLINE - Load Dependencie By File -->
 <script setup>
 import { onMounted } from "vue";
-import log from "../../../scripts/log.js";
+import log from "@modules/animation/scripts/log.js";
 
 // Offline Method (Preferred)
-import anime from "../../../dependencies/animejs/lib/anime.es.js";
+import anime from "@modules/animation/dependencies/animejs/lib/anime.es.js";
 log("CreateAnimation.vue");
 
 onMounted(() => {

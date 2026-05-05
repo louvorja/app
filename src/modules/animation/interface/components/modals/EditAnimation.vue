@@ -108,7 +108,7 @@
 <!-- ONLINE - Load Dependencie by CDN -->
 <script setup>
 import { onMounted } from "vue";
-import log from "../../../scripts/log.js";
+import log from "@modules/animation/scripts/log.js";
 
 log("CreateAnimation.vue");
 

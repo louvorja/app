@@ -84,7 +84,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, getCurrentInstance } from "vue";
-import packageJson from "../../../package.json";
+import packageJson from "@root/package.json";
 import AppMenuOpcoes from "./AppMenuOpcoes.vue";
 import AppMenuSobre from "./AppMenuSobre.vue";
 
