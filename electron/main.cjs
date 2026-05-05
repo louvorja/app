@@ -210,6 +210,26 @@ app.whenReady().then(async () => {
     if (typeof storageCfg.autoCache === "boolean") {
       protocolModule.setAutoCacheEnabled(storageCfg.autoCache);
     }
+
+    // Migração one-shot: pasta legada (userData/files) → Documents/LouvorJA
+    if (!storageCfg.filesDir && !storageCfg.migratedToDocuments) {
+      const legacyDir = paths.legacyFilesDir();
+      const newDir = paths.filesDir();
+      if (
+        fs.existsSync(legacyDir) &&
+        legacyDir !== newDir &&
+        fs.readdirSync(legacyDir).length > 0
+      ) {
+        try {
+          fs.copySync(legacyDir, newDir, { overwrite: false, errorOnExist: false });
+          fs.removeSync(legacyDir);
+          console.log("[main] Migrou mídia: " + legacyDir + " → " + newDir);
+        } catch (mErr) {
+          console.warn("[main] Falha ao migrar mídia legada:", mErr.message);
+        }
+      }
+      userStore.write("storage", { ...storageCfg, migratedToDocuments: true });
+    }
   } catch (e) {
     console.warn("[main] Falha ao aplicar storage config:", e.message);
   }

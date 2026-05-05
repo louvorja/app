@@ -33,10 +33,23 @@ module.exports = {
 
   /**
    * Diretório de mídia (mp3, imagens, etc.). Configurável pelo usuário
-   * em "Configurações → Armazenamento". Default: userData/files.
+   * em "Configurações → Armazenamento". Default: <Documents>/LouvorJA.
+   *
+   * Usar Documents (em vez de userData) porque:
+   *  - é a pasta padrão que o usuário enxerga no Finder/Explorer
+   *  - sobrevive a reinstalações do app (userData pode ser limpo)
+   *  - replica o comportamento do Delphi original (pasta visível ao usuário)
    */
   filesDir() {
-    return _filesDirOverride || path.join(app.getPath("userData"), "files");
+    if (_filesDirOverride) return _filesDirOverride;
+    const dir = path.join(app.getPath("documents"), "LouvorJA");
+    try {
+      fs.ensureDirSync(dir);
+    } catch (_) {
+      /* permissão negada — fallback para userData */
+      return path.join(app.getPath("userData"), "files");
+    }
+    return dir;
   },
 
   /**
@@ -51,6 +64,14 @@ module.exports = {
     const abs = path.resolve(dir);
     fs.ensureDirSync(abs);
     _filesDirOverride = abs;
+  },
+
+  /**
+   * Caminho legado de mídia (versões antigas armazenavam em userData/files).
+   * Usado apenas para migração one-shot.
+   */
+  legacyFilesDir() {
+    return path.join(app.getPath("userData"), "files");
   },
 
   /** Cache JSON do banco (userData/json_db). */

@@ -11,13 +11,23 @@
       :title="$t('shell.appmenu')"
       @click="toggle"
     >
-      <LjLogo :size="22" class="app-menu-logo" aria-hidden="true" />
+      <span class="app-menu-grid" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
     </button>
 
     <Teleport to="body">
       <div v-if="open" class="app-menu-overlay" @click.self="close">
         <div class="app-menu-panel" role="menu" :aria-label="$t('shell.appmenu')">
-          <header class="app-menu-header">
+          <header class="app-menu-header" :class="{ 'app-menu-header--mac': isMac }">
             <button
               type="button"
               class="app-menu-back"
@@ -77,10 +87,12 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import packageJson from "@root/package.json";
 import AppMenuOpcoes from "./AppMenuOpcoes.vue";
 import AppMenuSobre from "./AppMenuSobre.vue";
-import LjLogo from "@/components/LjLogo.vue";
 import $modules from "@/helpers/Modules";
 import $database from "@/helpers/Database";
 import $appdata from "@/helpers/AppData";
+import Platform from "@/helpers/Platform";
+
+const isMac = computed(() => Platform.platform === "darwin");
 
 const open = ref(false);
 const dbVersion = ref(0);
@@ -225,9 +237,19 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onKeydown));
   background: var(--lj-navy-darker);
 }
 
-.app-menu-logo {
+.app-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  width: 16px;
+  height: 16px;
   pointer-events: none;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+.app-menu-grid > span {
+  background: var(--lj-white);
+  border-radius: 1px;
 }
 
 /* Painel fullscreen */
@@ -259,6 +281,12 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onKeydown));
   flex-shrink: 0;
 }
 
+/* macOS: traffic lights ocupam ~78px do canto superior esquerdo.
+   Empurra o conteúdo do header pra direita pra não sobrepor. */
+.app-menu-header--mac {
+  padding-left: 88px;
+}
+
 .app-menu-back {
   width: 40px;
   height: 40px;
@@ -272,6 +300,13 @@ onBeforeUnmount(() => document.removeEventListener("keydown", onKeydown));
   justify-content: center;
   transition: background var(--lj-transition-fast);
   font-family: inherit;
+}
+
+/* macOS: usa retângulo arredondado (HIG style) em vez de círculo. */
+.app-menu-header--mac .app-menu-back {
+  width: 36px;
+  height: 28px;
+  border-radius: 6px;
 }
 
 .app-menu-back:hover {
