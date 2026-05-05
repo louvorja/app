@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Rodar testes
+        run: npm test
+
+      - name: Build web
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_BASE_URL: /
+
+      - name: Build Electron (Windows)
+        if: matrix.os == 'windows-latest'
+        run: git config --global core.longpaths true && npm run electron:build -- --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Electron (macOS)
+        if: matrix.os == 'macos-latest'
+        run: npm run electron:build -- --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Upload instalador Windows
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows
+          path: dist_electron/*.exe
+          retention-days: 7
+
+      - name: Upload instalador macOS
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-macos
+          path: dist_electron/*.dmg
+          retention-days: 7

@@ -92,7 +92,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 088 | [Setup Vitest + cobertura de helpers críticos](tasks/088-setup-vitest.md)                      | O      | P1  | 6h  | done   | 88, 91, 92  |
 | 089 | [Setup Playwright + smoke E2E (Operator → Projection)](tasks/089-setup-playwright.md)              | O      | P1  | 8h  | done   | 89          |
 | 090 | [Regressão visual (Percy/Chromatic) para Ribbon e Player](tasks/done/090-regressao-visual-percy.md)      | O      | P2  | 6h  | done   | 90          |
-| 093 | [Validar Electron build em CI (matriz win/mac/linux)](tasks/093-electron-ci.md)               | O      | P2  | 4h  | todo   | 93          |
+| 093 | [Validar Electron build em CI (matriz win/mac/linux)](tasks/done/093-electron-ci.md)               | O      | P2  | 4h  | done   | 93          |
 
 ---
 
