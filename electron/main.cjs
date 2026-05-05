@@ -123,7 +123,20 @@ function createWindow() {
 // Lifecycle da Electron app
 // ---------------------------------------------------------------------------
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // Limpa Service Workers herdados de execuções anteriores em modo PWA/dev.
+  // Em prod desktop o app é file:// e não usa SW, mas se o usuário já abriu
+  // o app via dev server / PWA, o SW persistido pode interceptar requests
+  // e servir assets antigos (chunks com hash diferente). Sintoma: tela
+  // branca após upgrade de versão. Limpamos uma vez por boot — barato.
+  try {
+    await session.defaultSession.clearStorageData({
+      storages: ["serviceworkers", "cachestorage"],
+    });
+  } catch (e) {
+    console.warn("[main] Falha ao limpar SW/caches:", e?.message || e);
+  }
+
   // Dock icon no macOS (em dev) — em prod o icns vem do bundle .app.
   if (process.platform === "darwin" && app.dock) {
     try {
