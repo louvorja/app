@@ -11,6 +11,7 @@
  *   - shortcut?: string (ex: "Ctrl+K") — apenas exibido, não registra
  *   - subtitle?: string — subtítulo exibido abaixo do título
  *   - run: () => void  — executa o comando
+ * @category deve-virar-composable — Usa Modules (AppData) e useMedia composable.
  */
 
 import Modules from "@/helpers/Modules";

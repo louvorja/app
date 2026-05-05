@@ -15,6 +15,7 @@
  *       → state.theme = "dark"
  *     → UserData.save() [debounce 300ms]
  *       → Storage.set("user_data", { theme: "dark", ... })
+ * @category deve-virar-composable — Usa userDataStore (Pinia); requer renderer inicializado.
  */
 
 import $dev from "@/helpers/Dev";

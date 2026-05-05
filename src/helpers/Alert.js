@@ -1,3 +1,4 @@
+/** @category deve-virar-composable — Usa AppData (Pinia) e watch() Vue; requer renderer. */
 import { watch } from "vue";
 import $dev from "@/helpers/Dev";
 import $appdata from "@/helpers/AppData";

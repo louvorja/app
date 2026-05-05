@@ -1,3 +1,4 @@
+/** @category helper-puro — Wrapper de BroadcastChannel. Para Vue, prefira useBroadcastListener/useBroadcastSender. */
 export { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
 import type { BroadcastMessage } from "@/helpers/BroadcastTypes";
 

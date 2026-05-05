@@ -1,3 +1,4 @@
+/** @category helper-puro — Limpeza e ordenação de strings UTF-8. Sem APIs Vue; sem acesso ao store. */
 export default {
   clean(text) {
     text = text || "";

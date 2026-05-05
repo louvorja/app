@@ -8,6 +8,7 @@
  *     No Electron, BroadcastChannel não cruza processos — ver issue #116.
  *   - In-app: emitidos por hotkeys/HTTP e consumidos na mesma janela.
  *   - Planejado: definido mas ainda não emitido; reservado para uso futuro.
+ * @category helper-puro — Só tipos e constantes; sem APIs Vue.
  */
 
 export const BROADCAST_TYPE = Object.freeze({

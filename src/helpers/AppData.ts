@@ -22,6 +22,7 @@
  *     → userDataStore.SET_PATH({ path: "theme", value: "dark" })
  *       → state.theme = "dark"
  *         → Storage.set("user_data", ...) [via UserData.save, debounce 300ms]
+ * @category deve-virar-composable — Usa appStore + userDataStore (Pinia); requer renderer.
  */
 
 import { useAppStore } from "@/stores/appStore";

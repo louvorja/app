@@ -1,3 +1,4 @@
+/** @category helper-puro — Constrói URLs do banco e arquivos. Seguro no Electron main process; sem APIs Vue. */
 import Platform from "@/helpers/Platform";
 
 const DB_KEY_RE = /^[a-zA-Z0-9_-]+$/;

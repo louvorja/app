@@ -1,3 +1,4 @@
+/** @category helper-puro — Formatação de tempo HH:MM:SS. Sem APIs Vue; sem acesso ao store. */
 export default {
   shortTime(time) {
     let hours = 0;

@@ -1,3 +1,4 @@
+/** @category helper-puro — Carrega JSONs do banco com cache sessionStorage. Sem APIs Vue. */
 import $alert from "@/helpers/Alert";
 import $path from "@/helpers/Path";
 import $dev from "@/helpers/Dev";

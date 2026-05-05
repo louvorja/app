@@ -13,6 +13,7 @@
  *
  * Formato de combo: "Ctrl+Shift+N", "F5", "Ctrl+ArrowUp", "Space"
  * Contextos: 'global' | 'media' | 'liturgy' | 'live' | 'edit'
+ * @category helper-puro — Gerencia event listeners com primitivos JS; sem APIs Vue.
  */
 
 // ---------------------------------------------------------------------------

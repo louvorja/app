@@ -1,3 +1,4 @@
+/** @category deve-virar-composable — Usa AppData (Pinia); requer renderer inicializado. */
 import $dev from "@/helpers/Dev";
 import $appdata from "@/helpers/AppData";
 

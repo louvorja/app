@@ -166,6 +166,45 @@ $userdata.set("theme", "dark");
 }
 ```
 
+## Helpers vs Composables
+
+`src/helpers/` contém dois tipos de artefatos — mantenha a distinção ao criar novos arquivos.
+
+**Helper puro** — módulo JS sem APIs Vue (`ref`, `computed`, lifecycle hooks). Exporta funções ou objetos. Importável de qualquer contexto: componentes, composables, Electron main process, testes Node puro.
+
+**Acoplado a Pinia** (`deve-virar-composable`) — helper que acessa o store via `AppData`/`UserData`. Funciona apenas no renderer (onde o Pinia está inicializado). Candidato à migração para composable quando a camada de estado for estabilizada. Cada arquivo tem `@category deve-virar-composable` no JSDoc.
+
+**Composable** — função em `src/composables/` que usa APIs Vue e deve ser chamada apenas dentro de `setup()`. Retorna estado reativo com cleanup automático via `onUnmounted`.
+
+| Arquivo | Tipo | Observação |
+|---------|------|------------|
+| `helpers/Path.ts` | helper-puro | Seguro no Electron main process |
+| `helpers/Strings.js` | helper-puro | |
+| `helpers/DateTime.js` | helper-puro | |
+| `helpers/Database.ts` | helper-puro | Cache via sessionStorage |
+| `helpers/Storage.ts` | helper-puro | Seguro no Electron main process |
+| `helpers/Platform.js` | helper-puro | Seguro no Electron main process |
+| `helpers/Broadcast.ts` | helper-puro | Baixo nível; use `useBroadcastListener`/`useBroadcastSender` em componentes |
+| `helpers/BroadcastTypes.ts` | helper-puro | Só tipos e constantes |
+| `helpers/AudioBeep.js` | helper-puro | Web Audio API, sem Vue |
+| `helpers/Hotkeys.js` | helper-puro | Event listeners in-window, sem reatividade Vue |
+| `helpers/Shortcuts.js` | helper-puro | Atalhos globais OS-level (Electron) |
+| `helpers/SljaConverter.js` | helper-puro | Conversão de slides `.slja` |
+| `helpers/ModuleTypes.js` | helper-puro | Factory e validação de `manifest.json` |
+| `helpers/AppData.ts` | deve-virar-composable | Camada de acesso ao Pinia (dot-notation); candidato a `useAppState` |
+| `helpers/UserData.ts` | deve-virar-composable | Preferências persistidas via AppData |
+| `helpers/Modules.js` | deve-virar-composable | Runtime open/close de módulos |
+| `helpers/Favorites.js` | deve-virar-composable | |
+| `helpers/History.js` | deve-virar-composable | |
+| `helpers/Liturgy.js` | deve-virar-composable | |
+| `helpers/Dev.js` | deve-virar-composable | |
+| `helpers/Alert.js` | deve-virar-composable | Já usa `watch()` Vue internamente |
+| `helpers/Popup.js` | deve-virar-composable | |
+| `helpers/ModuleManager.js` | deve-virar-composable | Boot-time; chamado 1× em `main.js` |
+| `helpers/CommandRegistry.js` | deve-virar-composable | Usa `Modules` + `useMedia` composable |
+
+---
+
 ## Comunicação Entre Janelas
 
 Janelas popup e janelas de projeção se comunicam via `BroadcastChannel`:

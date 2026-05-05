@@ -9,6 +9,7 @@
  * - Shortcuts.js:  recebe globalShortcut system-wide (app pode estar em background)
  *
  * No browser/PWA, init() e destroy() são no-op.
+ * @category helper-puro — Sem APIs Vue; no-op fora do Electron.
  */
 
 import Media from "@/composables/useMedia";

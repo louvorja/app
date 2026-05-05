@@ -29,6 +29,7 @@
  * UserData.ts e Database.ts dependem das assinaturas síncronas atuais.
  *
  * Fase D1 — Storage persistente via userStore IPC.
+ * @category helper-puro — Seguro no Electron main process; sem APIs Vue.
  */
 
 import Platform from "@/helpers/Platform";

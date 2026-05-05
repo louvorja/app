@@ -1,3 +1,4 @@
+/** @category deve-virar-composable — Usa AppData + UserData (Pinia). Boot-time; chamado 1× em main.js. */
 import $appdata from "./AppData";
 import $userdata from "./UserData";
 import $dev from "./Dev";

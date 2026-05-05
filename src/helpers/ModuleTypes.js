@@ -1,4 +1,5 @@
 // @/helpers/ModuleTypes.js
+/** @category helper-puro — Factory e validação de manifest.json de módulos. Sem APIs Vue. */
 export const ModuleManifest = {
   create(options) {
     // Add validation
