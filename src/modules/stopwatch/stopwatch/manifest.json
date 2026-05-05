@@ -1,7 +1,0 @@
-{
-  "id": "stopwatch",
-  "name": "Cronômetro",
-  "description": "Cronômetro progressivo e regressivo para controle de tempo no culto.",
-  "category": "utilities",
-  "icon": "mdi-timer-outline"
-}
