@@ -126,22 +126,28 @@ app.whenReady().then(() => {
   // D2 — Instalar handler do protocolo louvorja://
   protocolModule.handle();
 
-  // CSP via headers (defense-in-depth — meta tag no index.html também aplica).
+  // CSP via headers (defense-in-depth).
   // Em produção reforça a política para recursos carregados via file:// e louvorja://.
-  // Em dev mantém ws://localhost:* para HMR do Vite.
+  // Em dev libera 'unsafe-inline' e 'unsafe-eval' para o HMR do Vite funcionar.
+  const scriptSrc = isDev
+    ? "'self' 'unsafe-inline' 'unsafe-eval' louvorja: http://localhost:*"
+    : "'self' louvorja:";
+  const styleSrc = isDev
+    ? "'self' 'unsafe-inline' louvorja: http://localhost:* https://fonts.googleapis.com"
+    : "'self' 'unsafe-inline' louvorja: https://fonts.googleapis.com";
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         "Content-Security-Policy": [
-          "default-src 'self' louvorja:;" +
-          " script-src 'self' louvorja:;" +
-          " style-src 'self' 'unsafe-inline' louvorja: https://fonts.googleapis.com;" +
+          "default-src 'self' louvorja:" + (isDev ? " http://localhost:* ws://localhost:*" : "") + ";" +
+          ` script-src ${scriptSrc};` +
+          ` style-src ${styleSrc};` +
           " font-src 'self' data: louvorja: https://fonts.gstatic.com;" +
-          " img-src 'self' data: https: louvorja:;" +
+          " img-src 'self' data: https: louvorja:" + (isDev ? " http://localhost:*" : "") + ";" +
           " media-src 'self' blob: https: louvorja: http://localhost:*;" +
           " connect-src 'self' louvorja: https://api.louvorja.com.br https://*.louvorja.com.br http://localhost:* ws://localhost:*;" +
-          " worker-src 'self' louvorja:;",
+          " worker-src 'self' louvorja:" + (isDev ? " blob:" : "") + ";",
         ],
       },
     });

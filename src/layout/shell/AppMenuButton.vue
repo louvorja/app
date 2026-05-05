@@ -83,12 +83,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, getCurrentInstance } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import packageJson from "@root/package.json";
 import AppMenuOpcoes from "./AppMenuOpcoes.vue";
 import AppMenuSobre from "./AppMenuSobre.vue";
-
-const { proxy } = getCurrentInstance();
+import $modules from "@/helpers/Modules";
+import $database from "@/helpers/Database";
 
 const open = ref(false);
 const dbVersion = ref(0);
@@ -107,27 +107,27 @@ const items = computed(() => [
   {
     id: "transmission",
     label: "shell.appmenu_items.transmission",
-    action: () => proxy.$modules.open("transmission"),
+    action: () => $modules.open("transmission"),
   },
   {
     id: "import_export",
     label: "shell.appmenu_items.import_export",
-    action: () => proxy.$modules.open("liturgy"),
+    action: () => $modules.open("liturgy"),
   },
-  { id: "sync", label: "shell.appmenu_items.sync", action: () => proxy.$modules.open("downloads") },
+  { id: "sync", label: "shell.appmenu_items.sync", action: () => $modules.open("downloads") },
   { id: "feedback", label: "shell.appmenu_items.feedback", action: openFeedback },
   {
     id: "check_update",
     label: "shell.appmenu_items.check_update",
-    action: () => proxy.$modules.open("update"),
+    action: () => $modules.open("update"),
   },
   {
     id: "albums",
     label: "shell.appmenu_items.albums",
-    action: () => proxy.$modules.open("collections"),
+    action: () => $modules.open("collections"),
   },
   { id: "donate", label: "shell.appmenu_items.donate", action: openDonation },
-  { id: "dev", label: "shell.appmenu_items.dev", action: () => proxy.$modules.open("dev") },
+  { id: "dev", label: "shell.appmenu_items.dev", action: () => $modules.open("dev") },
   { id: "exit", label: "shell.appmenu_items.exit", action: exitApp },
 ]);
 
@@ -184,7 +184,7 @@ function exitApp() {
 
 async function loadDBVersion() {
   try {
-    const config = await proxy.$database.get("config");
+    const config = await $database.get("config");
     dbVersion.value = config?.version_number ?? "?";
   } catch {
     dbVersion.value = "?";

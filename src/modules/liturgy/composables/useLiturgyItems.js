@@ -1,8 +1,10 @@
-import { ref, computed, getCurrentInstance } from "vue";
+import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import $liturgy from "@/helpers/Liturgy";
 import $media from "@/composables/useMedia";
 import $database from "@/helpers/Database";
 import $alert from "@/helpers/Alert";
+import Platform from "@/helpers/Platform";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 
@@ -56,8 +58,9 @@ export const DEFAULT_FORM = () => ({
  * @param {import('vue').ComputedRef<Array>} scheduledCategories
  */
 export function useLiturgyItems(activeWeek, scheduledCategories) {
-  const inst = getCurrentInstance();
-  const t = (key) => _t(key, inst?.proxy?.$i18n?.locale || "pt");
+  const i18n = useI18n();
+  const getLocale = () => (typeof i18n.locale.value === "string" ? i18n.locale.value : "pt");
+  const t = (key) => _t(key, getLocale());
 
   const dialog = ref(false);
   const editIndex = ref(-1);
@@ -301,9 +304,8 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
   }
 
   function openFile(item) {
-    const platform = inst?.proxy?.$platform;
-    if (platform?.isDesktop && platform.api?.openPath) {
-      platform.api.openPath(item.dir);
+    if (Platform.isDesktop && Platform.api?.openPath) {
+      Platform.api.openPath(item.dir);
     } else {
       openUrl(item.dir);
     }
@@ -315,9 +317,8 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
 
   /* ============== Browse arquivo/pasta ============== */
   async function chooseFolder() {
-    const platform = inst?.proxy?.$platform;
-    if (platform?.isDesktop && platform.api?.chooseFolder) {
-      const dir = await platform.api.chooseFolder();
+    if (Platform.isDesktop && Platform.api?.chooseFolder) {
+      const dir = await Platform.api.chooseFolder();
       if (dir) form.value.dir = dir + (dir.endsWith("/") || dir.endsWith("\\") ? "" : "/");
     } else {
       alert(t("dialog.desktop_only"));
@@ -325,9 +326,8 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
   }
 
   async function chooseFile() {
-    const platform = inst?.proxy?.$platform;
-    if (platform?.isDesktop && platform.api?.chooseFile) {
-      const file = await platform.api.chooseFile();
+    if (Platform.isDesktop && Platform.api?.chooseFile) {
+      const file = await Platform.api.chooseFile();
       if (file) form.value.dir = file;
     } else {
       const inp = document.createElement("input");
@@ -430,8 +430,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
   /* ============== Music list ============== */
   async function loadMusicsList() {
     try {
-      const lang = inst?.proxy?.$i18n?.locale || "pt";
-      const data = await $database.get(`${lang}_musics`);
+      const data = await $database.get(`${getLocale()}_musics`);
       musicsCache.value = Array.isArray(data) ? data : data?.data || [];
     } catch {
       musicsCache.value = [];

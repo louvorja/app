@@ -6,16 +6,10 @@
     <link rel="icon" href="/ico/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google" content="notranslate">
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self';
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' data: https://fonts.gstatic.com;
-      img-src 'self' data: https:;
-      media-src 'self' blob: https:;
-      connect-src 'self' https://api.louvorja.com.br https://*.louvorja.com.br http://localhost:* ws://localhost:*;
-      worker-src 'self';
-    ">
+    <!-- CSP: aplicada apenas em build de produção via vite.config.js
+         (transformIndexHtml). Em dev, o Vite HMR usa scripts inline
+         que seriam bloqueados por 'script-src self'. -->
+    <!--CSP_PROD-->
     <title>LouvorJA</title>
 </head>
 

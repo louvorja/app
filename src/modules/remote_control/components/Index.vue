@@ -42,9 +42,11 @@
 /* ########################################################### */
 /* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
-import { ref, computed, getCurrentInstance, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
+import $userdata from "@/helpers/UserData";
+import $alert from "@/helpers/Alert";
 const moduleContainer = ref(null);
 const t = (key) => {
   return moduleContainer.value?.t(key) || key;
@@ -53,13 +55,12 @@ const t = (key) => {
 /* ########################################################### */
 /* ########################################################### */
 
-const { proxy } = getCurrentInstance();
 const url = ref("");
 const token = ref("");
 const loading = ref(false);
 
 const is_connected = computed(() => {
-  return proxy.$userdata.get("remote.is_connected");
+  return $userdata.get("remote.is_connected");
 });
 
 /* ########################################################### */
@@ -141,7 +142,7 @@ async function test() {
   loading.value = false;
 
   if (!ret.status) {
-    proxy.$alert.error({
+    $alert.error({
       text: ret.message,
       error: ret.error,
     });
@@ -149,13 +150,13 @@ async function test() {
   }
 
   if (!ret.status == "ok" && !ret.app == "LouvorJA") {
-    proxy.$alert.error({
+    $alert.error({
       text: ret.invalid_url,
     });
     return false;
   }
 
-  proxy.$alert.info({
+  $alert.info({
     text: "modules.remote_control.messages.success",
   });
 
@@ -163,18 +164,18 @@ async function test() {
 }
 
 async function connect() {
-  proxy.$userdata.set("remote.url", getUrl(url.value));
-  proxy.$userdata.set("remote.token", token.value);
+  $userdata.set("remote.url", getUrl(url.value));
+  $userdata.set("remote.token", token.value);
 
   if (!(await test())) {
     return;
   }
 
-  proxy.$userdata.set("remote.is_connected", true);
+  $userdata.set("remote.is_connected", true);
 }
 
 function disonnect() {
-  proxy.$userdata.set("remote.is_connected", false);
+  $userdata.set("remote.is_connected", false);
 }
 
 /* ########################################################### */
@@ -182,7 +183,7 @@ function disonnect() {
 /* ########################################################### */
 
 onMounted(() => {
-  url.value = proxy.$userdata.get("remote.url");
-  token.value = proxy.$userdata.get("remote.token");
+  url.value = $userdata.get("remote.url");
+  token.value = $userdata.get("remote.token");
 });
 </script>

@@ -17,6 +17,19 @@ export default async ({ mode }) => {
   // Detectar target: "desktop" (Electron) ou "web" (padrão PWA)
   const isDesktop = process.env.VITE_TARGET === "desktop";
 
+  // CSP só em build de produção. Em dev, Vite HMR injeta inline scripts.
+  const cspMeta =
+    `<meta http-equiv="Content-Security-Policy" content="` +
+    `default-src 'self';` +
+    ` script-src 'self';` +
+    ` style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;` +
+    ` font-src 'self' data: https://fonts.gstatic.com;` +
+    ` img-src 'self' data: https:;` +
+    ` media-src 'self' blob: https:;` +
+    ` connect-src 'self' https://api.louvorja.com.br https://*.louvorja.com.br http://localhost:* ws://localhost:*;` +
+    ` worker-src 'self';` +
+    `">`;
+
   // Plugins base — sempre incluídos
   const plugins = [
     vue(),
@@ -24,6 +37,13 @@ export default async ({ mode }) => {
     vuetify({
       autoImport: true,
     }),
+    {
+      name: "louvorja-csp-prod",
+      apply: "build",
+      transformIndexHtml(html) {
+        return html.replace("<!--CSP_PROD-->", cspMeta);
+      },
+    },
   ];
 
   // Bundle visualizer — gera dist/stats.html a cada build

@@ -20,8 +20,8 @@
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import { ref, watch } from "vue";
 import manifest from "../manifest.json";
-import ShowAnimation from "./components/modals/ShowAnimation.vue";
-import EditAnimation from "./components/modals/EditAnimation.vue";
+import ShowAnimation from "./modals/ShowAnimation.vue";
+import EditAnimation from "./modals/EditAnimation.vue";
 
 // ---- Obrigatório para tradução -------
 const moduleContainer = ref(null);

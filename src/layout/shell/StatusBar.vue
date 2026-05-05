@@ -8,10 +8,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, getCurrentInstance } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 import packageJson from "@root/package.json";
+import $database from "@/helpers/Database";
 
-const { proxy } = getCurrentInstance();
+const { t } = useI18n();
 
 const dateLabel = ref("");
 const timeLabel = ref("");
@@ -19,7 +21,7 @@ const dbVersion = ref(0);
 let clockInterval = null;
 
 const versionLabel = computed(() =>
-  proxy.$t("shell.version", { v: `${packageJson.version}.${dbVersion.value}` })
+  t("shell.version", { v: `${packageJson.version}.${dbVersion.value}` })
 );
 
 const pcName = computed(() => {
@@ -39,7 +41,7 @@ function tick() {
 
 async function loadDBVersion() {
   try {
-    const config = await proxy.$database.get("config");
+    const config = await $database.get("config");
     dbVersion.value = config?.version_number ?? "?";
   } catch {
     dbVersion.value = "?";

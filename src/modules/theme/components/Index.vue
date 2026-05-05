@@ -24,9 +24,12 @@
 /* ########################################################### */
 /* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
-import { ref, computed, getCurrentInstance, onMounted } from "vue";
+import { ref, onMounted } from "vue";
+import { useTheme } from "vuetify";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
+import $appdata from "@/helpers/AppData";
+import $userdata from "@/helpers/UserData";
 const moduleContainer = ref(null);
 const t = (key) => {
   return moduleContainer.value?.t(key) || key;
@@ -35,7 +38,7 @@ const t = (key) => {
 /* ########################################################### */
 /* ########################################################### */
 
-const { proxy } = getCurrentInstance();
+const vuetifyTheme = useTheme();
 
 const current = ref("");
 const themes = ref({
@@ -49,9 +52,9 @@ const themes = ref({
 
 function setTheme(theme_id) {
   current.value = theme_id;
-  proxy.$vuetify.theme.change(current.value);
-  proxy.$userdata.set("theme", current.value);
-  proxy.$appdata.set("is_dark", proxy.$vuetify.theme.global.current.dark);
+  vuetifyTheme.global.name.value = current.value;
+  $userdata.set("theme", current.value);
+  $appdata.set("is_dark", vuetifyTheme.global.current.value.dark);
 }
 
 /* ########################################################### */
@@ -59,11 +62,11 @@ function setTheme(theme_id) {
 /* ########################################################### */
 
 onMounted(() => {
-  current.value = proxy.$vuetify.theme.global.name;
+  current.value = vuetifyTheme.global.name.value;
   themes.value = { light: {}, dark: {} };
 
-  for (const key in proxy.$vuetify.theme.themes) {
-    const item = proxy.$vuetify.theme.themes[key];
+  for (const key in vuetifyTheme.themes.value) {
+    const item = vuetifyTheme.themes.value[key];
 
     if (item.dark) {
       themes.value.dark[key] = item;

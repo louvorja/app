@@ -172,7 +172,11 @@ export default {
     if (Platform.isDesktop) {
       assertHydrated("set");
       _desktopCache[item] = data;
-      Platform.userStore?.write(item, data)
+      const cloneable =
+        data === undefined || data === null || typeof data !== "object"
+          ? data
+          : JSON.parse(JSON.stringify(data));
+      Platform.userStore?.write(item, cloneable)
         .catch((e: unknown) => console.warn(`[Storage] set("${item}") IPC falhou:`, e));
       return;
     }

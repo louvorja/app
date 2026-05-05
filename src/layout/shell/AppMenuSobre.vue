@@ -54,11 +54,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, getCurrentInstance } from "vue";
+import { ref, computed, onMounted } from "vue";
 import packageJson from "@root/package.json";
 import Platform from "@/helpers/Platform";
-
-const { proxy } = getCurrentInstance();
+import $database from "@/helpers/Database";
 
 const dbVersion = ref(0);
 
@@ -82,7 +81,7 @@ const platformLabel = computed(() => {
 
 async function loadDBVersion() {
   try {
-    const config = await proxy.$database.get("config");
+    const config = await $database.get("config");
     dbVersion.value = config?.version_number ?? "?";
   } catch {
     dbVersion.value = "?";

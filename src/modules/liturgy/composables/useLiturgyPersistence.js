@@ -1,4 +1,5 @@
-import { ref, computed, getCurrentInstance } from "vue";
+import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import $liturgy, { weekBounds } from "@/helpers/Liturgy";
 import $userdata from "@/helpers/UserData";
 import pt from "../lang/pt.json";
@@ -18,8 +19,9 @@ function _t(key, locale) {
 }
 
 export function useLiturgyPersistence() {
-  const inst = getCurrentInstance();
-  const t = (key) => _t(key, inst?.proxy?.$i18n?.locale || "pt");
+  const i18n = useI18n();
+  const getLocale = () => (typeof i18n.locale.value === "string" ? i18n.locale.value : "pt");
+  const t = (key) => _t(key, getLocale());
 
   const activeWeek = ref($liturgy.getActiveWeek());
   const locked = ref($userdata.get("modules.liturgy.locked", false));
@@ -54,8 +56,7 @@ export function useLiturgyPersistence() {
   });
 
   const noteDays = computed(() => {
-    const lang = inst?.proxy?.$i18n?.locale || "pt";
-    const dict = TRANSLATIONS[lang] || TRANSLATIONS.pt;
+    const dict = TRANSLATIONS[getLocale()] || TRANSLATIONS.pt;
     return dict.notes?.days || ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
   });
 
