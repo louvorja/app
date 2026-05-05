@@ -160,7 +160,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 121 | [Helper para `scrollIntoView()` (3 usos em liturgy)](tasks/done/121-helper-scroll-into-view.md)           | S      | P3  | 0.5h| done   | 121         |
 | 122 | [`Media.open` cleanup completo em error path](tasks/122-media-open-cleanup.md)                       | S      | P2  | 1h  | done   | 122         |
 | 123 | [`Media._loadingId` race no XHR else branch](tasks/123-media-loading-id-race.md)                        | S      | P2  | 1h  | done   | 123         |
-| 124 | [Auditar duplicação MusicMenuTable vs DataTable](tasks/124-music-menu-vs-datatable.md)                    | O      | P2  | 3h  | todo   | 124         |
+| 124 | [Auditar duplicação MusicMenuTable vs DataTable](tasks/done/124-music-menu-vs-datatable.md)                    | O      | P2  | 3h  | done   | 124         |
 | 125 | [Bible: 3 watchers consecutivos chamando mesma função](tasks/125-bible-watchers-redundantes.md)              | S      | P2  | 0.5h| done   | 125         |
 | 036 | [Variantes de elevação/sombra como tokens](tasks/036-tokens-elevacao.md)                          | S      | P3  | 1h  | todo   | 36          |
 | 039 | [Documentar design system (`DESIGN.md`)](tasks/039-design-md.md)                            | O      | P2  | 4h  | todo   | 39          |
