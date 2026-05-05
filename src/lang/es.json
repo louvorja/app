@@ -238,6 +238,7 @@
     "execute": "ejecutar",
     "close": "cerrar",
     "results": "resultados",
+    "load_more": "Cargar más",
     "cat": {
       "action": "Acciones",
       "module": "Módulos",

@@ -74,6 +74,10 @@
             <kbd v-if="item.shortcut" class="cmd-kbd">{{ item.shortcut }}</kbd>
           </button>
         </template>
+
+        <button v-if="hasMore" class="cmd-load-more" @click="loadMore">
+          {{ $t("shell.load_more") }}
+        </button>
       </div>
 
       <!-- Footer com hints -->
@@ -94,7 +98,7 @@
         </span>
         <v-spacer />
         <span class="text-caption text-disabled">
-          {{ results.length }} {{ $t("shell.results") }}
+          {{ results.length }}{{ hasMore ? "+" : "" }} {{ $t("shell.results") }}
         </span>
       </div>
     </v-card>
@@ -105,13 +109,12 @@
 import { ref, computed, watch, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "vuetify";
-import Fuse from "fuse.js";
 import CommandRegistry from "@/helpers/CommandRegistry";
 import Database from "@/helpers/Database";
 import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
 
-const MAX_RESULTS = 50;
+const PAGE_SIZE = 50;
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -127,25 +130,30 @@ const resultsContainer = ref(null);
 const query = ref("");
 const selectedIndex = ref(0);
 const allCommands = ref([]);
-const fuse = ref(null);
 const loading = ref(false);
+const visibleCount = ref(PAGE_SIZE);
+
+// Incrementado a cada chamada de loadCommands para descartar cargas obsoletas
+let _loadId = 0;
 
 const open = computed({
   get: () => props.modelValue,
   set: (v) => emit("update:modelValue", v),
 });
 
-const results = computed(() => {
+/** Resultados brutos: aplica Fuse ou filtro por categoria */
+const _rawResults = computed(() => {
+  if (!allCommands.value.length) return [];
+
   if (!query.value.trim()) {
     const recents = allCommands.value.filter((c) => c.category === "recent").slice(0, 5);
     const favs = allCommands.value.filter((c) => c.category === "favorite").slice(0, 5);
     const actions = allCommands.value.filter((c) => c.category === "action").slice(0, 8);
     const modules = allCommands.value.filter((c) => c.category === "module");
-    return [...recents, ...favs, ...actions, ...modules].slice(0, MAX_RESULTS);
+    return [...recents, ...favs, ...actions, ...modules];
   }
 
-  if (!fuse.value) return [];
-
+  // Número exato: prioriza hit direto por id
   const numMatch = query.value.trim().match(/^\d+$/);
   if (numMatch) {
     const num = parseInt(numMatch[0], 10);
@@ -153,16 +161,18 @@ const results = computed(() => {
       (c) => c.category === "music" && c.id === `music:${num}`
     );
     if (exactHits.length > 0) {
-      const fuseHits = fuse.value
-        .search(query.value, { limit: MAX_RESULTS - exactHits.length })
-        .map((r) => r.item)
-        .filter((i) => !exactHits.includes(i));
-      return [...exactHits, ...fuseHits];
+      const { results: fuseHits } = CommandRegistry.search(query.value, { limit: 500 });
+      const filtered = fuseHits.filter((i) => !exactHits.includes(i));
+      return [...exactHits, ...filtered];
     }
   }
 
-  return fuse.value.search(query.value, { limit: MAX_RESULTS }).map((r) => r.item);
+  const { results: r } = CommandRegistry.search(query.value, { limit: 500 });
+  return r;
 });
+
+const hasMore = computed(() => _rawResults.value.length > visibleCount.value);
+const results = computed(() => _rawResults.value.slice(0, visibleCount.value));
 
 const groupedResults = computed(() => {
   const ORDER = ["recent", "favorite", "action", "module", "music", "hymn", "bible"];
@@ -188,6 +198,7 @@ watch(open, (v) => {
   if (v) {
     query.value = "";
     selectedIndex.value = 0;
+    visibleCount.value = PAGE_SIZE;
     loadCommands();
     nextTick(() => searchInput.value?.focus());
   }
@@ -195,6 +206,7 @@ watch(open, (v) => {
 
 watch(query, () => {
   selectedIndex.value = 0;
+  visibleCount.value = PAGE_SIZE;
 });
 
 watch(selectedIndex, () => {
@@ -202,8 +214,26 @@ watch(selectedIndex, () => {
 });
 
 async function loadCommands() {
+  // Lazy: pula se os comandos já estão em memória
+  if (CommandRegistry.isLoaded()) {
+    if (!allCommands.value.length) {
+      const tFn = (key) => {
+        try {
+          return t(key);
+        } catch {
+          return key;
+        }
+      };
+      allCommands.value = await CommandRegistry.getAll(Database, UserData, tFn);
+      _patchThemeCmd();
+    }
+    return;
+  }
+
   if (loading.value) return;
   loading.value = true;
+  const myLoadId = ++_loadId;
+
   try {
     const tFn = (key) => {
       try {
@@ -213,33 +243,34 @@ async function loadCommands() {
       }
     };
 
-    allCommands.value = await CommandRegistry.getAll(Database, UserData, tFn);
+    const commands = await CommandRegistry.getAll(Database, UserData, tFn);
 
-    const themeCmd = allCommands.value.find((c) => c.id === "theme:toggle");
-    if (themeCmd) {
-      themeCmd.run = () => {
-        const current = theme.global.name.value;
-        theme.global.name.value = current === "dark" ? "light" : "dark";
-        UserData.set("theme", theme.global.name.value);
-        AppData.set("is_dark", theme.global.current.value.dark);
-      };
-    }
+    // Descarta resultado se outra carga foi iniciada enquanto aguardávamos
+    if (myLoadId !== _loadId) return;
 
-    fuse.value = new Fuse(allCommands.value, {
-      keys: [
-        { name: "title", weight: 2 },
-        { name: "keywords", weight: 1 },
-        { name: "subtitle", weight: 0.5 },
-      ],
-      threshold: 0.3,
-      ignoreLocation: true,
-      minMatchCharLength: 1,
-    });
+    allCommands.value = commands;
+    _patchThemeCmd();
   } catch (e) {
     console.error("[CommandPalette] Falha ao carregar:", e);
   } finally {
-    loading.value = false;
+    if (myLoadId === _loadId) loading.value = false;
   }
+}
+
+function _patchThemeCmd() {
+  const themeCmd = allCommands.value.find((c) => c.id === "theme:toggle");
+  if (themeCmd) {
+    themeCmd.run = () => {
+      const current = theme.global.name.value;
+      theme.global.name.value = current === "dark" ? "light" : "dark";
+      UserData.set("theme", theme.global.name.value);
+      AppData.set("is_dark", theme.global.current.value.dark);
+    };
+  }
+}
+
+function loadMore() {
+  visibleCount.value += PAGE_SIZE;
 }
 
 function isSelected(item) {
@@ -447,6 +478,25 @@ function highlightParts(text) {
 
 .cmd-kbd--hint {
   opacity: 0.6;
+}
+
+.cmd-load-more {
+  display: block;
+  width: 100%;
+  padding: var(--lj-space-3) var(--lj-space-6);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  font-size: var(--lj-text-sm);
+  color: var(--lj-text-muted);
+  font-family: inherit;
+  transition: background var(--lj-transition-fast);
+}
+
+.cmd-load-more:hover {
+  background: var(--lj-active-bg);
+  color: var(--lj-text);
 }
 
 .cmd-footer {

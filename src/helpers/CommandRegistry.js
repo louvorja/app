@@ -14,15 +14,61 @@
  * @category deve-virar-composable — Usa Modules (AppData) e useMedia composable.
  */
 
+import Fuse from "fuse.js";
 import Modules from "@/helpers/Modules";
 import Media from "@/composables/useMedia";
 import Platform from "@/helpers/Platform";
 
+let _loaded = false;
+let _commands = [];
+let _fuse = null;
 let _externalCommands = [];
+
+function _buildIndex() {
+  _fuse = new Fuse(_commands, {
+    keys: [
+      { name: "title", weight: 2 },
+      { name: "keywords", weight: 1 },
+      { name: "subtitle", weight: 0.5 },
+    ],
+    threshold: 0.3,
+    ignoreLocation: true,
+    minMatchCharLength: 1,
+  });
+}
 
 /** Registra um comando dinâmico (ex: módulo externo) */
 export function register(command) {
   _externalCommands.push(command);
+  if (_loaded) {
+    _commands.push(command);
+    _buildIndex();
+  }
+}
+
+/** Retorna true se os comandos já foram carregados */
+export function isLoaded() {
+  return _loaded;
+}
+
+/**
+ * Busca fuzzy nos comandos carregados.
+ * @param {string} query
+ * @param {{ limit?: number, offset?: number, signal?: AbortSignal }} opts
+ * @returns {{ results: Array, hasMore: boolean }}
+ */
+export function search(query, { limit = 50, offset = 0, signal } = {}) {
+  if (!_fuse || !_commands.length) return { results: [], hasMore: false };
+  if (signal?.aborted) return { results: [], hasMore: false };
+
+  const raw = _fuse.search(query).map((r) => r.item);
+
+  if (signal?.aborted) return { results: [], hasMore: false };
+
+  return {
+    results: raw.slice(offset, offset + limit),
+    hasMore: raw.length > offset + limit,
+  };
 }
 
 /** Comandos estáticos do sistema */
@@ -258,11 +304,15 @@ async function dynamicCommands($database, $userdata) {
   return dynamic;
 }
 
-/** Retorna lista completa para uso no Command Palette */
+/** Retorna lista completa para uso no Command Palette. Cacheia após primeira carga. */
 export async function getAll($database, $userdata, t) {
+  if (_loaded) return _commands;
   const stat = staticCommands(t);
   const dyn = await dynamicCommands($database, $userdata);
-  return [...stat, ...dyn, ..._externalCommands];
+  _commands = [...stat, ...dyn, ..._externalCommands];
+  _buildIndex();
+  _loaded = true;
+  return _commands;
 }
 
-export default { register, getAll };
+export default { register, getAll, search, isLoaded };
