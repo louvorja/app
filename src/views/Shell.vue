@@ -221,20 +221,24 @@ onBeforeUnmount(() => {
   flex: 1;
   overflow: auto;
   position: relative;
-  /* Fundo Delphi-style: cinza-azul médio uniforme com logo
-     centralizado em cor cheia (sem watermark / sem gradiente). */
-  background: #b9c3d1;
-  color: var(--lj-text);
+  /* Fundo Delphi-style: navy com leve brilho azul no topo + vinheta
+     escura nos cantos. Dá profundidade sem "embaçar" o centro. */
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(80, 120, 200, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.4) 100%),
+    linear-gradient(180deg, #1b2a41 0%, #0e1a2f 100%);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .shell-content::before {
+  /* Logo em cor cheia, totalmente nítido. */
   content: "";
   position: absolute;
   inset: 0;
   background-image: url("/ico/favicon-180x180.png");
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: 220px 220px;
+  background-size: 260px 260px;
   pointer-events: none;
 }
 .shell-sidebar {
