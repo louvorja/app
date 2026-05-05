@@ -38,7 +38,8 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -60,6 +61,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitest/coverage-v8": "^4.1.5",
     "@vitest/ui": "^4.1.5",
@@ -77,11 +79,13 @@
     "prettier": "^3.8.3",
     "rollup-plugin-visualizer": "^7.0.1",
     "sass": "^1.83.0",
+    "typescript": "^6.0.3",
     "vite": "^7.3.1",
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vuetify": "^2.1.3",
     "vitest": "^4.1.5",
     "vue-axe": "^2.4.4",
+    "vue-tsc": "^3.2.8",
     "wait-on": "^9.0.5"
   },
   "eslintConfig": {
