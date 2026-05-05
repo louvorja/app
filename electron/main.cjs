@@ -1,0 +1,473 @@
+"use strict";
+
+/**
+ * Entry point do main process do LouvorJA Electron.
+ *
+ * Responsabilidades nesta fase (D0):
+ * - Criar a BrowserWindow principal
+ * - Carregar a app Vue via dev server (dev) ou arquivo estático (prod)
+ * - Lifecycle padrão (quit, activate)
+ *
+ * Fases posteriores vão adicionar:
+ *   D1: ipcMain handlers para userStore
+ *   D2: protocolo customizado louvorja://
+ *   D3: ipcMain handlers para FTP download
+ *   D4: multi-monitor, windowFactory expandido
+ *   D5: servidor HTTP embarcado
+ *   D6: globalShortcut
+ */
+
+const { app, BrowserWindow, ipcMain, session } = require("electron");
+const path = require("path");
+
+const paths = require("./main/paths.js");
+const { createMainWindow } = require("./main/windows.js");
+const userStore = require("./main/userStore.js");
+const protocolModule = require("./main/protocol.js");
+const jsonCache = require("./main/jsonCache.js");
+const downloader = require("./main/download/index.js");
+const displays = require("./main/displays.js");
+const windowFactory = require("./main/windowFactory.js");
+const identifyMonitors = require("./main/identifyMonitors.js");
+const httpServer = require("./main/httpServer/index.js");
+const shortcuts = require("./main/shortcuts.js");
+const updater = require("./main/updater.js");
+const powerBlocker = require("./main/powerBlocker.js");
+const splash = require("./main/splash.js");
+
+// ---------------------------------------------------------------------------
+// D2 — Registrar scheme louvorja:// como privilegiado ANTES do app.whenReady
+// ---------------------------------------------------------------------------
+protocolModule.register();
+
+// ---------------------------------------------------------------------------
+// Constantes
+// ---------------------------------------------------------------------------
+
+const DEV_URL = "http://localhost:5002";
+const isDev =
+  process.env.ELECTRON_DEV === "1" || !app.isPackaged;
+
+// ---------------------------------------------------------------------------
+// Estado da app
+// ---------------------------------------------------------------------------
+
+/** @type {BrowserWindow | null} */
+let mainWindow = null;
+
+// ---------------------------------------------------------------------------
+// Inicialização da janela principal
+// ---------------------------------------------------------------------------
+
+function createWindow() {
+  const preloadPath = path.join(__dirname, "preload.cjs");
+  const prodHtmlPath = path.join(paths.webBuild(), "index.html");
+
+  console.log("[LouvorJA] Iniciando...");
+  console.log("[LouvorJA] Modo:", isDev ? "desenvolvimento" : "produção");
+  console.log("[LouvorJA] Electron:", process.versions.electron);
+  console.log("[LouvorJA] Node:", process.versions.node);
+  console.log("[LouvorJA] Chromium:", process.versions.chrome);
+  if (isDev) {
+    console.log("[LouvorJA] Dev server:", DEV_URL);
+  } else {
+    console.log("[LouvorJA] Build:", prodHtmlPath);
+    console.log("[LouvorJA] userData:", paths.userData());
+  }
+
+  mainWindow = createMainWindow(DEV_URL, prodHtmlPath, preloadPath);
+
+  // Abrir DevTools automaticamente em modo desenvolvimento
+  if (isDev) {
+    mainWindow.webContents.openDevTools({ mode: "detach" });
+  }
+
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
+
+  // D6 — Registrar janela principal no módulo de atalhos globais
+  shortcuts.setMainWindow(mainWindow);
+
+  // D8 — Registrar janela principal no updater e inicializar (apenas em produção)
+  updater.setMainWindow(mainWindow);
+  if (app.isPackaged) {
+    updater.init({ channel: "latest", autoCheck: true, autoDownload: true });
+  }
+
+  // Sinalizar mudanças de estado de maximização para o renderer (SystemBar)
+  mainWindow.on("maximize", () => {
+    try { mainWindow.webContents.send("window:maximizeChange", true); } catch (_) { /* ignore */ }
+  });
+  mainWindow.on("unmaximize", () => {
+    try { mainWindow.webContents.send("window:maximizeChange", false); } catch (_) { /* ignore */ }
+  });
+
+  // Em DEV, redireciona apenas erros/warnings do renderer para o terminal.
+  // Logs comuns vão direto pro DevTools — evita poluir o terminal.
+  if (isDev) {
+    mainWindow.webContents.on("console-message", (_e, level, message, line, source) => {
+      if (level < 2) return; // ignora log/info, só warn (2) e error (3)
+      const tag = level === 2 ? "warn" : "error";
+      const src = source ? source.split("/").pop() : "";
+      const prefix = `[renderer:${tag}]${src ? " " + src + ":" + line : ""}`;
+      console.log(prefix, message);
+    });
+  }
+
+  console.log("[LouvorJA] Janela principal criada.");
+}
+
+// ---------------------------------------------------------------------------
+// Lifecycle da Electron app
+// ---------------------------------------------------------------------------
+
+app.whenReady().then(() => {
+  // D2 — Instalar handler do protocolo louvorja://
+  protocolModule.handle();
+
+  // CSP via headers (defense-in-depth — meta tag no index.html também aplica).
+  // Em produção reforça a política para recursos carregados via file:// e louvorja://.
+  // Em dev mantém ws://localhost:* para HMR do Vite.
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Content-Security-Policy": [
+          "default-src 'self' louvorja:;" +
+          " script-src 'self' louvorja:;" +
+          " style-src 'self' 'unsafe-inline' louvorja: https://fonts.googleapis.com;" +
+          " font-src 'self' data: louvorja: https://fonts.gstatic.com;" +
+          " img-src 'self' data: https: louvorja:;" +
+          " media-src 'self' blob: https: louvorja: http://localhost:*;" +
+          " connect-src 'self' louvorja: https://api.louvorja.com.br https://*.louvorja.com.br http://localhost:* ws://localhost:*;" +
+          " worker-src 'self' louvorja:;",
+        ],
+      },
+    });
+  });
+
+  // Mostrar splash imediatamente (antes da janela principal carregar)
+  splash.show();
+
+  createWindow();
+
+  // Fechar splash quando a janela principal estiver pronta para mostrar
+  if (mainWindow) {
+    mainWindow.once("ready-to-show", () => {
+      // Pequeno delay para garantir que o usuário enxergue o splash
+      setTimeout(() => splash.close(), 350);
+    });
+  }
+
+  // macOS: reabrir janela quando o ícone do dock for clicado
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+
+  // D5/D6 — Auto-start do servidor HTTP e atalhos globais se configurado em userStore
+  setTimeout(async () => {
+    try {
+      const cfg = userStore.read("config") || {};
+      if (cfg.httpServer?.autoStart && mainWindow) {
+        await httpServer.start({
+          port: cfg.httpServer.port || 7070,
+          mainWindow,
+        });
+      }
+      if (cfg.shortcuts?.globalEnabled) {
+        shortcuts.enable();
+      }
+    } catch (e) {
+      console.warn("[main] Auto-start falhou:", e.message);
+    }
+  }, 1000);
+});
+
+// Fechar a app quando todas as janelas forem fechadas (exceto macOS)
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+// D5 — Parar servidor HTTP antes de quit
+app.on("before-quit", async () => {
+  await httpServer.stop();
+});
+
+// D6 — Desregistrar atalhos globais ao fechar (obrigatório no Electron)
+app.on("will-quit", () => {
+  shortcuts.disable();
+  powerBlocker.stop();
+});
+
+// ---------------------------------------------------------------------------
+// IPC handlers básicos (D0)
+// ---------------------------------------------------------------------------
+
+// Handler de ping — útil para debug e para verificar que o IPC está funcional
+ipcMain.handle("app:ping", () => {
+  return {
+    status: "ok",
+    version: app.getVersion(),
+    platform: process.platform,
+    electron: process.versions.electron,
+  };
+});
+
+// Handler para obter informações de ambiente — usado pelo Platform.js
+ipcMain.handle("app:info", () => {
+  return {
+    isPackaged: app.isPackaged,
+    version: app.getVersion(),
+    userData: paths.userData(),
+    appPath: paths.appRoot(),
+  };
+});
+
+// ---------------------------------------------------------------------------
+// IPC handlers do userStore (D1)
+// ---------------------------------------------------------------------------
+
+ipcMain.handle("userStore:read", (_event, key) => userStore.read(key));
+ipcMain.handle("userStore:write", (_event, key, value) => userStore.write(key, value));
+ipcMain.handle("userStore:remove", (_event, key) => userStore.remove(key));
+ipcMain.handle("userStore:keys", () => userStore.keys());
+ipcMain.handle("userStore:dir", () => userStore.dir());
+
+// ---------------------------------------------------------------------------
+// IPC handlers do protocolo e cache JSON (D2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Atualiza as URLs remotas usadas pelo protocolo louvorja://.
+ * O renderer lê as variáveis de ambiente do Vite e envia ao main process
+ * logo após montar o app (src/main.js).
+ */
+ipcMain.handle("protocol:setRemoteConfig", (_event, cfg) => {
+  protocolModule.setRemoteConfig(cfg);
+});
+
+/** Limpa todo o cache JSON em userData/json_db/ */
+ipcMain.handle("jsonCache:clear", () => {
+  jsonCache.clearCache();
+});
+
+/** Retorna o caminho do diretório de cache (debug / módulo update) */
+ipcMain.handle("jsonCache:dir", () => {
+  return jsonCache.dir();
+});
+
+// ---------------------------------------------------------------------------
+// IPC handlers do downloader FTP (D3)
+// ---------------------------------------------------------------------------
+
+/** Atualiza configuração da API de download (paramsUrl, apiToken) */
+ipcMain.handle("download:setApiConfig", (_event, cfg) => downloader.setApiConfig(cfg));
+
+/** Busca params da API (com cache TTL diário). force=true força refetch. */
+ipcMain.handle("download:getParams", (_event, force) => downloader.getParams(force));
+
+/** Verifica conexão FTP fazendo handshake real com o servidor */
+ipcMain.handle("download:checkConnection", () => downloader.checkConnection());
+
+/** Inicia download de uma lista de arquivos em background */
+ipcMain.handle("download:start", (event, files) => downloader.startDownload(files, event.sender));
+
+/** Cancela o download em andamento */
+ipcMain.handle("download:cancel", () => downloader.cancelDownload());
+
+/** Verifica integridade local de uma lista de arquivos (missing/damaged/ok) */
+ipcMain.handle("download:checkFiles", (_event, files) => downloader.checkFiles(files));
+
+// ---------------------------------------------------------------------------
+// IPC handlers de displays e janelas (D4)
+// ---------------------------------------------------------------------------
+
+/** Lista todos os displays conectados com metadata */
+ipcMain.handle("displays:list", () => displays.list());
+
+/** Retorna o display preferido de uma feature (id + bounds) */
+ipcMain.handle("displays:getPreferred", (_event, feature) => {
+  const d = displays.getPreferred(feature);
+  return d ? { id: d.id, bounds: d.bounds } : null;
+});
+
+/** Salva preferência de display para uma feature */
+ipcMain.handle("displays:setPreferred", (_event, feature, displayId) => {
+  displays.setPreferred(feature, displayId);
+});
+
+/** Retorna todas as preferências salvas de monitor por feature */
+ipcMain.handle("displays:getPrefs", () => displays.getPrefs());
+
+/** Abre janela de projeção em um monitor específico */
+ipcMain.handle("windows:open", (_event, options) => {
+  const preloadPath = path.join(__dirname, "preload.cjs");
+  const prodHtmlPath = path.join(paths.webBuild(), "index.html");
+  const devUrl = isDev ? DEV_URL : null;
+  const win = windowFactory.openOnMonitor({
+    ...options,
+    preloadPath,
+    devUrl,
+    prodHtmlPath,
+  });
+  return { id: win.id };
+});
+
+/** Fecha a janela de uma feature */
+ipcMain.handle("windows:close", (_event, feature) => windowFactory.close(feature));
+
+/** Lista features com janelas abertas */
+ipcMain.handle("windows:listOpen", () => windowFactory.listOpen());
+
+/** Mostra overlays de identificação em todos os monitores por durationMs */
+ipcMain.handle("displays:identify", (_event, durationMs = 5000) => {
+  return identifyMonitors.show(durationMs);
+});
+
+// ---------------------------------------------------------------------------
+// IPC handlers do servidor HTTP embarcado (D5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Inicia o servidor HTTP na porta especificada.
+ * Retorna { port, token } do servidor iniciado.
+ */
+ipcMain.handle("httpServer:start", async (_e, opts) => {
+  return await httpServer.start({ ...(opts || {}), mainWindow });
+});
+
+/** Para o servidor HTTP. No-op se já parado. */
+ipcMain.handle("httpServer:stop", () => httpServer.stop());
+
+/** Retorna o estado atual do servidor { running, port, token }. */
+ipcMain.handle("httpServer:status", () => httpServer.status());
+
+/**
+ * Retorna os endereços IP locais da máquina (IPv4, não-loopback).
+ * Útil para o módulo Transmissão exibir a URL acessível na rede local.
+ */
+ipcMain.handle("httpServer:localIps", () => {
+  const os = require("os");
+  const ifaces = os.networkInterfaces();
+  const ips = [];
+  for (const name of Object.keys(ifaces)) {
+    for (const iface of ifaces[name]) {
+      if (iface.family === "IPv4" && !iface.internal) {
+        ips.push(iface.address);
+      }
+    }
+  }
+  return ips;
+});
+
+// ---------------------------------------------------------------------------
+// IPC handlers de atalhos globais (D6)
+// ---------------------------------------------------------------------------
+
+/** Registra os atalhos globais. Retorna { ok, registered, failed }. */
+ipcMain.handle("shortcuts:enable", () => shortcuts.enable());
+
+/** Desregistra todos os atalhos globais. Retorna { ok }. */
+ipcMain.handle("shortcuts:disable", () => shortcuts.disable());
+
+/** Retorna o estado atual { enabled, registered }. */
+ipcMain.handle("shortcuts:status", () => shortcuts.status());
+
+/**
+ * Persiste a preferência globalEnabled no userStore para ser respeitada no próximo boot.
+ * Separado do enable/disable para que o toggle na UI atualize config automaticamente.
+ */
+ipcMain.handle("shortcuts:savePreference", (_e, enabled) => {
+  try {
+    const cfg = userStore.read("config") || {};
+    if (!cfg.shortcuts) cfg.shortcuts = {};
+    cfg.shortcuts.globalEnabled = !!enabled;
+    userStore.write("config", cfg);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+// ---------------------------------------------------------------------------
+// IPC handlers do powerSaveBlocker (D9.4)
+// ---------------------------------------------------------------------------
+
+/** Inicia o bloqueio de power save (impede tela dormir durante modo culto). */
+ipcMain.handle("powerBlocker:start", () => powerBlocker.start());
+
+/** Para o bloqueio de power save. */
+ipcMain.handle("powerBlocker:stop", () => powerBlocker.stop());
+
+/** Retorna { active, id }. */
+ipcMain.handle("powerBlocker:status", () => powerBlocker.status());
+
+// ---------------------------------------------------------------------------
+// IPC handlers de window controls (min/max/close)
+// ---------------------------------------------------------------------------
+
+function focusedOrMain(event) {
+  if (event && event.sender) {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) return win;
+  }
+  return mainWindow;
+}
+
+ipcMain.handle("window:minimize", (event) => {
+  const win = focusedOrMain(event);
+  if (win && !win.isMinimized()) win.minimize();
+  return { ok: !!win };
+});
+
+ipcMain.handle("window:maximize", (event) => {
+  const win = focusedOrMain(event);
+  if (win && !win.isMaximized()) win.maximize();
+  return { ok: !!win, maximized: win ? win.isMaximized() : false };
+});
+
+ipcMain.handle("window:unmaximize", (event) => {
+  const win = focusedOrMain(event);
+  if (win && win.isMaximized()) win.unmaximize();
+  return { ok: !!win, maximized: win ? win.isMaximized() : false };
+});
+
+ipcMain.handle("window:toggleMaximize", (event) => {
+  const win = focusedOrMain(event);
+  if (!win) return { ok: false };
+  if (win.isMaximized()) win.unmaximize();
+  else win.maximize();
+  return { ok: true, maximized: win.isMaximized() };
+});
+
+ipcMain.handle("window:close", (event) => {
+  const win = focusedOrMain(event);
+  if (win) win.close();
+  return { ok: !!win };
+});
+
+ipcMain.handle("window:isMaximized", (event) => {
+  const win = focusedOrMain(event);
+  return win ? win.isMaximized() : false;
+});
+
+// ---------------------------------------------------------------------------
+// IPC handlers do auto-updater (D8)
+// ---------------------------------------------------------------------------
+
+/** Verifica manualmente se há nova versão no GitHub Releases. */
+ipcMain.handle("updater:check", () => updater.checkForUpdates());
+
+/** Inicia o download da atualização disponível (quando autoDownload=false). */
+ipcMain.handle("updater:download", () => updater.downloadUpdate());
+
+/** Fecha o app e instala a atualização baixada. */
+ipcMain.handle("updater:install", () => updater.quitAndInstall());
+
+/** Retorna o estado atual do updater (snapshot). */
+ipcMain.handle("updater:status", () => updater.status());
