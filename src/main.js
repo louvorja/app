@@ -289,8 +289,14 @@ $storage.hydrate().then(async () => {
 
     // --- Navegação de slides (contexto: media ativa) ---
 
-    const _ifMedia = (fn) => () => {
-      if (_mediaIsActive()) fn();
+    const _ifMedia = (fn) => (e) => {
+      if (_mediaIsActive()) {
+        // Quando media está ativa, prevenir default das setas evita que
+        // Vuetify (slider/btn-toggle/v-list) ou Electron (history nav)
+        // intercepte e impeça a navegação de slides.
+        if (e && typeof e.preventDefault === "function") e.preventDefault();
+        fn();
+      }
     };
 
     Hotkeys.register(

@@ -181,7 +181,14 @@ watch(
 );
 
 onMounted(() => {
-  resizeObserver = new ResizeObserver(() => checkScroll());
+  // ResizeObserver dispara em layout changes — atualiza height E scroll
+  // (antes só chamava checkScroll, deixando container_height em 0 quando
+  // o v-dialog abria com layout async, resultando em #left/#right invisíveis
+  // e o body do Window aparecendo vazio/preto).
+  resizeObserver = new ResizeObserver(() => {
+    windowResize();
+    checkScroll();
+  });
   if (visible.value) listenerResize(true);
 });
 
