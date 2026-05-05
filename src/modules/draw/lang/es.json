@@ -1,0 +1,6 @@
+{
+  "title": "Sorteo",
+  "inputs": { "min": "Mínimo", "max": "Máximo" },
+  "actions": { "draw": "Sortear", "reset": "Reiniciar", "fullscreen": "Pantalla completa" },
+  "data": { "drawn": "Números sorteados", "remaining": "Restantes" }
+}

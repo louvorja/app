@@ -1,0 +1,24 @@
+{
+  "title": "Editor de Slides",
+  "actions": {
+    "new": "Nova apresentação",
+    "add_slide": "Adicionar slide",
+    "remove_slide": "Remover slide",
+    "save": "Salvar",
+    "load": "Carregar",
+    "present": "Apresentar"
+  },
+  "inputs": {
+    "text": "Texto do slide",
+    "font_size": "Tamanho da fonte",
+    "text_color": "Cor do texto",
+    "bg_color": "Cor de fundo",
+    "image_url": "URL da imagem de fundo"
+  },
+  "data": {
+    "slide": "Slide",
+    "of": "de",
+    "empty": "Nenhum slide. Clique em + para adicionar.",
+    "invalid_file": "Arquivo inválido. O arquivo deve ser uma apresentação exportada pelo LouvorJA."
+  }
+}

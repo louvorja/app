@@ -1,0 +1,7 @@
+{
+  "id": "draw",
+  "name": "Sorteio",
+  "description": "Sorteador de números com animação.",
+  "category": "utilities",
+  "icon": "mdi-dice-multiple-outline"
+}

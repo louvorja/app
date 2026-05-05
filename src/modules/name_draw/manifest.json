@@ -1,0 +1,7 @@
+{
+  "id": "name_draw",
+  "name": "Sorteio de Nomes",
+  "description": "Sorteador de nomes a partir de uma lista.",
+  "category": "utilities",
+  "icon": "mdi-account-multiple-outline"
+}

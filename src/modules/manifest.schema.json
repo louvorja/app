@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://louvorja.com.br/module-manifest.schema.json",
+  "title": "ModuleManifest",
+  "description": "Schema para manifest.json de módulos LouvorJA",
+  "type": "object",
+  "required": ["id", "name", "description"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Identificador único snake_case do módulo (ex: my_module)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nome exibido no menu"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Descrição curta do módulo"
+    },
+    "category": {
+      "oneOf": [{ "type": "null" }, { "type": "string", "enum": ["musics", "bible", "utilities"] }],
+      "description": "Categoria do módulo. null = módulo interno (popup/sistema, sem entrada no menu)"
+    },
+    "icon": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^mdi-", "description": "Ex: mdi-music" }
+      ],
+      "description": "Material Design Icon. null = módulo interno sem ícone"
+    },
+    "active": {
+      "type": "boolean",
+      "description": "false desabilita o módulo no boot. Omitir equivale a true."
+    },
+    "development": {
+      "type": "boolean",
+      "description": "true = módulo visível apenas em VITE_APP_MODE=development"
+    },
+    "showInMainMenu": {
+      "type": "boolean",
+      "description": "Força exibição no menu principal mesmo sem category definida"
+    },
+    "translationKey": {
+      "type": "string",
+      "description": "Chave i18n personalizada para o título. Padrão: modules.<id>.title"
+    },
+    "language": {
+      "type": "string",
+      "description": "Código de idioma para módulos com idioma fixo (ex: pt, es)"
+    },
+    "translations": {
+      "type": "object",
+      "description": "Traduções inline por código de idioma: { pt: { title: '...' }, es: { title: '...' } }"
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Módulos que devem ser registrados junto com este",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "description": "ID do módulo dependência (ex: media)"
+          },
+          {
+            "type": "object",
+            "description": "Dependência externa com metadados de versão e CDN"
+          }
+        ]
+      }
+    },
+    "moduleOptions": {
+      "type": "object",
+      "description": "Opções de janela do módulo",
+      "additionalProperties": false,
+      "properties": {
+        "popup": {
+          "type": "boolean",
+          "description": "Abre o módulo em janela popup independente"
+        },
+        "size": {
+          "type": "string",
+          "enum": ["small", "medium", "large"],
+          "description": "Tamanho da janela do módulo"
+        }
+      }
+    },
+    "customization": {
+      "type": "object",
+      "description": "Campos de customização visual do slide. Chave = ID do campo.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type", "label", "default"],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "font",
+              "color",
+              "font-size",
+              "border-spacing",
+              "v-align",
+              "h-align",
+              "image",
+              "opacity",
+              "object-fit",
+              "select"
+            ],
+            "description": "Tipo do controle de customização renderizado em CustomizationTools.vue"
+          },
+          "label": {
+            "type": "string",
+            "description": "Chave i18n do label (ex: customization.font)"
+          },
+          "default": {
+            "description": "Valor padrão do campo"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Recentes",
+  "data": {
+    "empty": "Nenhuma música aberta ainda.",
+    "empty_hint": "As músicas que você abrir aparecerão aqui."
+  },
+  "actions": {
+    "clear": "Limpar histórico",
+    "remove": "Remover da lista"
+  },
+  "time": {
+    "now": "agora",
+    "minutes": "há {n} min",
+    "hours": "há {n} h",
+    "yesterday": "ontem"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "message_board",
+  "name": "Painel de Recados",
+  "description": "Exibe mensagens e recados em tela.",
+  "category": "utilities",
+  "icon": "mdi-bulletin-board",
+  "dependencies": []
+}

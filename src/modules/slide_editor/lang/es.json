@@ -1,0 +1,24 @@
+{
+  "title": "Editor de Diapositivas",
+  "actions": {
+    "new": "Nueva presentación",
+    "add_slide": "Agregar diapositiva",
+    "remove_slide": "Quitar diapositiva",
+    "save": "Guardar",
+    "load": "Cargar",
+    "present": "Presentar"
+  },
+  "inputs": {
+    "text": "Texto de la diapositiva",
+    "font_size": "Tamaño de fuente",
+    "text_color": "Color del texto",
+    "bg_color": "Color de fondo",
+    "image_url": "URL de imagen de fondo"
+  },
+  "data": {
+    "slide": "Diapositiva",
+    "of": "de",
+    "empty": "Sin diapositivas. Haz clic en + para agregar.",
+    "invalid_file": "Archivo inválido. El archivo debe ser una presentación exportada por LouvorJA."
+  }
+}

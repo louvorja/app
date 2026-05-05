@@ -1,20 +1,8 @@
 {
   "title": "Reloj",
-  "customization": {
-    "background": "Fondo",
-    "color": "Color",
-    "image": "Imagen",
-    "transparency": "Transparencia",
-    "adjust": "Ajustar",
-    "align": "Alineacion",
-    "font": "Fuente",
-    "text": "Texto",
-    "window": "Ventana",
-    "vertical": "Vertical",
-    "horizontal": "Horizontal",
-    "border": "Borde",
-    "size": "Tamano",
-    "hour_cycle": "Ciclo de Horas",
-    "time_format": "Formato de Hora"
+  "actions": {
+    "toggle_format": "Alternar 12h/24h",
+    "toggle_seconds": "Mostrar/ocultar segundos",
+    "fullscreen": "Abrir en pantalla completa"
   }
 }

@@ -1,0 +1,18 @@
+{
+  "title": "Panel de Avisos",
+  "inputs": {
+    "message": "Texto del aviso...",
+    "label": "Etiqueta (opcional)"
+  },
+  "actions": {
+    "add": "Agregar",
+    "present": "Presentar",
+    "clear_board": "Limpiar panel",
+    "fullscreen": "Pantalla completa",
+    "remove": "Quitar"
+  },
+  "data": {
+    "empty": "Ningún aviso. Use el campo arriba para agregar.",
+    "showing": "Mostrando en proyección"
+  }
+}

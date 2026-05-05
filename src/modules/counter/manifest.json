@@ -1,10 +1,7 @@
 {
-  "active": true,
-  "development": true,
   "id": "counter",
-  "name": "Counter Module",
-  "description": "Simple counter utility",
+  "name": "Contador",
+  "description": "Contador simples com incremento e decremento.",
   "category": "utilities",
-  "icon": "mdi-counter",
-  "dependencies": []
+  "icon": "mdi-counter"
 }

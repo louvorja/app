@@ -1,4 +1,1 @@
-{
-  "title": "Contable",
-  "text": "ESPANHOL"
-}
+{ "title": "Contador", "actions": { "reset": "Reiniciar" } }

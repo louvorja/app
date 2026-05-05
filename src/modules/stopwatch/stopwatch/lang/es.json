@@ -1,0 +1,11 @@
+{
+  "title": "Cronómetro",
+  "mode": { "up": "Progresivo", "down": "Regresivo" },
+  "actions": {
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "reset": "Reiniciar",
+    "set": "Definir tiempo"
+  },
+  "alarm": { "done": "¡Tiempo agotado!" }
+}

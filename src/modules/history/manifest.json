@@ -1,0 +1,8 @@
+{
+  "id": "history",
+  "name": "Recentes",
+  "description": "Músicas abertas recentemente.",
+  "category": "musics",
+  "icon": "mdi-history",
+  "dependencies": ["media", "lyric"]
+}

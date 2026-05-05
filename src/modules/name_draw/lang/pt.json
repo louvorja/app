@@ -1,0 +1,12 @@
+{
+  "title": "Sorteio de Nomes",
+  "inputs": { "names": "Um nome por linha..." },
+  "actions": {
+    "draw": "Sortear",
+    "reset": "Reiniciar",
+    "list": "Lista",
+    "fullscreen": "Tela cheia",
+    "apply": "Aplicar"
+  },
+  "data": { "drawn": "Sorteados", "remaining": "Restantes" }
+}

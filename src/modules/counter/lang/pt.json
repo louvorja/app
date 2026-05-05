@@ -1,4 +1,1 @@
-{
-  "title": "Contador",
-  "text": "PORTUGUES"
-}
+{ "title": "Contador", "actions": { "reset": "Zerar" } }

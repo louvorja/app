@@ -1,0 +1,23 @@
+{
+  "title": "Descarga de Colecciones",
+  "actions": {
+    "check": "Verificar conexión",
+    "download": "Descargar seleccionados",
+    "cancel": "Cancelar",
+    "select_all": "Seleccionar todas",
+    "deselect_all": "Limpiar selección"
+  },
+  "data": {
+    "available": "Colecciones disponibles",
+    "downloaded": "Descargado",
+    "missing": "Faltante",
+    "partial": "Parcial",
+    "checking": "Verificando conexión FTP...",
+    "downloading": "Descargando: {file}",
+    "progress": "{done} de {total} archivos ({percent}%)",
+    "completed": "Descarga completa: {downloaded} archivos descargados, {failed} fallos",
+    "no_connection": "Sin conexión con el servidor",
+    "desktop_only": "Esta funcionalidad solo está disponible en la versión escritorio.",
+    "album_count": "{n} álbumes"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "title": "Painel de Recados",
+  "inputs": {
+    "message": "Texto do recado...",
+    "label": "Rótulo (opcional)"
+  },
+  "actions": {
+    "add": "Adicionar",
+    "present": "Apresentar",
+    "clear_board": "Limpar painel",
+    "fullscreen": "Tela cheia",
+    "remove": "Remover"
+  },
+  "data": {
+    "empty": "Nenhum recado. Use o campo acima para adicionar.",
+    "showing": "Exibindo na projeção"
+  }
+}

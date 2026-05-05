@@ -1,0 +1,8 @@
+{
+  "id": "favorites",
+  "name": "Favoritos",
+  "description": "Músicas marcadas como favoritas, com reordenação.",
+  "category": "musics",
+  "icon": "mdi-star",
+  "dependencies": ["media", "lyric"]
+}

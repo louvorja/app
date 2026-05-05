@@ -1,0 +1,7 @@
+{
+  "id": "slide_editor",
+  "name": "Editor de Slides",
+  "description": "Crie apresentações com texto, imagens e formatação personalizados.",
+  "category": "musics",
+  "icon": "mdi-presentation-play"
+}

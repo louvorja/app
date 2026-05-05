@@ -1,0 +1,7 @@
+{
+  "id": "transmission",
+  "name": "Transmissão",
+  "description": "Abre janelas de projeção, stage display e captura para OBS/Vmix.",
+  "category": "utilities",
+  "icon": "mdi-cast"
+}

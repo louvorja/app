@@ -1,0 +1,23 @@
+{
+  "title": "Download de Coletâneas",
+  "actions": {
+    "check": "Verificar conexão",
+    "download": "Baixar selecionados",
+    "cancel": "Cancelar",
+    "select_all": "Selecionar todas",
+    "deselect_all": "Limpar seleção"
+  },
+  "data": {
+    "available": "Coletâneas disponíveis",
+    "downloaded": "Baixado",
+    "missing": "Faltando",
+    "partial": "Parcial",
+    "checking": "Verificando conexão FTP...",
+    "downloading": "Baixando: {file}",
+    "progress": "{done} de {total} arquivos ({percent}%)",
+    "completed": "Download concluído: {downloaded} arquivos baixados, {failed} falhas",
+    "no_connection": "Sem conexão com o servidor",
+    "desktop_only": "Esta funcionalidade só está disponível na versão desktop.",
+    "album_count": "{n} álbuns"
+  }
+}

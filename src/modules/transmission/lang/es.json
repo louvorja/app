@@ -1,0 +1,43 @@
+{
+  "title": "Transmisión",
+  "windows": {
+    "projection": "Proyección",
+    "return": "Stage Display (Retorno)",
+    "operator": "Vista del Operador",
+    "obs": "Captura OBS (Diapositivas)",
+    "obs_bible": "Captura OBS (Biblia)",
+    "clock": "Reloj"
+  },
+  "actions": {
+    "open": "Abrir ventana",
+    "copy": "Copiar URL",
+    "copied": "¡Copiado!",
+    "identify_monitors": "Identificar monitores",
+    "start_server": "Iniciar servidor",
+    "stop_server": "Detener servidor",
+    "copy_url": "Copiar URL"
+  },
+  "data": {
+    "monitor_label": "Monitor",
+    "loading_monitors": "Cargando monitores...",
+    "server_status": "Servidor HTTP",
+    "server_running": "Corriendo en el puerto {port}",
+    "server_stopped": "Detenido",
+    "server_url": "URL del servidor",
+    "token_label": "Token",
+    "auto_start": "Iniciar automáticamente con la app",
+    "server_desktop_only": "El servidor HTTP solo está disponible en la versión de escritorio.",
+    "global_shortcuts": "Atajos globales (system-wide)",
+    "shortcuts_active": "Activos — funcionan en cualquier ventana",
+    "shortcuts_inactive": "Desactivados",
+    "shortcuts_failed": "No se pudo registrar: {list}"
+  },
+  "hints": {
+    "projection": "Ábrelo en un monitor secundario para proyectar las letras.",
+    "return": "Muestra el slide actual y el siguiente. Ideal para músicos.",
+    "operator": "Cuadrícula de diapositivas con navegación por teclado.",
+    "obs": "Captura transparente de letras para OBS Studio o Vmix.",
+    "obs_bible": "Captura transparente de versículos bíblicos para OBS Studio.",
+    "clock": "Reloj digital en pantalla completa."
+  }
+}

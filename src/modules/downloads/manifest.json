@@ -1,0 +1,8 @@
+{
+  "id": "downloads",
+  "name": "Download de Coletâneas",
+  "description": "Baixa músicas e mídia do servidor LouvorJA para uso offline.",
+  "category": "utilities",
+  "icon": "mdi-cloud-download",
+  "dependencies": []
+}

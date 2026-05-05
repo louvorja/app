@@ -1,0 +1,7 @@
+{
+  "id": "update",
+  "name": "Atualizações",
+  "description": "Verifica e baixa novas versões do banco de dados.",
+  "category": "utilities",
+  "icon": "mdi-cloud-download-outline"
+}

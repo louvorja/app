@@ -1,0 +1,17 @@
+{
+  "title": "Recientes",
+  "data": {
+    "empty": "Aún no se abrió ninguna canción.",
+    "empty_hint": "Las canciones que abras aparecerán aquí."
+  },
+  "actions": {
+    "clear": "Limpiar historial",
+    "remove": "Quitar de la lista"
+  },
+  "time": {
+    "now": "ahora",
+    "minutes": "hace {n} min",
+    "hours": "hace {n} h",
+    "yesterday": "ayer"
+  }
+}

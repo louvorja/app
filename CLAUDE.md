@@ -71,30 +71,29 @@ src/
 │   ├── Loading.vue
 │   ├── Footer.vue
 │   └── SystemBar.vue
-├── modules/
-│   └── core/            # Módulos do sistema
-│       ├── album/
-│       ├── bible/
-│       ├── clock/           # Relógio digital (12h/24h, fullscreen → /clock)
-│       ├── collections/
-│       ├── counter/         # Contador simples
-│       ├── dev/
-│       ├── draw/            # Sorteio de números (fullscreen dialog)
-│       ├── favorites/       # Lista de músicas favoritas (drag/drop)
-│       ├── history/         # Histórico de músicas abertas
-│       ├── hymnal/
-│       ├── liturgy/         # Planejador de culto (drag/drop, timer regressivo)
-│       ├── lyric/
-│       ├── media/
-│       ├── message_board/   # Painel de recados dinâmico
-│       ├── musics/
-│       ├── name_draw/       # Sorteio de nomes (fullscreen dialog)
-│       ├── remote_control/
-│       ├── slide_editor/    # Editor de slides (autosave sessionStorage)
-│       ├── stopwatch/       # Cronômetro (alarme sonoro via Web Audio API)
-│       ├── theme/
-│       ├── transmission/    # Links para todas as views de projeção/OBS
-│       └── update/          # Verificação de versão do banco
+├── modules/             # Módulos do sistema (ver ADR 0003)
+│   ├── album/
+│   ├── bible/
+│   ├── clock/           # Relógio digital (12h/24h, fullscreen → /clock)
+│   ├── collections/
+│   ├── counter/         # Contador simples
+│   ├── dev/
+│   ├── draw/            # Sorteio de números (fullscreen dialog)
+│   ├── favorites/       # Lista de músicas favoritas (drag/drop)
+│   ├── history/         # Histórico de músicas abertas
+│   ├── hymnal/
+│   ├── liturgy/         # Planejador de culto (drag/drop, timer regressivo)
+│   ├── lyric/
+│   ├── media/
+│   ├── message_board/   # Painel de recados dinâmico
+│   ├── musics/
+│   ├── name_draw/       # Sorteio de nomes (fullscreen dialog)
+│   ├── remote_control/
+│   ├── slide_editor/    # Editor de slides (autosave sessionStorage)
+│   ├── stopwatch/       # Cronômetro (alarme sonoro via Web Audio API)
+│   ├── theme/
+│   ├── transmission/    # Links para todas as views de projeção/OBS
+│   └── update/          # Verificação de versão do banco
 ├── plugins/             # Plugins Vue (Vuetify, etc.)
 ├── router/              # Rotas
 ├── store/               # Vuex store
@@ -111,7 +110,7 @@ src/
 
 ## Convenções de Módulos
 
-Cada módulo em `src/modules/core/<id>/` segue esta estrutura:
+Cada módulo em `src/modules/<id>/` segue esta estrutura:
 
 ```
 <id>/

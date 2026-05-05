@@ -1,0 +1,10 @@
+{
+  "title": "Favoritos",
+  "data": {
+    "empty": "Nenhuma música nos favoritos.",
+    "empty_hint": "Clique no ícone de estrela em qualquer música para adicioná-la aqui."
+  },
+  "actions": {
+    "remove": "Remover dos favoritos"
+  }
+}
