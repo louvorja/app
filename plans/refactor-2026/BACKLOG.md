@@ -118,7 +118,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 081 | [Sanitizar inputs em `Path.db()` e `Path.file()`](tasks/081-sanitizar-path-inputs.md)                   | S      | P1  | 1h  | done   | 81          |
 | 082 | [Substituir `v-html` em CommandPalette (highlight via DOM)](tasks/082-vhtml-command-palette.md)         | S      | P2  | 1h  | done   | 82          |
 | 085 | [Garantir `noopener,noreferrer` em popups](tasks/085-noopener-noreferrer.md)                          | S      | P2  | 0.5h| done   | 85          |
-| 086 | [Configurar CSP / headers de segurança (PWA web)](tasks/086-csp-headers.md)                   | O      | P2  | 3h  | todo   | 86          |
+| 086 | [Configurar CSP / headers de segurança (PWA web)](tasks/done/086-csp-headers.md)                   | O      | P2  | 3h  | done   | 86          |
 | 087 | Confirmar que `basic-ftp` está no main process do Electron        | S      | P0  | 0.5h| done   | 87          |
 
 ---
