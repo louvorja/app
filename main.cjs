@@ -21,6 +21,39 @@ const { app, BrowserWindow, ipcMain, session, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs-extra");
 
+// Log para arquivo — em prod no macOS, stdout não vai pra terminal.
+// Sempre disponível em ~/Library/Application Support/louvorja/main.log
+try {
+  const logDir = app.getPath("userData");
+  fs.ensureDirSync(logDir);
+  const logFile = path.join(logDir, "main.log");
+  const _origLog = console.log;
+  const _origErr = console.error;
+  const _origWarn = console.warn;
+  const _stamp = () => new Date().toISOString();
+  const _write = (line) => {
+    try {
+      fs.appendFileSync(logFile, line + "\n");
+    } catch (_) {
+      /* ignore */
+    }
+  };
+  console.log = (...args) => {
+    _origLog(...args);
+    _write(`${_stamp()} [log] ${args.map(String).join(" ")}`);
+  };
+  console.error = (...args) => {
+    _origErr(...args);
+    _write(`${_stamp()} [err] ${args.map(String).join(" ")}`);
+  };
+  console.warn = (...args) => {
+    _origWarn(...args);
+    _write(`${_stamp()} [warn] ${args.map(String).join(" ")}`);
+  };
+} catch (_) {
+  /* ignore */
+}
+
 const paths = require("./main/paths.js");
 const { createMainWindow } = require("./main/windows.js");
 const userStore = require("./main/userStore.js");
@@ -79,9 +112,26 @@ function createWindow() {
 
   mainWindow = createMainWindow(DEV_URL, prodHtmlPath, preloadPath);
 
-  // DevTools sempre aberto por enquanto — debug de prod. Pode reverter
-  // depois pra `if (isDev) {...}`.
-  mainWindow.webContents.openDevTools({ mode: "detach" });
+  // Abrir DevTools automaticamente em modo desenvolvimento OU
+  // quando LJ_DEVTOOLS=1 (debug de prod sem rebuildar)
+  if (isDev || process.env.LJ_DEVTOOLS === "1") {
+    mainWindow.webContents.openDevTools({ mode: "detach" });
+  }
+
+  // Log de erros do renderer (capturados antes do DevTools abrir)
+  mainWindow.webContents.on("render-process-gone", (_e, details) => {
+    console.error("[LouvorJA] Renderer GONE:", details);
+  });
+  mainWindow.webContents.on("did-fail-load", (_e, code, desc, url) => {
+    console.error("[LouvorJA] did-fail-load:", { code, desc, url });
+  });
+  mainWindow.webContents.on(
+    "console-message",
+    (_e, level, message, line, sourceId) => {
+      const lvl = ["DBG", "LOG", "WRN", "ERR"][level] || "?";
+      console.log(`[renderer:${lvl}] ${message} (${sourceId}:${line})`);
+    }
+  );
 
   mainWindow.on("closed", () => {
     mainWindow = null;
