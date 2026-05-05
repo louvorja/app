@@ -6,10 +6,18 @@
   </template>
 </template>
 
-<script setup>
-import { defineAsyncComponent, computed } from "vue";
+<script setup lang="ts">
+import { defineAsyncComponent, computed, type Component } from "vue";
 import $appdata from "@/helpers/AppData";
 import $modules from "@/helpers/Modules";
+
+interface ModuleState {
+  id: string;
+  show?: boolean;
+  minimized?: boolean;
+  popup?: boolean;
+  [key: string]: unknown;
+}
 
 // Glob estático — Vite analisa em build-time e gera importações individuais.
 // Substitui template literals variáveis que falham no headless Chromium (Playwright).
@@ -20,18 +28,18 @@ const _globBase = import.meta.glob("@/modules/*/interface/Index.vue");
 // criaria um defineAsyncComponent novo, fazendo Vue desmontar e remontar todos
 // os módulos a cada interação — o que quebra o estado interno e causa erros de
 // "Cannot read properties of null (reading 'type')" durante unmount em transit.
-const _componentCache = new Map();
+const _componentCache = new Map<string, Component>();
 
-function buildAsyncComponent(moduleId) {
+function buildAsyncComponent(moduleId: string): Component {
   return defineAsyncComponent({
     loader: () => {
       const coreKey = `/src/modules/core/${moduleId}/interface/Index.vue`;
       const baseKey = `/src/modules/${moduleId}/interface/Index.vue`;
-      if (_globCore[coreKey]) return _globCore[coreKey]();
-      if (_globBase[baseKey]) return _globBase[baseKey]();
+      if (_globCore[coreKey]) return (_globCore[coreKey] as () => Promise<Component>)();
+      if (_globBase[baseKey]) return (_globBase[baseKey] as () => Promise<Component>)();
       return Promise.reject(new Error(`[Modules] módulo não encontrado: ${moduleId}`));
     },
-    onError(err, retry, fail) {
+    onError(err, _retry, fail) {
       console.error(`[Modules] erro ao carregar "${moduleId}":`, err);
       fail();
     },
@@ -48,14 +56,17 @@ function buildAsyncComponent(moduleId) {
   });
 }
 
-function getComponent(moduleId) {
+function getComponent(moduleId: string): Component {
   if (!_componentCache.has(moduleId)) {
     _componentCache.set(moduleId, buildAsyncComponent(moduleId));
   }
-  return _componentCache.get(moduleId);
+  return _componentCache.get(moduleId) as Component;
 }
 
-const modules = computed(() => $modules.get());
+const modules = computed((): ModuleState[] => {
+  const all = $modules.get() as Record<string, ModuleState> | null;
+  return all ? Object.values(all) : [];
+});
 const import_modules = computed(() => $appdata.get("import_modules"));
 
 defineExpose({ getComponent });

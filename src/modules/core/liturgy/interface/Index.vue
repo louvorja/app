@@ -13,14 +13,14 @@
     </div>
 
     <LiturgyToolbar
-      :item-count="items.length"
-      :locked="locked"
-      :running="running"
-      :timer-seconds="timerSeconds"
-      :timer-display="timerDisplay"
-      :active-week="activeWeek"
-      :show-notes="showNotes"
-      :menu-open="menuOpen"
+      :item-count="safeItems.length"
+      :locked="locked ?? false"
+      :running="running ?? false"
+      :timer-seconds="timerSeconds ?? 0"
+      :timer-display="timerDisplay ?? ''"
+      :active-week="activeWeek ?? ''"
+      :show-notes="showNotes ?? false"
+      :menu-open="menuOpen ?? false"
       :change-week="changeWeek"
       :on-week-change="onWeekChange"
       :toggle-timer="toggleTimer"
@@ -40,16 +40,16 @@
     />
 
     <LiturgyList
-      :items="items"
-      :locked="locked"
-      :running="running"
-      :timer-current-index="timerCurrentIndex"
-      :timer-item-progress="timerItemProgress"
+      :items="safeItems"
+      :locked="locked ?? false"
+      :running="running ?? false"
+      :timer-current-index="timerCurrentIndex ?? -1"
+      :timer-item-progress="timerItemProgress ?? 0"
       :default-color="defaultColor"
-      :show-notes="showNotes"
-      :note-day-index="noteDayIndex"
-      :note-days="noteDays"
-      :current-note="currentNote"
+      :show-notes="showNotes ?? false"
+      :note-day-index="noteDayIndex ?? 0"
+      :note-days="noteDays ?? []"
+      :current-note="currentNote ?? ''"
       :total-duration="totalDuration"
       :is-checked="isChecked"
       :icon-for-item="iconForItem"
@@ -103,8 +103,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
+<script setup lang="ts">
+import { ref, computed, nextTick, onMounted, onBeforeUnmount, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
@@ -118,29 +118,33 @@ import LiturgyToolbar from "./LiturgyToolbar.vue";
 import LiturgyList from "./LiturgyList.vue";
 import LiturgyItemForm from "./LiturgyItemForm.vue";
 import LiturgySchedules from "./LiturgySchedules.vue";
+import type { LiturgyItemData } from "../types";
 
-const TRANSLATIONS = { pt, es };
+const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
 
-function _t(key, locale) {
-  const dict = TRANSLATIONS[locale] || TRANSLATIONS.pt;
+function _t(key: string, locale: string): string {
+  const dict = TRANSLATIONS[locale] ?? TRANSLATIONS.pt;
   const path = key.split(".");
-  let cur = dict;
+  let cur: unknown = dict;
   for (const k of path) {
-    if (cur && typeof cur === "object" && k in cur) cur = cur[k];
+    if (cur && typeof cur === "object" && k in cur) cur = (cur as Record<string, unknown>)[k];
     else return key;
   }
   return typeof cur === "string" ? cur : key;
 }
 
 const { locale } = useI18n();
-const t = (key) => _t(key, locale.value);
+const t = (key: string) => _t(key, locale.value);
 
-const el = ref(null);
-const module_ = computed(() => Modules.get("liturgy"));
+const el = ref<HTMLElement | null>(null);
+const module_ = computed(() => Modules.get("liturgy") as { show: boolean } | null);
 
 const persist = useLiturgyPersistence();
 const litItems = useLiturgyItems(persist.activeWeek, persist.scheduledCategories);
-const timer = useLiturgyTimer(litItems.items, litItems.totalDuration);
+const timer = useLiturgyTimer(
+  litItems.items as unknown as ComputedRef<LiturgyItemData[]>,
+  litItems.totalDuration
+);
 
 // useLiturgyPersistence
 const {
@@ -229,8 +233,11 @@ const {
 const colors = COLORS;
 const defaultColor = DEFAULT_COLOR;
 const confirmClearBound = () => confirmClear(stopTimer);
+const safeItems = computed(
+  (): LiturgyItemData[] => (items.value as LiturgyItemData[] | null) ?? []
+);
 
-let _broadcastUnlisten = null;
+let _broadcastUnlisten: (() => void) | null = null;
 
 onMounted(async () => {
   await loadMusicsList();
@@ -239,7 +246,7 @@ onMounted(async () => {
       Modules.open("liturgy");
       nextTick(() => {
         openItemDialog();
-        form.tipo = "anotacao";
+        form.value.tipo = "anotacao";
       });
     }
   });
@@ -247,7 +254,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   stopTimer();
-  if (typeof _broadcastUnlisten === "function") _broadcastUnlisten();
+  if (_broadcastUnlisten) _broadcastUnlisten();
 });
 
 function closeModule() {
@@ -255,8 +262,8 @@ function closeModule() {
   Modules.close("liturgy");
 }
 
-function onDragLeaveCustom(e) {
-  if (!el.value?.contains(e.relatedTarget)) isDraggingOver.value = false;
+function onDragLeaveCustom(e: DragEvent) {
+  if (!el.value?.contains(e.relatedTarget as Node)) isDraggingOver.value = false;
 }
 </script>
 

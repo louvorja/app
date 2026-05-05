@@ -21,7 +21,10 @@ export default {
     return $appdata.exists(`modules.${id}`);
   },
 
-  /** Abre um módulo. Fecha embedded abertos quando o que abre é embedded. */
+  /**
+   * Abre um módulo. Fecha embedded abertos quando o que abre é embedded.
+   * @param {string} id
+   */
   open(id) {
     if (!this.check(id)) {
       console.error(
@@ -49,7 +52,10 @@ export default {
     $appdata.set(`modules.${id}.show`, true);
   },
 
-  /** Fecha um módulo (não importa se popup ou embedded). */
+  /**
+   * Fecha um módulo (não importa se popup ou embedded).
+   * @param {string} id
+   */
   close(id) {
     if (!this.check(id)) return;
     $dev.write("close", id);
@@ -59,6 +65,7 @@ export default {
   /**
    * No shell embedded, minimizar = fechar.
    * (Tray-area do layout antigo foi removida.)
+   * @param {string} id
    */
   minimize(id) {
     this.close(id);
@@ -67,6 +74,8 @@ export default {
   /**
    * Retorna o objeto de um módulo específico (ou TODOS quando id é null).
    * Quando recebe um array, retorna apenas os módulos correspondentes.
+   * @param {string | string[] | null} [id]
+   * @returns {unknown}
    */
   get(id = null) {
     if (id == null) return $appdata.get("modules");

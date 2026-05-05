@@ -23,7 +23,7 @@
             :value="form.tipo"
             class="lit-select"
             @change="
-              setFormField('tipo', $event.target.value);
+              setFormField('tipo', inputVal($event));
               onTypeChange();
             "
           >
@@ -44,7 +44,7 @@
             class="lit-input"
             data-testid="item-name"
             :placeholder="t('inputs.item_name_placeholder')"
-            @input="setFormField('item', $event.target.value)"
+            @input="setFormField('item', inputVal($event))"
           />
         </div>
 
@@ -55,7 +55,7 @@
             type="number"
             min="0"
             class="lit-input lit-input--small"
-            @input="setFormField('duration', +$event.target.value)"
+            @input="setFormField('duration', inputNum($event))"
           />
         </div>
 
@@ -67,7 +67,7 @@
               type="color"
               class="lit-color-input"
               :aria-label="t('inputs.color')"
-              @input="setFormField('cor', $event.target.value)"
+              @input="setFormField('cor', inputVal($event))"
             />
             <div class="lit-color-presets">
               <span
@@ -93,7 +93,7 @@
             rows="4"
             class="lit-input"
             :placeholder="t('inputs.annotation_placeholder')"
-            @input="setFormField('subitem', $event.target.value)"
+            @input="setFormField('subitem', inputVal($event))"
           />
         </div>
       </div>
@@ -109,7 +109,7 @@
               type="text"
               class="lit-input"
               placeholder="https://"
-              @input="setFormField('url', $event.target.value)"
+              @input="setFormField('url', inputVal($event))"
               @blur="setFormField('url', Liturgy.validateUrl(form.url))"
             />
             <button class="lit-btn lit-btn--ghost" :title="t('actions.open')" @click="openSite">
@@ -130,7 +130,7 @@
               type="text"
               class="lit-input"
               :placeholder="t('inputs.file_path_placeholder')"
-              @input="setFormField('dir', $event.target.value)"
+              @input="setFormField('dir', inputVal($event))"
             />
             <button
               class="lit-btn lit-btn--ghost"
@@ -182,7 +182,7 @@
               :value="form.musica"
               class="lit-select lit-select--full"
               @change="
-                setFormField('musica', +$event.target.value);
+                setFormField('musica', inputNum($event));
                 onMusicChange();
               "
             >
@@ -205,7 +205,7 @@
               :value="form.id"
               class="lit-select lit-select--full"
               @change="
-                setFormField('id', $event.target.value);
+                setFormField('id', inputVal($event));
                 onScheduledCategoryChange();
               "
             >
@@ -256,49 +256,66 @@
   </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 import Liturgy from "@/helpers/Liturgy";
+import type { LiturgyItemData, LiturgyMusicItem, ScheduledCategory } from "../types";
 
-const TRANSLATIONS = { pt, es };
+const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
 
-function _t(key, locale) {
-  const dict = TRANSLATIONS[locale] || TRANSLATIONS.pt;
+function _t(key: string, locale: string): string {
+  const dict = TRANSLATIONS[locale] ?? TRANSLATIONS.pt;
   const path = key.split(".");
-  let cur = dict;
+  let cur: unknown = dict;
   for (const k of path) {
-    if (cur && typeof cur === "object" && k in cur) cur = cur[k];
+    if (cur && typeof cur === "object" && k in cur) cur = (cur as Record<string, unknown>)[k];
     else return key;
   }
   return typeof cur === "string" ? cur : key;
 }
 
-defineProps({
-  modelValue: { type: Boolean, default: false },
-  editIndex: { type: Number, default: -1 },
-  form: { type: Object, required: true },
-  colors: { type: Array, default: () => [] },
-  musicsList: { type: Array, default: () => [] },
-  scheduledCategories: { type: Array, default: () => [] },
-  setFormField: { type: Function, required: true },
-  onTypeChange: { type: Function, required: true },
-  onMusicChange: { type: Function, required: true },
-  onScheduledCategoryChange: { type: Function, required: true },
-  setMusicChoice: { type: Function, required: true },
-  saveItem: { type: Function, required: true },
-  confirmRemove: { type: Function, required: true },
-  openSite: { type: Function, required: true },
-  chooseFolder: { type: Function, required: true },
-  chooseFile: { type: Function, required: true },
-  openSchedulesDialog: { type: Function, required: true },
-});
+withDefaults(
+  defineProps<{
+    modelValue?: boolean;
+    editIndex?: number;
+    form: LiturgyItemData;
+    colors?: string[];
+    musicsList?: LiturgyMusicItem[];
+    scheduledCategories?: ScheduledCategory[];
+    setFormField: (key: string, value: unknown) => void;
+    onTypeChange: () => void;
+    onMusicChange: () => void;
+    onScheduledCategoryChange: () => void;
+    setMusicChoice: (choice: string | boolean) => void;
+    saveItem: () => void;
+    confirmRemove: (index: number, closeDialog?: boolean) => void;
+    openSite: () => void;
+    chooseFolder: () => Promise<void>;
+    chooseFile: () => Promise<void>;
+    openSchedulesDialog: () => void;
+  }>(),
+  {
+    modelValue: false,
+    editIndex: -1,
+    colors: () => [],
+    musicsList: () => [],
+    scheduledCategories: () => [],
+  }
+);
 
-defineEmits(["update:modelValue"]);
+defineEmits<{ "update:modelValue": [value: boolean] }>();
 
 const { locale } = useI18n();
-const t = (key) => _t(key, locale.value);
+const t = (key: string) => _t(key, locale.value);
+
+function inputVal(e: Event): string {
+  return (e.target as HTMLInputElement).value;
+}
+function inputNum(e: Event): number {
+  return +(e.target as HTMLInputElement).value;
+}
 </script>
 
 <style scoped>

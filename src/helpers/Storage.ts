@@ -61,6 +61,7 @@ function assertHydrated(op: string): void {
 
 async function migrateFromLocalStorage(): Promise<void> {
   if (!Platform.isDesktop) return;
+  if (!Platform.userStore) return;
 
   try {
     const existingKeys: string[] = await Platform.userStore.keys();
@@ -106,17 +107,24 @@ async function hydrate(): Promise<void> {
     return;
   }
 
+  if (!Platform.userStore) {
+    _desktopHydrated = true;
+    return;
+  }
+
+  const _userStore = Platform.userStore;
+
   if (!_hydrationPromise) {
     _hydrationPromise = (async () => {
       try {
         await migrateFromLocalStorage();
 
-        const storedKeys: string[] = await Platform.userStore.keys();
+        const storedKeys: string[] = await _userStore.keys();
 
         await Promise.all(
           storedKeys.map(async (k: string) => {
             try {
-              const value: unknown = await Platform.userStore.read(k);
+              const value: unknown = await _userStore.read(k);
               if (value !== null) _desktopCache[k] = value;
             } catch (e) {
               console.warn(`[Storage] Falha ao ler chave "${k}" do userStore:`, e);
@@ -125,7 +133,7 @@ async function hydrate(): Promise<void> {
         );
 
         try {
-          const storageDir: string = await Platform.userStore.dir();
+          const storageDir: string = await _userStore.dir();
           _devLog(`[Storage] Diretório de storage: ${storageDir}`);
         } catch (_) {
           /* ignorar */
@@ -163,8 +171,7 @@ export default {
     if (Platform.isDesktop) {
       assertHydrated("set");
       _desktopCache[item] = data;
-      Platform.userStore
-        .write(item, data)
+      Platform.userStore?.write(item, data)
         .catch((e: unknown) => console.warn(`[Storage] set("${item}") IPC falhou:`, e));
       return;
     }
@@ -237,8 +244,7 @@ export default {
 
     if (Platform.isDesktop) {
       delete _desktopCache[item];
-      Platform.userStore
-        .remove(item)
+      Platform.userStore?.remove(item)
         .catch((e: unknown) => console.warn(`[Storage] remove("${item}") IPC falhou:`, e));
       return;
     }
@@ -268,8 +274,7 @@ export default {
       const keysToRemove = Object.keys(_desktopCache).filter((k) => k.split(":")[0] === item);
       keysToRemove.forEach((k) => {
         delete _desktopCache[k];
-        Platform.userStore
-          .remove(k)
+        Platform.userStore?.remove(k)
           .catch((e: unknown) =>
             console.warn(`[Storage] removeAll remove("${k}") IPC falhou:`, e)
           );

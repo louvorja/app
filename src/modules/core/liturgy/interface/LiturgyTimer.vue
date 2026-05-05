@@ -21,35 +21,38 @@
   </button>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 
-const TRANSLATIONS = { pt, es };
+const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
 
-function _t(key, locale) {
-  const dict = TRANSLATIONS[locale] || TRANSLATIONS.pt;
+function _t(key: string, locale: string): string {
+  const dict = TRANSLATIONS[locale] ?? TRANSLATIONS.pt;
   const path = key.split(".");
-  let cur = dict;
+  let cur: unknown = dict;
   for (const k of path) {
-    if (cur && typeof cur === "object" && k in cur) cur = cur[k];
+    if (cur && typeof cur === "object" && k in cur) cur = (cur as Record<string, unknown>)[k];
     else return key;
   }
   return typeof cur === "string" ? cur : key;
 }
 
-defineProps({
-  running: { type: Boolean, default: false },
-  timerSeconds: { type: Number, default: 0 },
-  timerDisplay: { type: String, default: "00:00" },
-  hasItems: { type: Boolean, default: false },
-});
+withDefaults(
+  defineProps<{
+    running?: boolean;
+    timerSeconds?: number;
+    timerDisplay?: string;
+    hasItems?: boolean;
+  }>(),
+  { running: false, timerSeconds: 0, timerDisplay: "00:00", hasItems: false }
+);
 
-defineEmits(["toggle", "prev", "next"]);
+defineEmits<{ toggle: []; prev: []; next: [] }>();
 
 const { locale } = useI18n();
-const t = (key) => _t(key, locale.value);
+const t = (key: string) => _t(key, locale.value);
 </script>
 
 <style scoped>

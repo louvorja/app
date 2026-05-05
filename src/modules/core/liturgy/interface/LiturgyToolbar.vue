@@ -94,55 +94,67 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 import LiturgyTimer from "./LiturgyTimer.vue";
 import LiturgyImportExport from "./LiturgyImportExport.vue";
 
-const TRANSLATIONS = { pt, es };
+const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
 
-function _t(key, locale) {
-  const dict = TRANSLATIONS[locale] || TRANSLATIONS.pt;
+function _t(key: string, locale: string): string {
+  const dict = TRANSLATIONS[locale] ?? TRANSLATIONS.pt;
   const path = key.split(".");
-  let cur = dict;
+  let cur: unknown = dict;
   for (const k of path) {
-    if (cur && typeof cur === "object" && k in cur) cur = cur[k];
+    if (cur && typeof cur === "object" && k in cur) cur = (cur as Record<string, unknown>)[k];
     else return key;
   }
   return typeof cur === "string" ? cur : key;
 }
 
-defineProps({
-  itemCount: { type: Number, default: 0 },
-  locked: { type: Boolean, default: false },
-  running: { type: Boolean, default: false },
-  timerSeconds: { type: Number, default: 0 },
-  timerDisplay: { type: String, default: "" },
-  activeWeek: { type: String, default: "" },
-  showNotes: { type: Boolean, default: false },
-  menuOpen: { type: Boolean, default: false },
-  changeWeek: { type: Function, required: true },
-  onWeekChange: { type: Function, required: true },
-  toggleTimer: { type: Function, required: true },
-  timerPrev: { type: Function, required: true },
-  timerNext: { type: Function, required: true },
-  toggleMenuOpen: { type: Function, required: true },
-  closeMenu: { type: Function, required: true },
-  markAll: { type: Function, required: true },
-  removeDone: { type: Function, required: true },
-  toggleNotes: { type: Function, required: true },
-  toggleLock: { type: Function, required: true },
-  openSchedulesDialog: { type: Function, required: true },
-  saveFile: { type: Function, required: true },
-  onFileLoad: { type: Function, required: true },
-  confirmClear: { type: Function, required: true },
-  closeModule: { type: Function, required: true },
-});
+withDefaults(
+  defineProps<{
+    itemCount?: number;
+    locked?: boolean;
+    running?: boolean;
+    timerSeconds?: number;
+    timerDisplay?: string;
+    activeWeek?: string;
+    showNotes?: boolean;
+    menuOpen?: boolean;
+    changeWeek: (dir: number) => void;
+    onWeekChange: (event: Event) => void;
+    toggleTimer: () => void;
+    timerPrev: () => void;
+    timerNext: () => void;
+    toggleMenuOpen: () => void;
+    closeMenu: () => void;
+    markAll: (checked: boolean) => void;
+    removeDone: () => void;
+    toggleNotes: () => void;
+    toggleLock: () => void;
+    openSchedulesDialog: () => void;
+    saveFile: () => void;
+    onFileLoad: (event: Event) => void;
+    confirmClear: () => void;
+    closeModule: () => void;
+  }>(),
+  {
+    itemCount: 0,
+    locked: false,
+    running: false,
+    timerSeconds: 0,
+    timerDisplay: "",
+    activeWeek: "",
+    showNotes: false,
+    menuOpen: false,
+  }
+);
 
 const { locale } = useI18n();
-const t = (key) => _t(key, locale.value);
+const t = (key: string) => _t(key, locale.value);
 </script>
 
 <style scoped>

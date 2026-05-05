@@ -144,54 +144,65 @@
   </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 
-const TRANSLATIONS = { pt, es };
+import type { ScheduledCategory, ScheduledItem } from "../types";
 
-function _t(key, locale) {
-  const dict = TRANSLATIONS[locale] || TRANSLATIONS.pt;
+const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
+
+function _t(key: string, locale: string): string {
+  const dict = TRANSLATIONS[locale] ?? TRANSLATIONS.pt;
   const path = key.split(".");
-  let cur = dict;
+  let cur: unknown = dict;
   for (const k of path) {
-    if (cur && typeof cur === "object" && k in cur) cur = cur[k];
+    if (cur && typeof cur === "object" && k in cur) cur = (cur as Record<string, unknown>)[k];
     else return key;
   }
   return typeof cur === "string" ? cur : key;
 }
 
-const props = defineProps({
-  modelValue: { type: Boolean, default: false },
-  scheduledCategories: { type: Array, default: () => [] },
-  activeCatId: { type: [String, Number], default: null },
-  activeCategory: { type: Object, default: null },
-  categoryItems: { type: Array, default: () => [] },
-  setActiveCatId: { type: Function, required: true },
-  addCategory: { type: Function, required: true },
-  saveCategoryName: { type: Function, required: true },
-  removeCategory: { type: Function, required: true },
-  addScheduledItem: { type: Function, required: true },
-  updateScheduled: { type: Function, required: true },
-  removeScheduled: { type: Function, required: true },
-});
+const props = withDefaults(
+  defineProps<{
+    modelValue?: boolean;
+    scheduledCategories?: ScheduledCategory[];
+    activeCatId?: string | number | null;
+    activeCategory?: ScheduledCategory | null;
+    categoryItems?: ScheduledItem[];
+    setActiveCatId: (id: string | number) => void;
+    addCategory: () => void;
+    saveCategoryName: (id: string | number, name: string) => void;
+    removeCategory: (id: string | number) => void;
+    addScheduledItem: () => void;
+    updateScheduled: (...args: unknown[]) => void;
+    removeScheduled: (id: string | number) => void;
+  }>(),
+  {
+    modelValue: false,
+    scheduledCategories: () => [],
+    activeCatId: null,
+    activeCategory: null,
+    categoryItems: () => [],
+  }
+);
 
-defineEmits(["update:modelValue"]);
+defineEmits<{ "update:modelValue": [value: boolean] }>();
 
 const { locale } = useI18n();
-const t = (key) => _t(key, locale.value);
+const t = (key: string) => _t(key, locale.value);
 
-const editingCatId = ref(null);
+const editingCatId = ref<string | number | null>(null);
 const editingCatName = ref("");
 
-function startEditingCategory(c) {
+function startEditingCategory(c: ScheduledCategory) {
   editingCatId.value = c.id;
   editingCatName.value = c.nome;
 }
 
-function doSaveCatName(id) {
+function doSaveCatName(id: string | number) {
   props.saveCategoryName(id, editingCatName.value);
   editingCatId.value = null;
 }

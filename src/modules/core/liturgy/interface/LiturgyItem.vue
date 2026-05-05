@@ -143,40 +143,51 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
+import type { LiturgyItemData } from "../types";
 
-const TRANSLATIONS = { pt, es };
+const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
 
-function _t(key, locale) {
-  const dict = TRANSLATIONS[locale] || TRANSLATIONS.pt;
+function _t(key: string, locale: string): string {
+  const dict = TRANSLATIONS[locale] ?? TRANSLATIONS.pt;
   const path = key.split(".");
-  let cur = dict;
+  let cur: unknown = dict;
   for (const k of path) {
-    if (cur && typeof cur === "object" && k in cur) cur = cur[k];
+    if (cur && typeof cur === "object" && k in cur) cur = (cur as Record<string, unknown>)[k];
     else return key;
   }
   return typeof cur === "string" ? cur : key;
 }
 
-defineProps({
-  element: { type: Object, required: true },
-  index: { type: Number, required: true },
-  locked: { type: Boolean, default: false },
-  timerActive: { type: Boolean, default: false },
-  timerProgress: { type: Number, default: 0 },
-  defaultColor: { type: String, default: "#00004F" },
-  isChecked: { type: Function, required: true },
-  iconFor: { type: Function, required: true },
-  subtitleFor: { type: Function, required: true },
-});
+withDefaults(
+  defineProps<{
+    element: LiturgyItemData;
+    index: number;
+    locked?: boolean;
+    timerActive?: boolean;
+    timerProgress?: number;
+    defaultColor?: string;
+    isChecked: (item: LiturgyItemData) => boolean;
+    iconFor: (item: LiturgyItemData) => string;
+    subtitleFor: (item: LiturgyItemData) => string;
+  }>(),
+  { locked: false, timerActive: false, timerProgress: 0, defaultColor: "#00004F" }
+);
 
-defineEmits(["edit", "remove", "execute", "play-music", "change-color", "toggle-checked"]);
+defineEmits<{
+  edit: [index: number];
+  remove: [index: number];
+  execute: [item: LiturgyItemData];
+  "play-music": [item: LiturgyItemData, mode: string];
+  "change-color": [index: number];
+  "toggle-checked": [element: LiturgyItemData];
+}>();
 
 const { locale } = useI18n();
-const t = (key) => _t(key, locale.value);
+const t = (key: string) => _t(key, locale.value);
 </script>
 
 <style scoped>

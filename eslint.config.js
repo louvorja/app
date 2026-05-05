@@ -1,10 +1,34 @@
 import pluginVue from "eslint-plugin-vue";
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
+import tseslint from "typescript-eslint";
 
 export default [
   js.configs.recommended,
   ...pluginVue.configs["flat/recommended"],
+  {
+    // Vue SFCs: vue-eslint-parser como parser principal,
+    // @typescript-eslint/parser delegado para blocos <script lang="ts">
+    files: ["**/*.vue"],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+  {
+    // Arquivos .ts puros: usar diretamente o parser TS
+    files: ["**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+    plugins: { "@typescript-eslint": tseslint.plugin },
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
   {
     rules: {
       "vue/multi-word-component-names": "off",
@@ -44,8 +68,15 @@ export default [
     },
   },
   {
-    // Node.js config files
-    files: ["vite.config.js", "babel.config.js", "playwright.config.js", "vitest.config.js"],
+    // Node.js config files e scripts
+    files: [
+      "vite.config.js",
+      "babel.config.js",
+      "playwright.config.js",
+      "vitest.config.js",
+      "scripts/**/*.mjs",
+      "scripts/**/*.js",
+    ],
     languageOptions: {
       globals: {
         require: "readonly",
@@ -67,6 +98,7 @@ export default [
       "node_modules/**",
       "dist/**",
       "dev-dist/**",
+      "coverage/**",
       "node/**",
       "src/modules/animation/dependencies/**",
       "electron/**",
