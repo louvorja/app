@@ -17,7 +17,9 @@ import { useProjectionState } from "@/composables/useProjectionState";
 
 // Janela popup é uma janela Electron separada e tem Pinia store próprio.
 // $appdata da janela principal não está visível aqui — escutamos o slide
-// via BroadcastChannel (mesma estratégia da Projection.vue).
+// via BroadcastChannel (mesma estratégia da Projection.vue). O composable
+// já solicita REQUEST_SLIDE_STATE no mount para sincronizar com a janela
+// principal mesmo se o popup abre depois da música tocar.
 const { slide, slideIndex, isCover } = useProjectionState();
 
 function pathFile(img) {

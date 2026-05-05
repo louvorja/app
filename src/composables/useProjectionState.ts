@@ -1,5 +1,6 @@
-import { ref, computed, type Ref, type ComputedRef } from "vue";
+import { ref, computed, onMounted, type Ref, type ComputedRef } from "vue";
 import { useBroadcastListener } from "@/composables/useBroadcastListener";
+import $broadcast from "@/helpers/Broadcast";
 import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
 
 export type Slide = Record<string, unknown> | null;
@@ -46,6 +47,13 @@ export function useProjectionState(): ProjectionStateReturn {
   const progress    = ref(0);
   const slideIndex  = ref(0);
   const totalSlides = ref(0);
+
+  // Janelas que abrem depois da música começar não recebem o broadcast
+  // anterior. Solicitamos reemissão ao montar — o emissor (useSlides na
+  // janela principal) reenviará SLIDE_CHANGE se houver slides ativos.
+  onMounted(() => {
+    $broadcast.send(BROADCAST_TYPE.REQUEST_SLIDE_STATE);
+  });
 
   useBroadcastListener(BROADCAST_TYPE.SLIDE_CHANGE, (payload) => {
     const p = payload as Record<string, unknown>;

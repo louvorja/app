@@ -38,6 +38,13 @@ export const BROADCAST_TYPE = Object.freeze({
    *  Recebido por: Projection, Obs. (ainda não emitido — ver Media.js). */
   MEDIA_CLOSE: "media_close",
 
+  /** Solicita reemissão do estado atual do slide. Emitido por janelas
+   *  secundárias (Popup) ao montar para sincronizar com o estado da janela
+   *  principal — sem isso, broadcasts são "fire-and-forget" e janelas que
+   *  abrem depois ficam vazias até a próxima troca de slide.
+   *  Recebido por: useSlides (re-emite SLIDE_CHANGE). */
+  REQUEST_SLIDE_STATE: "request_slide_state",
+
   // ─── In-app (hotkeys / HTTP events → módulos) ────────────────────────────
 
   /** Número sorteado via HTTP externo. Recebido por: módulo draw. */
