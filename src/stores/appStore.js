@@ -49,35 +49,44 @@ function _walkExists(obj, path) {
 
 export const useAppStore = defineStore("app", {
   state: () => ({
+    /** @type {boolean} Modo de desenvolvimento ativo */
     is_dev: false,
+    /** @type {boolean} Tema escuro ativo */
     is_dark: false,
+    /** @type {boolean} App rodando em janela popup (Popup.vue) */
     is_popup: false,
+    /** @type {boolean} Viewport mobile detectado */
     is_mobile: false,
+    /** @type {boolean} App rodando no Electron (desktop) */
     is_desktop: false,
+    /** @type {boolean} Conexão com internet disponível */
     is_online: false,
+    /** @type {Window|null} Referência à janela popup aberta; null quando fechada */
     popup: null,
+    /** @type {string|null} ID do módulo exibido em popup */
     popup_module: null,
+    /** @type {boolean} Sinaliza que ModuleManager.init() concluiu — libera Modules.vue */
     import_modules: false,
+    /** @type {boolean} Loader global visível */
     loading: false,
+    /** @type {Record<string, object>} Estado runtime de cada módulo, indexado por ID */
     modules: {},
-    module_group: {
-      musics: {
-        title: "module_group.musics.title",
-        modules: ["musics", "hymnal"],
-      },
-      bible: {
-        title: "module_group.bible.title",
-        modules: [],
-      },
-      utilities: {
-        title: "module_group.utilities.title",
-        modules: [],
-      },
-    },
+    /**
+     * Agrupamento de módulos por categoria para o menu lateral.
+     * Inicia vazio — populado inteiramente por ModuleManager.init() a partir
+     * dos campos `category` nos manifests. Não declare grupos hardcoded aqui.
+     * @type {Record<string, { title: string, modules: string[] }>}
+     */
+    module_group: {},
+    /**
+     * Idiomas disponíveis na interface. Configuração estática, nunca mutada em runtime.
+     * @type {Record<string, { name: string, flag: string }>}
+     */
     languages: {
       pt: { name: "Português", flag: "br" },
       es: { name: "Español", flag: "es" },
     },
+    /** Estado do diálogo de alerta global. */
     alert: {
       show: false,
       title: "",
