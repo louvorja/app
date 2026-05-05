@@ -14,8 +14,8 @@ const module = computed(() => AppData.get("popup_module"));
 
 function loadModuleComponent() {
   return defineAsyncComponent(() => {
-    return import(`@/modules/core/${module.value}/interface/Popup.vue`).catch(() => {
-      return import(`@/modules/${module.value}/interface/Popup.vue`).catch((e) => {
+    return import(`@/modules/core/${module.value}/components/Popup.vue`).catch(() => {
+      return import(`@/modules/${module.value}/components/Popup.vue`).catch((e) => {
         Alert.error({
           text: "messages.error_import_module",
           error: e,

@@ -117,8 +117,8 @@ Cada módulo em `src/modules/core/<id>/` segue esta estrutura:
 <id>/
 ├── manifest.json        # Metadados do módulo
 ├── index.js             # Registra o módulo (messages, customization)
-├── interface/           # Componentes Vue do módulo
-│   └── index.vue        # Componente principal
+├── components/          # Componentes Vue do módulo
+│   └── Index.vue        # Componente principal
 └── lang/                # Traduções do módulo
     ├── pt.json
     └── es.json

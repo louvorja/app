@@ -21,8 +21,8 @@ interface ModuleState {
 
 // Glob estático — Vite analisa em build-time e gera importações individuais.
 // Substitui template literals variáveis que falham no headless Chromium (Playwright).
-const _globCore = import.meta.glob("@/modules/core/*/interface/Index.vue");
-const _globBase = import.meta.glob("@/modules/*/interface/Index.vue");
+const _globCore = import.meta.glob("@/modules/core/*/components/Index.vue");
+const _globBase = import.meta.glob("@/modules/*/components/Index.vue");
 
 // Cache de async components por moduleId. Sem isto, cada render de Modules.vue
 // criaria um defineAsyncComponent novo, fazendo Vue desmontar e remontar todos
@@ -33,8 +33,8 @@ const _componentCache = new Map<string, Component>();
 function buildAsyncComponent(moduleId: string): Component {
   return defineAsyncComponent({
     loader: () => {
-      const coreKey = `/src/modules/core/${moduleId}/interface/Index.vue`;
-      const baseKey = `/src/modules/${moduleId}/interface/Index.vue`;
+      const coreKey = `/src/modules/core/${moduleId}/components/Index.vue`;
+      const baseKey = `/src/modules/${moduleId}/components/Index.vue`;
       if (_globCore[coreKey]) return (_globCore[coreKey] as () => Promise<Component>)();
       if (_globBase[baseKey]) return (_globBase[baseKey] as () => Promise<Component>)();
       return Promise.reject(new Error(`[Modules] módulo não encontrado: ${moduleId}`));
