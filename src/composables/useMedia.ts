@@ -15,6 +15,7 @@ import type { Slide } from "@/composables/useSlides";
 import { useLyric } from "@/composables/useLyric";
 import type { MusicData, LyricLine, LyricOpenParams } from "@/composables/useLyric";
 import { useAlbum } from "@/composables/useAlbum";
+import { openProjectionWindows, closeProjectionWindows } from "@/helpers/ProjectionWindows";
 
 const _audio  = useAudioPlayback();
 const _slides = useSlides();
@@ -273,6 +274,13 @@ const _self = {
     }
 
     $appdata.set("modules.media.config.mode", mode);
+
+    // Replica fmMusica + fmMusicaRetorno + fmMusicaOperador do Delphi:
+    // ao iniciar uma música, abre as janelas auxiliares conforme
+    // configurado em "Configurações → Slides de Músicas".
+    openProjectionWindows().catch((e) => {
+      console.warn("[Media] openProjectionWindows falhou:", e);
+    });
   },
 
   close(force = false): void {
@@ -288,6 +296,11 @@ const _self = {
     this.clearVariables();
     $appdata.set("modules.media.show", false);
     $appdata.set("modules.media.minimized", false);
+
+    // Fecha janelas auxiliares (espelha o fmMusica.Close do Delphi).
+    closeProjectionWindows().catch((e) => {
+      console.warn("[Media] closeProjectionWindows falhou:", e);
+    });
   },
 
   async openLyric(params?: LyricOpenParams | string | number | null): Promise<void> {
