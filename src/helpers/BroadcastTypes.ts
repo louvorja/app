@@ -76,6 +76,8 @@ export interface SlideChangePayload {
   title?: string;
   progress: number;
   total_slides: number;
+  /** Timestamp de emissão (Date.now()) — presente apenas em dev/test para medir latência cross-window. */
+  _ts?: number;
 }
 
 export interface SlidesDataPayload {

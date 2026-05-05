@@ -74,6 +74,8 @@ function _create(): SlidesInstance {
       title:        title.value,
       progress:     _audio?.progress.value ?? 0,
       total_slides: totalSlides.value,
+      // Presente apenas em dev/test — mede latência cross-window até o receptor (Projection)
+      ...(import.meta.env.DEV ? { _ts: Date.now() } : {}),
     });
   }
 

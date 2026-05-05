@@ -55,6 +55,11 @@ export function useProjectionState(): ProjectionStateReturn {
     progress.value    = (p.progress as number) ?? 0;
     slideIndex.value  = (p.slide_index as number) ?? 0;
     totalSlides.value = (p.total_slides as number) ?? (p.last_slide as number) ?? 0;
+
+    if (import.meta.env.DEV && typeof p._ts === "number") {
+      const log = (window as { __ljLatencyLog?: number[] }).__ljLatencyLog;
+      if (Array.isArray(log)) log.push(Date.now() - (p._ts as number));
+    }
   });
 
   // MEDIA_CLOSE ainda não é emitido por Media.js (planejado — BROADCAST_TYPE.MEDIA_CLOSE).

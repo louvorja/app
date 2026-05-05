@@ -11,6 +11,9 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     trace: "retain-on-failure",
+    // http://e2e.mock está fora do connect-src da CSP do PWA.
+    // bypassCSP permite que o Playwright intercepte essas requisições antes de elas serem bloqueadas.
+    bypassCSP: true,
   },
   projects: [
     {
