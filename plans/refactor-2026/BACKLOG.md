@@ -107,7 +107,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 077 | [Tornar `Liturgy.migrate()` async no boot, com feedback](tasks/077-liturgy-migrate-async.md)            | S      | P2  | 1h  | done   | 77          |
 | 078 | [Memoization de `computed` que retornam novos arrays/objetos](tasks/done/078-memoization-computed.md)        | H      | P3  | 4h  | done   | 78          |
 | 079 | [Adicionar `loading="lazy"` em imagens](tasks/079-loading-lazy-imagens.md)                             | S      | P3  | 1h  | done   | 79          |
-| 080 | [Auditar e ajustar Service Worker (offline-first vs network-first)](tasks/080-service-worker-strategy.md) | O      | P2  | 3h  | todo   | 80          |
+| 080 | [Auditar e ajustar Service Worker (offline-first vs network-first)](tasks/done/080-service-worker-strategy.md) | O      | P2  | 3h  | done   | 80          |
 
 ---
 
