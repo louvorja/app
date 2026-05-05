@@ -87,7 +87,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 002 | [Migração para TypeScript (faseada: helpers → store → components)](tasks/002-migracao-typescript.md)  | O      | P1  | 80h | done   | 2, 7        |
 | 003 | [Substituir Vuex por Pinia](tasks/done/003-substituir-vuex-pinia.md)                                    | O      | P1  | 16h | done   | 3           |
 | 004 | [Unificar Storage→AppData→UserData numa camada tipada](tasks/004-unificar-storage-appdata-userdata.md)              | O      | P1  | 12h | done   | 4, 6        |
-| 011 | [Reorganizar fronteira helper/composable](tasks/011-fronteira-helper-composable.md)                           | O      | P2  | 12h | todo   | 11, 12      |
+| 011 | [Reorganizar fronteira helper/composable](tasks/done/011-fronteira-helper-composable.md)                      | O      | P2  | 12h | done   | 11, 12      |
 | 012 | [Substituir `globalProperties` por imports/composables](tasks/012-remover-globalproperties.md)             | H      | P2  | 8h  | done   | 12          |
 | 088 | [Setup Vitest + cobertura de helpers críticos](tasks/088-setup-vitest.md)                      | O      | P1  | 6h  | done   | 88, 91, 92  |
 | 089 | [Setup Playwright + smoke E2E (Operator → Projection)](tasks/089-setup-playwright.md)              | O      | P1  | 8h  | done   | 89          |
