@@ -11,8 +11,4 @@ export default class extends BaseModule {
     // Load manifest
     super(manifest);
   }
-
-  onInstall() {
-    console.log(`${this.manifest.name} installed successfully`);
-  }
 }

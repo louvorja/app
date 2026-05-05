@@ -91,7 +91,7 @@ export default {
         try {
           (popup as Window).postMessage({ param, value }, window.location.origin);
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
       }
     }

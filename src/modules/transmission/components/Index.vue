@@ -342,7 +342,7 @@ async function identifyMonitors() {
   if (Platform?.displays) {
     try {
       const count = await Platform.displays.identify(5000);
-      console.log(`[Transmission] Identificando ${count} monitor(es)...`);
+      if (import.meta.env.DEV) console.log(`[Transmission] Identificando ${count} monitor(es)...`);
     } catch (e) {
       console.warn("[Transmission] Falha ao identificar monitores:", e);
     }

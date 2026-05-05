@@ -78,7 +78,7 @@ function init() {
     dispatchAction(action, payload);
   });
 
-  console.log("[Shortcuts] Listener de atalhos globais ativo");
+  if (import.meta.env.DEV) console.log("[Shortcuts] Listener de atalhos globais ativo");
 }
 
 /**
@@ -89,7 +89,7 @@ function destroy() {
   if (_unlisten) {
     _unlisten();
     _unlisten = null;
-    console.log("[Shortcuts] Listener de atalhos globais removido");
+    if (import.meta.env.DEV) console.log("[Shortcuts] Listener de atalhos globais removido");
   }
 }
 

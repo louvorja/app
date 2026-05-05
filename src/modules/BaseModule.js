@@ -25,7 +25,9 @@ export default class BaseModule {
   }
 
   onInstall() {
-    console.log(`${this.manifest.name} installed successfully`);
+    if (import.meta.env.DEV) {
+      console.log(`${this.manifest.name} installed successfully`);
+    }
   }
 
   getManifest() {

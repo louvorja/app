@@ -119,8 +119,6 @@ async function testUrl(url) {
         status: false,
       };
     }
-    console.log(data);
-
     return {
       message: "modules.remote_control.messages.success",
       data: data,
