@@ -19,7 +19,8 @@ export default {
     return `${minutes}:${String(Math.floor(seconds)).padStart(2, "0")}`;
   },
 
-  toNumber(time: string): number {
+  toNumber(time: string | undefined | null): number {
+    if (!time) return 0;
     const parts = time.split(":").map(Number);
 
     const hours = parts[0] || 0;
