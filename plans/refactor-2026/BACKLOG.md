@@ -43,6 +43,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 066 | [Migrar ESLint para flat config (eslint.config.js)](tasks/done/066-eslint-flat-config.md) | S | P3 | 1h | done | 66 |
 | 067 | [Adicionar Prettier com config compartilhada](tasks/done/067-adicionar-prettier.md) | S | P2 | 1h | done | 67 |
 | 068 | [Adicionar Husky + lint-staged](tasks/done/068-adicionar-husky-lint-staged.md) | S | P2 | 1h | done | 68 |
+| 127 | [Commit orphaned Prettier/Husky config files](tasks/done/127-commit-prettier-husky-artifacts.md) | S | P1 | 0.25h | done | |
 | 057 | [Auditar e travar `vue-router` em versão estável](tasks/done/057-travar-vue-router.md) | O | P1 | 2h | done | 57 |
 | 058 | [RFC: travar Vuetify na versão estável](tasks/done/058-rfc-vuetify-decision.md) | O | P0 | 4h | done | 58, 59 |
 | 060 | [Auditar dependências (webfontloader, core-js, etc)](tasks/done/060-audit-dependencias.md) | S | P3 | 1h | done | 60 |
