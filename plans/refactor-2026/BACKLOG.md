@@ -149,7 +149,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 | 114 | [`assertHydrated()` em `Storage.set/get` no Electron](tasks/114-assert-hydrated.md)               | S      | P1  | 1h  | done   | 114         |
 | 116 | [Confirmar BroadcastChannel cross-window em Electron + alternativa](tasks/done/116-broadcast-electron-cross-window.md) | O      | P1  | 4h  | done   | 116         |
 | 117 | [Validar latência <50ms slide_change Operator→Projection](tasks/done/117-validar-latencia-slide-change.md)       | O      | P2  | 4h  | done   | 117         |
-| 118 | [Resolver conflito globalShortcut vs Hotkeys in-window](tasks/118-globalshortcut-vs-hotkeys.md)             | O      | P1  | 2h  | todo   | 118         |
+| 118 | [Resolver conflito globalShortcut vs Hotkeys in-window](tasks/done/118-globalshortcut-vs-hotkeys.md)        | O      | P1  | 2h  | done   | 118         |
 
 ---
 
