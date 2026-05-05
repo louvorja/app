@@ -7,7 +7,7 @@ wave: 4
 model: opus
 priority: P1
 estimate_hours: 80
-status: todo
+status: done
 depends_on: [001, 003, 004]
 blocks: []
 audit_items: [2, 7]
@@ -203,3 +203,14 @@ TypeScript é pré-requisito para a task #004 (Storage unificado tipado) e facil
   `unknown` para `ComponentPublicInstance` em `useModule`.
 - `npm run type-check` — 0 erros; `npm run build` — limpo (4.54s); `npm run test` — 66/66.
 - Próximo: 002d — adicionar `lang="ts"` nos componentes críticos + ativar `strict: true`.
+
+### 002d — Componentes críticos + strict mode (2026-05-05)
+
+- `lang="ts"` adicionado em: `Player.vue`, `Modules.vue`, e todos os 6 SFCs do módulo `liturgy/interface/`.
+- `defineProps<T>()` + `defineEmits<T>()` tipados com interfaces explícitas em cada componente.
+- `src/modules/core/liturgy/types.ts` criado com `LiturgyItemData`, `ScheduledCategory`, `ScheduledItem`.
+- `tsconfig.json`: `strict: true` ativado — 0 erros de type-check.
+- `eslint.config.js`: adicionado `typescript-eslint` com `parserOptions.parser` para parsear `lang="ts"` em Vue SFCs; `coverage/` adicionado aos ignores; `scripts/**/*.mjs` recebe global `process`.
+- `typescript-eslint` instalado como devDependency.
+- `npm run type-check` — 0 erros; `npm run build` — limpo (13.39s); `npm run lint` — 0 erros (186 warnings pré-existentes); `npm run test` — 66/66.
+- Commit: `[002d] Add lang="ts" to critical components + enable strict mode`.
