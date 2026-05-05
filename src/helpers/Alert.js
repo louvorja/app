@@ -25,8 +25,7 @@ export default {
       data.buttons || [{ text: "alert.close", color: "error", value: "close" }]
     );
 
-    // Substituição de store.watch() do Vuex: usa watch() reativo do Vue
-    // diretamente sobre o state Pinia. O unwatch() é chamado quando show → false.
+    // unwatch() é chamado quando show → false, devolvendo o valor ao callback.
     const store = useAppStore();
     const unwatch = watch(
       () => store.alert.show,

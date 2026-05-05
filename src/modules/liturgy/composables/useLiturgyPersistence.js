@@ -185,7 +185,6 @@ export function useLiturgyPersistence() {
     reader.onload = (ev) => {
       const ok = $liturgy.importJson(ev.target.result, activeWeek.value);
       if (!ok) alert(t("dialog.invalid_file"));
-      // items computed auto-refreshes via Vuex reactivity
     };
     reader.readAsText(file);
     e.target.value = "";

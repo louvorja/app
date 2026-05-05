@@ -22,5 +22,4 @@ export const createI18nInstance = async () => {
   });
 };
 
-// export default i18n;
 export default createI18nInstance;
