@@ -157,7 +157,7 @@ Tabela mestre. Atualize a coluna `Status` ao final de cada sessão.
 
 | ID  | Task                                                              | Modelo | Pri | Est | Status | Cobre items |
 |-----|-------------------------------------------------------------------|--------|-----|-----|--------|-------------|
-| 121 | [Helper para `scrollIntoView()` (3 usos em liturgy)](tasks/121-helper-scroll-into-view.md)                | S      | P3  | 0.5h| todo   | 121         |
+| 121 | [Helper para `scrollIntoView()` (3 usos em liturgy)](tasks/done/121-helper-scroll-into-view.md)           | S      | P3  | 0.5h| done   | 121         |
 | 122 | [`Media.open` cleanup completo em error path](tasks/122-media-open-cleanup.md)                       | S      | P2  | 1h  | done   | 122         |
 | 123 | [`Media._loadingId` race no XHR else branch](tasks/123-media-loading-id-race.md)                        | S      | P2  | 1h  | done   | 123         |
 | 124 | [Auditar duplicação MusicMenuTable vs DataTable](tasks/124-music-menu-vs-datatable.md)                    | O      | P2  | 3h  | todo   | 124         |
