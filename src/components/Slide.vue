@@ -209,7 +209,9 @@ onUnmounted(() => {
   font-family: var(--lj-font-projection);
   background: #000;
   opacity: 0;
-  transition: opacity 256ms linear;
+  /* Fade-in rápido (120ms) — antes 256ms herdado do AlphaBlend Delphi soava
+     arrastado pra UX moderna. */
+  transition: opacity 120ms linear;
   /* container queries → cqh = % da altura deste elemento.
      Quando Slide está em fullscreen (Projection), cqh ~ vh. Quando está num
      preview menor, cqh acompanha o container — mesma proporção visual. */

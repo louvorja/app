@@ -73,14 +73,14 @@ body {
   letter-spacing: 0.03em;
 }
 
-/* Transição */
+/* Transição rápida — fade-in/out de versículos. */
 .fade-verse-enter-active {
   transition:
-    opacity 0.4s ease,
-    transform 0.4s ease;
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 .fade-verse-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.12s ease;
 }
 .fade-verse-enter-from {
   opacity: 0;

@@ -36,7 +36,7 @@ export const SLIDE_DEFAULTS = Object.freeze({
   show_progress_bar: true,
   show_title_first_slide: true,
   text_align: "center" as "top" | "center" | "bottom",
-  transition_speed_ms: 256,    // fade-in da tela inteira (AlphaBlend Delphi)
+  transition_speed_ms: 120,    // fade-in da tela inteira (rápido — antes 256ms)
   text_bg_transparent: false,  // caixa de texto atrás da letra (translúcida quando false)
   affect_external_slides: true, // formatação personalizada vence formatação do slide externo
 });

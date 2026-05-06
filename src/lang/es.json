@@ -201,7 +201,8 @@
       "no_files": "Ningún archivo encontrado para los álbumes seleccionados.",
       "completed": "Completado: {downloaded} descargados, {failed} fallaron.",
       "cancelled": "Descarga cancelada.",
-      "failed": "{n} fallo(s) durante la descarga."
+      "failed": "{n} fallo(s) durante la descarga.",
+      "no_connection_hint": "Sin conexión FTP en este momento — la app intentará reconectar al iniciar la descarga."
     },
     "storage": {
       "title": "Almacenamiento",

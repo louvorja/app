@@ -160,19 +160,26 @@ function _create(): AudioPlayback {
     seekTo(currentTime.value + delta);
   }
 
+  // Fade rápido para UX: ~200ms total. Antes era ~1200ms (0.05 a cada 60ms),
+  // perceptivelmente lento ao trocar/fechar/pausar música. Agora 0.1 a cada
+  // 20ms = 10 ticks ≈ 200ms — suave o suficiente pra não cortar abruptamente
+  // o áudio, rápido o suficiente pra não atrasar o usuário.
+  const _FADE_STEP = 0.1;
+  const _FADE_INTERVAL_MS = 20;
+
   function fadeIn(maxVolume: number, callback?: () => void): void {
     isFading.value = true;
     const target = maxVolume / 100;
     const el = getElement();
     const id = setInterval(() => {
       if (el.volume < target) {
-        el.volume = Math.min(el.volume + 0.05, target);
+        el.volume = Math.min(el.volume + _FADE_STEP, target);
       } else {
         isFading.value = false;
         clearInterval(id);
         if (callback) callback();
       }
-    }, 60);
+    }, _FADE_INTERVAL_MS);
   }
 
   function fadeOut(callback?: () => void): void {
@@ -184,13 +191,13 @@ function _create(): AudioPlayback {
     isFading.value = true;
     const id = setInterval(() => {
       if (el.volume > 0) {
-        el.volume = Math.max(el.volume - 0.05, 0);
+        el.volume = Math.max(el.volume - _FADE_STEP, 0);
       } else {
         isFading.value = false;
         clearInterval(id);
         if (callback) callback();
       }
-    }, 60);
+    }, _FADE_INTERVAL_MS);
   }
 
   function onTimeUpdate(cb: TimeCallback): () => void {

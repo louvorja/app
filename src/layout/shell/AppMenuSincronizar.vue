@@ -123,15 +123,18 @@
         {{ completedMsg }}
       </div>
 
+      <p v-if="!ftpOk && !downloading && !preparing" class="opt-hint">
+        {{ $t("options.collections_download.no_connection_hint") }}
+      </p>
+
       <div class="opt-folder-actions">
         <button
           v-if="!downloading && !preparing"
           type="button"
           class="opt-btn opt-btn--primary"
-          :disabled="!ftpOk || selectedAlbums.size === 0"
+          :disabled="selectedAlbums.size === 0"
           @click="startDownloads"
         >
-          <v-icon icon="mdi-cloud-download" size="14" class="mr-1" />
           {{ $t("options.collections_download.start") }}
         </button>
         <button
@@ -140,7 +143,6 @@
           class="opt-btn opt-btn--danger"
           @click="cancelDownloads"
         >
-          <v-icon icon="mdi-cancel" size="14" class="mr-1" />
           {{ $t("options.collections_download.cancel") }}
         </button>
       </div>
@@ -328,8 +330,18 @@ async function collectFiles(albumIds) {
 }
 
 async function startDownloads() {
-  if (!Platform.download || !ftpOk.value) return;
+  if (!Platform.download) return;
   if (selectedAlbums.value.size === 0) return;
+
+  // Se a verificação prévia falhou, tenta reconectar antes — o handshake faz
+  // refresh de credenciais quando expiradas e o queue irá tentar de novo.
+  if (!ftpOk.value) {
+    await checkFtpConnection();
+    if (!ftpOk.value) {
+      completedMsg.value = ftpError.value || t("options.collections_download.disconnected");
+      return;
+    }
+  }
 
   completedMsg.value = null;
   preparing.value = true;

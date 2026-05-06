@@ -115,7 +115,8 @@ onBeforeUnmount(() => {
   background: #293329; /* Cor exata do fmMusicaRetorno Delphi */
   font-family: var(--lj-font-projection);
   opacity: 0;
-  transition: opacity 256ms linear;
+  /* Fade-in rápido (antes 256ms) */
+  transition: opacity 120ms linear;
 }
 .return-root--ready {
   opacity: 1;

@@ -36,25 +36,27 @@ function httpRequest(url, headers = {}) {
 /**
  * Realiza handshake FTP: chama params → conn_ftp com payload base64 → recebe credenciais.
  *
- * @param {{ lang?: string, version?: string }} options
+ * @param {{ lang?: string, version?: string, _retried?: boolean }} options
  * @returns {Promise<{host:string, port:number, username:string, password:string, root:string, msg?:string}>}
  */
-async function getFtpCredentials({ lang = "PT", version = "1.27.0" } = {}) {
-  const params = await apiClient.getParams();
+async function getFtpCredentials({ lang = "PT", version = "1.27.0", _retried = false } = {}) {
+  const params = await apiClient.getParams({ force: _retried });
   const connFtp = params.conn_ftp;
   if (!connFtp) throw new Error("conn_ftp ausente na resposta de params");
 
-  // Formato do Delphi (fmAtualiza.pas:340-350): query-string com `&` (incluindo
-  // o `&` inicial). O servidor PHP faz parse_str() no payload decoded —
-  // separador `\n` jogava todo o conteúdo no primeiro campo.
+  // Formato do Delphi (fmAtualiza.pas:340-350): query-string com `&` separando
+  // campos. O servidor PHP faz parse_str() no conteúdo decoded da base64 —
+  // valores precisam ser URL-encoded ou parse_str interpreta `&`/`=`/spaces
+  // dentro do valor como delimitadores e quebra os campos seguintes.
+  const enc = encodeURIComponent;
   const payload =
-    `&lang=${lang.toUpperCase()}` +
-    `&version=${version}` +
-    `&bin_version=${version}` +
-    `&datetime=${new Date().toISOString().replace("T", " ").slice(0, 19)}` +
-    `&ip=${getLocalIp()}` +
-    `&directory=${paths.userData()}` +
-    `&pc_name=${os.hostname()}`;
+    `lang=${enc(lang.toUpperCase())}` +
+    `&version=${enc(version)}` +
+    `&bin_version=${enc(version)}` +
+    `&datetime=${enc(new Date().toISOString().replace("T", " ").slice(0, 19))}` +
+    `&ip=${enc(getLocalIp())}` +
+    `&directory=${enc(paths.userData())}` +
+    `&pc_name=${enc(os.hostname())}`;
 
   const data = Buffer.from(payload, "utf-8").toString("base64");
 
@@ -69,6 +71,14 @@ async function getFtpCredentials({ lang = "PT", version = "1.27.0" } = {}) {
   if (response.status !== 200) {
     const rawBody = response.body.toString("utf-8");
     console.error(`[handshake] HTTP ${response.status} — resposta crua: ${rawBody.slice(0, 500)}`);
+
+    // 401 / 403: o JWT do `conn_ftp` cacheado provavelmente expirou.
+    // Refaz uma única vez forçando refresh dos params.
+    if ((response.status === 401 || response.status === 403) && !_retried) {
+      console.warn(`[handshake] HTTP ${response.status} — tentando refresh dos params`);
+      return getFtpCredentials({ lang, version, _retried: true });
+    }
+
     throw new Error(`Handshake FTP falhou: HTTP ${response.status}`);
   }
 

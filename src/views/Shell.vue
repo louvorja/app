@@ -187,12 +187,12 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-/* Fade-in (AlphaBlend Delphi-style) */
+/* Fade-in rápido (antes 256ms herdado do AlphaBlend Delphi) */
 .v-application.shell-fading-in {
   opacity: 0;
 }
 .v-application {
-  transition: opacity 256ms ease-out;
+  transition: opacity 120ms ease-out;
 }
 </style>
 

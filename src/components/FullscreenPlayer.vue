@@ -59,9 +59,10 @@ function startHideTimer() {
 <style scoped>
 .slide-up-enter-active,
 .slide-up-leave-active {
+  /* Subida/descida do player em fullscreen — antes 0.3s, agora 0.15s pra UX */
   transition:
-    transform 0.3s ease,
-    opacity 0.3s ease;
+    transform 0.15s ease,
+    opacity 0.15s ease;
 }
 .slide-up-enter-from,
 .slide-up-leave-to {
