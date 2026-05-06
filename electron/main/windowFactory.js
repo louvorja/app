@@ -47,11 +47,22 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
 
   const bounds = target.bounds;
   const isMac = process.platform === "darwin";
+  const isWin = process.platform === "win32";
+  const isLin = process.platform === "linux";
   // Em macOS Liquid Retina, o sistema aplica máscara de cantos arredondados
   // na NSWindow em kiosk, revelando o wallpaper nas bordas. Aumentamos a
   // janela alguns px para fora do display útil — os cantos arredondados
   // ficam fora da área visível e o conteúdo cobre 100% do que aparece.
   const overscan = fullscreen && isMac ? 24 : 0;
+
+  // No Windows/Linux NÃO passar `fullscreen: true` no construtor com bounds
+  // de monitor secundário: o Chromium frequentemente posiciona primeiro no
+  // monitor primário e DEPOIS migra, deixando a janela "presa" no display
+  // errado em alguns drivers de projetor. Estratégia mais determinística:
+  // criar como borderless cobrindo os bounds exatos do display alvo, e em
+  // ready-to-show aplicar setFullScreen(true). No macOS o `kiosk` no
+  // construtor é o caminho correto (replica o Delphi instantaneamente).
+  const useDeferredFullscreen = fullscreen && (isWin || isLin);
   const winOpts = {
     x: bounds.x - overscan,
     y: bounds.y - overscan,
@@ -60,7 +71,7 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     // No macOS, fullscreen padrão dispara animação de "espaço dedicado".
     // kiosk cobre TUDO (incluindo menu bar e dock) instantaneamente —
     // replica o comportamento Delphi.
-    fullscreen: fullscreen && !isMac,
+    fullscreen: false,
     kiosk: fullscreen && isMac,
     enableLargerThanScreen: fullscreen && isMac,
     frame,
@@ -73,6 +84,10 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     backgroundColor: "#000000",
     transparent: false,
     hasShadow: false,
+    // Em fullscreen no Windows queremos que a janela viva fora do
+    // taskbar (skipTaskbar) — evita acidentalmente trazer foco pra cá
+    // e perder z-order no projetor.
+    skipTaskbar: fullscreen && (isWin || isLin),
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
@@ -96,8 +111,40 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     });
   }
 
+  // Bloqueia zoom acidental (Ctrl+Wheel/Ctrl+= ) em janelas de projeção —
+  // num projetor mal manuseado um Ctrl+roda pode mexer no fontSize.
+  try {
+    win.webContents.setVisualZoomLevelLimits(1, 1);
+  } catch (_) { /* electron <17 */ }
+  win.webContents.on("did-finish-load", () => {
+    try { win.webContents.setZoomFactor(1); } catch (_) { /* ignore */ }
+  });
+
   // setVisibleOnAllWorkspaces transforma o tipo do processo (UIElement),
   // o que ESCONDE o ícone do dock. Não usar.
+
+  // Aplica fullscreen "borderless" no Windows/Linux DEPOIS da janela já
+  // estar posicionada no monitor correto. Esta sequência é defensiva
+  // contra drivers de projetor que demoram a "settle".
+  function _applyDeferredFullscreen() {
+    if (!useDeferredFullscreen || win.isDestroyed()) return;
+    try {
+      // Reforça posição/tamanho ANTES do fullscreen — alguns drivers de
+      // projetor mexem nos bounds entre a criação e o primeiro paint.
+      win.setBounds({
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+      });
+      win.setMenuBarVisibility(false);
+      // setFullScreen(true) no Windows = borderless windowed cobrindo o monitor
+      // (incluindo a taskbar). Mais previsível que mudar resolução.
+      if (!win.isFullScreen()) win.setFullScreen(true);
+    } catch (e) {
+      console.warn(`[windowFactory] applyDeferredFullscreen ${feature}:`, e?.message || e);
+    }
+  }
 
   // Esperamos o primeiro paint do renderer antes de mostrar a janela —
   // assim ela nunca aparece "branca". `did-finish-load` é mais confiável
@@ -107,16 +154,59 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     if (_shown || win.isDestroyed()) return;
     _shown = true;
     win.showInactive();
-    if (alwaysOnTop && !(fullscreen && isMac)) {
+    _applyDeferredFullscreen();
+    if (fullscreen && (isWin || isLin)) {
+      // No Windows o "always on top: screen-saver" é o único nível que
+      // garante cobertura da taskbar quando o usuário marcou "Manter
+      // barra de tarefas sempre visível". Em fullscreen real isso já é
+      // o caso, mas alguns drivers de projetor perdem esse z-order ao
+      // ressincronizar — força aqui.
+      try { win.setAlwaysOnTop(true, "screen-saver"); } catch (_) { /* ignore */ }
+    } else if (alwaysOnTop && !(fullscreen && isMac)) {
       // Em macOS+kiosk a janela já fica acima de tudo; setAlwaysOnTop("screen-saver")
       // adicional pode promover o processo a UIElement e sumir do dock.
-      // Em outros casos (Windows, ou janelas não-fullscreen), reforça o topo.
       win.setAlwaysOnTop(true, "pop-up-menu");
     }
-    win.focus();
+    // Não roubar foco do main window — `showInactive` já fez isso.
+    // Mas precisamos garantir que a janela receba teclas (setas, Esc).
+    // Em Windows um focus() explícito é necessário pra capturar input.
+    if (isWin) {
+      try { win.focus(); } catch (_) { /* ignore */ }
+    }
   };
   win.webContents.once("did-finish-load", showOnce);
   win.once("ready-to-show", showOnce);
+
+  // Reforço: alguns projetores HDMI "piscam" e o Windows pode tirar a
+  // janela de fullscreen. Reaplica fullscreen quando o display volta a
+  // estar disponível ou quando a janela ganha foco após perda.
+  if (useDeferredFullscreen) {
+    const _onDisplayChange = () => {
+      if (win.isDestroyed()) return;
+      const stillThere = screen.getAllDisplays().some((d) => d.id === target.id);
+      if (!stillThere) {
+        // Monitor sumiu — move pra qualquer outro disponível e reaplica fullscreen.
+        const fallback = screen.getPrimaryDisplay();
+        if (fallback && fallback.bounds) {
+          try {
+            win.setFullScreen(false);
+            win.setBounds(fallback.bounds);
+            win.setFullScreen(true);
+          } catch (_) { /* ignore */ }
+        }
+      } else if (!win.isFullScreen()) {
+        _applyDeferredFullscreen();
+      }
+    };
+    screen.on("display-metrics-changed", _onDisplayChange);
+    screen.on("display-removed", _onDisplayChange);
+    screen.on("display-added", _onDisplayChange);
+    win.on("closed", () => {
+      screen.removeListener("display-metrics-changed", _onDisplayChange);
+      screen.removeListener("display-removed", _onDisplayChange);
+      screen.removeListener("display-added", _onDisplayChange);
+    });
+  }
 
   // Em modo kiosk (macOS) Cmd+Q e atalhos do sistema ficam bloqueados.
   // Esc fecha a janela como saída de emergência.

@@ -109,6 +109,16 @@ export const BROADCAST_TYPE = Object.freeze({
    *  payload.action ∈ "add" | "check_all" | "uncheck_all" | "invert" | "delete_done"
    *  | "toggle_mark_on_access" | "toggle_show_notes" | "toggle_lock". */
   LITURGY_RIBBON_ACTION: "liturgy:ribbon_action",
+
+  // ─── Sync de userdata cross-window ───────────────────────────────────────
+
+  /** Mudança em UserData (options.*, theme, etc.) propagada de uma janela
+   *  para todas as outras (Projection, Operator, ObsBible…). Sem isso, mexer
+   *  em "Fundo personalizado" ou "Tamanho de fonte" nas Opções da janela
+   *  principal não chega à janela de projeção, porque cada BrowserWindow
+   *  tem seu próprio Pinia store.
+   *  Payload: { path: string, value: unknown, _src?: string } */
+  USERDATA_PATCH: "userdata:patch",
 } as const);
 
 export type BroadcastTypeValue = (typeof BROADCAST_TYPE)[keyof typeof BROADCAST_TYPE];

@@ -99,14 +99,16 @@ onMounted(() => {
   $userdata.load();
 
   // Tema
-  const savedTheme = $userdata.get("theme");
-  if (savedTheme && savedTheme !== "") {
-    try {
-      vuetifyTheme.global.name.value = savedTheme;
-    } catch {
-      /* ignore */
-    }
+  const savedTheme = $userdata.get("theme") || "darkblue";
+  try {
+    vuetifyTheme.change(savedTheme);
+  } catch {
+    /* ignore */
   }
+  // Aplica também no <html> via data-theme — os overrides em
+  // tokens.css ([data-theme="<id>"]) redefinem a paleta --lj-navy*
+  // para todo o documento.
+  document.documentElement.dataset.theme = savedTheme;
   try {
     $appdata.set("is_dark", !!vuetifyTheme.global.current.value?.dark);
   } catch {

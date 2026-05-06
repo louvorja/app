@@ -262,8 +262,10 @@ function _patchThemeCmd() {
   if (themeCmd) {
     themeCmd.run = () => {
       const current = theme.global.name.value;
-      theme.global.name.value = current === "dark" ? "light" : "dark";
-      UserData.set("theme", theme.global.name.value);
+      const next = current === "dark" ? "light" : "dark";
+      theme.change(next);
+      UserData.set("theme", next);
+      document.documentElement.dataset.theme = next;
       AppData.set("is_dark", theme.global.current.value.dark);
     };
   }

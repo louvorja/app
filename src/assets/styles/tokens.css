@@ -404,11 +404,11 @@
 /* =====================================================================
  * Temas coloridos — só sobrescrevem a paleta navy*. Os tokens derivados
  * (titlebar, tabs, ribbon header, etc.) referenciam --lj-navy* e seguem
- * automaticamente. Ativados pelo Vuetify (theme.global.name.value)
- * adicionando .v-theme--<id> no root.
+ * automaticamente. Ativados via [data-theme="<id>"] no <html>, aplicado
+ * em Shell.vue (boot) e AppMenuOpcoes.vue (mudança).
  * ===================================================================== */
 
-.v-theme--light {
+[data-theme="light"] {
   --lj-navy: #29569b;
   --lj-navy-dark: #20457e;
   --lj-navy-darker: #173461;
@@ -416,7 +416,7 @@
   --lj-navy-ch: 41 86 155;
 }
 
-.v-theme--blue {
+[data-theme="blue"] {
   --lj-navy: #0b3d62;
   --lj-navy-dark: #08304e;
   --lj-navy-darker: #06243a;
@@ -424,7 +424,7 @@
   --lj-navy-ch: 11 61 98;
 }
 
-.v-theme--green {
+[data-theme="green"] {
   --lj-navy: #077568;
   --lj-navy-dark: #055a51;
   --lj-navy-darker: #04453d;
@@ -432,7 +432,7 @@
   --lj-navy-ch: 7 117 104;
 }
 
-.v-theme--orange {
+[data-theme="orange"] {
   --lj-navy: #d24726;
   --lj-navy-dark: #b13a1f;
   --lj-navy-darker: #8e2e18;
@@ -440,7 +440,7 @@
   --lj-navy-ch: 210 71 38;
 }
 
-.v-theme--purple {
+[data-theme="purple"] {
   --lj-navy: #80397b;
   --lj-navy-dark: #672e63;
   --lj-navy-darker: #4e224a;
@@ -448,7 +448,7 @@
   --lj-navy-ch: 128 57 123;
 }
 
-.v-theme--pink {
+[data-theme="pink"] {
   --lj-navy: #ad1454;
   --lj-navy-dark: #8c0f44;
   --lj-navy-darker: #6c0b34;
@@ -456,7 +456,7 @@
   --lj-navy-ch: 173 20 84;
 }
 
-.v-theme--black {
+[data-theme="black"] {
   --lj-navy: #2e2e2e;
   --lj-navy-dark: #1f1f1f;
   --lj-navy-darker: #131313;

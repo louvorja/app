@@ -616,8 +616,12 @@ function getPref(feature) {
 
 function changeTheme(selectedTheme) {
   setUd("theme", selectedTheme);
-  theme.global.name.value = selectedTheme;
+  theme.change(selectedTheme);
   $userdata.set("theme", selectedTheme);
+  // Aplica também no <html> via data-theme. As variáveis CSS dos themes
+  // (--lj-navy*) ficam em [data-theme="<id>"], que herda para todo o
+  // documento. Mais robusto que depender de onde o Vuetify monta a classe.
+  document.documentElement.dataset.theme = selectedTheme;
   const isDark = selectedTheme === "dark";
   $appdata.set("is_dark", isDark);
   if (!isDark) $userdata.set("theme_last_light", selectedTheme);

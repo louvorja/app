@@ -316,8 +316,9 @@ function toggleTheme() {
           ? lastLight
           : "darkblue"
         : ($userdata.set("theme_last_light", cur), "dark");
-    theme.global.name.value = next;
+    theme.change(next);
     $userdata.set("theme", next);
+    document.documentElement.dataset.theme = next;
     $appdata.set("is_dark", next === "dark");
   } catch (err) {
     console.error("[RibbonBar] toggleTheme falhou:", err);
