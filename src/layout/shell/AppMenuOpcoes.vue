@@ -5,17 +5,6 @@
       <h3 class="opt-section-title">{{ $t("options.general.title") }}</h3>
 
       <div class="opt-row">
-        <label class="opt-checkbox">
-          <input
-            type="checkbox"
-            :checked="userdata.fade_form"
-            @change="setUd('fade_form', $event.target.checked)"
-          />
-          <span>{{ $t("options.general.fade_form") }}</span>
-        </label>
-      </div>
-
-      <div class="opt-row">
         <label class="opt-label" for="opt-theme">{{ $t("options.general.theme") }}</label>
         <select
           id="opt-theme"
@@ -572,21 +561,16 @@ import Platform from "@/helpers/Platform";
 
 const isDesktop = computed(() => Platform.isDesktop);
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 const theme = useTheme();
 const { displays, getPreferred, setPreferred, identify } = useDisplays();
 
-const themes = [
-  { id: "light", label: "Claro" },
-  { id: "darkblue", label: "Claro - Azul" },
-  { id: "blue", label: "Azul" },
-  { id: "green", label: "Verde" },
-  { id: "orange", label: "Laranja" },
-  { id: "purple", label: "Roxo" },
-  { id: "pink", label: "Rosa" },
-  { id: "black", label: "Preto" },
-  { id: "dark", label: "Escuro" },
-];
+const themes = computed(() =>
+  ["light", "darkblue", "blue", "green", "orange", "purple", "pink", "black", "dark"].map((id) => ({
+    id,
+    label: t(`options.general.themes.${id}`),
+  }))
+);
 
 // Proxy reativo de userdata.options.* (chaves agrupadas)
 const userdata = computed(() => {

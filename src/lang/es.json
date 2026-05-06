@@ -99,10 +99,20 @@
   "options": {
     "general": {
       "title": "General",
-      "fade_form": "Agregar efecto de esmaecimiento en las pantallas",
       "theme": "Apariencia del programa:",
       "language": "Idioma:",
-      "start_with_os": "Iniciar con el sistema operativo"
+      "start_with_os": "Iniciar con el sistema operativo",
+      "themes": {
+        "light": "Claro",
+        "darkblue": "Azul oscuro",
+        "blue": "Azul",
+        "green": "Verde",
+        "orange": "Naranja",
+        "purple": "Morado",
+        "pink": "Rosa",
+        "black": "Negro",
+        "dark": "Oscuro"
+      }
     },
     "monitors": {
       "title": "Monitores",

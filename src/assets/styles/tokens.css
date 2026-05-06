@@ -400,3 +400,66 @@
   --lj-scrollbar-thumb-bg: var(--lj-white-alpha-18);
   --lj-alert-error-color: var(--lj-danger-light);
 }
+
+/* =====================================================================
+ * Temas coloridos — só sobrescrevem a paleta navy*. Os tokens derivados
+ * (titlebar, tabs, ribbon header, etc.) referenciam --lj-navy* e seguem
+ * automaticamente. Ativados pelo Vuetify (theme.global.name.value)
+ * adicionando .v-theme--<id> no root.
+ * ===================================================================== */
+
+.v-theme--light {
+  --lj-navy: #29569b;
+  --lj-navy-dark: #20457e;
+  --lj-navy-darker: #173461;
+  --lj-navy-active: #3367bb;
+  --lj-navy-ch: 41 86 155;
+}
+
+.v-theme--blue {
+  --lj-navy: #0b3d62;
+  --lj-navy-dark: #08304e;
+  --lj-navy-darker: #06243a;
+  --lj-navy-active: #1257a3;
+  --lj-navy-ch: 11 61 98;
+}
+
+.v-theme--green {
+  --lj-navy: #077568;
+  --lj-navy-dark: #055a51;
+  --lj-navy-darker: #04453d;
+  --lj-navy-active: #0a8e7e;
+  --lj-navy-ch: 7 117 104;
+}
+
+.v-theme--orange {
+  --lj-navy: #d24726;
+  --lj-navy-dark: #b13a1f;
+  --lj-navy-darker: #8e2e18;
+  --lj-navy-active: #e0563a;
+  --lj-navy-ch: 210 71 38;
+}
+
+.v-theme--purple {
+  --lj-navy: #80397b;
+  --lj-navy-dark: #672e63;
+  --lj-navy-darker: #4e224a;
+  --lj-navy-active: #9a4894;
+  --lj-navy-ch: 128 57 123;
+}
+
+.v-theme--pink {
+  --lj-navy: #ad1454;
+  --lj-navy-dark: #8c0f44;
+  --lj-navy-darker: #6c0b34;
+  --lj-navy-active: #c2185b;
+  --lj-navy-ch: 173 20 84;
+}
+
+.v-theme--black {
+  --lj-navy: #2e2e2e;
+  --lj-navy-dark: #1f1f1f;
+  --lj-navy-darker: #131313;
+  --lj-navy-active: #3f3f3f;
+  --lj-navy-ch: 46 46 46;
+}
