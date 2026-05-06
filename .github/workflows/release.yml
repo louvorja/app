@@ -3,7 +3,10 @@ name: Release
 on:
   push:
     tags:
+      # Releases estáveis: vMAJOR.MINOR.PATCH (ex: v1.28.0)
       - 'v*.*.*'
+      # Pre-releases: vMAJOR.MINOR.PATCH-IDENT (ex: v1.28.0-preview.1, v1.28.0-rc.1)
+      - 'v*.*.*-*'
   workflow_dispatch:
 
 jobs:
@@ -72,3 +75,50 @@ jobs:
           path: ${{ matrix.artifact_glob }}
           retention-days: 7
           if-no-files-found: error
+
+  publish:
+    # Só publica quando o build foi disparado por uma tag — evita criar
+    # release vazia em workflow_dispatch sem tag.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Baixar artifacts dos 3 OSes
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Detectar pre-release
+        id: meta
+        run: |
+          # Tags com hífen (`v1.28.0-preview.1`) são pre-release.
+          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "title=LouvorJA ${GITHUB_REF_NAME#v} (pré-visualização)" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "title=LouvorJA ${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Criar/atualizar release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ steps.meta.outputs.title }}
+          prerelease: ${{ steps.meta.outputs.prerelease == 'true' }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.zip
+            artifacts/**/*.AppImage
+            artifacts/**/*.blockmap
+            artifacts/**/latest*.yml
