@@ -9,8 +9,30 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            platform: win
+            artifact: installer-windows
+            artifact_glob: |
+              dist_electron/*.exe
+              dist_electron/*.blockmap
+              dist_electron/latest.yml
+          - os: macos-latest
+            platform: mac
+            artifact: installer-macos
+            artifact_glob: |
+              dist_electron/*.dmg
+              dist_electron/*.zip
+              dist_electron/*.blockmap
+              dist_electron/latest-mac.yml
+          - os: ubuntu-latest
+            platform: linux
+            artifact: installer-linux
+            artifact_glob: |
+              dist_electron/*.AppImage
+              dist_electron/latest-linux.yml
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -26,37 +48,23 @@ jobs:
       - name: Rodar testes
         run: npm test
 
-      - name: Build web
-        run: npm run build
+      - name: Habilitar long paths (Windows)
+        if: matrix.platform == 'win'
+        run: git config --global core.longpaths true
+
+      - name: Build Electron
+        run: npm run electron:build:${{ matrix.platform }} -- --publish never
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_ENV: production
           VITE_BASE_URL: /
-
-      - name: Build Electron (Windows)
-        if: matrix.os == 'windows-latest'
-        run: git config --global core.longpaths true && npm run electron:build -- --publish never
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build Electron (macOS)
-        if: matrix.os == 'macos-latest'
-        run: npm run electron:build -- --publish never
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Sem code signing automático no macOS — requer certificado pago
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload instalador Windows
-        if: matrix.os == 'windows-latest'
+      - name: Upload instalador
         uses: actions/upload-artifact@v4
         with:
-          name: installer-windows
-          path: dist_electron/*.exe
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact_glob }}
           retention-days: 7
-
-      - name: Upload instalador macOS
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: installer-macos
-          path: dist_electron/*.dmg
-          retention-days: 7
+          if-no-files-found: error
