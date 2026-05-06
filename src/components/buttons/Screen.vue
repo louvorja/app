@@ -251,6 +251,8 @@ onMounted(async () => {
   await refreshDisplays();
   // Polling leve para refletir abertura/fechamento externo (ex: usuário fechou
   // a janela da projeção pelo X). 2s é suficiente — operação raramente urgente.
+  // Defensiva contra remount/HMR: limpa interval anterior antes de criar outro.
+  if (pollTimer) clearInterval(pollTimer);
   if (isProjectionMode.value) {
     pollTimer = setInterval(async () => {
       const open = await isProjectionOpen(featureName.value);
@@ -260,7 +262,10 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer);
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
 });
 
 watch([() => props.module, () => props.feature, () => props.route], () => {

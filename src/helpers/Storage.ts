@@ -186,6 +186,28 @@ export default {
   },
 
   /**
+   * Atualiza apenas o cache em memória da sessão atual, SEM persistir.
+   *
+   * Usado por UserData em desktop, onde o main process é a fonte da verdade
+   * e persiste via IPC `userdata:patch`. O renderer mantém o cache em sync
+   * para leituras subsequentes via `get()`, mas evita escrever de novo no
+   * disco e criar race com a escrita do main (que já gravou o estado mais
+   * recente).
+   *
+   * No web/PWA é no-op — caller deve usar `set()` que escreve em
+   * localStorage diretamente.
+   */
+  setLocalCache(item: string, data: unknown): void {
+    if (Platform.isDesktop) {
+      assertHydrated("setLocalCache");
+      _desktopCache[item] =
+        data === undefined || data === null || typeof data !== "object"
+          ? data
+          : JSON.parse(JSON.stringify(data));
+    }
+  },
+
+  /**
    * Recupera um valor armazenado.
    *
    * @param item     Chave

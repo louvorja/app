@@ -22,6 +22,11 @@ const _slides = useSlides();
 const _lyric  = useLyric();
 const _album  = useAlbum();
 let _loadingId: string | number | null = null;
+// XHR atual de download de áudio — abortado ao trocar de música rapidamente
+// para liberar conexão e evitar callbacks de respostas obsoletas (mesmo que
+// o early-return pelo _loadingId já as ignore, a request continuava
+// drenando bytes da rede e ocupando handlers).
+let _audioXhr: XMLHttpRequest | null = null;
 
 // Mantém $appdata sincronizado com o estado reativo de useSlides
 // (Player.vue, Footer.vue e media/Index.vue ainda leem de $appdata)
@@ -224,10 +229,20 @@ const _self = {
       } else {
         $appdata.set("modules.media.config.lazy", false);
         const self = this;
+        // Aborta o download anterior, se ainda em curso. Sem isso, trocar
+        // de música em sequência (Ctrl+→ rapidamente, por exemplo) deixava
+        // múltiplos XHR drenando bytes em paralelo até termo natural, com
+        // chance de race em onload sobrescrevendo a faixa correta.
+        if (_audioXhr) {
+          try { _audioXhr.abort(); } catch (_) { /* ignore */ }
+          _audioXhr = null;
+        }
         let request = new XMLHttpRequest();
+        _audioXhr = request;
         try {
           request.open("GET", audioUrl, true);
         } catch (error) {
+          if (_audioXhr === request) _audioXhr = null;
           $appdata.set("modules.media.loading", false);
           self.close(true);
           $alert.error({ text: "modules.media.alerts.not_loaded", error }, function (a?: unknown) {
@@ -238,6 +253,7 @@ const _self = {
 
         request.responseType = "blob";
         request.onload = function (this: XMLHttpRequest) {
+          if (_audioXhr === request) _audioXhr = null;
           if (_loadingId !== id_music) return;
           if (this.status == 200) {
             _audio.setSrc(URL.createObjectURL(this.response as Blob), false);
@@ -253,6 +269,7 @@ const _self = {
           }
         };
         request.onerror = function () {
+          if (_audioXhr === request) _audioXhr = null;
           if (_loadingId !== id_music) return;
           self.close(true);
           $alert.error(
@@ -261,6 +278,12 @@ const _self = {
               if (a) self.open(id_music as string | number);
             }
           );
+        };
+        request.onabort = function () {
+          // Limpamos a referência local; sem early-return em alert pois
+          // abort acontece quando o usuário muda de música — o novo download
+          // já foi disparado e cuida do estado de UI.
+          if (_audioXhr === request) _audioXhr = null;
         };
 
         request.send();

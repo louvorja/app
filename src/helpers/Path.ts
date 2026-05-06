@@ -21,7 +21,16 @@ export default {
     if (Platform.isDesktop) {
       return "louvorja://json_db/" + key;
     }
-    return import.meta.env.VITE_URL_DATABASE + "/" + key;
+    const base = import.meta.env.VITE_URL_DATABASE;
+    if (!base) {
+      // Sem fallback: retornar `"undefined/..."` faz a request 404 com erro
+      // críptico. Lançar aqui torna o problema visível no boot — o operador
+      // sabe que precisa configurar o `.env` ou rodar via Electron.
+      throw new Error(
+        "Path.db: VITE_URL_DATABASE não definida. Configure no .env ou abra o app via Electron."
+      );
+    }
+    return base + "/" + key;
   },
 
   /**
@@ -41,6 +50,12 @@ export default {
       const p = path.startsWith("/") ? path : "/" + path;
       return "louvorja://files" + p;
     }
-    return import.meta.env.VITE_URL_FILES + path;
+    const base = import.meta.env.VITE_URL_FILES;
+    if (!base) {
+      throw new Error(
+        "Path.file: VITE_URL_FILES não definida. Configure no .env ou abra o app via Electron."
+      );
+    }
+    return base + path;
   },
 };

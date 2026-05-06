@@ -100,6 +100,12 @@ function _create(): AudioPlayback {
 
   function setSrc(src: string, lazy = false): void {
     const el = getElement();
+    // Revoga blob URL anterior — sem isso, cada troca de música acumula
+    // memória do Blob (URL.createObjectURL não é GC'd até revoke). Em sessões
+    // longas com muitas trocas de faixa, vira leak considerável.
+    if (el.src && el.src.startsWith("blob:")) {
+      try { URL.revokeObjectURL(el.src); } catch (_) { /* ignore */ }
+    }
     isLazy.value = lazy;
     el.src = src;
     el.load();

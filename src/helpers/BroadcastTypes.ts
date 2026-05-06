@@ -4,8 +4,11 @@
  * Usar BROADCAST_TYPE.* em vez de strings literais em emissores e receptores.
  *
  * Categorias:
- *   - Cross-window: funcionam entre janelas/abas do mesmo origen (PWA/web).
- *     No Electron, BroadcastChannel não cruza processos — ver issue #116.
+ *   - Cross-window: funcionam entre janelas/abas do mesmo origin. No Electron
+ *     (>= 41) também cruzam BrowserWindows desde que sandbox: false e mesma
+ *     origem (garantido em windowFactory.js). Ver docs/broadcast.md.
+ *     Para sync de UserData usamos canal duplo (broadcast + IPC) por
+ *     resiliência — alguns drivers podem ser flaky.
  *   - In-app: emitidos por hotkeys/HTTP e consumidos na mesma janela.
  *   - Planejado: definido mas ainda não emitido; reservado para uso futuro.
  * @category helper-puro — Só tipos e constantes; sem APIs Vue.

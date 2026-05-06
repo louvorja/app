@@ -107,16 +107,25 @@
 
 <!-- ONLINE - Load Dependencie by CDN -->
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
 import log from "@modules/animation/scripts/log.js";
 
 log("CreateAnimation.vue");
+
+// Cleanup acumulado pelo `script.onload` — remove listeners de click dos
+// botões e o próprio <script> CDN ao desmontar. Sem isso, abrir e fechar
+// o EditAnimation múltiplas vezes deixava listeners de click vivos em
+// botões que continuavam no DOM em sessões anteriores (memory leak +
+// fire duplo se o usuário reabrisse o modal).
+let _cleanup = null;
+let _injectedScript = null;
 
 onMounted(() => {
   log("CreateAnimation.vue mounted");
   const script = document.createElement("script");
   script.src = "https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js";
   script.async = true;
+  _injectedScript = script;
 
   script.onload = () => {
     const zeroPadded = (number) => (number >= 10 ? number.toString() : `0${number}`);
@@ -250,8 +259,37 @@ onMounted(() => {
     }
 
     buttons.forEach((button) => button.addEventListener("click", handleClick));
+
+    _cleanup = () => {
+      buttons.forEach((button) => {
+        try {
+          button.removeEventListener("click", handleClick);
+        } catch (_) {
+          /* ignore */
+        }
+      });
+    };
   };
   document.body.appendChild(script);
+});
+
+onBeforeUnmount(() => {
+  if (_cleanup) {
+    try {
+      _cleanup();
+    } catch (_) {
+      /* ignore */
+    }
+    _cleanup = null;
+  }
+  if (_injectedScript && _injectedScript.parentNode) {
+    try {
+      _injectedScript.parentNode.removeChild(_injectedScript);
+    } catch (_) {
+      /* ignore */
+    }
+    _injectedScript = null;
+  }
 });
 </script>
 

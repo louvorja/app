@@ -192,6 +192,10 @@ async function identify() {
 let pollTimer = null;
 onMounted(async () => {
   await refresh();
+  // Defensiva: se onMounted disparar mais de uma vez (HMR / v-if remount /
+  // KeepAlive activate), limpa o interval anterior antes de criar outro.
+  // Sem isso, acumula múltiplos polls de 2s e o estado fica inconsistente.
+  if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(async () => {
     const open = await isProjectionOpen(props.feature);
     if (open !== projection_open.value) projection_open.value = open;
@@ -199,7 +203,10 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer);
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
 });
 
 watch(() => props.feature, refresh);

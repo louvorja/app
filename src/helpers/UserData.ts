@@ -42,7 +42,10 @@ export interface UserDataState {
 }
 
 let _saveTimer: ReturnType<typeof setTimeout> | null = null;
-let _crossWindowInitialized = false;
+// Cleanup das subscrições da última chamada de initCrossWindow — usado para
+// evitar acumular listeners em HMR (Vite recarrega o módulo, listeners
+// antigos ficavam vivos e duplicavam apply() para o mesmo patch).
+let _crossWindowCleanup: (() => void) | null = null;
 // Token único por renderer — usado para ignorar broadcasts originados aqui
 // mesmo (BroadcastChannel não entrega para a janela que postou, mas se um
 // dia precisarmos de fan-out local para mesma chave isso evita loops).
@@ -97,6 +100,23 @@ export default {
    * e sliders que disparam dezenas de eventos por segundo.
    */
   save(): void {
+    // Em desktop (Electron) o main process é a fonte da verdade — toda
+    // chamada `userdata:patch` IPC já atualiza `_userDataMain` e persiste
+    // sincronamente no disco via userStore.write. Se o renderer também
+    // chamasse Storage.set("user_data", $state) com debounce, teríamos
+    // duas escritas concorrentes no mesmo arquivo, com risco do snapshot
+    // velho do renderer (300ms atrás) sobrescrever o que o main acabou
+    // de gravar. No desktop apenas atualizamos o cache local em memória
+    // (sincronia visual com a UI atual) e deixamos o main persistir.
+    if (Platform.isDesktop) {
+      // Atualiza só o _desktopCache — mantém leituras síncronas
+      // consistentes durante a sessão sem persistir no disco a partir
+      // daqui (main já cuida da persistência via userdata:patch).
+      try {
+        $storage.setLocalCache("user_data", useUserDataStore().$state);
+      } catch (_) { /* ignore — método pode não existir em web */ }
+      return;
+    }
     if (_saveTimer !== null) clearTimeout(_saveTimer);
     _saveTimer = setTimeout(() => {
       $dev.write("salvando dados");
@@ -199,8 +219,13 @@ export default {
    * na janela principal apareçam imediatamente na projeção.
    */
   initCrossWindow(): void {
-    if (_crossWindowInitialized) return;
-    _crossWindowInitialized = true;
+    // Em HMR (Vite) o módulo recarrega e initCrossWindow é chamado de novo.
+    // Sem desfazer subscrições anteriores, listeners ficavam acumulando e
+    // o mesmo patch era aplicado N vezes a cada hot reload.
+    if (_crossWindowCleanup) {
+      try { _crossWindowCleanup(); } catch (_) { /* ignore */ }
+      _crossWindowCleanup = null;
+    }
     const apply = (payload: { path?: string; value?: unknown; _src?: string } | null): void => {
       if (!payload || typeof payload.path !== "string") return;
       if (payload._src === _SRC) return; // veio daqui — ignora
@@ -212,7 +237,7 @@ export default {
       }
     };
     // Canal 1 — BroadcastChannel (web/PWA + Electron quando funciona)
-    $broadcast.listen((msg) => {
+    const offBroadcast = $broadcast.listen((msg) => {
       if (!msg || msg.type !== BROADCAST_TYPE.USERDATA_PATCH) return;
       apply(msg.payload as { path?: string; value?: unknown; _src?: string } | null);
     });
@@ -220,24 +245,30 @@ export default {
     // louvorjaApi.on é genérico e existe no preload desde D0 — sync funciona
     // mesmo em janelas com preload antigo, contanto que o main.cjs novo esteja
     // ativo (que registra o webContents.send("userdata:patch", ...)).
+    let offIpc: (() => void) | null = null;
     if (Platform.isDesktop) {
       try {
         const api = Platform.api as
           | { on?: (channel: string, h: (data: unknown) => void) => () => void }
           | null;
         if (api && typeof api.on === "function") {
-          api.on("userdata:patch", (data: unknown) =>
+          offIpc = api.on("userdata:patch", (data: unknown) =>
             apply(data as { path?: string; value?: unknown; _src?: string } | null)
-          );
+          ) || null;
         } else if (Platform.userdata?.onPatch) {
-          Platform.userdata.onPatch((data: unknown) =>
+          const off = Platform.userdata.onPatch((data: unknown) =>
             apply(data as { path?: string; value?: unknown; _src?: string } | null)
           );
+          if (typeof off === "function") offIpc = off;
         }
       } catch (e) {
         console.warn("[UserData] IPC onPatch falhou:", e);
       }
     }
+    _crossWindowCleanup = () => {
+      try { offBroadcast(); } catch (_) { /* ignore */ }
+      try { offIpc?.(); } catch (_) { /* ignore */ }
+    };
   },
 
   /**

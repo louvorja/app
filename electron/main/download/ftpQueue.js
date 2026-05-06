@@ -148,13 +148,17 @@ class FtpQueue extends EventEmitter {
 
           // Download para .tmp + rename
           const tmp = `${item.local}.tmp`;
-          await this.client.downloadTo(tmp, remotePath);
-          this.client.trackProgress(); // desligar
-
-          await fs.move(tmp, item.local, { overwrite: true });
-
-          this.emit("file-done", { file: item.remote, localPath: item.local });
-          downloaded++;
+          try {
+            await this.client.downloadTo(tmp, remotePath);
+            await fs.move(tmp, item.local, { overwrite: true });
+            this.emit("file-done", { file: item.remote, localPath: item.local });
+            downloaded++;
+          } finally {
+            // Desliga o progress tracker MESMO em caso de falha — sem isso,
+            // o callback ficava ativo e cada download seguinte registrava um
+            // novo, acumulando handlers por arquivo falhado.
+            try { this.client.trackProgress(); } catch (_) { /* ignore */ }
+          }
         } catch (err) {
           console.warn(`[ftpQueue] falhou ${remotePath}: ${err.message}`);
           this.emit("file-error", { file: item.remote, error: err.message });
