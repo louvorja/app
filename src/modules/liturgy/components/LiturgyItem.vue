@@ -47,7 +47,14 @@
         <v-icon :icon="iconFor(element)" size="28" color="white" />
       </button>
 
-      <!-- Checkbox grande à esquerda do título -->
+      <!-- Checkbox grande à esquerda do título.
+           Usamos `@click.stop.prevent` em vez de `@change` porque o
+           navegador altera `input.checked` ANTES do Vue re-renderizar; se
+           o handler decidir não mudar o state (ou trocar por uma referência
+           equivalente), o checkbox visual fica dessincronizado e parece
+           "preso" — sintoma observado: marcava mas não desmarcava. Com
+           prevent, o Vue tem controle total via `:checked`.
+           Espaço/Enter cobrem acessibilidade por teclado. -->
       <label
         class="lit-card-check lit-card-check--lead"
         :title="t('actions.mark_done')"
@@ -56,7 +63,9 @@
         <input
           type="checkbox"
           :checked="isChecked(element)"
-          @change="$emit('toggle-checked', element)"
+          @click.stop.prevent="$emit('toggle-checked', element)"
+          @keydown.space.stop.prevent="$emit('toggle-checked', element)"
+          @keydown.enter.stop.prevent="$emit('toggle-checked', element)"
         />
         <span class="lit-check-mark"><v-icon icon="mdi-check" size="14" /></span>
       </label>
