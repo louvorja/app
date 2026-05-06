@@ -240,13 +240,28 @@ function _onKeyNav(e) {
   }
 }
 
+// Mantém o flag config.fullscreen sincronizado com o estado REAL do browser.
+// Sem isso, quando o requestFullscreen() não entrava de fato (ex.: chamado fora
+// de um gesto do usuário) o flag ficava true e o <l-fullscreen-player> aparecia
+// como overlay duplicado sobre o player do rodapé.
+function _syncFullscreenFlag() {
+  const real = !!document.fullscreenElement;
+  if (module_.value?.config?.fullscreen && !real) {
+    Media.fullscreen(false);
+  }
+}
+
 onMounted(() => {
   // capture:true → o listener fica antes de qualquer handler interno do v-dialog
   // ou v-list. Com stopImmediatePropagation neutraliza o handler global Hotkeys.
   window.addEventListener("keydown", _onKeyNav, { capture: true });
+  document.addEventListener("fullscreenchange", _syncFullscreenFlag);
+  // Sync inicial — corrige flag herdado de sessão anterior se já estiver torto.
+  _syncFullscreenFlag();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", _onKeyNav, { capture: true });
+  document.removeEventListener("fullscreenchange", _syncFullscreenFlag);
 });
 </script>

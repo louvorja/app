@@ -112,14 +112,15 @@ class FtpQueue extends EventEmitter {
         secure: false, // FTP plain — Delphi também usa
       });
 
-      // Mover para o diretório raiz do servidor se especificado
-      if (creds.root && creds.root !== "/") {
-        try {
-          await this.client.cd(creds.root);
-        } catch (e) {
-          console.warn(`[ftpQueue] cd(${creds.root}) falhou: ${e.message}`);
-        }
-      }
+      // Replicando fmAtualiza.pas:130 — passa o path absoluto completo
+      // (root + remote) direto no GET, sem fazer cd. Alguns servidores
+      // recusam paths absolutos depois de cd e quebram todo o batch.
+      const root = (creds.root || "").replace(/\/+$/, "");
+      const buildPath = (remote) => {
+        const rel = remote.replace(/^\/+/, "");
+        const full = root ? `${root}/${rel}` : `/${rel}`;
+        return full.replace(/\/{2,}/g, "/");
+      };
 
       while (this.queue.length > 0 && !this.cancelled) {
         // Aguarda se pausado (sem fechar a conexão FTP)
@@ -128,6 +129,7 @@ class FtpQueue extends EventEmitter {
 
         const item = this.queue.shift();
         const idx = total - this.queue.length;
+        const remotePath = buildPath(item.remote);
 
         try {
           await fs.ensureDir(path.dirname(item.local));
@@ -145,7 +147,7 @@ class FtpQueue extends EventEmitter {
 
           // Download para .tmp + rename
           const tmp = `${item.local}.tmp`;
-          await this.client.downloadTo(tmp, item.remote);
+          await this.client.downloadTo(tmp, remotePath);
           this.client.trackProgress(); // desligar
 
           await fs.move(tmp, item.local, { overwrite: true });
@@ -153,6 +155,7 @@ class FtpQueue extends EventEmitter {
           this.emit("file-done", { file: item.remote, localPath: item.local });
           downloaded++;
         } catch (err) {
+          console.warn(`[ftpQueue] falhou ${remotePath}: ${err.message}`);
           this.emit("file-error", { file: item.remote, error: err.message });
           failed++;
         }
