@@ -54,9 +54,17 @@ function _create(): SlidesInstance {
     if (msg.type === BROADCAST_TYPE.GO_TO_SLIDE) {
       goToSlide((msg.payload as { index: number }).index);
     } else if (msg.type === BROADCAST_TYPE.REQUEST_SLIDE_STATE) {
-      // Janela secundária pediu o estado atual — reemite para que ela
-      // possa renderizar sem esperar a próxima troca de slide.
-      if (slides.value.length > 0) broadcastSlide();
+      // Janela secundária pediu o estado atual — reemite SLIDES_DATA (lista completa)
+      // e SLIDE_CHANGE (índice atual) para que ela possa renderizar sem esperar
+      // a próxima troca de slide.
+      if (slides.value.length > 0) {
+        $broadcast.send(BROADCAST_TYPE.SLIDES_DATA, {
+          slides:      slides.value.map((s) => toRaw(s)),
+          title:       title.value,
+          slide_index: slideIndex.value,
+        });
+        broadcastSlide();
+      }
     }
   });
 

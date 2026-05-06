@@ -9,11 +9,11 @@
     :image-size="125"
     :color="module?.data?.color"
     slot-left-class="w-100"
-    @close="album.close()"
+    @close="closeAlbum()"
   >
     <template #left>
       <v-table
-        v-if="!album.loading"
+        v-if="!loading"
         fixed-header
         hover
         class="w-100 h-100"
@@ -54,7 +54,7 @@
         </tbody>
       </v-table>
 
-      <v-progress-linear v-if="album.loading" color="white" indeterminate />
+      <v-progress-linear v-if="loading" color="white" indeterminate />
     </template>
   </Window>
 </template>
@@ -68,5 +68,8 @@ import Window from "@/components/Window.vue";
 import MusicMenuTable from "@/components/MusicMenuTable.vue";
 
 const { module, t, $path, $datetime } = useModule(manifest);
-const album = useAlbum();
+// Desestrutura `loading` do useAlbum() pra que vire um Ref top-level —
+// Vue auto-unwrapa refs top-level no template. Acessar via `album.loading`
+// retornaria o objeto Ref (sempre truthy), não o boolean.
+const { loading, close: closeAlbum } = useAlbum();
 </script>

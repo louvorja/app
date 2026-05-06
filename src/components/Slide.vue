@@ -21,6 +21,9 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import Strings from "@/helpers/Strings";
+import { useSlideStyle } from "@/composables/useSlideStyle";
+
+const { cfg, repeatColor, textBoxStyle } = useSlideStyle();
 
 const props = defineProps({
   slide_number: Number,
@@ -88,53 +91,63 @@ function setSlide() {
 }
 
 function style_bg(slide) {
+  // Imagem da capa: a do slide vence quando affect_external_slides=false.
+  // Quando true, a config da Opções (background_image) força.
+  const useCfgImage = cfg.value.affect_external_slides && cfg.value.background_image;
+  const image = useCfgImage ? cfg.value.background_image : slide.image;
   return {
     overflow: "hidden",
-    backgroundColor: "var(--lj-color-projection-bg)",
-    backgroundImage: `url(${slide.image})`,
+    backgroundColor: cfg.value.background_color || "var(--lj-color-projection-bg)",
+    backgroundImage: image ? `url(${image})` : undefined,
     backgroundRepeat: "no-repeat",
-    backgroundPosition: [
-      "top left",
-      "top center",
-      "top right",
-      "center left",
-      "center center",
-      "center right",
-      "bottom left",
-      "bottom center",
-      "bottom right",
-    ][props.image_position || 5],
+    backgroundPosition: useCfgImage
+      ? cfg.value.background_position
+      : [
+          "top left",
+          "top center",
+          "top right",
+          "center left",
+          "center center",
+          "center right",
+          "bottom left",
+          "bottom center",
+          "bottom right",
+        ][props.image_position || 5],
     backgroundSize: "cover",
   };
 }
 
 function style_aux_text() {
   return {
-    backgroundColor: "var(--lj-black-alpha-75)",
-    fontSize: `${fontSizePc(10)}px`,
-    color: "var(--lj-slide-text-gold)",
+    ...textBoxStyle(),
+    fontSize: `${fontSizePc(cfg.value.font_size_aux * 1.25)}px`,
+    color: cfg.value.color_aux,
     padding: `0px ${fontSizePc(5)}px`,
-    fontFamily: "var(--lj-font-projection)",
+    fontFamily: cfg.value.font || "var(--lj-font-projection)",
     textTransform: "uppercase",
   };
 }
 
 function style_text(slide) {
   const base = {
-    backgroundColor: "var(--lj-black-alpha-75)",
+    ...textBoxStyle(),
     padding: `0px ${fontSizePc(5)}px`,
     textAlign: "center",
-    fontFamily: "var(--lj-font-projection)",
+    fontFamily: cfg.value.font || "var(--lj-font-projection)",
     textTransform: "uppercase",
   };
 
   if (slide.cover) {
-    return { ...base, fontSize: `${fontSizePc(25)}px`, color: "var(--lj-slide-text-gold)" };
+    return {
+      ...base,
+      fontSize: `${fontSizePc(cfg.value.font_size_cover * 1.4)}px`,
+      color: cfg.value.color_cover,
+    };
   }
   return {
     ...base,
-    fontSize: `${fontSizePc(20)}px`,
-    color: repeat.value ? "var(--lj-slide-text-gold)" : "var(--lj-white)",
+    fontSize: `${fontSizePc(cfg.value.font_size_lyric * 1.4)}px`,
+    color: repeat.value ? repeatColor() : cfg.value.color_lyric,
   };
 }
 

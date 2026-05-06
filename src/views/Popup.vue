@@ -56,5 +56,11 @@ onMounted(() => {
   window.addEventListener("beforeunload", () => {
     window.opener?.postMessage("closed", window.location.origin);
   });
+
+  // ESC fecha a janela popup. Window.vue interna também escuta ESC e emite close,
+  // mas isso só some com o v-dialog — a janela do browser ficaria vazia.
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") window.close();
+  });
 });
 </script>

@@ -14,6 +14,13 @@ const timer = ref(null);
 const show24h = ref(true);
 const showSeconds = ref(true);
 
+function _onKey(e) {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    window.close();
+  }
+}
+
 function tick() {
   const now = new Date();
   time.value = now.toLocaleTimeString([], {
@@ -36,10 +43,12 @@ onMounted(() => {
   showSeconds.value = params.get("sec") !== "0";
   tick();
   timer.value = setInterval(tick, 1000);
+  window.addEventListener("keydown", _onKey);
 });
 
 onBeforeUnmount(() => {
   clearInterval(timer.value);
+  window.removeEventListener("keydown", _onKey);
 });
 </script>
 

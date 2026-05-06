@@ -5,7 +5,6 @@
     role="application"
     :aria-label="t('shell.operator_label')"
     tabindex="0"
-    @keydown="onKey"
   >
     <!-- Header -->
     <div class="op-header">
@@ -44,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted } from "vue";
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import $broadcast, { BROADCAST_TYPE } from "@/helpers/Broadcast";
 import { useBroadcastListener } from "@/composables/useBroadcastListener";
@@ -93,6 +92,9 @@ function onKey(e) {
   } else if (e.key === "Enter" || e.key === " ") {
     e.preventDefault();
     goTo(currentIndex.value);
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    window.close();
   }
 }
 
@@ -106,6 +108,14 @@ function scrollToActive() {
 onMounted(() => {
   document.body.style.margin = "0";
   root.value?.focus();
+  // Captura setas globalmente — sem depender do foco do root
+  window.addEventListener("keydown", onKey);
+  // Solicita estado atual (caso a música já tenha aberto antes desta janela)
+  $broadcast.send(BROADCAST_TYPE.REQUEST_SLIDE_STATE);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", onKey);
 });
 </script>
 

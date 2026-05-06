@@ -24,18 +24,25 @@ function show(durationMs = 5000) {
   const allDisplays = screen.getAllDisplays();
   const primary = screen.getPrimaryDisplay();
 
+  // Card pequeno no canto inferior direito de cada monitor (não ocupa a tela toda).
+  const CARD_W = 320;
+  const CARD_H = 200;
+  const MARGIN = 40;
+
   allDisplays.forEach((display, i) => {
     const win = new BrowserWindow({
-      x: display.bounds.x,
-      y: display.bounds.y,
-      width: display.bounds.width,
-      height: display.bounds.height,
+      x: display.bounds.x + display.bounds.width - CARD_W - MARGIN,
+      y: display.bounds.y + display.bounds.height - CARD_H - MARGIN,
+      width: CARD_W,
+      height: CARD_H,
       frame: false,
       transparent: true,
       alwaysOnTop: true,
       skipTaskbar: true,
       focusable: false,
       hasShadow: false,
+      resizable: false,
+      movable: false,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
@@ -52,40 +59,50 @@ function show(durationMs = 5000) {
   html, body {
     margin: 0; padding: 0;
     width: 100vw; height: 100vh;
-    background: rgba(99, 102, 241, 0.85);
+    background: transparent;
     color: white;
     font-family: -apple-system, system-ui, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
     user-select: none;
     pointer-events: none;
   }
-  .num {
-    font-size: clamp(8rem, 30vw, 24rem);
-    font-weight: 100;
-    line-height: 1;
-    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  .card {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background: rgba(99, 102, 241, 0.92);
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
     animation: pulse 1.5s ease-in-out infinite;
   }
+  .num {
+    font-size: 7rem;
+    font-weight: 100;
+    line-height: 1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
   .label {
-    position: fixed;
-    bottom: 5vh;
-    font-size: clamp(1rem, 3vw, 2rem);
-    font-weight: 300;
-    opacity: 0.7;
+    margin-top: 8px;
+    font-size: 0.95rem;
+    font-weight: 400;
+    opacity: 0.85;
     text-align: center;
-    width: 100vw;
   }
   @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    50% { opacity: 0.75; }
   }
 </style></head>
 <body>
-  <div class="num">${i + 1}</div>
-  <div class="label">${display.bounds.width} \xD7 ${display.bounds.height}${label}</div>
+  <div class="card">
+    <div class="num">${i + 1}</div>
+    <div class="label">${display.bounds.width} \xD7 ${display.bounds.height}${label}</div>
+  </div>
 </body></html>`;
 
     win.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(html));

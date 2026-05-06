@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import { useProjectionState } from "@/composables/useProjectionState";
 import { useSlideStyle } from "@/composables/useSlideStyle";
@@ -75,6 +75,13 @@ const textStyle = computed(() => {
   };
 });
 
+function _onKey(e) {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    window.close();
+  }
+}
+
 onMounted(() => {
   document.body.style.margin = "0";
   document.body.style.overflow = "hidden";
@@ -85,6 +92,12 @@ onMounted(() => {
       ready.value = true;
     });
   });
+
+  window.addEventListener("keydown", _onKey);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", _onKey);
 });
 </script>
 

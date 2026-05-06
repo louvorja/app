@@ -61,7 +61,7 @@
             v-if="slide"
             :slide_number="config.slide_index"
             :cover="slide.cover == true"
-            :text="slide.lyric"
+            :text="slide.cover ? '' : slide.lyric"
             :aux_text="slide.aux_lyric"
             :image="slide.url_image ? pathFile(slide.url_image) : null"
             :image_position="slide.image_position"

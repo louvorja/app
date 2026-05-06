@@ -8,7 +8,7 @@
     :height="w_height"
     :theme="dark ? 'dark' : ''"
     @click:outside="minimize"
-    @keydown.esc="minimize"
+    @keydown.esc.stop="onEsc"
   >
     <v-card class="lj-window-card" :color="color ? color : ''">
       <slot name="toolbar">
@@ -198,6 +198,13 @@ function close() {
 
 function minimize() {
   emit("minimize");
+}
+
+// ESC sempre fecha quando o módulo é fechável (padronização UX).
+// Cai em minimize só quando não há close disponível.
+function onEsc() {
+  if (props.closable) emit("close");
+  else if (props.minimizable) emit("minimize");
 }
 
 function scroll() {
