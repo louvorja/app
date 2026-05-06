@@ -94,21 +94,18 @@ $storage.hydrate().then(async () => {
   }
 
   // D3 — Configurar API de download HTTPS no main process.
+  // O token é opcional (mídia em /file/ é pública); filesUrl é o que importa.
   if (Platform.isDesktop && Platform.download) {
-    const apiToken = import.meta.env.VITE_API_TOKEN;
+    const apiToken = import.meta.env.VITE_API_TOKEN || "";
     const filesUrl = import.meta.env.VITE_URL_FILES;
-    if (!apiToken) {
-      console.warn("[main] VITE_API_TOKEN não definido — downloader desabilitado.");
-    } else {
-      try {
-        await Platform.download.setApiConfig({
-          paramsUrl: "https://api.louvorja.com.br/params?type=env",
-          apiToken,
-          filesUrl,
-        });
-      } catch (e) {
-        console.warn("[main] Falha ao configurar downloader:", e);
-      }
+    try {
+      await Platform.download.setApiConfig({
+        paramsUrl: "https://api.louvorja.com.br/params?type=env",
+        apiToken,
+        filesUrl,
+      });
+    } catch (e) {
+      console.warn("[main] Falha ao configurar downloader:", e);
     }
   }
 
