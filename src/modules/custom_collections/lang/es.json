@@ -1,0 +1,36 @@
+{
+  "title": "Colecciones Personales",
+  "tabs": {
+    "songs": "Mis Canciones",
+    "collections": "Colecciones"
+  },
+  "actions": {
+    "new_song": "Nueva Canción",
+    "new_collection": "Nueva Colección",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "export": "Exportar .slja",
+    "import": "Importar .slja",
+    "rename": "Renombrar",
+    "play": "Presentar",
+    "remove_from_collection": "Quitar de la colección",
+    "add_to_collection": "Agregar a la colección",
+    "open": "Abrir"
+  },
+  "labels": {
+    "name": "Nombre",
+    "color": "Color",
+    "songs_count": "canción(es)",
+    "no_audio": "sin audio",
+    "audio": "con audio",
+    "slides": "diapositiva(s)"
+  },
+  "data": {
+    "empty_songs": "Sin canciones personales. Crea en el Editor de Música o importa un .slja.",
+    "empty_collections": "Sin colecciones personales. Haz clic en + para crear.",
+    "empty_collection_songs": "Colección vacía. Arrastra canciones aquí.",
+    "confirm_delete_song": "¿Eliminar esta canción? Esta acción no se puede deshacer.",
+    "confirm_delete_collection": "¿Eliminar esta colección? Las canciones siguen disponibles en \"Mis Canciones\".",
+    "name_placeholder": "Nombre de la colección"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "custom_collections",
+  "name": "Coletâneas Pessoais",
+  "description": "Suas músicas e coletâneas pessoais (criadas no Editor de Músicas).",
+  "category": "musics",
+  "icon": "mdi-bookshelf"
+}

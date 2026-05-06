@@ -1,0 +1,36 @@
+{
+  "title": "Coletâneas Pessoais",
+  "tabs": {
+    "songs": "Minhas Músicas",
+    "collections": "Coletâneas"
+  },
+  "actions": {
+    "new_song": "Nova Música",
+    "new_collection": "Nova Coletânea",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "export": "Exportar .slja",
+    "import": "Importar .slja",
+    "rename": "Renomear",
+    "play": "Apresentar",
+    "remove_from_collection": "Remover da coletânea",
+    "add_to_collection": "Adicionar à coletânea",
+    "open": "Abrir"
+  },
+  "labels": {
+    "name": "Nome",
+    "color": "Cor",
+    "songs_count": "música(s)",
+    "no_audio": "sem áudio",
+    "audio": "com áudio",
+    "slides": "slide(s)"
+  },
+  "data": {
+    "empty_songs": "Nenhuma música pessoal. Crie no Editor de Músicas ou importe um .slja.",
+    "empty_collections": "Nenhuma coletânea pessoal. Clique em + para criar.",
+    "empty_collection_songs": "Coletânea vazia. Arraste músicas para cá.",
+    "confirm_delete_song": "Excluir esta música? Esta ação não pode ser desfeita.",
+    "confirm_delete_collection": "Excluir esta coletânea? As músicas continuam disponíveis em \"Minhas Músicas\".",
+    "name_placeholder": "Nome da coletânea"
+  }
+}

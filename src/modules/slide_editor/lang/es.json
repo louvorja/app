@@ -1,24 +1,81 @@
 {
-  "title": "Editor de Diapositivas",
-  "actions": {
-    "new": "Nueva presentación",
-    "add_slide": "Agregar diapositiva",
-    "remove_slide": "Quitar diapositiva",
-    "save": "Guardar",
-    "load": "Cargar",
-    "present": "Presentar"
+  "title": "Editor de Música",
+  "tabs": {
+    "file": "Archivo",
+    "slides": "Diapositivas",
+    "audio": "Audio/Grabación",
+    "format": "Formato",
+    "view": "Visualización"
   },
-  "inputs": {
-    "text": "Texto de la diapositiva",
-    "font_size": "Tamaño de fuente",
-    "text_color": "Color del texto",
-    "bg_color": "Color de fondo",
-    "image_url": "URL de imagen de fondo"
+  "actions": {
+    "new": "Nuevo",
+    "open": "Abrir",
+    "save": "Guardar",
+    "save_as": "Guardar como",
+    "import_txt": "Importar",
+    "project": "Proyectar",
+    "new_slide": "Nueva diapositiva",
+    "duplicate_slide": "Duplicar",
+    "remove_slide": "Eliminar",
+    "split_slide": "Dividir",
+    "merge_next": "Combinar Sig.",
+    "first": "Primera",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "last": "Última",
+    "audio_attach": "Audio",
+    "audio_remove": "Quitar Audio",
+    "play": "Reproducir",
+    "pause": "Pausar",
+    "record_advance": "Grabar y Avanzar",
+    "record_start": "Grabar Inicio",
+    "record_retroactive": "Grabar Retroactivo",
+    "record_clear": "Quitar grabaciones",
+    "image_set": "Imagen",
+    "image_remove": "Quitar Imagen",
+    "replicate_bg_next": "Diap. Siguiente",
+    "replicate_bg_after": "Todas Siguientes",
+    "replicate_bg_all": "Todas",
+    "replicate_text_next": "Diap. Siguiente",
+    "replicate_text_after": "Todas Siguientes",
+    "replicate_text_all": "Todas",
+    "fullscreen_view": "Pantalla Completa",
+    "ratio_4_3": "4:3",
+    "ratio_16_9": "16:9"
+  },
+  "labels": {
+    "main_text": "Texto Principal",
+    "aux_text": "Texto Auxiliar",
+    "slides": "Diapositivas",
+    "background": "Fondo",
+    "position": "Posición",
+    "color": "Color",
+    "size": "Tamaño",
+    "transparent_bg": "Fondo Transparente",
+    "replicate_bg": "Replicar Fondo",
+    "replicate_text": "Replicar Formato de Texto",
+    "resolution": "Resolución",
+    "audio_file": "Archivo de Audio",
+    "recording": "Grabación"
   },
   "data": {
     "slide": "Diapositiva",
     "of": "de",
-    "empty": "Sin diapositivas. Haz clic en + para agregar.",
-    "invalid_file": "Archivo inválido. El archivo debe ser una presentación exportada por LouvorJA."
+    "empty": "Sin diapositivas. Haz clic en Nuevo para crear.",
+    "invalid_file": "Archivo inválido. Se espera presentación .slja exportada por LouvorJA.",
+    "no_audio": "Sin audio adjunto",
+    "untitled": "Nueva canción",
+    "discard_changes": "¿Descartar cambios sin guardar?"
+  },
+  "positions": {
+    "1": "Sup. Izq.",
+    "2": "Sup. Centro",
+    "3": "Sup. Der.",
+    "4": "Medio Izq.",
+    "5": "Centro",
+    "6": "Medio Der.",
+    "7": "Inf. Izq.",
+    "8": "Inf. Centro",
+    "9": "Inf. Der."
   }
 }
