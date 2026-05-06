@@ -89,7 +89,11 @@ function createMainWindow(devUrl, prodHtmlPath, preloadPath) {
   if (isDev) {
     win.loadURL(devUrl);
   } else {
-    win.loadFile(prodHtmlPath);
+    // Em produção carrega via custom protocol ao invés de file:// para
+    // ter origem real (não null) — habilita BroadcastChannel, fetch
+    // relativo, secure context. O `prodHtmlPath` é mantido por compat
+    // com a assinatura, mas não é mais usado para o load principal.
+    win.loadURL("louvorja://app/index.html");
   }
 
   return win;

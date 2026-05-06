@@ -33,23 +33,35 @@ module.exports = {
 
   /**
    * Diretório de mídia (mp3, imagens, etc.). Configurável pelo usuário
-   * em "Configurações → Armazenamento". Default: <Documents>/LouvorJA.
+   * em "Configurações → Armazenamento". Default: <userData>/files.
    *
-   * Usar Documents (em vez de userData) porque:
-   *  - é a pasta padrão que o usuário enxerga no Finder/Explorer
-   *  - sobrevive a reinstalações do app (userData pode ser limpo)
-   *  - replica o comportamento do Delphi original (pasta visível ao usuário)
+   * Por que userData (e não Documents) por padrão:
+   *  - sempre escrevível — Documents pode ser bloqueado por Controlled
+   *    Folder Access / Windows Defender, ou estar redirecionado pro OneDrive
+   *  - sem locks de sincronização
+   *  - usuário pode escolher Documents (ou qualquer pasta) em
+   *    "Configurações → Armazenamento"
+   *
+   * Compat: se já existe `Documents/LouvorJA` de uma instalação anterior,
+   * continua usando para não perder dados — só faz fallback para userData
+   * em instalações novas.
    */
   filesDir() {
     if (_filesDirOverride) return _filesDirOverride;
-    const dir = path.join(app.getPath("documents"), "LouvorJA");
+
+    const userDataDir = path.join(app.getPath("userData"), "files");
+
     try {
-      fs.ensureDirSync(dir);
+      const docsDir = path.join(app.getPath("documents"), "LouvorJA");
+      if (fs.existsSync(docsDir) && fs.statSync(docsDir).isDirectory()) {
+        return docsDir;
+      }
     } catch (_) {
-      /* permissão negada — fallback para userData */
-      return path.join(app.getPath("userData"), "files");
+      /* documents inacessível — segue para userData */
     }
-    return dir;
+
+    fs.ensureDirSync(userDataDir);
+    return userDataDir;
   },
 
   /**
@@ -67,8 +79,9 @@ module.exports = {
   },
 
   /**
-   * Caminho legado de mídia (versões antigas armazenavam em userData/files).
-   * Usado apenas para migração one-shot.
+   * Caminho legado de mídia (versões antigas armazenavam em userData/files
+   * antes da migração para Documents). Mantido só para a migração existente
+   * em main.cjs continuar compilando — pode ser removido depois.
    */
   legacyFilesDir() {
     return path.join(app.getPath("userData"), "files");

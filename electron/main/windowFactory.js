@@ -134,9 +134,11 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
   if (devUrl) {
     win.loadURL(`${devUrl}${route}`);
   } else if (prodHtmlPath) {
-    // No build, history mode precisa do hash como fallback
+    // Em produção carrega via custom protocol louvorja://app — origem
+    // real (não null), habilita BroadcastChannel inter-window, fetch
+    // relativo e secure context. router em hash mode preserva a rota.
     const cleanRoute = route.startsWith("/") ? route : `/${route}`;
-    win.loadFile(prodHtmlPath, { hash: cleanRoute });
+    win.loadURL(`louvorja://app/index.html#${cleanRoute}`);
   }
 
   _openWindows.set(feature, win);

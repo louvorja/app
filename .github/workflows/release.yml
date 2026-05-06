@@ -58,6 +58,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_ENV: production
           VITE_BASE_URL: /
+          VITE_URL_DATABASE: ${{ vars.VITE_URL_DATABASE }}
+          VITE_URL_FILES: ${{ vars.VITE_URL_FILES }}
+          VITE_API_TOKEN: ${{ secrets.VITE_API_TOKEN }}
+          VITE_APP_VERSION: ${{ github.ref_name }}
           # Sem code signing automático no macOS — requer certificado pago
           CSC_IDENTITY_AUTO_DISCOVERY: false
 

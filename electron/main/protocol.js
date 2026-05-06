@@ -4,11 +4,15 @@
  * protocol.js — Registra o protocolo customizado `louvorja://`.
  *
  * Hosts suportados:
+ *   louvorja://app/<caminho>       — assets do build Vue em dist/ (substitui file://)
  *   louvorja://json_db/<arquivo>   — proxy com cache para api.louvorja.com.br/json_db
  *   louvorja://files/<caminho>     — arquivos locais em userData/files/ (populado em D3 via FTP)
  *
  * O protocolo é marcado como standard + secure para que fetch() e XHR funcionem
- * normalmente dentro do renderer sem erros de CORS/CSP.
+ * normalmente dentro do renderer sem erros de CORS/CSP. O host "app" existe
+ * para que a app principal seja servida com origem real (não null como no
+ * file://) — secure context, BroadcastChannel, fetch relativo, todos
+ * funcionam sem hacks.
  *
  * Faz parte da Fase D2 — Cache de JSON do banco.
  */
@@ -136,8 +140,35 @@ function handle() {
   electron.protocol.handle("louvorja", async (request) => {
     try {
       const url = new URL(request.url);
-      const host = url.host; // "json_db" ou "files"
+      const host = url.host; // "app" | "json_db" | "files"
       const pathname = url.pathname || "/";
+
+      // ------------------------------------------------------------------
+      // louvorja://app/<caminho>
+      // Serve assets do build Vue (dist/). Substitui file:// para que
+      // a origem do renderer não seja null.
+      // ------------------------------------------------------------------
+      if (host === "app") {
+        const distDir = path.join(electron.app.getAppPath(), "dist");
+        const cleaned = pathname.replace(/^\/+/, "") || "index.html";
+        const localPath = path.resolve(distDir, cleaned);
+
+        if (!localPath.startsWith(distDir + path.sep) && localPath !== distDir) {
+          console.warn("[protocol] app: path traversal bloqueado:", pathname);
+          return new Response("Forbidden", { status: 403 });
+        }
+
+        if (!fs.existsSync(localPath)) {
+          // SPA fallback: rotas client-side (vue-router) caem em index.html
+          const indexPath = path.join(distDir, "index.html");
+          if (fs.existsSync(indexPath)) {
+            return electron.net.fetch(pathToFileURL(indexPath).toString());
+          }
+          return new Response("Not found", { status: 404 });
+        }
+
+        return electron.net.fetch(pathToFileURL(localPath).toString());
+      }
 
       // ------------------------------------------------------------------
       // louvorja://json_db/<arquivo>
