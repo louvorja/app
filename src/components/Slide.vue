@@ -19,10 +19,13 @@
       {{ title }}
     </div>
 
-    <!-- Texto principal (capa OU letra) -->
+    <!-- Texto principal (capa OU letra).
+         Na CAPA, evita redundância: se a tira do topo (show_title_first_slide)
+         estiver ligada, não duplica o título no centro. Mostra centralizado
+         apenas quando o usuário desligou a tira (cobertura "modo Delphi clássico"). -->
     <div class="lj-slide__content">
       <div
-        v-if="mainText"
+        v-if="showCenteredText"
         class="lj-slide__text"
         :class="[
           isCover ? 'lj-slide__text--cover' : 'lj-slide__text--lyric',
@@ -124,6 +127,15 @@ const slideObj = computed(() => {
 const isCover = computed(() => slideObj.value?.cover === true);
 const mainText = computed(() => slideObj.value?.lyric || slideObj.value?.name || "");
 const auxText = computed(() => slideObj.value?.aux_lyric || slideObj.value?.lyric_aux || "");
+
+// Na capa, NÃO duplica o título: se a tira do topo está ligada, ela é o título.
+// Senão (usuário desligou show_title_first_slide), mostra centralizado.
+// Em slides de letra, sempre mostra o texto centralizado.
+const showCenteredText = computed(() => {
+  if (!mainText.value) return false;
+  if (isCover.value && cfg.value.show_title_first_slide && props.title) return false;
+  return true;
+});
 
 // Detecta refrão repetido (mesmo conteúdo do slide anterior → cor alterna).
 const isRepeat = ref(false);

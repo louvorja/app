@@ -112,23 +112,15 @@ class FtpQueue extends EventEmitter {
         secure: false, // FTP plain — Delphi também usa
       });
 
-      // O usuário FTP cai num home (ex: /home2/maycor44/...) e o servidor
-      // recusa paths absolutos no GET. Estratégia: cd absoluto para o
-      // diretório do arquivo (passing absolute path em CWD funciona) e GET
-      // só do nome do arquivo. Mantemos o cwd atual em memória para evitar
-      // re-cd quando arquivos seguidos vivem no mesmo diretório.
-      const root = (creds.root || "").replace(/\/+$/, "");
-      const buildAbs = (remote) => {
+      // O servidor faz chroot — após login o usuário cai numa "home" e
+      // qualquer path com leading "/" é interpretado como raiz absoluta
+      // do filesystem (que retorna 550). Estratégia: passar path relativo
+      // ao home no RETR, sem cd. O `creds.root`, se vier preenchido, vira
+      // prefixo dentro do mesmo home (concatenado e ainda relativo).
+      const root = (creds.root || "").replace(/^\/+|\/+$/g, "");
+      const buildRel = (remote) => {
         const rel = remote.replace(/^\/+/, "");
-        const full = root ? `${root}/${rel}` : `/${rel}`;
-        return full.replace(/\/{2,}/g, "/");
-      };
-
-      let currentCwd = null;
-      const ensureCwd = async (dir) => {
-        if (currentCwd === dir) return;
-        await this.client.cd(dir);
-        currentCwd = dir;
+        return root ? `${root}/${rel}` : rel;
       };
 
       while (this.queue.length > 0 && !this.cancelled) {
@@ -138,13 +130,10 @@ class FtpQueue extends EventEmitter {
 
         const item = this.queue.shift();
         const idx = total - this.queue.length;
-        const absPath = buildAbs(item.remote);
-        const dir = path.posix.dirname(absPath);
-        const base = path.posix.basename(absPath);
+        const remotePath = buildRel(item.remote);
 
         try {
           await fs.ensureDir(path.dirname(item.local));
-          await ensureCwd(dir);
 
           // Track progress por bytes
           this.client.trackProgress((info) => {
@@ -159,7 +148,7 @@ class FtpQueue extends EventEmitter {
 
           // Download para .tmp + rename
           const tmp = `${item.local}.tmp`;
-          await this.client.downloadTo(tmp, base);
+          await this.client.downloadTo(tmp, remotePath);
           this.client.trackProgress(); // desligar
 
           await fs.move(tmp, item.local, { overwrite: true });
@@ -167,9 +156,7 @@ class FtpQueue extends EventEmitter {
           this.emit("file-done", { file: item.remote, localPath: item.local });
           downloaded++;
         } catch (err) {
-          console.warn(`[ftpQueue] falhou ${absPath}: ${err.message}`);
-          // cwd pode ter ficado num estado inconsistente após erro
-          currentCwd = null;
+          console.warn(`[ftpQueue] falhou ${remotePath}: ${err.message}`);
           this.emit("file-error", { file: item.remote, error: err.message });
           failed++;
         }
