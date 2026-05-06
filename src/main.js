@@ -46,6 +46,57 @@ app.use(router);
 app.use(vuetify);
 app.use(VueFullscreen);
 
+// Em modo desktop (Electron), desregistra qualquer Service Worker que
+// tenha sido registrado em sessões anteriores (ex.: usuário rodou em
+// modo PWA e depois trocou para Electron) e limpa caches do workbox.
+// Sem isso, o SW pode interceptar requests de assets nas janelas
+// auxiliares (Projection, Operator) e servir JS desatualizado, ignorando
+// as mudanças de código mais recentes — sintoma: fix aplicado na main
+// mas projeção continua com comportamento antigo.
+if (Platform.isDesktop && typeof navigator !== "undefined") {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((regs) => {
+        for (const r of regs) {
+          r.unregister().catch(() => {
+            /* ignore */
+          });
+        }
+      })
+      .catch(() => {
+        /* ignore */
+      });
+  }
+  if (typeof caches !== "undefined" && caches.keys) {
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      .catch(() => {
+        /* ignore */
+      });
+  }
+}
+
+// Sincronização cross-window de UserData — sem isso, mexer em "Opções"
+// (fundo personalizado, tamanho de fontes, alinhamento, etc.) na janela
+// principal não chegava à janela de projeção, porque cada BrowserWindow
+// tem seu próprio Pinia store. Cada janela escuta patches das outras.
+UserData.initCrossWindow();
+
+// Exposição em dev para debug rápido no DevTools de qualquer janela.
+// Permite inspecionar `__userdata.get("options.custom_background")` ou
+// `__userdata.get()` (state inteiro) direto no console — útil para
+// diagnosticar falhas de sync entre janela principal e /projection.
+if (import.meta.env.DEV) {
+  try {
+    window.__userdata = UserData;
+    window.__appdata = AppData;
+  } catch (_) {
+    /* ignore */
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers para obter o módulo ativo e a referência ao shell
 // ---------------------------------------------------------------------------
@@ -79,6 +130,17 @@ function _shell() {
 // No Electron carrega os dados de userData/storage/ para o cache em memória.
 // ---------------------------------------------------------------------------
 $storage.hydrate().then(async () => {
+  // Hidrata o Pinia userDataStore a partir do Storage em TODAS as janelas
+  // (principal, projeção, operador, OBS). Antes só Shell.vue chamava load(),
+  // mas as janelas auxiliares de projeção não montam Shell — viviam com o
+  // state default e ignoravam Opções salvas (fundo personalizado, tamanho
+  // de fonte, alinhamento, etc.).
+  try {
+    UserData.load();
+  } catch (e) {
+    console.warn("[main] UserData.load falhou:", e);
+  }
+
   // D2 — Configurar URLs remotas no main process para o protocolo louvorja://.
   // O renderer lê as variáveis Vite e envia ao main antes de montar a UI.
   if (Platform.isDesktop && Platform.protocol) {

@@ -82,6 +82,32 @@ contextBridge.exposeInMainWorld("louvorjaApi", {
     dir: () => ipcRenderer.invoke("userStore:dir"),
   },
 
+  /**
+   * Sync de UserData entre janelas via IPC (fallback determinístico ao
+   * BroadcastChannel cross-process). O renderer chama `patch()` quando o
+   * usuário muda uma opção, o main reemite via webContents.send para todas
+   * as outras BrowserWindows, e elas processam em `onPatch()`.
+   */
+  userdata: {
+    /**
+     * Notifica o main que o renderer aplicou um patch — main fan-out para
+     * as outras janelas.
+     * @param {{ path: string, value: unknown, _src?: string }} payload
+     */
+    patch: (payload) => ipcRenderer.invoke("userdata:patch", payload),
+
+    /**
+     * Registra listener para patches vindos de outras janelas.
+     * @param {(payload: { path: string, value: unknown, _src?: string }) => void} cb
+     * @returns {() => void} cleanup
+     */
+    onPatch: (cb) => {
+      const handler = (_e, data) => cb(data);
+      ipcRenderer.on("userdata:patch", handler);
+      return () => ipcRenderer.off("userdata:patch", handler);
+    },
+  },
+
   // -------------------------------------------------------------------------
   // D2 — Protocolo customizado louvorja:// e cache JSON
   // -------------------------------------------------------------------------

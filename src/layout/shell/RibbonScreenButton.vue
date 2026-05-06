@@ -23,7 +23,7 @@
           v-bind="menuProps"
           type="button"
           class="ribbon-screen-btn__chevron"
-          :title="$t('settings.slides.open_at')"
+          :title="$t('options.slides.open_at')"
           @click.stop
         >
           <v-icon icon="mdi-chevron-down" size="14" />
@@ -31,7 +31,7 @@
       </template>
 
       <v-list density="compact" min-width="260">
-        <v-list-subheader>{{ $t("settings.slides.open_at") }}</v-list-subheader>
+        <v-list-subheader>{{ $t("options.slides.open_at") }}</v-list-subheader>
 
         <v-list-item
           v-if="fallback_feature"
@@ -43,7 +43,7 @@
               {{ explicit_id === undefined ? "mdi-check" : "mdi-link-variant" }}
             </v-icon>
           </template>
-          <v-list-item-title>{{ $t("settings.monitors.use_default") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("options.monitors.use_default") }}</v-list-item-title>
           <v-list-item-subtitle>{{ fallback_label }}</v-list-item-subtitle>
         </v-list-item>
 
@@ -51,7 +51,7 @@
           <template #prepend>
             <v-icon size="18">{{ explicit_id === null ? "mdi-check" : "" }}</v-icon>
           </template>
-          <v-list-item-title>{{ $t("settings.slides.same_window") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("options.slides.same_window") }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item
@@ -66,7 +66,7 @@
           <v-list-item-title>
             {{ d.label }}
             <span v-if="d.primary" class="text-caption text-medium-emphasis ms-1">
-              ({{ $t("settings.monitors.primary_short") }})
+              ({{ $t("options.monitors.primary_short") }})
             </span>
           </v-list-item-title>
           <v-list-item-subtitle>{{ d.bounds.width }}×{{ d.bounds.height }}</v-list-item-subtitle>
@@ -78,7 +78,7 @@
           <template #prepend>
             <v-icon size="18">mdi-magnify</v-icon>
           </template>
-          <v-list-item-title>{{ $t("settings.monitors.identify") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("options.monitors.identify") }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item v-if="is_active" @click="closeOpen()">

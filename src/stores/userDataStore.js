@@ -74,6 +74,16 @@ export const useUserDataStore = defineStore("userData", {
         fade_audio: false,
       },
     },
+    /**
+     * @type {Record<string, any>}
+     * Preferências da tela "Opções" (custom_background, custom_text_format,
+     * cores, tamanhos de fonte, etc.). Precisa estar no state inicial para
+     * que o Pinia/Vue trate `state.options.X` como propriedade reativa
+     * desde o boot — caso contrário, $patch+Object.assign quando carregamos
+     * do disco/main em janelas auxiliares (Projeção, Operador) não dispara
+     * reatividade no useSlideStyle e a tela de projeção não atualiza.
+     */
+    options: {},
   }),
 
   getters: {

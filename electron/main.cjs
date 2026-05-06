@@ -317,6 +317,76 @@ ipcMain.handle("userStore:keys", () => userStore.keys());
 ipcMain.handle("userStore:dir", () => userStore.dir());
 
 // ---------------------------------------------------------------------------
+// Sync de UserData entre janelas (fallback ao BroadcastChannel)
+// ---------------------------------------------------------------------------
+//
+// O BroadcastChannel("louvorja") cruza BrowserWindows quando todas usam
+// `sandbox: false` e mesma origem. Mas em alguns drivers/builds esse fan-out
+// é flaky (mensagens chegam em uma janela, não em outra). Esse handler
+// garante a entrega: o renderer manda um patch via IPC e o main reemite
+// para TODAS as outras janelas via webContents.send. Idempotente — o
+// listener no renderer faz dedup pelo `_src`.
+// ---------------------------------------------------------------------------
+// Espelho do user_data no main process — fonte da verdade cross-window.
+//
+// Antes, cada renderer mantinha seu Pinia store independente, e a sincronização
+// dependia do timing entre saves debounceados, broadcasts e abertura de novas
+// janelas. Resultado: abrir /projection logo após mudar uma opção fazia ela
+// hidratar do disco velho (debounce 300ms) e perder o broadcast (registrado
+// só após mount). Sintoma visível: opções de fundo personalizado não chegavam
+// à projeção em monitor secundário.
+//
+// Estratégia agora: o main process mantém uma cópia completa de user_data em
+// memória (_userDataMain). Toda chamada a `userdata:patch` atualiza essa cópia,
+// persiste IMEDIATAMENTE no disco e faz fan-out para outras janelas. Janelas
+// auxiliares chamam `userdata:fetch` no boot e recebem o snapshot mais fresco.
+// ---------------------------------------------------------------------------
+
+function _walkSet(obj, path, value) {
+  if (!path || typeof path !== "string") return;
+  const keys = path.split(".");
+  let cur = obj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (cur[keys[i]] === undefined || cur[keys[i]] === null) cur[keys[i]] = {};
+    cur = cur[keys[i]];
+  }
+  cur[keys[keys.length - 1]] = value;
+}
+
+let _userDataMain = userStore.read("user_data") || {};
+
+ipcMain.handle("userdata:fetch", () => {
+  // Snapshot defensivo — evita que renderer mute o objeto compartilhado.
+  try {
+    return JSON.parse(JSON.stringify(_userDataMain));
+  } catch {
+    return _userDataMain;
+  }
+});
+
+ipcMain.handle("userdata:patch", (event, payload) => {
+  const sender = event.sender;
+  // Atualiza o espelho em memória + persiste sincronamente. Sem debounce —
+  // mudanças em "Opções" são esporádicas (não em rajada como drag-drop).
+  if (payload && typeof payload.path === "string") {
+    try {
+      _walkSet(_userDataMain, payload.path, payload.value);
+      userStore.write("user_data", _userDataMain);
+    } catch (e) {
+      console.warn("[userdata:patch] persist falhou:", e?.message || e);
+    }
+  }
+  // Fan-out para todas as outras janelas — listener no preload aplica via
+  // Pinia $patch no respectivo renderer.
+  for (const w of BrowserWindow.getAllWindows()) {
+    if (!w || w.isDestroyed()) continue;
+    if (w.webContents === sender) continue;
+    try { w.webContents.send("userdata:patch", payload); } catch (_) { /* ignore */ }
+  }
+  return { ok: true };
+});
+
+// ---------------------------------------------------------------------------
 // IPC handlers do protocolo e cache JSON (D2)
 // ---------------------------------------------------------------------------
 

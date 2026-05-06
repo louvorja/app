@@ -20,6 +20,9 @@
 
 import $dev from "@/helpers/Dev";
 import $storage from "@/helpers/Storage";
+import $broadcast from "@/helpers/Broadcast";
+import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
+import Platform from "@/helpers/Platform";
 import { useUserDataStore } from "@/stores/userDataStore";
 
 export interface RemoteConfig {
@@ -39,6 +42,51 @@ export interface UserDataState {
 }
 
 let _saveTimer: ReturnType<typeof setTimeout> | null = null;
+let _crossWindowInitialized = false;
+// Token único por renderer — usado para ignorar broadcasts originados aqui
+// mesmo (BroadcastChannel não entrega para a janela que postou, mas se um
+// dia precisarmos de fan-out local para mesma chave isso evita loops).
+const _SRC = `udata-${Math.random().toString(36).slice(2, 10)}`;
+// Quando true, set() apenas escreve no store local SEM broadcastar nem
+// persistir — usado pelo handler que recebe um patch remoto, evitando
+// echo infinito entre janelas.
+let _suppressBroadcast = false;
+
+/**
+ * Hidrata o Pinia store profundamente a partir de um snapshot — funciona
+ * mesmo quando keys top-level (como `options`) estavam vazias no state
+ * inicial. Antes usávamos `Object.assign(state, snapshot)` dentro de $patch,
+ * mas em janelas auxiliares (Projeção) sub-objetos como `options.custom_background`
+ * não estavam refletindo no getter `getData(...)`, mesmo com o $patch
+ * resolvendo. Garantia agora: SET_PATH por leaf key, que é exatamente o
+ * mesmo caminho usado em runtime (e, portanto, dispara reatividade
+ * idêntica ao caso sincronizado via patch).
+ */
+function _hydrateStore(snapshot: Record<string, unknown>): void {
+  const store = useUserDataStore();
+  const visit = (prefix: string, value: unknown): void => {
+    // Folhas: arrays, primitives e null vão direto via SET_PATH.
+    // Objetos puros recursam para preservar deep merge — não sobrescreve
+    // chaves não presentes em `snapshot`.
+    if (
+      value !== null &&
+      typeof value === "object" &&
+      !Array.isArray(value)
+    ) {
+      // Garante que o caminho é objeto antes de recursar (evita string + .)
+      if (prefix && store.getData(prefix) === undefined) {
+        store.SET_PATH({ path: prefix, value: {} });
+      }
+      for (const key of Object.keys(value as Record<string, unknown>)) {
+        const sub = (value as Record<string, unknown>)[key];
+        visit(prefix ? `${prefix}.${key}` : key, sub);
+      }
+      return;
+    }
+    if (prefix) store.SET_PATH({ path: prefix, value });
+  };
+  visit("", snapshot);
+}
 
 export default {
   /**
@@ -59,14 +107,40 @@ export default {
   /**
    * Carrega as preferências salvas do Storage para o store.
    * Chamado uma vez no boot, antes de montar o app.
+   *
+   * Em desktop (Electron), além do disco, busca o snapshot vivo no main
+   * process via IPC `userdata:fetch`. Isso garante que janelas auxiliares
+   * abertas logo após uma mudança recebam o estado mais recente, mesmo se
+   * o save debounceado ainda não tiver chegado ao disco.
    */
   load(): void {
     $dev.write("carregando dados");
     const saved = $storage.get("user_data");
-    if (saved) {
-      useUserDataStore().$patch((state) => {
-        Object.assign(state, saved);
-      });
+    if (saved && typeof saved === "object") {
+      _hydrateStore(saved as Record<string, unknown>);
+    }
+    // Em desktop, sobrescreve com o snapshot do main (fonte da verdade).
+    // Async — não bloqueia o boot. Quando responder, atualiza o store.
+    if (Platform.isDesktop) {
+      try {
+        const api = Platform.api as
+          | { invoke?: (channel: string, ...args: unknown[]) => Promise<unknown> }
+          | null;
+        if (api && typeof api.invoke === "function") {
+          api.invoke("userdata:fetch")
+            .then((fresh: unknown) => {
+              if (fresh && typeof fresh === "object") {
+                _suppressBroadcast = true;
+                try {
+                  _hydrateStore(fresh as Record<string, unknown>);
+                } finally {
+                  _suppressBroadcast = false;
+                }
+              }
+            })
+            .catch(() => { /* main pode estar inicializando — disco já cobriu */ });
+        }
+      } catch { /* ignore */ }
     }
   },
 
@@ -79,7 +153,91 @@ export default {
   set(param: string, value: unknown): void {
     $dev.write("set userdata", { param, value });
     useUserDataStore().SET_PATH({ path: param, value });
+    if (_suppressBroadcast) {
+      // Patch chegou de outra janela — só atualiza o store local, sem
+      // re-broadcastar nem persistir (a janela origem já persistiu).
+      return;
+    }
     this.save();
+    // Fan-out para outras janelas. Mandamos pelos DOIS canais:
+    //
+    //   1. BroadcastChannel — funciona cross-tab (web/PWA) e idealmente
+    //      cross-window no Electron 41+ (sandbox: false + mesma origem).
+    //   2. IPC main process — fallback determinístico para o desktop, já que
+    //      o cross-process do BroadcastChannel é flaky em alguns drivers.
+    //
+    // Listeners deduplicam pelo `_src`, então não há risco de aplicar o
+    // mesmo patch duas vezes na janela destino.
+    const payload = { path: param, value, _src: _SRC };
+    try {
+      $broadcast.send(BROADCAST_TYPE.USERDATA_PATCH, payload);
+    } catch {
+      /* canal pode não existir em testes node-only */
+    }
+    if (Platform.isDesktop) {
+      try {
+        const api = Platform.api as
+          | { invoke?: (channel: string, ...args: unknown[]) => unknown }
+          | null;
+        if (api && typeof api.invoke === "function") {
+          api.invoke("userdata:patch", payload);
+        } else if (Platform.userdata?.patch) {
+          Platform.userdata.patch(payload);
+        }
+      } catch {
+        /* IPC offline durante boot inicial — broadcast já cobriu */
+      }
+    }
+  },
+
+  /**
+   * Inicializa o listener cross-window de mudanças de UserData.
+   *
+   * Idempotente — chame uma vez por renderer (em main.js). Cada janela
+   * Vue recebe os patches das outras e atualiza seu Pinia store local
+   * sem re-broadcastar nem persistir, garantindo que opções definidas
+   * na janela principal apareçam imediatamente na projeção.
+   */
+  initCrossWindow(): void {
+    if (_crossWindowInitialized) return;
+    _crossWindowInitialized = true;
+    const apply = (payload: { path?: string; value?: unknown; _src?: string } | null): void => {
+      if (!payload || typeof payload.path !== "string") return;
+      if (payload._src === _SRC) return; // veio daqui — ignora
+      _suppressBroadcast = true;
+      try {
+        this.set(payload.path, payload.value);
+      } finally {
+        _suppressBroadcast = false;
+      }
+    };
+    // Canal 1 — BroadcastChannel (web/PWA + Electron quando funciona)
+    $broadcast.listen((msg) => {
+      if (!msg || msg.type !== BROADCAST_TYPE.USERDATA_PATCH) return;
+      apply(msg.payload as { path?: string; value?: unknown; _src?: string } | null);
+    });
+    // Canal 2 — IPC do Electron (fallback determinístico).
+    // louvorjaApi.on é genérico e existe no preload desde D0 — sync funciona
+    // mesmo em janelas com preload antigo, contanto que o main.cjs novo esteja
+    // ativo (que registra o webContents.send("userdata:patch", ...)).
+    if (Platform.isDesktop) {
+      try {
+        const api = Platform.api as
+          | { on?: (channel: string, h: (data: unknown) => void) => () => void }
+          | null;
+        if (api && typeof api.on === "function") {
+          api.on("userdata:patch", (data: unknown) =>
+            apply(data as { path?: string; value?: unknown; _src?: string } | null)
+          );
+        } else if (Platform.userdata?.onPatch) {
+          Platform.userdata.onPatch((data: unknown) =>
+            apply(data as { path?: string; value?: unknown; _src?: string } | null)
+          );
+        }
+      } catch (e) {
+        console.warn("[UserData] IPC onPatch falhou:", e);
+      }
+    }
   },
 
   /**

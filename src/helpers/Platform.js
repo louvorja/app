@@ -209,4 +209,16 @@ export default {
   get appLogin() {
     return api?.appLogin ?? null;
   },
+
+  /**
+   * Sync de UserData cross-window via IPC (fallback ao BroadcastChannel).
+   * No desktop, garante que mudanças nas Opções da janela principal cheguem
+   * a todas as janelas auxiliares (Projeção, Operador, ObsBible).
+   * null no browser/PWA — lá o BroadcastChannel cross-tab é confiável.
+   *
+   * @returns {{ patch, onPatch } | null}
+   */
+  get userdata() {
+    return api?.userdata ?? null;
+  },
 };

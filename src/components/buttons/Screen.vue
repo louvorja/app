@@ -4,7 +4,7 @@
       :size="size"
       :active="is_active"
       :icon="iconName"
-      :title="$t('settings.slides.open_at')"
+      :title="$t('options.slides.open_at')"
       @click="primaryClick()"
     />
 
@@ -14,7 +14,7 @@
       </template>
 
       <v-list density="compact" min-width="260">
-        <v-list-subheader>{{ $t("settings.slides.open_at") }}</v-list-subheader>
+        <v-list-subheader>{{ $t("options.slides.open_at") }}</v-list-subheader>
 
         <!-- Padrão (herdado) — só aparece quando há grupo de fallback -->
         <v-list-item
@@ -28,7 +28,7 @@
             </v-icon>
           </template>
           <v-list-item-title>
-            {{ $t("settings.monitors.use_default") }}
+            {{ $t("options.monitors.use_default") }}
           </v-list-item-title>
           <v-list-item-subtitle>
             {{ fallback_label }}
@@ -39,7 +39,7 @@
           <template #prepend>
             <v-icon size="18">{{ explicit_id === null ? "mdi-check" : "" }}</v-icon>
           </template>
-          <v-list-item-title>{{ $t("settings.slides.same_window") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("options.slides.same_window") }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item
@@ -54,7 +54,7 @@
           <v-list-item-title>
             {{ d.label }}
             <span v-if="d.primary" class="text-caption text-medium-emphasis ms-1">
-              ({{ $t("settings.monitors.primary_short") }})
+              ({{ $t("options.monitors.primary_short") }})
             </span>
           </v-list-item-title>
           <v-list-item-subtitle>{{ d.bounds.width }}×{{ d.bounds.height }}</v-list-item-subtitle>
@@ -66,7 +66,7 @@
           <template #prepend>
             <v-icon size="18">mdi-magnify</v-icon>
           </template>
-          <v-list-item-title>{{ $t("settings.monitors.identify") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("options.monitors.identify") }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item v-if="is_active" @click="closeOpen()">

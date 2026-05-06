@@ -39,6 +39,7 @@ export const SLIDE_DEFAULTS = Object.freeze({
   transition_speed_ms: 120,    // fade-in da tela inteira (rápido — antes 256ms)
   text_bg_transparent: false,  // caixa de texto atrás da letra (translúcida quando false)
   affect_external_slides: true, // formatação personalizada vence formatação do slide externo
+  custom_background_active: false, // toggle "Fundo personalizado" ligado pelo usuário
 });
 
 export type SlideOption = Record<string, unknown> | null;
@@ -76,6 +77,11 @@ interface SlideCfg {
   transition_speed_ms: number;
   text_bg_transparent: boolean;
   affect_external_slides: boolean;
+  /** O usuário marcou "Fundo personalizado" nas Opções. Necessário porque
+   *  background_color/background_image também têm valor mesmo sem o toggle —
+   *  sem essa flag não dá pra saber se a config custom deve substituir o
+   *  background do slide externo. */
+  custom_background_active: boolean;
 }
 
 /**
@@ -122,6 +128,7 @@ const _readSlideOpts = (): SlideCfg => {
 
   // Fundo personalizado
   if ($userdata.get<boolean>("options.custom_background", false) === true) {
+    merged.custom_background_active = true;
     const bgTransparent = $userdata.get<boolean>("options.bg_transparent", false) === true;
     const bgColor = $userdata.get<string>("options.bg_color", null);
     const bgImage = $userdata.get<string>("options.bg_image", null);
@@ -249,21 +256,22 @@ export function useSlideStyle(): SlideStyleAPI {
 
   function bgStyle(slide?: SlideOption): CSSProperties {
     const slideUrl = (slide as { url_image?: string })?.url_image;
-    // Regra:
-    //   - Se o usuário configurou uma imagem custom (cfg.background_image) e
-    //     marcou affect_external_slides=true, ela vence sobre a imagem do slide.
-    //   - Caso contrário, usa a imagem do próprio slide (url_image vinda do
-    //     banco) como padrão.
-    //   - Se o slide também não tem imagem, usa só a cor de fundo.
-    // Antes esta função zerava a imagem quando affect_external_slides=true e
-    // cfg.background_image estava vazio — resultava em projetor preto enquanto
-    // o preview mostrava a foto, criando inconsistência.
-    const customWins = cfg.value.affect_external_slides && cfg.value.background_image;
+    // Regras (replicando o Delphi):
+    //   1. "Fundo personalizado" + "afetar slides externos" → custom vence:
+    //      cor sólida ou imagem custom substitui a url_image do slide.
+    //      Se bg_image estiver vazio, mostra SÓ a cor (sem imagem do slide).
+    //   2. Sem custom OU sem affect_external → usa url_image do slide;
+    //      se o slide não tem imagem, cai no background_color global.
+    // O bug anterior era exigir background_image truthy na condição —
+    // resultado: usuário marcava "Fundo personalizado" + cor preta + imagem
+    // vazia e o slide continuava mostrando a capa original da música.
+    const customWins =
+      cfg.value.affect_external_slides && cfg.value.custom_background_active;
     const url = customWins
-      ? cfg.value.background_image
+      ? cfg.value.background_image // pode ser "" → sem imagem, só a cor
       : slideUrl || cfg.value.background_image || "";
-    // Quando o slide tem image_position numérica (0-8 do banco) e nenhuma
-    // config global custom está vencendo, preserva o posicionamento do slide.
+    // Quando custom NÃO vence e o slide tem image_position numérica (0-8 do
+    // banco), preserva o posicionamento original do slide.
     let position: string = cfg.value.background_position;
     const slideImagePos = (slide as { image_position?: number | string })?.image_position;
     if (!customWins && typeof slideImagePos === "number") {

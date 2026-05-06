@@ -28,7 +28,7 @@
     "host": "vite --host",
     "files": "node node/server.js",
     "git:tag": "git tag -a -f v%npm_package_version% -m \"Versão %npm_package_version%\" && git push origin -f v%npm_package_version% && git push -u origin main",
-    "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://localhost:5002 && cross-env ELECTRON_DEV=1 ELECTRON_RUN_AS_NODE= electron .\"",
+    "electron:dev": "concurrently -k \"cross-env VITE_TARGET=desktop npm run dev\" \"wait-on http://localhost:5002 && cross-env ELECTRON_DEV=1 ELECTRON_RUN_AS_NODE= electron .\"",
     "electron:build": "cross-env VITE_TARGET=desktop npm run build && electron-builder",
     "electron:build:win": "cross-env VITE_TARGET=desktop npm run build && electron-builder --win",
     "electron:build:mac": "cross-env VITE_TARGET=desktop npm run build && electron-builder --mac",

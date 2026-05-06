@@ -101,6 +101,35 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
 
   const win = new BrowserWindow(winOpts);
 
+  // Em modo dev, abre DevTools automaticamente em janelas de projeção/operador.
+  // Em janelas fullscreen/kiosk o atalho Ctrl+Shift+I não funciona (kiosk
+  // bloqueia atalhos), então a única forma de inspecionar é abrir aqui.
+  // Também abre se LJ_DEVTOOLS=1 estiver setado (debug pontual em prod).
+  const _isDevMode =
+    process.env.ELECTRON_DEV === "1" ||
+    process.env.LJ_DEVTOOLS === "1" ||
+    !require("electron").app.isPackaged;
+  if (_isDevMode) {
+    win.webContents.once("did-finish-load", () => {
+      try { win.webContents.openDevTools({ mode: "detach" }); } catch (_) { /* ignore */ }
+    });
+  }
+
+  // Atalho de emergência: Cmd/Ctrl+Shift+D abre/fecha DevTools mesmo em kiosk.
+  // O kiosk bloqueia muitos atalhos do sistema; este é tratado ANTES de chegar
+  // na página, via webContents.before-input-event.
+  win.webContents.on("before-input-event", (_e, input) => {
+    if (input.type !== "keyDown") return;
+    const isToggleDevTools =
+      (input.control || input.meta) && input.shift && input.key.toLowerCase() === "d";
+    if (isToggleDevTools) {
+      try {
+        if (win.webContents.isDevToolsOpened()) win.webContents.closeDevTools();
+        else win.webContents.openDevTools({ mode: "detach" });
+      } catch (_) { /* ignore */ }
+    }
+  });
+
   if (fullscreen && isMac && overscan > 0) {
     // Reforça bounds expandidos depois do construtor — kiosk pode reescrever.
     win.setBounds({
