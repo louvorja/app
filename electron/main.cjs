@@ -495,8 +495,30 @@ ipcMain.handle("httpServer:start", async (_e, opts) => {
 /** Para o servidor HTTP. No-op se já parado. */
 ipcMain.handle("httpServer:stop", () => httpServer.stop());
 
-/** Retorna o estado atual do servidor { running, port, token }. */
+/** Retorna o estado atual do servidor { running, port, token, sse }. */
 ipcMain.handle("httpServer:status", () => httpServer.status());
+
+/** Regenera o token e persiste em userStore. Retorna o novo token. */
+ipcMain.handle("httpServer:resetToken", () => httpServer.resetToken());
+
+/**
+ * Bridge `Broadcast.send()` (renderer) → SSE clients remotos.
+ *
+ * O `Broadcast.ts` no renderer chama esse handler sempre que emite um
+ * evento relayável (slide_change, bible_verse, module_projection_value…).
+ * Aceitamos só do `mainWindow` para evitar duplicação quando a mensagem
+ * cruza para janelas auxiliares (Projection, Operator, ObsBible) — todas
+ * elas re-emitem o broadcast localmente, mas só a janela principal é a
+ * fonte de verdade.
+ */
+ipcMain.on("transmission:broadcast", (event, msg) => {
+  if (!mainWindow || event.sender.id !== mainWindow.webContents.id) return;
+  try {
+    httpServer.publish(msg);
+  } catch (e) {
+    console.warn("[transmission] publish falhou:", e?.message || e);
+  }
+});
 
 /**
  * Retorna os endereços IP locais da máquina (IPv4, não-loopback).

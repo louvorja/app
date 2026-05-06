@@ -320,6 +320,16 @@ const _self = {
     $appdata.set("modules.media.show", false);
     $appdata.set("modules.media.minimized", false);
 
+    // Reseta o estado de slides — sem isso o `useSlides.slides` retém o
+    // último array, e qualquer janela/cliente que reabra fica vendo a
+    // música anterior.
+    _slides.reset();
+
+    // Avisa janelas locais (Projection, ProjectionReturn) e clients
+    // remotos (SSE) para limparem a tela. Sem este broadcast, OBS continua
+    // mostrando a letra mesmo depois de fechar a música.
+    $broadcast.send(BROADCAST_TYPE.MEDIA_CLOSE);
+
     // Fecha janelas auxiliares (espelha o fmMusica.Close do Delphi).
     closeProjectionWindows().catch((e) => {
       console.warn("[Media] closeProjectionWindows falhou:", e);

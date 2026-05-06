@@ -252,10 +252,38 @@ contextBridge.exposeInMainWorld("louvorjaApi", {
     start: (opts) => ipcRenderer.invoke("httpServer:start", opts),
     /** Para o servidor HTTP. */
     stop: () => ipcRenderer.invoke("httpServer:stop"),
-    /** Retorna { running, port, token }. */
+    /** Retorna { running, port, token, sse }. */
     status: () => ipcRenderer.invoke("httpServer:status"),
     /** Retorna lista de IPs IPv4 locais (não-loopback). */
     localIps: () => ipcRenderer.invoke("httpServer:localIps"),
+    /** Regenera token (revoga acessos antigos). Retorna novo token. */
+    resetToken: () => ipcRenderer.invoke("httpServer:resetToken"),
+  },
+
+  /**
+   * Encaminha mensagens do BroadcastChannel local para os clients SSE
+   * conectados ao servidor HTTP (OBS, celular, navegador remoto).
+   * Chamado apenas pela janela principal — `Broadcast.ts` faz isso
+   * automaticamente. Em janelas auxiliares vira no-op no main process.
+   *
+   * Usa `send` (one-way) em vez de `invoke` para não bloquear o emissor
+   * em cada slide_change — a entrega via SSE é fire-and-forget.
+   */
+  transmission: {
+    broadcast: (msg) => ipcRenderer.send("transmission:broadcast", msg),
+
+    /**
+     * Disparado pelo main process quando o servidor sobe — pede ao
+     * renderer que reemita REQUEST_*_STATE para que slide/versículo/valor
+     * de módulo atual seja capturado e enviado aos clients SSE recém-
+     * conectados. Sem isso, ligar o servidor com música já tocando
+     * deixava o cliente em branco até a próxima troca.
+     */
+    onRequestState(cb) {
+      const handler = () => cb();
+      ipcRenderer.on("transmission:request-state", handler);
+      return () => ipcRenderer.off("transmission:request-state", handler);
+    },
   },
 
   // -------------------------------------------------------------------------

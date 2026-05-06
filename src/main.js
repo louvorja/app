@@ -190,6 +190,23 @@ $storage.hydrate().then(async () => {
         Broadcast.send(BROADCAST_TYPE.DRAWING_NAME, { name: data.name });
       }
     });
+
+    // Quando o servidor HTTP sobe (auto-start ou clique manual), pede ao
+    // próprio app para reemitir o estado atual. Os emissores (useSlides,
+    // bible/Index, useModuleProjection) escutam REQUEST_*_STATE e
+    // re-broadcastam — assim os clients SSE recém-conectados aparecem
+    // com a música/versículo que já estava em execução.
+    Platform.transmission?.onRequestState?.(() => {
+      Broadcast.send(BROADCAST_TYPE.REQUEST_SLIDE_STATE);
+      Broadcast.send(BROADCAST_TYPE.REQUEST_BIBLE_STATE);
+      // Para módulos com LScreenBtn, REQUEST_MODULE_STATE espera um
+      // module id; sem janela de projeção pedindo, reemitimos para os
+      // ids conhecidos que têm captura.
+      const moduleIds = ["counter", "draw", "name_draw", "message_board", "stopwatch"];
+      for (const id of moduleIds) {
+        Broadcast.send(BROADCAST_TYPE.REQUEST_MODULE_STATE, { module: id });
+      }
+    });
   }
 
   createI18nInstance().then(async (i18n) => {

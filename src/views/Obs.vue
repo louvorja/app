@@ -1,13 +1,24 @@
 <template>
   <div class="obs-root">
-    <div
-      v-if="slide?.url_image"
-      class="obs-bg"
-      :style="{ backgroundImage: `url(${slide.url_image})` }"
-    />
-    <div class="obs-content">
-      <div v-if="slide" class="obs-text" v-html="slide.lyric || slide.name || ''" />
-    </div>
+    <!--
+      Fade-in só ao APARECER (música começa) e fade-out ao SUMIR (música
+      fecha). Trocas de slide trocam conteúdo dentro do mesmo nó, sem
+      acionar o Transition — assim a leitura não fica piscando a cada
+      verso. O elemento controlado é a `obs-stage` inteira, com `v-if`
+      derivado de `slide`.
+    -->
+    <Transition name="obs-fade">
+      <div v-if="slide" class="obs-stage">
+        <div
+          v-if="slide.url_image"
+          class="obs-bg"
+          :style="{ backgroundImage: `url(${slide.url_image})` }"
+        />
+        <div class="obs-content">
+          <div class="obs-text" v-html="slide.lyric || slide.name || ''" />
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -40,6 +51,10 @@ body {
   overflow: hidden;
   background: transparent;
 }
+.obs-stage {
+  position: absolute;
+  inset: 0;
+}
 .obs-bg {
   position: absolute;
   inset: 0;
@@ -62,5 +77,18 @@ body {
   text-align: center;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
   line-height: 1.4;
+}
+
+/* Fade-in ao aparecer / fade-out ao desaparecer. Saída um pouco mais
+   longa para a transmissão "respirar" entre músicas. */
+.obs-fade-enter-active {
+  transition: opacity 0.5s ease-out;
+}
+.obs-fade-leave-active {
+  transition: opacity 0.7s ease-in;
+}
+.obs-fade-enter-from,
+.obs-fade-leave-to {
+  opacity: 0;
 }
 </style>

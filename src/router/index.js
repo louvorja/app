@@ -58,11 +58,18 @@ const routes = [
 // (atual) — vue-router NÃO consegue usar history mode em ambos (não há
 // servidor pra reescrever rotas), então cai pra hash mode. No web/PWA
 // (http/https) mantém history (URLs limpas).
-const isLocalProtocol =
-  typeof window !== "undefined" && ["file:", "louvorja:"].includes(window.location.protocol);
+//
+// Quando o servidor HTTP embarcado serve a SPA para clientes remotos
+// (OBS, celular), `spa.js` injeta `window.LJ_HASH_ROUTING=true` antes do
+// bundle Vue carregar. Isso força hash mode também ali, porque o build
+// desktop usa `base: "./"` e rotas profundas (`/obs/bible`) quebrariam a
+// resolução de assets relativos. Com hash, todos os caminhos servem `/`.
+const useHashHistory =
+  typeof window !== "undefined" &&
+  (["file:", "louvorja:"].includes(window.location.protocol) || window.LJ_HASH_ROUTING === true);
 
 const router = createRouter({
-  history: isLocalProtocol
+  history: useHashHistory
     ? createWebHashHistory()
     : createWebHistory(import.meta.env.BASE_URL ?? "/"),
   routes,

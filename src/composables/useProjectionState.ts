@@ -70,8 +70,17 @@ export function useProjectionState(): ProjectionStateReturn {
     }
   });
 
-  // MEDIA_CLOSE ainda não é emitido por Media.js (planejado — BROADCAST_TYPE.MEDIA_CLOSE).
-  // Quando implementado, limpar slide/nextSlide aqui automaticamente.
+  // Limpa a tela quando a música é fechada — emitido por `useMedia.close()`.
+  // Sem este reset, janelas de projeção e clients de transmissão (OBS)
+  // ficam mostrando a letra da música anterior indefinidamente.
+  useBroadcastListener(BROADCAST_TYPE.MEDIA_CLOSE, () => {
+    slide.value       = null;
+    nextSlide.value   = null;
+    title.value       = "";
+    progress.value    = 0;
+    slideIndex.value  = 0;
+    totalSlides.value = 0;
+  });
 
   const isCover = computed<boolean>(() =>
     !!(

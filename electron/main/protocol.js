@@ -266,4 +266,14 @@ function handle() {
   console.log("[protocol] Handler louvorja:// registrado.");
 }
 
-module.exports = { register, handle, setRemoteConfig, setAutoCacheEnabled };
+/**
+ * Retorna a config atual de URLs remotas. Usado pelo bridge SSE
+ * (httpServer/events.js) para traduzir `louvorja://files/...` em URLs HTTPS
+ * que clients remotos (OBS, celular) consigam carregar — eles não conhecem
+ * o protocolo customizado do Electron.
+ */
+function getRemoteConfig() {
+  return { ..._config };
+}
+
+module.exports = { register, handle, setRemoteConfig, getRemoteConfig, setAutoCacheEnabled };

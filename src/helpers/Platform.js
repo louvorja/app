@@ -221,4 +221,18 @@ export default {
   get userdata() {
     return api?.userdata ?? null;
   },
+
+  /**
+   * Bridge entre o BroadcastChannel local e os clients SSE remotos do
+   * servidor HTTP embarcado (D5). `Broadcast.ts` chama `broadcast(msg)`
+   * sempre que envia um evento relayável; o main process filtra (só aceita
+   * da janela principal) e empurra para todas as conexões SSE abertas.
+   *
+   * null no browser/PWA — sem main process, sem encaminhamento.
+   *
+   * @returns {{ broadcast, onRequestState } | null}
+   */
+  get transmission() {
+    return api?.transmission ?? null;
+  },
 };
