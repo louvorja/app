@@ -434,9 +434,15 @@ export const RIBBON_PAGES = [
             action: "lit_invert",
             size: "small",
           },
+        ],
+      },
+      {
+        id: "ctx_liturgy_delete",
+        title: "ribbon.groups.delete",
+        buttons: [
           {
             id: "delete_selected",
-            icon: "mdi-delete",
+            icon: "mdi-close-thick",
             label: "ribbon.btn.delete_selected",
             action: "lit_delete",
             color: "#e74c3c",
@@ -494,10 +500,7 @@ export const MODULE_ICONS = {
   name_draw: "mdi-account-multiple",
   counter: "mdi-counter",
   message_board: "mdi-message-bulleted",
-  transmission: "mdi-monitor-multiple",
   remote_control: "mdi-remote",
   theme: "mdi-palette",
-  update: "mdi-update",
-  downloads: "mdi-cloud-download",
   dev: "mdi-tools",
 };

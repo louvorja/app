@@ -12,59 +12,38 @@
       <span>{{ t("data.drop_hint") }}</span>
     </div>
 
-    <LiturgyToolbar
-      :item-count="safeItems.length"
-      :locked="locked ?? false"
-      :running="running ?? false"
-      :timer-seconds="timerSeconds ?? 0"
-      :timer-display="timerDisplay ?? ''"
-      :active-week="activeWeek ?? ''"
-      :show-notes="showNotes ?? false"
-      :menu-open="menuOpen ?? false"
-      :change-week="changeWeek"
-      :on-week-change="onWeekChange"
-      :toggle-timer="toggleTimer"
-      :timer-prev="timerPrev"
-      :timer-next="timerNext"
-      :toggle-menu-open="toggleMenuOpen"
-      :close-menu="closeMenu"
-      :mark-all="markAll"
-      :remove-done="removeDone"
-      :toggle-notes="toggleNotes"
-      :toggle-lock="toggleLock"
-      :open-schedules-dialog="openSchedulesDialog"
-      :save-file="saveFile"
-      :on-file-load="onFileLoad"
-      :confirm-clear="confirmClearBound"
-      :close-module="closeModule"
+    <LiturgyDayTabs
+      :active-day="activeDay"
+      :day-labels="dayLabels"
+      :today-index="todayIndex"
+      :set-active-day="setActiveDay"
     />
 
-    <LiturgyList
-      :items="safeItems"
-      :locked="locked ?? false"
-      :running="running ?? false"
-      :timer-current-index="timerCurrentIndex ?? -1"
-      :timer-item-progress="timerItemProgress ?? 0"
-      :default-color="defaultColor"
-      :show-notes="showNotes ?? false"
-      :note-day-index="noteDayIndex ?? 0"
-      :note-days="noteDays ?? []"
-      :current-note="currentNote ?? ''"
-      :total-duration="totalDuration"
-      :is-checked="isChecked"
-      :icon-for-item="iconForItem"
-      :subtitle-for="subtitleFor"
-      :on-reorder="onReorder"
-      :open-item-dialog="openItemDialog"
-      :confirm-remove="confirmRemove"
-      :execute-item="executeItem"
-      :play-music="playMusic"
-      :change-color="changeColor"
-      :toggle-checked="toggleChecked"
-      :quick-add="quickAdd"
-      :on-note-input="onNoteInput"
-      :set-note-day-index="setNoteDayIndex"
-    />
+    <div class="liturgy-body">
+      <LiturgyList
+        :items="safeItems"
+        :locked="locked ?? false"
+        :default-color="defaultColor"
+        :total-duration="totalDuration"
+        :is-checked="isChecked"
+        :icon-for-item="iconForItem"
+        :subtitle-for="subtitleFor"
+        :on-reorder="onReorder"
+        :open-item-dialog="openItemDialog"
+        :execute-item="executeItemMaybeMark"
+        :play-music="playMusic"
+        :change-color="changeColor"
+        :toggle-checked="toggleChecked"
+      />
+
+      <LiturgyNotesPanel
+        v-if="showNotes"
+        :day-label="dayLabels[activeDay]"
+        :note-html="currentNote"
+        :total-duration="totalDuration"
+        :on-input="onNoteInput"
+      />
+    </div>
 
     <LiturgyItemForm
       v-model:model-value="dialog"
@@ -104,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onBeforeUnmount, type ComputedRef } from "vue";
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
@@ -113,9 +92,9 @@ import Modules from "@/helpers/Modules";
 import Broadcast from "@/helpers/Broadcast";
 import { useLiturgyPersistence } from "../composables/useLiturgyPersistence";
 import { useLiturgyItems, COLORS, DEFAULT_COLOR } from "../composables/useLiturgyItems";
-import { useLiturgyTimer } from "../composables/useLiturgyTimer";
-import LiturgyToolbar from "./LiturgyToolbar.vue";
+import LiturgyDayTabs from "./LiturgyDayTabs.vue";
 import LiturgyList from "./LiturgyList.vue";
+import LiturgyNotesPanel from "./LiturgyNotesPanel.vue";
 import LiturgyItemForm from "./LiturgyItemForm.vue";
 import LiturgySchedules from "./LiturgySchedules.vue";
 import type { LiturgyItemData } from "../types";
@@ -140,30 +119,23 @@ const el = ref<HTMLElement | null>(null);
 const module_ = computed(() => Modules.get("liturgy") as { show: boolean } | null);
 
 const persist = useLiturgyPersistence();
-const litItems = useLiturgyItems(persist.activeWeek, persist.scheduledCategories);
-const timer = useLiturgyTimer(
-  litItems.items as unknown as ComputedRef<LiturgyItemData[]>,
-  litItems.totalDuration
-);
+const litItems = useLiturgyItems(persist.activeDay, persist.scheduledCategories);
 
-// useLiturgyPersistence
 const {
-  activeWeek,
+  activeDay,
+  setActiveDay,
   locked,
   showNotes,
-  noteDayIndex,
+  markOnAccess,
+  toggleMarkOnAccess,
   schedulesDialog,
   activeCatId,
   scheduledCategories,
   activeCategory,
   categoryItems,
-  noteDays,
   currentNote,
   setActiveCatId,
-  setNoteDayIndex,
   toggleNotes,
-  onWeekChange,
-  changeWeek,
   toggleLock,
   onNoteInput,
   openSchedulesDialog,
@@ -173,17 +145,13 @@ const {
   addScheduledItem,
   updateScheduled,
   removeScheduled,
-  saveFile,
-  onFileLoad,
 } = persist;
 
-// useLiturgyItems
 const {
   dialog,
   editIndex,
   form,
   isDraggingOver,
-  menuOpen,
   items,
   totalDuration,
   musicsList,
@@ -194,16 +162,15 @@ const {
   subtitleFor,
   changeColor,
   markAll,
+  invertSelection,
   removeDone,
   openItemDialog,
-  quickAdd,
   onTypeChange,
   setMusicChoice,
   onMusicChange,
   onScheduledCategoryChange,
   saveItem,
   confirmRemove,
-  confirmClear,
   executeItem,
   playMusic,
   openSite,
@@ -213,31 +180,61 @@ const {
   onDrop,
   loadMusicsList,
   setFormField,
-  toggleMenuOpen,
-  closeMenu,
 } = litItems;
 
-// useLiturgyTimer
-const {
-  running,
-  timerSeconds,
-  timerDisplay,
-  timerCurrentIndex,
-  timerItemProgress,
-  toggleTimer,
-  stopTimer,
-  timerNext,
-  timerPrev,
-} = timer;
+const openItemDialogRoot = () => openItemDialog();
+const executeItemMaybeMark = (item: LiturgyItemData) => {
+  executeItem(item);
+  if (markOnAccess.value && item.tipo !== "categoria" && !isChecked(item)) {
+    toggleChecked(item);
+  }
+};
 
 const colors = COLORS;
 const defaultColor = DEFAULT_COLOR;
-const confirmClearBound = () => confirmClear(stopTimer);
 const safeItems = computed(
   (): LiturgyItemData[] => (items.value as LiturgyItemData[] | null) ?? []
 );
 
+const dayLabels = computed(() => {
+  if (locale.value === "es") {
+    return ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+  }
+  return ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+});
+
+const todayIndex = computed(() => new Date().getDay());
+
 let _broadcastUnlisten: (() => void) | null = null;
+
+function handleRibbonAction(action: string) {
+  switch (action) {
+    case "add":
+      openItemDialogRoot();
+      break;
+    case "check_all":
+      markAll(true);
+      break;
+    case "uncheck_all":
+      markAll(false);
+      break;
+    case "invert":
+      invertSelection();
+      break;
+    case "delete_selected":
+      removeDone();
+      break;
+    case "toggle_mark_on_access":
+      toggleMarkOnAccess();
+      break;
+    case "toggle_show_notes":
+      toggleNotes();
+      break;
+    case "toggle_lock":
+      toggleLock();
+      break;
+  }
+}
 
 onMounted(async () => {
   await loadMusicsList();
@@ -248,19 +245,16 @@ onMounted(async () => {
         openItemDialog();
         form.value.tipo = "anotacao";
       });
+    } else if (data?.type === BROADCAST_TYPE.LITURGY_RIBBON_ACTION) {
+      const action = (data?.payload as { action?: string } | undefined)?.action;
+      if (action) handleRibbonAction(action);
     }
   });
 });
 
 onBeforeUnmount(() => {
-  stopTimer();
   if (_broadcastUnlisten) _broadcastUnlisten();
 });
-
-function closeModule() {
-  stopTimer();
-  Modules.close("liturgy");
-}
 
 function onDragLeaveCustom(e: DragEvent) {
   if (!el.value?.contains(e.relatedTarget as Node)) isDraggingOver.value = false;
@@ -279,6 +273,13 @@ function onDragLeaveCustom(e: DragEvent) {
   inset: 0;
   overflow: hidden;
   font-size: 13px;
+}
+
+.liturgy-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .liturgy-drop-overlay {

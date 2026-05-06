@@ -1,6 +1,6 @@
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import $liturgy, { weekBounds } from "@/helpers/Liturgy";
+import $liturgy from "@/helpers/Liturgy";
 import $userdata from "@/helpers/UserData";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
@@ -23,10 +23,13 @@ export function useLiturgyPersistence() {
   const getLocale = () => (typeof i18n.locale.value === "string" ? i18n.locale.value : "pt");
   const t = (key) => _t(key, getLocale());
 
-  const activeWeek = ref($liturgy.getActiveWeek());
+  // Sempre inicia no dia de hoje (não restaura último selecionado).
+  const activeDay = ref(new Date().getDay());
+  $liturgy.setActiveDay(activeDay.value);
+
   const locked = ref($userdata.get("modules.liturgy.locked", false));
-  const showNotes = ref(false);
-  const noteDayIndex = ref(new Date().getDay());
+  const showNotes = ref($userdata.get("modules.liturgy.show_notes", true));
+  const markOnAccess = ref($userdata.get("modules.liturgy.mark_on_access", true));
   const schedulesDialog = ref(false);
   const activeCatId = ref(null);
   const editingCatId = ref(null);
@@ -60,28 +63,13 @@ export function useLiturgyPersistence() {
     return dict.notes?.days || ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
   });
 
-  const currentNote = computed(() => $liturgy.getWeekdayNote(noteDayIndex.value, activeWeek.value));
+  const currentNote = computed(() => $liturgy.getDayNote(activeDay.value) ?? "");
 
-  /* ============== Semana ============== */
-  function onWeekChange(e) {
-    const val = e.target.value;
-    if (!val) return;
-    activeWeek.value = val;
-    $liturgy.setActiveWeek(val);
-  }
-
-  function changeWeek(delta) {
-    const { monday } = weekBounds(activeWeek.value);
-    monday.setUTCDate(monday.getUTCDate() + delta * 7);
-    const d = new Date(monday);
-    const day = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - day);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    const newWeek = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-    const pad = (n) => String(n).padStart(2, "0");
-    const newWeekStr = `${d.getUTCFullYear()}-W${pad(newWeek)}`;
-    activeWeek.value = newWeekStr;
-    $liturgy.setActiveWeek(newWeekStr);
+  /* ============== Dia ativo ============== */
+  function setActiveDay(i) {
+    const idx = Math.max(0, Math.min(6, Number(i)));
+    activeDay.value = idx;
+    $liturgy.setActiveDay(idx);
   }
 
   /* ============== Bloqueio ============== */
@@ -91,8 +79,14 @@ export function useLiturgyPersistence() {
   }
 
   /* ============== Anotações ============== */
+  function setNote(html) {
+    $liturgy.setDayNote(activeDay.value, html ?? "");
+  }
+
   function onNoteInput(e) {
-    $liturgy.setWeekdayNote(noteDayIndex.value, e.target.value, activeWeek.value);
+    const target = e?.target;
+    const html = target?.innerHTML ?? target?.value ?? "";
+    setNote(html);
   }
 
   /* ============== Itens Agendados ============== */
@@ -120,12 +114,14 @@ export function useLiturgyPersistence() {
     activeCatId.value = id;
   }
 
-  function setNoteDayIndex(i) {
-    noteDayIndex.value = i;
-  }
-
   function toggleNotes() {
     showNotes.value = !showNotes.value;
+    $userdata.set("modules.liturgy.show_notes", showNotes.value);
+  }
+
+  function toggleMarkOnAccess() {
+    markOnAccess.value = !markOnAccess.value;
+    $userdata.set("modules.liturgy.mark_on_access", markOnAccess.value);
   }
 
   function saveCategoryName(id, name) {
@@ -167,35 +163,13 @@ export function useLiturgyPersistence() {
     _refreshScheduled();
   }
 
-  /* ============== Save/Load JSON ============== */
-  function saveFile() {
-    const data = $liturgy.exportJson(activeWeek.value);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `liturgia-${activeWeek.value}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function onFileLoad(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const ok = $liturgy.importJson(ev.target.result, activeWeek.value);
-      if (!ok) alert(t("dialog.invalid_file"));
-    };
-    reader.readAsText(file);
-    e.target.value = "";
-  }
-
   return {
-    activeWeek,
+    activeDay,
+    setActiveDay,
     locked,
     showNotes,
-    noteDayIndex,
+    markOnAccess,
+    toggleMarkOnAccess,
     schedulesDialog,
     activeCatId,
     editingCatId,
@@ -206,11 +180,9 @@ export function useLiturgyPersistence() {
     noteDays,
     currentNote,
     setActiveCatId,
-    setNoteDayIndex,
     toggleNotes,
-    onWeekChange,
-    changeWeek,
     toggleLock,
+    setNote,
     onNoteInput,
     openSchedulesDialog,
     addCategory,
@@ -220,7 +192,5 @@ export function useLiturgyPersistence() {
     addScheduledItem,
     updateScheduled,
     removeScheduled,
-    saveFile,
-    onFileLoad,
   };
 }

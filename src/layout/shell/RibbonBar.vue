@@ -123,6 +123,8 @@ import $appdata from "@/helpers/AppData";
 import $userdata from "@/helpers/UserData";
 import $modules from "@/helpers/Modules";
 import $alert from "@/helpers/Alert";
+import Broadcast from "@/helpers/Broadcast";
+import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
 
 const { t } = useI18n();
 const theme = useTheme();
@@ -148,18 +150,24 @@ const activePageObj = computed(() => RIBBON_PAGES.find((p) => p.id === activePag
 const activeGroups = computed(() => activePageObj.value?.groups || []);
 const isContextualActive = computed(() => !!activePageObj.value?.contextual);
 
-watch(openModuleIds, () => {
+watch(openModuleIds, (now, prev) => {
   const cur = activePageObj.value;
   if (cur?.contextual) {
-    const stillVisible = (cur.activeOnModules || []).some((id) => openModuleIds.value.includes(id));
+    const stillVisible = (cur.activeOnModules || []).some((id) => now.includes(id));
     if (!stillVisible) activePage.value = "collections";
   }
+  // Auto-select tab contextual quando um módulo correspondente acaba de abrir.
+  const newlyOpened = now.filter((id) => !(prev || []).includes(id));
+  for (const moduleId of newlyOpened) {
+    const ctxPage = RIBBON_PAGES.find(
+      (p) => p.contextual && (p.activeOnModules || []).includes(moduleId)
+    );
+    if (ctxPage) {
+      activePage.value = ctxPage.id;
+      break;
+    }
+  }
 });
-
-// Tabs contextuais ficam visíveis quando o módulo está aberto, mas NÃO assumem
-// foco automaticamente — usuário troca de tab explicitamente clicando.
-// (Auto-activate era considerado disruptivo: clicar Hinário trocava para
-// "Configurar Hinos" no meio do clique do usuário.)
 
 function selectPage(id) {
   activePage.value = id;
@@ -182,6 +190,17 @@ function isButtonActive(btn) {
   return lastBtn === btn.id;
 }
 
+const LITURGY_ACTIONS = {
+  lit_add_item: "add",
+  lit_check_all: "check_all",
+  lit_uncheck_all: "uncheck_all",
+  lit_invert: "invert",
+  lit_delete: "delete_selected",
+  lit_mark_done: "toggle_mark_on_access",
+  lit_show_notes: "toggle_show_notes",
+  lit_lock: "toggle_lock",
+};
+
 function executeButton(btn) {
   if (btn.module) {
     // Marca qual botão originou a abertura — evita destacar todos os botões
@@ -189,6 +208,12 @@ function executeButton(btn) {
     // stopwatch "de Culto" vs "Cronômetro", etc).
     $appdata.set(`modules.${btn.module}.last_btn`, btn.id);
     $modules.open(btn.module);
+    return;
+  }
+  if (btn.action && btn.action in LITURGY_ACTIONS) {
+    Broadcast.send(BROADCAST_TYPE.LITURGY_RIBBON_ACTION, {
+      action: LITURGY_ACTIONS[btn.action],
+    });
   }
 }
 

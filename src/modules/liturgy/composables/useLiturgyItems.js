@@ -54,10 +54,10 @@ export const DEFAULT_FORM = () => ({
 });
 
 /**
- * @param {import('vue').Ref<string>} activeWeek
+ * @param {import('vue').Ref<number>} activeDay
  * @param {import('vue').ComputedRef<Array>} scheduledCategories
  */
-export function useLiturgyItems(activeWeek, scheduledCategories) {
+export function useLiturgyItems(activeDay, scheduledCategories) {
   const i18n = useI18n();
   const getLocale = () => (typeof i18n.locale.value === "string" ? i18n.locale.value : "pt");
   const t = (key) => _t(key, getLocale());
@@ -71,10 +71,10 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
 
   const items = computed({
     get() {
-      return $liturgy.list(activeWeek.value);
+      return $liturgy.list(activeDay.value);
     },
     set(val) {
-      $liturgy.set(val, activeWeek.value);
+      $liturgy.set(val, activeDay.value);
     },
   });
 
@@ -90,7 +90,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
   }
 
   function toggleChecked(item) {
-    $liturgy.toggleChecked(item.id, activeWeek.value);
+    $liturgy.toggleChecked(item.id, activeDay.value);
     items.value = [...items.value];
   }
 
@@ -125,7 +125,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
     const current = items.value[index]?.cor || DEFAULT_COLOR;
     const idx = COLORS.findIndex((c) => c.toLowerCase() === current.toLowerCase());
     const next = COLORS[(idx + 1) % COLORS.length];
-    $liturgy.update(items.value[index].id, { cor: next }, activeWeek.value);
+    $liturgy.update(items.value[index].id, { cor: next }, activeDay.value);
     items.value = [...items.value];
   }
 
@@ -136,8 +136,17 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
       if (item.tipo === "categoria") return;
       const isCheckedNow = $liturgy.isCheckedToday(item);
       if (checked !== isCheckedNow) {
-        $liturgy.toggleChecked(item.id, activeWeek.value);
+        $liturgy.toggleChecked(item.id, activeDay.value);
       }
+    });
+    items.value = [...items.value];
+  }
+
+  function invertSelection() {
+    menuOpen.value = false;
+    items.value.forEach((item) => {
+      if (item.tipo === "categoria") return;
+      $liturgy.toggleChecked(item.id, activeDay.value);
     });
     items.value = [...items.value];
   }
@@ -148,7 +157,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
     const toRemove = items.value
       .filter((i) => i.tipo !== "categoria" && $liturgy.isCheckedToday(i))
       .map((i) => i.id);
-    toRemove.forEach((id) => $liturgy.remove(id, activeWeek.value));
+    toRemove.forEach((id) => $liturgy.remove(id, activeDay.value));
     items.value = [...items.value];
   }
 
@@ -242,9 +251,9 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
 
     if (editIndex.value >= 0) {
       const id = items.value[editIndex.value].id;
-      $liturgy.update(id, built, activeWeek.value);
+      $liturgy.update(id, built, activeDay.value);
     } else {
-      $liturgy.add(built, activeWeek.value);
+      $liturgy.add(built, activeDay.value);
     }
     items.value = [...items.value];
     dialog.value = false;
@@ -253,7 +262,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
   function confirmRemove(index, fromDialog = false) {
     if (!confirm(t("dialog.remove_confirm"))) return;
     const id = items.value[index].id;
-    $liturgy.remove(id, activeWeek.value);
+    $liturgy.remove(id, activeDay.value);
     items.value = [...items.value];
     if (fromDialog) dialog.value = false;
   }
@@ -261,7 +270,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
   function confirmClear(stopTimer) {
     if (!items.value.length) return;
     if (!confirm(t("dialog.clear_confirm"))) return;
-    $liturgy.clear(activeWeek.value);
+    $liturgy.clear(activeDay.value);
     items.value = [];
     if (stopTimer) stopTimer();
   }
@@ -387,7 +396,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
                 dir_info: "E",
                 cor: DEFAULT_COLOR,
               },
-              activeWeek.value
+              activeDay.value
             );
             return;
           }
@@ -409,7 +418,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
           subitem: text.slice(0, 2000),
           cor: DEFAULT_COLOR,
         },
-        activeWeek.value
+        activeDay.value
       );
     } else {
       $liturgy.add(
@@ -422,7 +431,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
           dir_info: "E",
           cor: DEFAULT_COLOR,
         },
-        activeWeek.value
+        activeDay.value
       );
     }
   }
@@ -467,6 +476,7 @@ export function useLiturgyItems(activeWeek, scheduledCategories) {
     subtitleFor,
     changeColor,
     markAll,
+    invertSelection,
     removeDone,
     openItemDialog,
     quickAdd,

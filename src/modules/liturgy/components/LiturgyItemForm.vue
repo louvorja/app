@@ -18,7 +18,7 @@
 
       <div class="lit-dialog-header">
         <div class="lit-field">
-          <label>{{ t("inputs.type") }}</label>
+          <label>{{ t("inputs.type") }}:</label>
           <select
             :value="form.tipo"
             class="lit-select"
@@ -37,7 +37,7 @@
         </div>
 
         <div v-if="form.tipo !== 'itensagendados'" class="lit-field lit-field--grow">
-          <label>{{ t("inputs.item_name") }}</label>
+          <label>{{ t("inputs.item_name") }}:</label>
           <input
             :value="form.item"
             type="text"
@@ -48,19 +48,8 @@
           />
         </div>
 
-        <div class="lit-field">
-          <label>{{ t("inputs.duration_min") }}</label>
-          <input
-            :value="form.duration"
-            type="number"
-            min="0"
-            class="lit-input lit-input--small"
-            @input="setFormField('duration', inputNum($event))"
-          />
-        </div>
-
         <div class="lit-field lit-field--color">
-          <label>{{ t("inputs.color") }}</label>
+          <label>{{ t("inputs.color") }}:</label>
           <div class="lit-color-picker">
             <input
               :value="form.cor"
@@ -69,7 +58,15 @@
               :aria-label="t('inputs.color')"
               @input="setFormField('cor', inputVal($event))"
             />
-            <div class="lit-color-presets">
+            <button
+              type="button"
+              class="lit-color-toggle"
+              :title="t('inputs.color')"
+              @click.stop="presetsOpen = !presetsOpen"
+            >
+              <v-icon icon="mdi-menu-down" size="14" />
+            </button>
+            <div v-if="presetsOpen" class="lit-color-presets" @click="presetsOpen = false">
               <span
                 v-for="c in colors"
                 :key="c"
@@ -80,6 +77,17 @@
               />
             </div>
           </div>
+        </div>
+
+        <div class="lit-field lit-field--small">
+          <label>{{ t("inputs.duration_min") }}:</label>
+          <input
+            :value="form.duration"
+            type="number"
+            min="0"
+            class="lit-input lit-input--small"
+            @input="setFormField('duration', inputNum($event))"
+          />
         </div>
       </div>
 
@@ -170,14 +178,17 @@
 
       <!-- Painel MÚSICA -->
       <div v-if="form.tipo === 'musica'" class="lit-panel">
-        <div class="lit-panel-title">{{ t("types.musica") }}</div>
-        <label class="lit-radio">
-          <input type="radio" :checked="form.escolha === '1'" @change="setMusicChoice(true)" />
-          {{ t("inputs.music_choose_later") }}
+        <label class="lit-check">
+          <input
+            type="checkbox"
+            :checked="form.escolha === '1'"
+            @change="setMusicChoice(($event.target as HTMLInputElement).checked)"
+          />
+          <span>{{ t("inputs.music_choose_later") }}</span>
         </label>
-        <div v-if="form.escolha !== '1'" class="lit-field mt-2">
-          <label>{{ t("inputs.music_select") }}</label>
-          <div class="lit-input-row">
+        <div v-if="form.escolha !== '1'" class="lit-field lit-field--inline mt-2">
+          <label class="lit-label-inline">{{ t("inputs.music_select") }}:</label>
+          <div class="lit-input-row lit-input-row--grow">
             <select
               :value="form.musica"
               class="lit-select lit-select--full"
@@ -191,6 +202,13 @@
                 {{ m.name }}
               </option>
             </select>
+            <button
+              class="lit-btn lit-btn--ghost"
+              :title="t('music_search.title')"
+              @click="searchOpen = true"
+            >
+              <v-icon icon="mdi-magnify" size="16" />
+            </button>
           </div>
         </div>
       </div>
@@ -234,6 +252,8 @@
         <div class="lit-hint">{{ t("inputs.category_hint") }}</div>
       </div>
 
+      <LiturgyMusicSearch v-model="searchOpen" :musics-list="musicsList" @pick="onMusicPicked" />
+
       <div class="lit-dialog-footer">
         <button
           v-if="editIndex >= 0"
@@ -247,8 +267,12 @@
         <button class="lit-btn lit-btn--ghost" @click="$emit('update:modelValue', false)">
           {{ t("actions.cancel") }}
         </button>
-        <button class="lit-btn lit-btn--primary" data-testid="item-save" @click="saveItem">
-          <v-icon :icon="editIndex >= 0 ? 'mdi-content-save' : 'mdi-plus'" size="14" />
+        <button class="lit-btn-add" data-testid="item-save" @click="saveItem">
+          <v-icon
+            :icon="editIndex >= 0 ? 'mdi-content-save' : 'mdi-plus-circle'"
+            size="22"
+            color="#3a6fb5"
+          />
           <span>{{ editIndex >= 0 ? t("actions.save") : t("actions.add") }}</span>
         </button>
       </div>
@@ -257,10 +281,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import pt from "../lang/pt.json";
 import es from "../lang/es.json";
 import Liturgy from "@/helpers/Liturgy";
+import LiturgyMusicSearch from "./LiturgyMusicSearch.vue";
 import type { LiturgyItemData, LiturgyMusicItem, ScheduledCategory } from "../types";
 
 const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
@@ -276,7 +302,7 @@ function _t(key: string, locale: string): string {
   return typeof cur === "string" ? cur : key;
 }
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     modelValue?: boolean;
     editIndex?: number;
@@ -316,6 +342,16 @@ function inputVal(e: Event): string {
 function inputNum(e: Event): number {
   return +(e.target as HTMLInputElement).value;
 }
+
+const presetsOpen = ref(false);
+const searchOpen = ref(false);
+
+function onMusicPicked(music: LiturgyMusicItem) {
+  const id = Number(music.id_music);
+  if (!Number.isFinite(id)) return;
+  props.setFormField("musica", id);
+  props.onMusicChange();
+}
 </script>
 
 <style scoped>
@@ -338,10 +374,25 @@ function inputNum(e: Event): number {
 .lit-dialog-header {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;
+  gap: 14px;
   padding: 12px 14px;
   background: rgba(var(--lj-on-surface-ch), 0.02);
   border-bottom: 1px solid rgba(var(--v-border-color), 0.2);
+}
+.lit-dialog-header .lit-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+.lit-dialog-header .lit-field label {
+  font-size: 12px;
+  color: var(--lj-text);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.lit-field--small input {
+  width: 60px;
 }
 .lit-dialog-footer {
   display: flex;
@@ -433,6 +484,31 @@ textarea.lit-input {
   cursor: pointer;
   font-size: 12px;
 }
+.lit-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--lj-text);
+  user-select: none;
+}
+.lit-check input {
+  accent-color: var(--lj-navy);
+}
+.lit-field--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.lit-label-inline {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.lit-input-row--grow {
+  flex: 1;
+  min-width: 0;
+}
 .lit-hint {
   font-size: 11px;
   color: rgba(var(--lj-on-surface-ch), 0.6);
@@ -441,23 +517,49 @@ textarea.lit-input {
 
 /* ====================== Color picker ====================== */
 .lit-color-picker {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  position: relative;
 }
 .lit-color-input {
-  width: 40px;
-  height: 30px;
+  width: 30px;
+  height: 26px;
   border: 1px solid rgba(var(--v-border-color), 0.5);
-  border-radius: 3px;
+  border-right: 0;
+  border-radius: 3px 0 0 3px;
   cursor: pointer;
   padding: 0;
   background: transparent;
 }
+.lit-color-toggle {
+  height: 26px;
+  width: 18px;
+  border: 1px solid rgba(var(--v-border-color), 0.5);
+  border-radius: 0 3px 3px 0;
+  background: var(--lj-surface-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--lj-text);
+  padding: 0;
+}
+.lit-color-toggle:hover {
+  background: rgba(var(--lj-on-surface-ch), 0.06);
+}
 .lit-color-presets {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 3px;
+  padding: 6px;
+  background: var(--lj-surface-bg);
+  border: 1px solid rgba(var(--v-border-color), 0.5);
+  border-radius: 4px;
+  box-shadow: var(--lj-shadow-3);
 }
 .lit-color-preset {
   width: 18px;
@@ -517,6 +619,28 @@ textarea.lit-input {
 }
 .lit-btn--danger:hover {
   background: #b91c1c;
+}
+
+/* Botão "Adicionar" estilo Delphi (ícone + grande + label) */
+.lit-btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(var(--v-border-color), 0.4);
+  border-radius: 4px;
+  background: var(--lj-surface-bg);
+  color: var(--lj-text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    border 0.12s;
+}
+.lit-btn-add:hover {
+  background: rgba(var(--lj-navy-ch), 0.06);
+  border-color: rgba(var(--lj-navy-ch), 0.4);
 }
 
 .lit-card-action {

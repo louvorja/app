@@ -26,14 +26,6 @@
       >
         <v-icon icon="mdi-pencil" size="14" />
       </button>
-      <button
-        v-if="!locked"
-        class="lit-card-action"
-        :title="t('actions.remove')"
-        @click.stop="$emit('remove', index)"
-      >
-        <v-icon icon="mdi-close" size="14" />
-      </button>
     </div>
 
     <!-- ITEM NORMAL -->
@@ -43,34 +35,33 @@
       :class="{
         'lit-card--checked': isChecked(element),
         'lit-card--locked': locked,
-        'lit-card--timer-active': timerActive,
       }"
     >
-      <!-- Barra de progresso do timer no item ativo -->
-      <div v-if="timerActive" class="lit-card-timer-bar" :style="{ width: timerProgress + '%' }" />
-
-      <div v-if="!locked" class="lit-card-tools">
-        <button class="lit-card-grip" :title="t('actions.drag')" @click.stop>
-          <v-icon icon="mdi-drag-vertical" size="16" />
-        </button>
-        <button
-          class="lit-card-action"
-          :title="t('actions.edit')"
-          @click.stop="$emit('edit', index)"
-        >
-          <v-icon icon="mdi-pencil" size="14" />
-        </button>
-      </div>
-
+      <!-- Ícone grande do tipo -->
       <button
         class="lit-card-icon"
         :style="{ background: element.cor || defaultColor }"
         :title="locked ? '' : t('actions.change_color')"
         @click.stop="!locked && $emit('change-color', index)"
       >
-        <v-icon :icon="iconFor(element)" size="20" color="white" />
+        <v-icon :icon="iconFor(element)" size="28" color="white" />
       </button>
 
+      <!-- Checkbox grande à esquerda do título -->
+      <label
+        class="lit-card-check lit-card-check--lead"
+        :title="t('actions.mark_done')"
+        @click.stop
+      >
+        <input
+          type="checkbox"
+          :checked="isChecked(element)"
+          @change="$emit('toggle-checked', element)"
+        />
+        <span class="lit-check-mark"><v-icon icon="mdi-check" size="14" /></span>
+      </label>
+
+      <!-- Texto -->
       <button class="lit-card-text" @click="$emit('execute', element)">
         <div class="lit-card-title">{{ element.item || t("placeholders.untitled") }}</div>
         <div v-if="subtitleFor(element)" class="lit-card-subtitle">
@@ -78,66 +69,52 @@
         </div>
       </button>
 
+      <!-- Ações específicas de música -->
       <div v-if="element.tipo === 'musica'" class="lit-card-music-actions">
+        <button
+          class="lit-music-btn"
+          :title="t('music.play_lyric')"
+          @click.stop="$emit('play-music', element, 'sung')"
+        >
+          <v-icon icon="mdi-filmstrip" size="18" color="#c0392b" />
+        </button>
         <button
           v-if="element.has_instrumental_music || element.subtipo === 'ja'"
           class="lit-music-btn"
           :title="t('music.play_lyric_pb')"
           @click.stop="$emit('play-music', element, 'pb')"
         >
-          <v-icon icon="mdi-music-note-outline" size="14" />
-        </button>
-        <button
-          class="lit-music-btn"
-          :title="t('music.play_lyric')"
-          @click.stop="$emit('play-music', element, 'sung')"
-        >
-          <v-icon icon="mdi-music-note" size="14" />
-        </button>
-        <button
-          class="lit-music-btn"
-          :title="t('music.show_lyric')"
-          @click.stop="$emit('play-music', element, 'lyric')"
-        >
-          <v-icon icon="mdi-text-box-outline" size="14" />
+          <v-icon icon="mdi-filmstrip-box" size="18" color="#1b4f8a" />
         </button>
         <button
           class="lit-music-btn"
           :title="t('music.no_audio')"
           @click.stop="$emit('play-music', element, 'no_audio')"
         >
-          <v-icon icon="mdi-format-list-bulleted" size="14" />
+          <v-icon icon="mdi-music-note-off" size="18" color="#7f8c8d" />
         </button>
-      </div>
-
-      <div v-if="!locked" class="lit-card-end">
         <button
-          class="lit-card-action"
-          :title="t('actions.remove')"
-          @click.stop="$emit('remove', index)"
+          class="lit-music-btn"
+          :title="t('music.show_lyric')"
+          @click.stop="$emit('play-music', element, 'lyric')"
         >
-          <v-icon icon="mdi-close" size="14" />
+          <v-icon icon="mdi-music-note" size="18" color="#27ae60" />
         </button>
-        <label class="lit-card-check" :title="t('actions.mark_done')" @click.stop>
-          <input
-            type="checkbox"
-            :checked="isChecked(element)"
-            @change="$emit('toggle-checked', element)"
-          />
-          <span class="lit-check-mark"><v-icon icon="mdi-check" size="14" /></span>
-        </label>
       </div>
 
-      <!-- Em modo bloqueado: só mostra checkbox -->
-      <div v-else class="lit-card-end">
-        <label class="lit-card-check" :title="t('actions.mark_done')" @click.stop>
-          <input
-            type="checkbox"
-            :checked="isChecked(element)"
-            @change="$emit('toggle-checked', element)"
-          />
-          <span class="lit-check-mark"><v-icon icon="mdi-check" size="14" /></span>
-        </label>
+      <!-- Ações: editar + reordenar (sem X — exclusão pelo ribbon "Apagar Selecionados") -->
+      <div class="lit-card-end">
+        <button
+          v-if="!locked"
+          class="lit-card-action"
+          :title="t('actions.edit')"
+          @click.stop="$emit('edit', index)"
+        >
+          <v-icon icon="mdi-pencil" size="16" />
+        </button>
+        <button v-if="!locked" class="lit-card-grip" :title="t('actions.drag')" @click.stop>
+          <v-icon icon="mdi-arrow-up-down" size="16" />
+        </button>
       </div>
     </div>
   </div>
@@ -167,19 +144,16 @@ withDefaults(
     element: LiturgyItemData;
     index: number;
     locked?: boolean;
-    timerActive?: boolean;
-    timerProgress?: number;
     defaultColor?: string;
     isChecked: (item: LiturgyItemData) => boolean;
     iconFor: (item: LiturgyItemData) => string;
     subtitleFor: (item: LiturgyItemData) => string;
   }>(),
-  { locked: false, timerActive: false, timerProgress: 0, defaultColor: "#00004F" }
+  { locked: false, defaultColor: "#00004F" }
 );
 
 defineEmits<{
   edit: [index: number];
-  remove: [index: number];
   execute: [item: LiturgyItemData];
   "play-music": [item: LiturgyItemData, mode: string];
   "change-color": [index: number];
@@ -202,7 +176,7 @@ const t = (key: string) => _t(key, locale.value);
   background: var(--lj-surface-bg);
   border: 1px solid rgba(var(--v-border-color), 0.4);
   border-radius: 4px;
-  height: 56px;
+  height: 64px;
   transition:
     background 0.15s,
     border-color 0.15s;
@@ -221,65 +195,12 @@ const t = (key: string) => _t(key, locale.value);
   opacity: 0.4;
   background: rgba(var(--lj-navy-ch), 0.1);
 }
-.lit-card--timer-active {
-  border-color: rgba(var(--lj-navy-ch), 0.8);
-  box-shadow: var(--lj-shadow-focus-navy);
-}
 .lit-card--locked {
   border-left: 3px solid rgba(var(--lj-navy-ch), 0.3);
 }
 
-/* Barra de progresso do timer */
-.lit-card-timer-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background: var(--lj-navy);
-  transition: width 1s linear;
-  z-index: 1;
-}
-
-.lit-card-tools {
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid rgba(var(--v-border-color), 0.3);
-  background: rgba(var(--lj-on-surface-ch), 0.03);
-}
-.lit-card-grip,
-.lit-card-action {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  flex: 1;
-  color: rgba(var(--lj-on-surface-ch), 0.6);
-  padding: 0;
-}
-.lit-card-grip {
-  cursor: grab;
-}
-.lit-card-grip:active {
-  cursor: grabbing;
-}
-.lit-card-action:hover {
-  background: rgba(var(--lj-on-surface-ch), 0.08);
-  color: var(--lj-text);
-}
-.lit-card-grip--cat {
-  height: 100%;
-  width: 28px;
-  color: rgba(255, 255, 255, 0.7);
-}
-.lit-card-grip--cat:hover {
-  color: white;
-}
-
 .lit-card-icon {
-  width: 56px;
+  width: 64px;
   flex-shrink: 0;
   border: none;
   cursor: pointer;
@@ -290,6 +211,12 @@ const t = (key: string) => _t(key, locale.value);
 }
 .lit-card-icon:hover {
   filter: brightness(1.15);
+}
+
+.lit-card-check--lead {
+  flex-shrink: 0;
+  width: 40px;
+  border-right: 1px solid rgba(var(--v-border-color), 0.2);
 }
 
 .lit-card-text {
@@ -306,7 +233,7 @@ const t = (key: string) => _t(key, locale.value);
 }
 .lit-card-title {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -321,6 +248,7 @@ const t = (key: string) => _t(key, locale.value);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-top: 2px;
 }
 .lit-card--checked .lit-card-subtitle {
   text-decoration: line-through;
@@ -330,12 +258,12 @@ const t = (key: string) => _t(key, locale.value);
   display: flex;
   align-items: center;
   gap: 1px;
-  padding: 0 4px;
-  border-left: 1px solid rgba(var(--v-border-color), 0.3);
+  padding: 0 6px;
+  border-left: 1px solid rgba(var(--v-border-color), 0.25);
 }
 .lit-music-btn {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   border: none;
   background: transparent;
   border-radius: 3px;
@@ -346,25 +274,29 @@ const t = (key: string) => _t(key, locale.value);
   justify-content: center;
 }
 .lit-music-btn:hover {
-  background: rgba(var(--lj-navy-ch), 0.15);
-  color: var(--lj-navy);
+  background: rgba(var(--lj-navy-ch), 0.12);
 }
 
 .lit-card-end {
   display: flex;
   align-items: center;
-  border-left: 1px solid rgba(var(--v-border-color), 0.3);
+  border-left: 1px solid rgba(var(--v-border-color), 0.25);
   padding: 0 4px;
   gap: 2px;
 }
+
 .lit-card-check {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
   position: relative;
+}
+.lit-card-check--lead {
+  width: 40px;
+  height: 100%;
 }
 .lit-card-check input {
   position: absolute;
@@ -373,8 +305,8 @@ const t = (key: string) => _t(key, locale.value);
   cursor: pointer;
 }
 .lit-check-mark {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border: 1.5px solid rgba(var(--lj-on-surface-ch), 0.4);
   border-radius: 3px;
   display: flex;
@@ -383,13 +315,54 @@ const t = (key: string) => _t(key, locale.value);
   color: transparent;
   background: transparent;
 }
+.lit-card-check--lead .lit-check-mark {
+  width: 24px;
+  height: 24px;
+}
 .lit-card-check input:checked ~ .lit-check-mark {
   border-color: var(--lj-navy);
   background: var(--lj-navy);
   color: white;
 }
 
-/* ====================== Categoria ====================== */
+.lit-card-grip,
+.lit-card-action {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 3px;
+  color: rgba(var(--lj-on-surface-ch), 0.6);
+  padding: 0;
+}
+.lit-card-grip {
+  cursor: grab;
+}
+.lit-card-grip:active {
+  cursor: grabbing;
+}
+.lit-card-action:hover {
+  background: rgba(var(--lj-on-surface-ch), 0.08);
+  color: var(--lj-text);
+}
+.lit-card-grip:hover {
+  background: rgba(var(--lj-on-surface-ch), 0.08);
+  color: var(--lj-text);
+}
+.lit-card-grip--cat {
+  height: 100%;
+  width: 28px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.lit-card-grip--cat:hover {
+  color: white;
+  background: rgba(0, 0, 0, 0.15);
+}
+
 .lit-category {
   display: flex;
   align-items: center;

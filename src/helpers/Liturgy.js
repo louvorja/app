@@ -4,10 +4,14 @@ import $dev from "@/helpers/Dev";
 
 const KEY_CATEGORIES = "modules.liturgy.scheduled_categories";
 const KEY_SCHEDULED = "modules.liturgy.scheduled_items";
-const KEY_ACTIVE_WEEK = "modules.liturgy.active_week";
-const KEY_WEEKS = "modules.liturgy.weeks";
-// Legacy key — items sem multi-week
+const KEY_ACTIVE_DAY = "modules.liturgy.active_day";
+const KEY_DAYS = "modules.liturgy.days";
+const KEY_DAY_NOTES = "modules.liturgy.day_notes";
+// Legacy keys (pré-day-based)
 const KEY_LEGACY_ITEMS = "modules.liturgy.items";
+const KEY_LEGACY_WEEKS = "modules.liturgy.weeks";
+const KEY_LEGACY_ACTIVE_WEEK = "modules.liturgy.active_week";
+const KEY_LEGACY_WEEKDAY_NOTES = "modules.liturgy.weekday_notes";
 
 const DEFAULT_COLOR = "#4F0000";
 
@@ -33,81 +37,103 @@ function todayStamp() {
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
 }
 
-/** Retorna a semana ISO no formato "YYYY-WNN" para uma data. */
-function isoWeek(date = new Date()) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  // ISO week: quinta-feira desta semana determina o ano da semana
-  const day = d.getUTCDay() || 7; // domingo = 7
-  d.setUTCDate(d.getUTCDate() + 4 - day);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const week = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${d.getUTCFullYear()}-W${pad(week)}`;
+function todayDayIndex() {
+  return new Date().getDay();
 }
 
-/** Retorna segunda-feira e domingo de uma semana ISO "YYYY-WNN". */
-export function weekBounds(weekStr) {
-  const [yearStr, wStr] = weekStr.split("-W");
-  const year = parseInt(yearStr, 10);
-  const week = parseInt(wStr, 10);
-  // 4 de janeiro sempre está na semana 1 ISO
-  const jan4 = new Date(Date.UTC(year, 0, 4));
-  const jan4Day = jan4.getUTCDay() || 7;
-  const monday = new Date(jan4);
-  monday.setUTCDate(jan4.getUTCDate() - (jan4Day - 1) + (week - 1) * 7);
-  const sunday = new Date(monday);
-  sunday.setUTCDate(monday.getUTCDate() + 6);
-  return { monday, sunday };
+function clampDay(i) {
+  const n = Number(i);
+  if (!Number.isFinite(n)) return todayDayIndex();
+  return Math.max(0, Math.min(6, Math.floor(n)));
 }
 
 export default {
-  /* ---------------- Semana ativa ---------------- */
-  getActiveWeek() {
-    return $userdata.get(KEY_ACTIVE_WEEK, null) || isoWeek();
+  /* ---------------- Dia ativo ---------------- */
+  getActiveDay() {
+    const stored = $userdata.get(KEY_ACTIVE_DAY, null);
+    if (stored == null) return todayDayIndex();
+    return clampDay(stored);
   },
 
-  setActiveWeek(week) {
-    $userdata.set(KEY_ACTIVE_WEEK, week);
+  setActiveDay(day) {
+    $userdata.set(KEY_ACTIVE_DAY, clampDay(day));
   },
 
-  /* ---------------- Itens da liturgia (multi-week) ---------------- */
-  _weekKey(week) {
-    return `${KEY_WEEKS}.${week}`;
+  /* ---------------- Itens da liturgia (por dia) ---------------- */
+  _dayKey(day) {
+    return `${KEY_DAYS}.${clampDay(day)}`;
   },
 
-  /** Migra itens legados (modules.liturgy.items) para a semana corrente.
-   *  Chamar uma vez no boot — NUNCA dentro de um getter reativo (causa side-effect em computed).
+  /** Migra itens legados para o modelo por dia.
+   *  - `modules.liturgy.items`: lista única antiga → vai para o dia de hoje.
+   *  - `modules.liturgy.weeks.<semana atual>`: itens da semana corrente → vai para o dia de hoje.
+   *  Chamar uma vez no boot — NUNCA dentro de getter reativo.
    */
   async migrate() {
-    const legacy = $userdata.get(KEY_LEGACY_ITEMS, null);
-    if (!legacy || !Array.isArray(legacy) || legacy.length === 0) return;
-    // Yield ao event loop para que a UI de loading possa renderizar antes de escrever.
-    await new Promise((r) => setTimeout(r, 0));
-    const week = isoWeek();
-    const existing = $userdata.get(this._weekKey(week), null);
-    if (!existing) {
-      $userdata.set(this._weekKey(week), legacy);
-      $dev.write("liturgy:migrate legacy items to", week);
+    let migrated = false;
+
+    // 1) Legacy `modules.liturgy.items` (pré-multi-week)
+    const legacyItems = $userdata.get(KEY_LEGACY_ITEMS, null);
+    if (Array.isArray(legacyItems) && legacyItems.length > 0) {
+      await new Promise((r) => setTimeout(r, 0));
+      const today = todayDayIndex();
+      const existing = $userdata.get(this._dayKey(today), null);
+      if (!existing || existing.length === 0) {
+        $userdata.set(this._dayKey(today), legacyItems);
+        $dev.write("liturgy:migrate legacy items → day", today);
+      }
+      $userdata.set(KEY_LEGACY_ITEMS, []);
+      migrated = true;
     }
-    $userdata.set(KEY_LEGACY_ITEMS, []);
+
+    // 2) Legacy multi-week (`modules.liturgy.weeks.<isoWeek>`)
+    const weeks = $userdata.get(KEY_LEGACY_WEEKS, null);
+    if (weeks && typeof weeks === "object") {
+      const keys = Object.keys(weeks);
+      if (keys.length > 0) {
+        await new Promise((r) => setTimeout(r, 0));
+        // Pega a semana ativa antiga (ou a primeira disponível) como melhor candidato
+        const activeWeek = $userdata.get(KEY_LEGACY_ACTIVE_WEEK, null) || keys[0];
+        const items = weeks[activeWeek];
+        if (Array.isArray(items) && items.length > 0) {
+          const today = todayDayIndex();
+          const existing = $userdata.get(this._dayKey(today), null);
+          if (!existing || existing.length === 0) {
+            $userdata.set(this._dayKey(today), items);
+            $dev.write(
+              `liturgy:migrate week ${activeWeek} → day`,
+              today,
+              `(${items.length} itens)`
+            );
+          }
+        }
+        // Limpa estruturas antigas
+        $userdata.set(KEY_LEGACY_WEEKS, {});
+        $userdata.set(KEY_LEGACY_ACTIVE_WEEK, null);
+        $userdata.set(KEY_LEGACY_WEEKDAY_NOTES, {});
+        migrated = true;
+      }
+    }
+
+    return migrated;
   },
 
-  list(week) {
-    const w = week || this.getActiveWeek();
-    return $userdata.get(this._weekKey(w), []);
+  list(day) {
+    const d = day == null ? this.getActiveDay() : clampDay(day);
+    return $userdata.get(this._dayKey(d), []);
   },
 
-  set(items, week) {
-    const w = week || this.getActiveWeek();
-    $userdata.set(this._weekKey(w), items);
+  set(items, day) {
+    const d = day == null ? this.getActiveDay() : clampDay(day);
+    $userdata.set(this._dayKey(d), items);
   },
 
-  get(id, week) {
-    return this.list(week).find((i) => i.id === id) || null;
+  get(id, day) {
+    return this.list(day).find((i) => i.id === id) || null;
   },
 
-  add(item, week) {
-    const items = this.list(week);
+  add(item, day) {
+    const items = this.list(day);
     const merged = {
       id: uid(),
       tipo: "anotacao",
@@ -119,63 +145,61 @@ export default {
       ...item,
     };
     items.push(merged);
-    this.set(items, week);
+    this.set(items, day);
     $dev.write("liturgy:add", merged.item || merged.tipo);
     return merged;
   },
 
-  update(id, patch, week) {
-    const items = this.list(week).map((i) => (i.id === id ? { ...i, ...patch } : i));
-    this.set(items, week);
+  update(id, patch, day) {
+    const items = this.list(day).map((i) => (i.id === id ? { ...i, ...patch } : i));
+    this.set(items, day);
   },
 
-  remove(id, week) {
+  remove(id, day) {
     this.set(
-      this.list(week).filter((i) => i.id !== id),
-      week
+      this.list(day).filter((i) => i.id !== id),
+      day
     );
   },
 
-  reorder(items, week) {
-    this.set([...items], week);
+  reorder(items, day) {
+    this.set([...items], day);
   },
 
-  clear(week) {
-    this.set([], week);
+  clear(day) {
+    this.set([], day);
   },
 
-  toggleChecked(id, week) {
-    const item = this.get(id, week);
+  toggleChecked(id, day) {
+    const item = this.get(id, day);
     if (!item) return;
     const today = todayStamp();
-    this.update(id, { checked: item.checked === today ? "" : today }, week);
+    this.update(id, { checked: item.checked === today ? "" : today }, day);
   },
 
   isCheckedToday(item) {
     return item?.checked && item.checked === todayStamp();
   },
 
-  /* ---------------- Anotações por dia da semana ---------------- */
-  getWeekdayNote(dayIndex, week) {
-    const w = week || this.getActiveWeek();
-    return $userdata.get(`modules.liturgy.weekday_notes.${w}.${dayIndex}`, "");
+  /* ---------------- Anotações por dia ---------------- */
+  getDayNote(day) {
+    return $userdata.get(`${KEY_DAY_NOTES}.${clampDay(day)}`, "");
   },
 
-  setWeekdayNote(dayIndex, text, week) {
-    const w = week || this.getActiveWeek();
-    $userdata.set(`modules.liturgy.weekday_notes.${w}.${dayIndex}`, text);
+  setDayNote(day, html) {
+    $userdata.set(`${KEY_DAY_NOTES}.${clampDay(day)}`, html ?? "");
   },
 
   /* ---------------- Helpers de criação por tipo ---------------- */
-  addAnnotation(title, text, cor = DEFAULT_COLOR, week) {
-    return this.add({ tipo: "anotacao", item: title, subitem: text || "", cor }, week);
+  addAnnotation(title, text, cor = DEFAULT_COLOR, day) {
+    return this.add({ tipo: "anotacao", item: title, subitem: text || "", cor }, day);
   },
 
-  addCategory(name, cor = DEFAULT_COLOR, week) {
-    return this.add({ tipo: "categoria", item: name, cor }, week);
+  addCategory(name, cor = DEFAULT_COLOR, day) {
+    return this.add({ tipo: "categoria", item: name, cor }, day);
   },
 
-  addFile(title, dir, dirInfo = "E", cor = DEFAULT_COLOR, week) {
+  addFile(title, dir, dirInfo = "E", cor = DEFAULT_COLOR, day) {
     const isFolder = dir.endsWith("/") || dir.endsWith("\\");
     return this.add(
       {
@@ -187,19 +211,19 @@ export default {
         dir_info: dirInfo,
         cor,
       },
-      week
+      day
     );
   },
 
-  addSite(title, url, cor = DEFAULT_COLOR, week) {
+  addSite(title, url, cor = DEFAULT_COLOR, day) {
     const validUrl = this.validateUrl(url);
     return this.add(
       { tipo: "site", item: title, subitem: "Site " + validUrl, url: validUrl, cor },
-      week
+      day
     );
   },
 
-  addMusic(id_music, name, has_instrumental_music = false, cor = DEFAULT_COLOR, week) {
+  addMusic(id_music, name, has_instrumental_music = false, cor = DEFAULT_COLOR, day) {
     return this.add(
       {
         tipo: "musica",
@@ -212,11 +236,11 @@ export default {
         id_music,
         cor,
       },
-      week
+      day
     );
   },
 
-  addMusicChoice(cor = DEFAULT_COLOR, week) {
+  addMusicChoice(cor = DEFAULT_COLOR, day) {
     return this.add(
       {
         tipo: "musica",
@@ -227,14 +251,14 @@ export default {
         subtipo: "escolha",
         cor,
       },
-      week
+      day
     );
   },
 
-  addScheduledItem(categoriaId, categoriaNome, cor = DEFAULT_COLOR, week) {
+  addScheduledItem(categoriaId, categoriaNome, cor = DEFAULT_COLOR, day) {
     return this.add(
       { tipo: "itensagendados", item: categoriaNome, subitem: "", id: categoriaId, cor },
-      week
+      day
     );
   },
 
@@ -319,41 +343,5 @@ export default {
   findScheduledForToday(categoriaId, date = new Date()) {
     const iso = date.toISOString().slice(0, 10);
     return this.scheduledItems().find((i) => i.categoria === categoriaId && i.data === iso);
-  },
-
-  /* ---------------- Persistência (export/import) ---------------- */
-  exportJson(week) {
-    const w = week || this.getActiveWeek();
-    return JSON.stringify(
-      {
-        version: 2,
-        week: w,
-        items: this.list(w),
-        categories: this.scheduledCategories(),
-        scheduled: this.scheduledItems(),
-      },
-      null,
-      2
-    );
-  },
-
-  importJson(text, week) {
-    try {
-      const data = JSON.parse(text);
-      if (Array.isArray(data)) {
-        this.set(data, week);
-        return true;
-      }
-      if (data && Array.isArray(data.items)) {
-        this.set(data.items, week);
-        if (Array.isArray(data.categories)) this.setScheduledCategories(data.categories);
-        if (Array.isArray(data.scheduled)) this.setScheduledItems(data.scheduled);
-        return true;
-      }
-      return false;
-    } catch (e) {
-      $dev.write("liturgy:import error", e);
-      return false;
-    }
   },
 };

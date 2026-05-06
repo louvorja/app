@@ -1,5 +1,19 @@
 {
   "title": "Liturgia",
+  "ribbon": {
+    "add": "Agregar",
+    "items": "Ítems",
+    "options": "Opciones",
+    "timer": "Cronómetro",
+    "file": "Archivo",
+    "mark_all": "Marcar Todos",
+    "unmark_all": "Desmarcar Todos",
+    "invert_selection": "Invertir Selección",
+    "delete_selected": "Borrar Seleccionados",
+    "mark_on_access": "Marcar como \"Concluido\" tras acceder al ítem",
+    "show_notes": "Mostrar Panel de Anotaciones",
+    "lock_items": "Bloquear Ítems"
+  },
   "actions": {
     "add": "Agregar ítem",
     "save": "Guardar",
@@ -72,7 +86,20 @@
   "notes": {
     "title": "Anotaciones",
     "placeholder": "Anotaciones para este día...",
-    "days": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+    "days": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+    "font": "Fuente",
+    "size": "Tamaño",
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "strike": "Tachado",
+    "under": "Subrayado",
+    "text_color": "Color del texto",
+    "bg_color": "Color de fondo",
+    "align_left": "Alinear a la izquierda",
+    "align_center": "Centrar",
+    "align_right": "Alinear a la derecha",
+    "list_ul": "Lista con viñetas",
+    "list_ol": "Lista numerada"
   },
   "timer": {
     "current_item": "Ítem en ejecución"
@@ -86,7 +113,16 @@
     "play_lyric": "Reproducir cantado",
     "play_lyric_pb": "Reproducir playback (instrumental)",
     "show_lyric": "Mostrar letra",
+    "show_lyric_text": "Mostrar letra (texto)",
     "no_audio": "Slides sin audio"
+  },
+  "music_search": {
+    "title": "Búsqueda de Músicas",
+    "find_label": "Localizar Música:",
+    "col_album": "Álbum",
+    "col_music": "Música",
+    "empty": "Ninguna música disponible.",
+    "empty_search": "Ninguna música encontrada para esta búsqueda."
   },
   "schedules": {
     "title": "Ítems Programados",
@@ -111,7 +147,7 @@
     "choose_scheduled": "¡Elija la categoría de ítems programados!",
     "remove_confirm": "¿Desea realmente eliminar este ítem?",
     "clear_confirm": "¿Desea limpiar toda la liturgia?",
-    "remove_done_confirm": "¿Eliminar todos los ítems marcados como concluidos hoy?",
+    "remove_done_confirm": "¿Borrar todos los ítems seleccionados (marcados)?",
     "invalid_file": "Archivo inválido. No fue posible cargar la liturgia.",
     "music_choose_first": "Elija la música primero (clic en el ítem).",
     "scheduled_not_found": "No hay ítem programado para esta fecha en esta categoría.",
