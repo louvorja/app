@@ -125,7 +125,12 @@ onMounted(() => {
   const isDev = import.meta.env.VITE_APP_MODE === "development";
   $appdata.set("is_dev", isDev);
 
-  if (!isDev) {
+  // No web/PWA, beforeunload com preventDefault mostra prompt "Tem certeza
+  // que quer sair?". No Electron, esse mesmo preventDefault CANCELA o close
+  // da janela silenciosamente — usuário clica no X e nada acontece.
+  // Portanto só registra fora do Electron.
+  const isElectron = !!window.louvorjaApi;
+  if (!isDev && !isElectron) {
     beforeUnloadHandler = (e) => {
       e.preventDefault();
       e.returnValue = "";
