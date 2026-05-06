@@ -193,7 +193,15 @@
       "clear": "Limpiar selección",
       "start": "Descargar seleccionados",
       "cancel": "Cancelar",
-      "progress": "{done} de {total} ({percent}%)"
+      "progress": "{done} de {total} ({percent}%)",
+      "hint": "Seleccione álbumes para descargar carátulas, MP3 e imágenes de las músicas para uso offline.",
+      "loading": "Cargando colectáneas…",
+      "preparing": "Preparando lista de archivos… ({done}/{total})",
+      "collect_failed": "Error al recopilar la lista de archivos.",
+      "no_files": "Ningún archivo encontrado para los álbumes seleccionados.",
+      "completed": "Completado: {downloaded} descargados, {failed} fallaron.",
+      "cancelled": "Descarga cancelada.",
+      "failed": "{n} fallo(s) durante la descarga."
     },
     "storage": {
       "title": "Almacenamiento",

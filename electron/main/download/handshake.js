@@ -44,15 +44,17 @@ async function getFtpCredentials({ lang = "PT", version = "1.27.0" } = {}) {
   const connFtp = params.conn_ftp;
   if (!connFtp) throw new Error("conn_ftp ausente na resposta de params");
 
-  const payload = [
-    `lang=${lang.toUpperCase()}`,
-    `version=${version}`,
-    `bin_version=${version}`,
-    `datetime=${new Date().toISOString().replace("T", " ").slice(0, 19)}`,
-    `ip=${getLocalIp()}`,
-    `directory=${paths.userData()}`,
-    `pc_name=${os.hostname()}`,
-  ].join("\n");
+  // Formato do Delphi (fmAtualiza.pas:340-350): query-string com `&` (incluindo
+  // o `&` inicial). O servidor PHP faz parse_str() no payload decoded —
+  // separador `\n` jogava todo o conteúdo no primeiro campo.
+  const payload =
+    `&lang=${lang.toUpperCase()}` +
+    `&version=${version}` +
+    `&bin_version=${version}` +
+    `&datetime=${new Date().toISOString().replace("T", " ").slice(0, 19)}` +
+    `&ip=${getLocalIp()}` +
+    `&directory=${paths.userData()}` +
+    `&pc_name=${os.hostname()}`;
 
   const data = Buffer.from(payload, "utf-8").toString("base64");
 

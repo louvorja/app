@@ -359,7 +359,14 @@ const _hotkeyClean = () => {
   if (select_bible?.verses?.length > 0) clean();
 };
 
-onMounted(async () => {
+// Atalhos só ativos quando o módulo Bíblia está visível.
+// Antes registravam no onMounted e ficavam ativos mesmo com a Bíblia
+// minimizada/escondida — Modules.vue mantém todo módulo aberto no DOM, então
+// o componente nunca desmonta. Resultado: ArrowLeft/Right consumidas pelo
+// Bible mesmo com a janela do media em foco. Agora seguem o show do módulo.
+let _hotkeysRegistered = false;
+function _registerBibleHotkeys() {
+  if (_hotkeysRegistered) return;
   Hotkeys.register("ArrowLeft", _hotkeyPrev, {
     context: "bible",
     description: "hotkeys.bible_prev_verse",
@@ -378,13 +385,31 @@ onMounted(async () => {
     group: "bible",
     label: "Del",
   });
+  _hotkeysRegistered = true;
+}
+function _unregisterBibleHotkeys() {
+  if (!_hotkeysRegistered) return;
+  Hotkeys.unregister("ArrowLeft", _hotkeyPrev);
+  Hotkeys.unregister("ArrowRight", _hotkeyNext);
+  Hotkeys.unregister("Delete", _hotkeyClean);
+  _hotkeysRegistered = false;
+}
+
+watch(
+  show,
+  (visible) => {
+    if (visible) _registerBibleHotkeys();
+    else _unregisterBibleHotkeys();
+  },
+  { immediate: true }
+);
+
+onMounted(async () => {
   await loadData();
 });
 
 onUnmounted(() => {
-  Hotkeys.unregister("ArrowLeft", _hotkeyPrev);
-  Hotkeys.unregister("ArrowRight", _hotkeyNext);
-  Hotkeys.unregister("Delete", _hotkeyClean);
+  _unregisterBibleHotkeys();
 });
 
 function send(param, value) {

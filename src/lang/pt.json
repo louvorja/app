@@ -193,7 +193,15 @@
       "clear": "Limpar seleção",
       "start": "Baixar selecionados",
       "cancel": "Cancelar",
-      "progress": "{done} de {total} ({percent}%)"
+      "progress": "{done} de {total} ({percent}%)",
+      "hint": "Selecione álbuns para baixar capas, MP3s e imagens das músicas para uso offline.",
+      "loading": "Carregando coletâneas…",
+      "preparing": "Preparando lista de arquivos… ({done}/{total})",
+      "collect_failed": "Falha ao coletar lista de arquivos.",
+      "no_files": "Nenhum arquivo encontrado para os álbuns selecionados.",
+      "completed": "Concluído: {downloaded} baixados, {failed} falharam.",
+      "cancelled": "Download cancelado.",
+      "failed": "{n} falha(s) durante o download."
     },
     "storage": {
       "title": "Armazenamento",

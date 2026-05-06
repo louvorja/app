@@ -57,15 +57,7 @@
           class="position-sticky w-100"
           :style="`top: 0; height:${preview_height}px; overflow: hidden;`"
         >
-          <l-slide
-            v-if="slide"
-            :slide_number="config.slide_index"
-            :cover="slide.cover == true"
-            :text="slide.cover ? '' : slide.lyric"
-            :aux_text="slide.aux_lyric"
-            :image="slide.url_image ? pathFile(slide.url_image) : null"
-            :image_position="slide.image_position"
-          />
+          <l-slide v-if="slide" :slide="slideForRenderer" :title="config?.title || ''" />
           <l-fullscreen-player v-if="fullscreen" />
         </Fullscreen>
       </div>
@@ -115,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import { component as Fullscreen } from "vue-fullscreen";
@@ -147,6 +139,11 @@ const config = computed(() => Media.config());
 const slide_index = computed(() => config.value?.slide_index);
 const slides = computed(() => Media.slides());
 const slide = computed(() => Media.slide());
+
+// O Slide.vue já resolve url_image relativo via Path.file internamente, então
+// repassamos o slide bruto. (Ainda mantemos pathFile() em Path.file via
+// computed para o image do <Window>.)
+const slideForRenderer = computed(() => slide.value);
 
 const fullscreen = computed({
   get: () => module_.value.config?.fullscreen,
@@ -193,4 +190,63 @@ function goToSlide(index) {
 function resize(data) {
   preview_height.value = data.container_height;
 }
+
+// ---------------------------------------------------------------------------
+// Atalhos de teclado para navegação de slides — listener direto na janela.
+// Substitui (na prática) a registração via Hotkeys.js para esta janela: garante
+// que ←/→/↑/↓/PageUp/PageDown SEMPRE naveguem slides quando o media está aberto,
+// sem depender de prioridade de registro de outros módulos (Bíblia etc.) e sem
+// que o focus trap do v-dialog ou listeners internos do Vuetify "comam" o evento.
+// stopImmediatePropagation evita disparo duplo do handler global do Hotkeys.
+// ---------------------------------------------------------------------------
+function _isInTextField() {
+  const el = document.activeElement;
+  if (!el) return false;
+  const tag = el.tagName?.toLowerCase();
+  return tag === "input" || tag === "textarea" || el.isContentEditable;
+}
+
+function _onKeyNav(e) {
+  if (!module_.value?.show && !module_.value?.minimized) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return; // deixa Ctrl+arrow etc passar
+  if (_isInTextField()) return;
+
+  let handled = false;
+  switch (e.key) {
+    case "ArrowLeft":
+    case "ArrowUp":
+    case "PageUp":
+      Media.prevSlide();
+      handled = true;
+      break;
+    case "ArrowRight":
+    case "ArrowDown":
+    case "PageDown":
+      Media.nextSlide();
+      handled = true;
+      break;
+    case "Home":
+      Media.firstSlide();
+      handled = true;
+      break;
+    case "End":
+      Media.lastSlide();
+      handled = true;
+      break;
+  }
+  if (handled) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+}
+
+onMounted(() => {
+  // capture:true → o listener fica antes de qualquer handler interno do v-dialog
+  // ou v-list. Com stopImmediatePropagation neutraliza o handler global Hotkeys.
+  window.addEventListener("keydown", _onKeyNav, { capture: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", _onKeyNav, { capture: true });
+});
 </script>

@@ -249,14 +249,37 @@ export function useSlideStyle(): SlideStyleAPI {
 
   function bgStyle(slide?: SlideOption): CSSProperties {
     const slideUrl = (slide as { url_image?: string })?.url_image;
-    const url = cfg.value.affect_external_slides
-      ? cfg.value.background_image || ""
+    // Regra:
+    //   - Se o usuário configurou uma imagem custom (cfg.background_image) e
+    //     marcou affect_external_slides=true, ela vence sobre a imagem do slide.
+    //   - Caso contrário, usa a imagem do próprio slide (url_image vinda do
+    //     banco) como padrão.
+    //   - Se o slide também não tem imagem, usa só a cor de fundo.
+    // Antes esta função zerava a imagem quando affect_external_slides=true e
+    // cfg.background_image estava vazio — resultava em projetor preto enquanto
+    // o preview mostrava a foto, criando inconsistência.
+    const customWins = cfg.value.affect_external_slides && cfg.value.background_image;
+    const url = customWins
+      ? cfg.value.background_image
       : slideUrl || cfg.value.background_image || "";
+    // Quando o slide tem image_position numérica (0-8 do banco) e nenhuma
+    // config global custom está vencendo, preserva o posicionamento do slide.
+    let position: string = cfg.value.background_position;
+    const slideImagePos = (slide as { image_position?: number | string })?.image_position;
+    if (!customWins && typeof slideImagePos === "number") {
+      const POSITIONS = [
+        "top left", "top center", "top right",
+        "center left", "center center", "center right",
+        "bottom left", "bottom center", "bottom right",
+      ];
+      position = POSITIONS[slideImagePos] || position;
+    }
     return {
       backgroundImage: url ? `url(${url})` : undefined,
       backgroundSize: "cover",
-      backgroundPosition: cfg.value.background_position,
+      backgroundPosition: position,
       backgroundColor: cfg.value.background_color,
+      backgroundRepeat: "no-repeat",
     };
   }
 
