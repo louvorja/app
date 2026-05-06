@@ -11,6 +11,11 @@
          que seriam bloqueados por 'script-src self'. -->
     <!--CSP_PROD-->
     <title>LouvorJA</title>
+    <style>
+      /* Evita flash branco entre a abertura da BrowserWindow e o primeiro
+         paint do Vue. As views da shell aplicam o fundo correto depois. */
+      html, body { margin: 0; background: #000; }
+    </style>
 </head>
 
 <body>

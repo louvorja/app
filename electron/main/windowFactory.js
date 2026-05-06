@@ -46,28 +46,88 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
   if (!target) target = displays.getPreferred(feature);
 
   const bounds = target.bounds;
+  const isMac = process.platform === "darwin";
+  // Em macOS Liquid Retina, o sistema aplica máscara de cantos arredondados
+  // na NSWindow em kiosk, revelando o wallpaper nas bordas. Aumentamos a
+  // janela alguns px para fora do display útil — os cantos arredondados
+  // ficam fora da área visível e o conteúdo cobre 100% do que aparece.
+  const overscan = fullscreen && isMac ? 24 : 0;
   const winOpts = {
-    x: bounds.x,
-    y: bounds.y,
-    width: fullscreen ? bounds.width : (width || 800),
-    height: fullscreen ? bounds.height : (height || 600),
-    fullscreen,
+    x: bounds.x - overscan,
+    y: bounds.y - overscan,
+    width: fullscreen ? bounds.width + overscan * 2 : (width || 800),
+    height: fullscreen ? bounds.height + overscan * 2 : (height || 600),
+    // No macOS, fullscreen padrão dispara animação de "espaço dedicado".
+    // kiosk cobre TUDO (incluindo menu bar e dock) instantaneamente —
+    // replica o comportamento Delphi.
+    fullscreen: fullscreen && !isMac,
+    kiosk: fullscreen && isMac,
+    enableLargerThanScreen: fullscreen && isMac,
     frame,
     alwaysOnTop,
     title: feature,
     show: false,
     autoHideMenuBar: true,
+    roundedCorners: false, // Windows-only mas inofensivo nos demais
+    // Preto evita o flash branco entre criar a janela e o renderer pintar o primeiro frame.
+    backgroundColor: "#000000",
+    transparent: false,
+    hasShadow: false,
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
+      backgroundThrottling: false,
+      // Garante que o renderer pinte antes da gente chamar show()
+      paintWhenInitiallyHidden: true,
     },
   };
 
   const win = new BrowserWindow(winOpts);
 
-  win.once("ready-to-show", () => win.show());
+  if (fullscreen && isMac && overscan > 0) {
+    // Reforça bounds expandidos depois do construtor — kiosk pode reescrever.
+    win.setBounds({
+      x: bounds.x - overscan,
+      y: bounds.y - overscan,
+      width: bounds.width + overscan * 2,
+      height: bounds.height + overscan * 2,
+    });
+  }
+
+  // setVisibleOnAllWorkspaces transforma o tipo do processo (UIElement),
+  // o que ESCONDE o ícone do dock. Não usar.
+
+  // Esperamos o primeiro paint do renderer antes de mostrar a janela —
+  // assim ela nunca aparece "branca". `did-finish-load` é mais confiável
+  // que `ready-to-show` para evitar flash em rotas com fonts/images grandes.
+  let _shown = false;
+  const showOnce = () => {
+    if (_shown || win.isDestroyed()) return;
+    _shown = true;
+    win.showInactive();
+    if (alwaysOnTop && !(fullscreen && isMac)) {
+      // Em macOS+kiosk a janela já fica acima de tudo; setAlwaysOnTop("screen-saver")
+      // adicional pode promover o processo a UIElement e sumir do dock.
+      // Em outros casos (Windows, ou janelas não-fullscreen), reforça o topo.
+      win.setAlwaysOnTop(true, "pop-up-menu");
+    }
+    win.focus();
+  };
+  win.webContents.once("did-finish-load", showOnce);
+  win.once("ready-to-show", showOnce);
+
+  // Em modo kiosk (macOS) Cmd+Q e atalhos do sistema ficam bloqueados.
+  // Esc fecha a janela como saída de emergência.
+  if (fullscreen && isMac) {
+    win.webContents.on("before-input-event", (_e, input) => {
+      if (input.type === "keyDown" && input.key === "Escape") {
+        win.close();
+      }
+    });
+  }
+
   win.on("closed", () => _openWindows.delete(feature));
 
   // Carregar URL com route

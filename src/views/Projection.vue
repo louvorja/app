@@ -57,8 +57,10 @@
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useProjectionState } from "@/composables/useProjectionState";
 import { useSlideStyle } from "@/composables/useSlideStyle";
+import $broadcast from "@/helpers/Broadcast";
+import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
 
-const { slide, isCover, progress, title } = useProjectionState();
+const { slide, isCover, progress, title, slideIndex, totalSlides } = useProjectionState();
 const slideStyle = useSlideStyle();
 const rootStyle = slideStyle.rootStyle;
 
@@ -72,6 +74,37 @@ const textStyle = computed(() =>
 
 function _beginLeave() {
   leaving.value = true;
+}
+
+function _goTo(index) {
+  if (totalSlides.value <= 0) return;
+  const clamped = Math.max(0, Math.min(totalSlides.value - 1, index));
+  $broadcast.send(BROADCAST_TYPE.GO_TO_SLIDE, { index: clamped });
+}
+
+function _onKey(e) {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    _beginLeave();
+    setTimeout(() => window.close(), 200);
+  } else if (
+    e.key === "ArrowRight" ||
+    e.key === "ArrowDown" ||
+    e.key === "PageDown" ||
+    e.key === " "
+  ) {
+    e.preventDefault();
+    _goTo(slideIndex.value + 1);
+  } else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") {
+    e.preventDefault();
+    _goTo(slideIndex.value - 1);
+  } else if (e.key === "Home") {
+    e.preventDefault();
+    _goTo(0);
+  } else if (e.key === "End") {
+    e.preventDefault();
+    _goTo(totalSlides.value - 1);
+  }
 }
 
 onMounted(() => {
@@ -88,10 +121,12 @@ onMounted(() => {
 
   // Fade-out ao fechar (Esc do operator ou close do BroadcastChannel)
   window.addEventListener("beforeunload", _beginLeave);
+  window.addEventListener("keydown", _onKey);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("beforeunload", _beginLeave);
+  window.removeEventListener("keydown", _onKey);
 });
 </script>
 
