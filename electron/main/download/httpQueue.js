@@ -21,18 +21,19 @@ const paths = require("../paths.js");
  */
 class HttpQueue extends EventEmitter {
   /**
-   * @param {{ baseUrl: string, apiToken?: string }} options
+   * @param {{ baseUrl: string, apiToken?: string, concurrency?: number }} options
    */
-  constructor({ baseUrl, apiToken } = {}) {
+  constructor({ baseUrl, apiToken, concurrency } = {}) {
     super();
     this.baseUrl = (baseUrl || "").replace(/\/+$/, "");
     this.apiToken = apiToken || null;
+    this.concurrency = Math.max(1, Math.min(16, concurrency ?? 6));
     this.queue = [];
     this.running = false;
     this.cancelled = false;
     this.paused = false;
-    this._currentReq = null;
-    this._currentTmp = null;
+    this._activeReqs = new Set();
+    this._activeTmps = new Set();
     this._resumeWaiters = [];
   }
 
@@ -58,9 +59,10 @@ class HttpQueue extends EventEmitter {
     this.paused = false;
     this._resumeWaiters.forEach((res) => res());
     this._resumeWaiters = [];
-    if (this._currentReq) {
-      try { this._currentReq.destroy(new Error("cancelled")); } catch (_) { /* ignore */ }
+    for (const req of this._activeReqs) {
+      try { req.destroy(new Error("cancelled")); } catch (_) { /* ignore */ }
     }
+    this._activeReqs.clear();
   }
 
   pause() {
@@ -101,6 +103,7 @@ class HttpQueue extends EventEmitter {
           // Segue redirect uma vez
           const loc = res.headers.location;
           res.resume();
+          this._activeReqs.delete(req);
           if (!loc) {
             reject(new Error(`HTTP ${res.statusCode} sem Location`));
             return;
@@ -127,9 +130,45 @@ class HttpQueue extends EventEmitter {
       });
 
       req.on("error", reject);
+      req.on("close", () => this._activeReqs.delete(req));
       req.setTimeout(60000, () => req.destroy(new Error("HTTP timeout")));
-      this._currentReq = req;
+      this._activeReqs.add(req);
     });
+  }
+
+  async _processItem(item, total, getNextIndex) {
+    const idx = getNextIndex();
+    const url = this._buildUrl(item.remote);
+    const tmp = `${item.local}.tmp`;
+
+    try {
+      await fs.ensureDir(path.dirname(item.local));
+      this._activeTmps.add(tmp);
+
+      await this._downloadOne(url, tmp, (bytes, totalBytes) => {
+        this.emit("progress", {
+          current: idx,
+          total,
+          file: item.remote,
+          bytes,
+          totalBytes: totalBytes || item.expectedSize || 0,
+        });
+      });
+
+      await fs.move(tmp, item.local, { overwrite: true });
+      this._activeTmps.delete(tmp);
+      this.emit("file-done", { file: item.remote, localPath: item.local });
+      return { ok: true };
+    } catch (err) {
+      if (this._activeTmps.has(tmp)) {
+        try { await fs.remove(tmp); } catch (_) { /* ignore */ }
+        this._activeTmps.delete(tmp);
+      }
+      if (this.cancelled) return { ok: false, cancelled: true };
+      console.warn(`[httpQueue] falhou ${url}: ${err.message}`);
+      this.emit("file-error", { file: item.remote, error: err.message });
+      return { ok: false };
+    }
   }
 
   async start() {
@@ -143,50 +182,29 @@ class HttpQueue extends EventEmitter {
     this.running = true;
     this.cancelled = false;
 
+    const total = this.queue.length;
+    let started = 0;
     let downloaded = 0;
     let failed = 0;
-    const total = this.queue.length;
+    const getNextIndex = () => ++started;
 
-    while (this.queue.length > 0 && !this.cancelled) {
-      await this._waitIfPaused();
-      if (this.cancelled) break;
-
-      const item = this.queue.shift();
-      const idx = total - this.queue.length;
-      const url = this._buildUrl(item.remote);
-
-      try {
-        await fs.ensureDir(path.dirname(item.local));
-        const tmp = `${item.local}.tmp`;
-        this._currentTmp = tmp;
-
-        await this._downloadOne(url, tmp, (bytes, totalBytes) => {
-          this.emit("progress", {
-            current: idx,
-            total,
-            file: item.remote,
-            bytes,
-            totalBytes: totalBytes || item.expectedSize || 0,
-          });
-        });
-
-        await fs.move(tmp, item.local, { overwrite: true });
-        this._currentTmp = null;
-        this.emit("file-done", { file: item.remote, localPath: item.local });
-        downloaded++;
-      } catch (err) {
-        if (this._currentTmp) {
-          try { await fs.remove(this._currentTmp); } catch (_) { /* ignore */ }
-          this._currentTmp = null;
-        }
+    // Pool de workers concorrentes — cada um consome o queue até esvaziar.
+    const worker = async () => {
+      while (!this.cancelled) {
+        await this._waitIfPaused();
         if (this.cancelled) break;
-        console.warn(`[httpQueue] falhou ${url}: ${err.message}`);
-        this.emit("file-error", { file: item.remote, error: err.message });
-        failed++;
-      } finally {
-        this._currentReq = null;
+        if (this.queue.length === 0) break;
+        const item = this.queue.shift();
+        if (!item) break;
+        const r = await this._processItem(item, total, getNextIndex);
+        if (r.ok) downloaded++;
+        else if (!r.cancelled) failed++;
       }
-    }
+    };
+
+    const workers = [];
+    for (let i = 0; i < this.concurrency; i++) workers.push(worker());
+    await Promise.all(workers);
 
     this.running = false;
 

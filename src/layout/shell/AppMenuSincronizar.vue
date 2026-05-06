@@ -10,7 +10,6 @@
         <div class="opt-folder-path">{{ ftpStatusText }}</div>
         <div class="opt-folder-actions">
           <button type="button" class="opt-btn" :disabled="ftpChecking" @click="checkFtpConnection">
-            <v-icon icon="mdi-lan-connect" size="14" class="mr-1" />
             {{ $t("options.collections_download.check_connection") }}
           </button>
         </div>
@@ -22,31 +21,67 @@
 
       <p class="opt-hint">{{ $t("options.collections_download.hint") }}</p>
 
-      <div v-if="loadingCategories" class="opt-folder-path">
+      <div class="opt-folder-actions" style="margin-bottom: 8px">
+        <button
+          type="button"
+          class="opt-btn opt-btn--small"
+          :disabled="downloading || preparing || loadingCategories"
+          @click="selectAll"
+        >
+          {{ $t("options.collections_download.select_all") }}
+        </button>
+        <button
+          type="button"
+          class="opt-btn opt-btn--small"
+          :disabled="downloading || preparing"
+          @click="deselectAll"
+        >
+          {{ $t("options.collections_download.clear") }}
+        </button>
+        <button
+          type="button"
+          class="opt-btn opt-btn--small"
+          :disabled="loadingCategories || downloading || preparing"
+          @click="refreshCatalog"
+        >
+          {{
+            loadingCategories
+              ? $t("options.collections_download.loading")
+              : $t("options.collections_download.refresh_catalog")
+          }}
+        </button>
+        <span
+          v-if="catalogTimestamp"
+          class="opt-hint"
+          style="margin: 0 0 0 auto; align-self: center"
+        >
+          {{ $t("options.collections_download.last_update", { time: catalogTimestamp }) }}
+        </span>
+      </div>
+
+      <div v-if="loadingCategories && !categories.length" class="opt-folder-path">
         {{ $t("options.collections_download.loading") }}
       </div>
 
-      <div v-else-if="categories.length" class="opt-row opt-row--col">
-        <div class="opt-folder-actions" style="margin-bottom: 6px">
-          <button
-            type="button"
-            class="opt-btn opt-btn--small"
-            :disabled="downloading || preparing"
-            @click="selectAllAlbums"
-          >
-            {{ $t("options.collections_download.select_all") }}
-          </button>
-          <button
-            type="button"
-            class="opt-btn opt-btn--small"
-            :disabled="downloading || preparing"
-            @click="deselectAllAlbums"
-          >
-            {{ $t("options.collections_download.clear") }}
-          </button>
-        </div>
-
+      <div v-else class="opt-row opt-row--col">
         <div class="opt-download-list">
+          <!-- Hinário Adventista (categoria especial) -->
+          <div v-if="hymnalIds.length" class="opt-cat opt-cat--special">
+            <label class="opt-checkbox opt-cat-header">
+              <input
+                type="checkbox"
+                :checked="selectedHymnal"
+                :disabled="downloading || preparing"
+                @change="selectedHymnal = $event.target.checked"
+              />
+              <strong>{{ $t("options.collections_download.hymnal") }}</strong>
+              <small class="opt-download-count">
+                · {{ hymnalIds.length }} {{ $t("options.collections_download.songs") }}
+              </small>
+            </label>
+          </div>
+
+          <!-- Coletâneas (categorias > albums) -->
           <div v-for="cat in categories" :key="cat.id_category" class="opt-cat">
             <label class="opt-checkbox opt-cat-header">
               <input
@@ -132,7 +167,7 @@
           v-if="!downloading && !preparing"
           type="button"
           class="opt-btn opt-btn--primary"
-          :disabled="selectedAlbums.size === 0"
+          :disabled="!hasAnySelection"
           @click="startDownloads"
         >
           {{ $t("options.collections_download.start") }}
@@ -166,7 +201,10 @@ const ftpError = ref(null);
 
 const loadingCategories = ref(false);
 const categories = ref([]);
+const hymnalIds = ref([]);
+const catalogTimestamp = ref(null);
 const selectedAlbums = ref(new Set());
+const selectedHymnal = ref(false);
 
 const preparing = ref(false);
 const prepareDone = ref(0);
@@ -187,10 +225,12 @@ const downloadPercent = computed(() =>
 const ftpStatusText = computed(() => {
   if (ftpChecking.value) return t("options.collections_download.checking");
   if (ftpOk.value)
-    return ftpHost.value ? `FTP: ${ftpHost.value}` : t("options.collections_download.connected");
+    return ftpHost.value ? `HTTPS: ${ftpHost.value}` : t("options.collections_download.connected");
   if (ftpError.value) return ftpError.value;
   return t("options.collections_download.disconnected");
 });
+
+const hasAnySelection = computed(() => selectedAlbums.value.size > 0 || selectedHymnal.value);
 
 function isCategoryFullySelected(cat) {
   if (!cat.albums?.length) return false;
@@ -198,8 +238,8 @@ function isCategoryFullySelected(cat) {
 }
 function isCategoryPartiallySelected(cat) {
   if (!cat.albums?.length) return false;
-  const selectedCount = cat.albums.filter((a) => selectedAlbums.value.has(a.id_album)).length;
-  return selectedCount > 0 && selectedCount < cat.albums.length;
+  const sel = cat.albums.filter((a) => selectedAlbums.value.has(a.id_album)).length;
+  return sel > 0 && sel < cat.albums.length;
 }
 function toggleCategory(cat, checked) {
   cat.albums?.forEach((a) => {
@@ -213,27 +253,50 @@ function toggleAlbum(id, checked) {
   else selectedAlbums.value.delete(id);
   selectedAlbums.value = new Set(selectedAlbums.value);
 }
-function selectAllAlbums() {
+
+/** Seleciona TUDO: hinário + todos os álbuns de todas as categorias. */
+function selectAll() {
   const all = new Set();
   categories.value.forEach((c) => c.albums?.forEach((a) => all.add(a.id_album)));
   selectedAlbums.value = all;
+  if (hymnalIds.value.length) selectedHymnal.value = true;
 }
-function deselectAllAlbums() {
+function deselectAll() {
   selectedAlbums.value = new Set();
+  selectedHymnal.value = false;
 }
 
-async function loadCategories() {
+function nowHHMM() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+/** Carrega categorias e hinário em paralelo. fresh=true ignora o cache. */
+async function loadCatalog({ fresh = false } = {}) {
   loadingCategories.value = true;
   try {
-    const data = await Database.get(`${locale.value}_categories`);
-    if (data) {
-      categories.value = data.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const [catsRes, hymRes] = await Promise.allSettled([
+      Database.get(`${locale.value}_categories`, { fresh }),
+      Database.get(`${locale.value}_hymnal`, { fresh }),
+    ]);
+    if (catsRes.status === "fulfilled" && Array.isArray(catsRes.value)) {
+      categories.value = [...catsRes.value].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }
+    if (hymRes.status === "fulfilled" && Array.isArray(hymRes.value)) {
+      hymnalIds.value = hymRes.value
+        .map((m) => Number(m.id_music))
+        .filter((n) => Number.isFinite(n));
+    }
+    catalogTimestamp.value = nowHHMM();
   } catch (e) {
-    console.error("[Sincronizar] loadCategories:", e);
+    console.error("[Sincronizar] loadCatalog:", e);
   } finally {
     loadingCategories.value = false;
   }
+}
+
+async function refreshCatalog() {
+  await loadCatalog({ fresh: true });
 }
 
 async function checkFtpConnection() {
@@ -260,7 +323,6 @@ async function checkFtpConnection() {
   }
 }
 
-/** Normaliza caminho remoto/local: garante que comece com `/`, e local sem `/` no início. */
 function toFile(url) {
   if (!url) return null;
   const remote = url.startsWith("/") ? url : `/${url}`;
@@ -268,7 +330,6 @@ function toFile(url) {
   return { remote, local, expectedSize: 0 };
 }
 
-/** Baixa um JSON do banco com fallback simples. */
 async function fetchJson(key) {
   try {
     return await Database.get(key);
@@ -278,63 +339,66 @@ async function fetchJson(key) {
   }
 }
 
-/** Coleta lista de arquivos para sincronizar a partir dos álbuns selecionados.
- *  - Capa do álbum (url_image)
- *  - Para cada música do álbum: url_music, url_instrumental_music, url_image,
- *    e url_image de cada slide da letra.
- *  Faz fetch concorrente das músicas com batches de 8. */
-async function collectFiles(albumIds) {
-  const files = new Map(); // dedup por remote path
-
-  function pushFile(url) {
-    const f = toFile(url);
-    if (f) files.set(f.remote, f);
-  }
-
-  prepareTotal.value = albumIds.length;
-  prepareDone.value = 0;
-
-  // Etapa 1: para cada álbum, baixar JSON do álbum e adicionar capa + lista de music_ids
-  const allMusicIds = new Set();
-  const albumPromises = albumIds.map(async (id) => {
-    const album =
-      (await fetchJson(`${locale.value}_album_${id}`).catch(() => null)) ||
-      (await fetchJson(`album_${id}`));
-    if (!album) return;
-    pushFile(album.url_image);
-    album.musics?.forEach((m) => allMusicIds.add(m.id_music));
-    prepareDone.value += 1;
-  });
-  await Promise.all(albumPromises);
-
-  // Etapa 2: para cada música, baixar JSON e coletar arquivos
-  const musicIds = [...allMusicIds];
-  prepareTotal.value = albumIds.length + musicIds.length;
-  const BATCH = 8;
+/** Resolve músicas em batches concorrentes. */
+async function collectMusicFiles(musicIds, files) {
+  const BATCH = 16;
   for (let i = 0; i < musicIds.length; i += BATCH) {
     const slice = musicIds.slice(i, i + BATCH);
     await Promise.all(
       slice.map(async (mid) => {
         const m = await fetchJson(`music_${mid}`);
         if (!m) return;
-        pushFile(m.url_music);
-        pushFile(m.url_instrumental_music);
-        pushFile(m.url_image);
-        m.lyric?.forEach((line) => pushFile(line.url_image));
+        [m.url_music, m.url_instrumental_music, m.url_image].forEach((u) => {
+          const f = toFile(u);
+          if (f) files.set(f.remote, f);
+        });
+        m.lyric?.forEach((line) => {
+          const f = toFile(line.url_image);
+          if (f) files.set(f.remote, f);
+        });
         prepareDone.value += 1;
       })
     );
   }
+}
+
+async function collectFiles() {
+  const files = new Map();
+  const albumIds = [...selectedAlbums.value];
+  const allMusicIds = new Set();
+
+  // Etapa 1: álbuns selecionados → capa + ids de músicas
+  prepareTotal.value = albumIds.length;
+  prepareDone.value = 0;
+  await Promise.all(
+    albumIds.map(async (id) => {
+      const album =
+        (await fetchJson(`${locale.value}_album_${id}`)) || (await fetchJson(`album_${id}`));
+      if (!album) return;
+      const f = toFile(album.url_image);
+      if (f) files.set(f.remote, f);
+      album.musics?.forEach((m) => allMusicIds.add(Number(m.id_music)));
+      prepareDone.value += 1;
+    })
+  );
+
+  // Etapa 2: hinário (se marcado)
+  if (selectedHymnal.value) {
+    hymnalIds.value.forEach((id) => allMusicIds.add(id));
+  }
+
+  // Etapa 3: para cada música única, baixar JSON e coletar URLs
+  const musicIds = [...allMusicIds];
+  prepareTotal.value = albumIds.length + musicIds.length;
+  await collectMusicFiles(musicIds, files);
 
   return [...files.values()];
 }
 
 async function startDownloads() {
   if (!Platform.download) return;
-  if (selectedAlbums.value.size === 0) return;
+  if (!hasAnySelection.value) return;
 
-  // Se a verificação prévia falhou, tenta reconectar antes — o handshake faz
-  // refresh de credenciais quando expiradas e o queue irá tentar de novo.
   if (!ftpOk.value) {
     await checkFtpConnection();
     if (!ftpOk.value) {
@@ -350,7 +414,7 @@ async function startDownloads() {
 
   let files = [];
   try {
-    files = await collectFiles([...selectedAlbums.value]);
+    files = await collectFiles();
   } catch (e) {
     console.error("[Sincronizar] collectFiles:", e);
     preparing.value = false;
@@ -373,7 +437,6 @@ async function startDownloads() {
   _cleanup.push(
     Platform.download.onProgress((d) => {
       currentDownloadFile.value = d.file ? d.file.split("/").pop() : null;
-      downloadedCount.value = Math.max(0, d.current - 1);
       totalDownloads.value = d.total;
     })
   );
@@ -434,7 +497,7 @@ function cleanup() {
 
 onMounted(async () => {
   if (!isDesktop.value) return;
-  await loadCategories();
+  await loadCatalog();
   await checkFtpConnection();
 });
 
@@ -453,6 +516,9 @@ onBeforeUnmount(() => {
 }
 .opt-cat:last-child {
   border-bottom: 0;
+}
+.opt-cat--special {
+  background: rgba(var(--lj-navy-ch), 0.04);
 }
 .opt-cat-header {
   font-size: var(--lj-text-base);

@@ -202,7 +202,11 @@
       "completed": "Completado: {downloaded} descargados, {failed} fallaron.",
       "cancelled": "Descarga cancelada.",
       "failed": "{n} fallo(s) durante la descarga.",
-      "no_connection_hint": "Sin conexión FTP en este momento — la app intentará reconectar al iniciar la descarga."
+      "no_connection_hint": "Sin conexión FTP en este momento — la app intentará reconectar al iniciar la descarga.",
+      "hymnal": "Himnario Adventista",
+      "songs": "himnos",
+      "refresh_catalog": "Actualizar colectáneas",
+      "last_update": "Actualizado a las {time}"
     },
     "storage": {
       "title": "Almacenamiento",
