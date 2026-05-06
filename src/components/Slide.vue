@@ -13,16 +13,10 @@
       :style="bgStyle"
     />
 
-    <!-- Título no primeiro slide (configurável via show_title_first_slide).
-         Exibe o título da música sobre a capa, em pequeno, no topo. -->
-    <div v-if="cfg.show_title_first_slide && isCover && title" class="lj-slide__title-top">
-      {{ title }}
-    </div>
-
     <!-- Texto principal (capa OU letra).
-         Na CAPA, evita redundância: se a tira do topo (show_title_first_slide)
-         estiver ligada, não duplica o título no centro. Mostra centralizado
-         apenas quando o usuário desligou a tira (cobertura "modo Delphi clássico"). -->
+         Na CAPA, mostra o nome da música em destaque (grande, cor da capa).
+         O toggle `show_title_first_slide` controla se a capa exibe o título —
+         desligado, a capa fica só com o fundo. Sem tira redundante no topo. -->
     <div class="lj-slide__content">
       <div
         v-if="showCenteredText"
@@ -128,12 +122,12 @@ const isCover = computed(() => slideObj.value?.cover === true);
 const mainText = computed(() => slideObj.value?.lyric || slideObj.value?.name || "");
 const auxText = computed(() => slideObj.value?.aux_lyric || slideObj.value?.lyric_aux || "");
 
-// Na capa, NÃO duplica o título: se a tira do topo está ligada, ela é o título.
-// Senão (usuário desligou show_title_first_slide), mostra centralizado.
-// Em slides de letra, sempre mostra o texto centralizado.
+// Slides de letra → sempre mostra.
+// Capa → mostra quando show_title_first_slide está ligado (default). Desligado,
+// a capa fica só com o fundo, sem texto algum.
 const showCenteredText = computed(() => {
   if (!mainText.value) return false;
-  if (isCover.value && cfg.value.show_title_first_slide && props.title) return false;
+  if (isCover.value && !cfg.value.show_title_first_slide) return false;
   return true;
 });
 
@@ -238,23 +232,6 @@ onUnmounted(() => {
 .lj-slide__bg {
   position: absolute;
   inset: 0;
-}
-
-.lj-slide__title-top {
-  position: absolute;
-  top: 2cqh;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: clamp(12px, 2.4cqh, 28px);
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-  pointer-events: none;
-  z-index: 1;
-  padding: 0 1em;
 }
 
 .lj-slide__content {

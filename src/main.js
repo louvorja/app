@@ -93,16 +93,18 @@ $storage.hydrate().then(async () => {
     }
   }
 
-  // D3 — Configurar API de download FTP no main process.
+  // D3 — Configurar API de download HTTPS no main process.
   if (Platform.isDesktop && Platform.download) {
     const apiToken = import.meta.env.VITE_API_TOKEN;
+    const filesUrl = import.meta.env.VITE_URL_FILES;
     if (!apiToken) {
-      console.warn("[main] VITE_API_TOKEN não definido — downloader FTP desabilitado.");
+      console.warn("[main] VITE_API_TOKEN não definido — downloader desabilitado.");
     } else {
       try {
         await Platform.download.setApiConfig({
           paramsUrl: "https://api.louvorja.com.br/params?type=env",
           apiToken,
+          filesUrl,
         });
       } catch (e) {
         console.warn("[main] Falha ao configurar downloader:", e);
