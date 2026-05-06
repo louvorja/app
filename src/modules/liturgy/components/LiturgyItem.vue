@@ -47,14 +47,7 @@
         <v-icon :icon="iconFor(element)" size="28" color="white" />
       </button>
 
-      <!-- Checkbox grande à esquerda do título.
-           Usamos `@click.stop.prevent` em vez de `@change` porque o
-           navegador altera `input.checked` ANTES do Vue re-renderizar; se
-           o handler decidir não mudar o state (ou trocar por uma referência
-           equivalente), o checkbox visual fica dessincronizado e parece
-           "preso" — sintoma observado: marcava mas não desmarcava. Com
-           prevent, o Vue tem controle total via `:checked`.
-           Espaço/Enter cobrem acessibilidade por teclado. -->
+      <!-- Checkbox grande à esquerda do título -->
       <label
         class="lit-card-check lit-card-check--lead"
         :title="t('actions.mark_done')"
@@ -63,9 +56,7 @@
         <input
           type="checkbox"
           :checked="isChecked(element)"
-          @click.stop.prevent="$emit('toggle-checked', element)"
-          @keydown.space.stop.prevent="$emit('toggle-checked', element)"
-          @keydown.enter.stop.prevent="$emit('toggle-checked', element)"
+          @change="$emit('toggle-checked', element)"
         />
         <span class="lit-check-mark"><v-icon icon="mdi-check" size="14" /></span>
       </label>
@@ -316,7 +307,10 @@ const t = (key: string) => _t(key, locale.value);
 .lit-check-mark {
   width: 22px;
   height: 22px;
-  border: 1.5px solid rgba(var(--lj-on-surface-ch), 0.4);
+  /* Borda do checkbox vazio precisa ser claramente visível em ambos os
+     temas. `rgba(var(--lj-on-surface-ch), 0.4)` ficava quase invisível
+     em fundo claro — sintoma: usuário desmarcava e o quadrado "sumia". */
+  border: 1.5px solid rgba(var(--v-border-color), 0.55);
   border-radius: 3px;
   display: flex;
   align-items: center;

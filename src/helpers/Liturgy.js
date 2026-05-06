@@ -115,6 +115,30 @@ export default {
       }
     }
 
+    // 3) Repair de ids ausentes/null. Bug histórico: o DEFAULT_FORM do
+    // diálogo de novo item iniciava `id: null`; o spread `{ ...form }` no
+    // saveItem propagava esse null para `add()`, que sobrescrevia o
+    // `id: uid()` default. Resultado: itens novos nasciam com id null e
+    // o `update(null, ...)` afetava TODOS os itens com id null. Aqui
+    // varremos todos os 7 dias e atribuímos id único onde faltar.
+    for (let d = 0; d <= 6; d++) {
+      const dayItems = $userdata.get(this._dayKey(d), null);
+      if (!Array.isArray(dayItems) || dayItems.length === 0) continue;
+      let dirty = false;
+      const repaired = dayItems.map((it) => {
+        if (it && (it.id == null || it.id === "")) {
+          dirty = true;
+          return { ...it, id: uid() };
+        }
+        return it;
+      });
+      if (dirty) {
+        $userdata.set(this._dayKey(d), repaired);
+        $dev.write(`liturgy:repair-ids day ${d}`, repaired.length);
+        migrated = true;
+      }
+    }
+
     return migrated;
   },
 
@@ -144,6 +168,12 @@ export default {
       duration: 0,
       ...item,
     };
+    // Defensa: callers podem passar id: null/undefined (DEFAULT_FORM em
+    // useLiturgyItems inicializa id como null e saveItem faz `{ ...f }`,
+    // o que sobrescreve o `id: uid()` default acima). Garantimos id único
+    // — sem isso, todos os itens sem id ficam batendo em `i.id === null`
+    // e o toggleChecked/update afeta o conjunto inteiro.
+    if (!merged.id) merged.id = uid();
     items.push(merged);
     this.set(items, day);
     $dev.write("liturgy:add", merged.item || merged.tipo);
@@ -178,7 +208,7 @@ export default {
   },
 
   isCheckedToday(item) {
-    return item?.checked && item.checked === todayStamp();
+    return !!(item?.checked && item.checked === todayStamp());
   },
 
   /* ---------------- Anotações por dia ---------------- */
