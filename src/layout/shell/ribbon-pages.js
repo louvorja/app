@@ -478,6 +478,709 @@ export const RIBBON_PAGES = [
       },
     ],
   },
+
+  // ========== Editor de Músicas (contextual) ==========
+  {
+    id: "ctx_slide_editor",
+    title: "ribbon.pages.ctx_slide_editor",
+    contextual: true,
+    activeOnModules: ["slide_editor"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_se_file",
+        title: "ribbon.groups.file",
+        buttons: [
+          {
+            id: "editor_new",
+            icon: "mdi-file-plus-outline",
+            label: "ribbon.btn.editor_new",
+            action: "editor_new",
+            color: "#1b4f8a",
+          },
+          {
+            id: "editor_open",
+            icon: "mdi-folder-open-outline",
+            label: "ribbon.btn.editor_open",
+            action: "editor_open",
+            color: "#16a085",
+          },
+          {
+            id: "editor_save",
+            icon: "mdi-content-save",
+            label: "ribbon.btn.editor_save",
+            action: "editor_save",
+            color: "#27ae60",
+          },
+          {
+            id: "editor_save_as",
+            icon: "mdi-content-save-edit-outline",
+            label: "ribbon.btn.editor_save_as",
+            action: "editor_save_as",
+            color: "#27ae60",
+            size: "small",
+          },
+          {
+            id: "editor_import_txt",
+            icon: "mdi-file-import-outline",
+            label: "ribbon.btn.editor_import_txt",
+            action: "editor_import_txt",
+            color: "#7f8c8d",
+            size: "small",
+          },
+        ],
+      },
+      {
+        id: "ctx_se_slides",
+        title: "ribbon.groups.slides",
+        buttons: [
+          {
+            id: "editor_project",
+            icon: "mdi-presentation-play",
+            label: "ribbon.btn.editor_project",
+            action: "editor_project",
+            color: "#9b59b6",
+          },
+          {
+            id: "editor_new_slide",
+            icon: "mdi-image-plus-outline",
+            label: "ribbon.btn.editor_new_slide",
+            action: "editor_new_slide",
+            color: "#1b4f8a",
+            size: "small",
+          },
+          {
+            id: "editor_duplicate_slide",
+            icon: "mdi-content-duplicate",
+            label: "ribbon.btn.editor_duplicate_slide",
+            action: "editor_duplicate_slide",
+            color: "#3498db",
+            size: "small",
+          },
+          {
+            id: "editor_remove_slide",
+            icon: "mdi-image-remove-outline",
+            label: "ribbon.btn.editor_remove_slide",
+            action: "editor_remove_slide",
+            color: "#e74c3c",
+            size: "small",
+          },
+          {
+            id: "editor_split_slide",
+            icon: "mdi-arrow-split-horizontal",
+            label: "ribbon.btn.editor_split_slide",
+            action: "editor_split_slide",
+            color: "#16a085",
+            size: "small",
+          },
+          {
+            id: "editor_merge_next",
+            icon: "mdi-call-merge",
+            label: "ribbon.btn.editor_merge_next",
+            action: "editor_merge_next",
+            color: "#16a085",
+            size: "small",
+          },
+        ],
+      },
+      {
+        id: "ctx_se_audio",
+        title: "ribbon.groups.audio_recording",
+        buttons: [
+          {
+            id: "editor_audio_attach",
+            icon: "mdi-music-note-plus",
+            label: "ribbon.btn.editor_audio_attach",
+            action: "editor_audio_attach",
+            color: "#1b4f8a",
+            size: "small",
+          },
+          {
+            id: "editor_play_pause",
+            icon: "mdi-play-pause",
+            label: "ribbon.btn.editor_play_pause",
+            action: "editor_play_pause",
+            color: "#27ae60",
+            size: "small",
+          },
+          {
+            id: "editor_record_advance",
+            icon: "mdi-record-circle",
+            label: "ribbon.btn.editor_record_advance",
+            action: "editor_record_advance",
+            color: "#e74c3c",
+          },
+          {
+            id: "editor_record_start",
+            icon: "mdi-skip-previous",
+            label: "ribbon.btn.editor_record_start",
+            action: "editor_record_start",
+            color: "#7f8c8d",
+            size: "small",
+          },
+          {
+            id: "editor_record_retroactive",
+            icon: "mdi-rewind",
+            label: "ribbon.btn.editor_record_retroactive",
+            action: "editor_record_retroactive",
+            color: "#7f8c8d",
+            size: "small",
+          },
+          {
+            id: "editor_record_clear",
+            icon: "mdi-eraser",
+            label: "ribbon.btn.editor_record_clear",
+            action: "editor_record_clear",
+            color: "#7f8c8d",
+            size: "small",
+          },
+        ],
+      },
+      {
+        id: "ctx_se_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "editor_image_set",
+            icon: "mdi-image-outline",
+            label: "ribbon.btn.editor_image_set",
+            action: "editor_image_set",
+            color: "#1b4f8a",
+            size: "small",
+          },
+          {
+            id: "editor_image_remove",
+            icon: "mdi-image-off-outline",
+            label: "ribbon.btn.editor_image_remove",
+            action: "editor_image_remove",
+            color: "#7f8c8d",
+            size: "small",
+          },
+          {
+            id: "editor_replicate_bg",
+            icon: "mdi-format-line-spacing",
+            label: "ribbon.btn.editor_replicate_bg",
+            action: "editor_replicate_bg_all",
+            color: "#9b59b6",
+            size: "small",
+          },
+          {
+            id: "editor_replicate_text",
+            icon: "mdi-format-letter-matches",
+            label: "ribbon.btn.editor_replicate_text",
+            action: "editor_replicate_text_all",
+            color: "#9b59b6",
+            size: "small",
+          },
+        ],
+      },
+      {
+        id: "ctx_se_view",
+        title: "ribbon.groups.view",
+        buttons: [
+          {
+            id: "editor_view_full",
+            icon: "mdi-monitor",
+            label: "ribbon.btn.editor_view_full",
+            action: "editor_view_full",
+            color: "#1b4f8a",
+            size: "small",
+          },
+          {
+            id: "editor_view_4_3",
+            icon: "mdi-aspect-ratio",
+            label: "ribbon.btn.editor_view_4_3",
+            action: "editor_view_4_3",
+            color: "#1b4f8a",
+            size: "small",
+          },
+          {
+            id: "editor_view_16_9",
+            icon: "mdi-television",
+            label: "ribbon.btn.editor_view_16_9",
+            action: "editor_view_16_9",
+            color: "#1b4f8a",
+            size: "small",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ========== Configurar Bíblia (contextual) ==========
+  {
+    id: "ctx_bible",
+    title: "ribbon.pages.ctx_bible",
+    contextual: true,
+    activeOnModules: ["bible"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_bible_general",
+        title: "ribbon.groups.general",
+        buttons: [
+          {
+            id: "bible_clear",
+            icon: "mdi-eraser",
+            label: "ribbon.btn.bible_clear",
+            action: "bible_clear",
+            color: "#7f8c8d",
+          },
+        ],
+      },
+      {
+        id: "ctx_bible_controls",
+        title: "ribbon.groups.controls",
+        buttons: [
+          {
+            id: "bible_prev_verse",
+            icon: "mdi-arrow-left-bold",
+            label: "ribbon.btn.bible_prev_verse",
+            action: "bible_prev_verse",
+            color: "#16a085",
+          },
+          {
+            id: "bible_next_verse",
+            icon: "mdi-arrow-right-bold",
+            label: "ribbon.btn.bible_next_verse",
+            action: "bible_next_verse",
+            color: "#16a085",
+          },
+        ],
+      },
+      {
+        id: "ctx_bible_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "bible_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.bible_format",
+            action: "bible_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "bible_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.bible_restore",
+            action: "bible_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_bible_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "bible_project",
+            type: "screen",
+            feature: "bible",
+            route: "/projection/bible",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ========== Configurar Contador (contextual) ==========
+  {
+    id: "ctx_counter",
+    title: "ribbon.pages.ctx_counter",
+    contextual: true,
+    activeOnModules: ["counter"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_counter_actions",
+        title: "ribbon.groups.actions",
+        buttons: [
+          {
+            id: "counter_decrement",
+            icon: "mdi-minus-box",
+            label: "ribbon.btn.counter_decrement",
+            action: "counter_decrement",
+            color: "#e74c3c",
+          },
+          {
+            id: "counter_increment",
+            icon: "mdi-plus-box",
+            label: "ribbon.btn.counter_increment",
+            action: "counter_increment",
+            color: "#27ae60",
+          },
+          {
+            id: "counter_reset",
+            icon: "mdi-restart",
+            label: "ribbon.btn.counter_reset",
+            action: "counter_reset",
+            color: "#7f8c8d",
+          },
+        ],
+      },
+      {
+        id: "ctx_counter_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "counter_toggle_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.format",
+            action: "counter_toggle_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "counter_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.restore",
+            action: "counter_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_counter_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "counter_project",
+            type: "screen",
+            feature: "counter",
+            route: "/projection/module?module=counter",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ========== Configurar Sorteio de Números (contextual) ==========
+  {
+    id: "ctx_draw",
+    title: "ribbon.pages.ctx_draw",
+    contextual: true,
+    activeOnModules: ["draw"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_draw_actions",
+        title: "ribbon.groups.actions",
+        buttons: [
+          {
+            id: "draw_draw",
+            icon: "mdi-dice-5",
+            label: "ribbon.btn.draw_action",
+            action: "draw_draw",
+            color: "#3498db",
+          },
+          {
+            id: "draw_reset",
+            icon: "mdi-restart",
+            label: "ribbon.btn.draw_reset",
+            action: "draw_reset",
+            color: "#7f8c8d",
+          },
+        ],
+      },
+      {
+        id: "ctx_draw_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "draw_toggle_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.format",
+            action: "draw_toggle_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "draw_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.restore",
+            action: "draw_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_draw_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "draw_project",
+            type: "screen",
+            feature: "draw",
+            route: "/projection/module?module=draw",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ========== Configurar Sorteio de Nomes (contextual) ==========
+  {
+    id: "ctx_name_draw",
+    title: "ribbon.pages.ctx_name_draw",
+    contextual: true,
+    activeOnModules: ["name_draw"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_name_draw_actions",
+        title: "ribbon.groups.actions",
+        buttons: [
+          {
+            id: "name_draw_draw",
+            icon: "mdi-account-arrow-right",
+            label: "ribbon.btn.name_draw_action",
+            action: "name_draw_draw",
+            color: "#e91e63",
+          },
+          {
+            id: "name_draw_reset",
+            icon: "mdi-restart",
+            label: "ribbon.btn.draw_reset",
+            action: "name_draw_reset",
+            color: "#7f8c8d",
+          },
+        ],
+      },
+      {
+        id: "ctx_name_draw_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "name_draw_toggle_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.format",
+            action: "name_draw_toggle_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "name_draw_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.restore",
+            action: "name_draw_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_name_draw_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "name_draw_project",
+            type: "screen",
+            feature: "name_draw",
+            route: "/projection/module?module=name_draw",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ========== Configurar Relógio (contextual) ==========
+  {
+    id: "ctx_clock",
+    title: "ribbon.pages.ctx_clock",
+    contextual: true,
+    activeOnModules: ["clock"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_clock_options",
+        title: "ribbon.groups.options",
+        buttons: [
+          {
+            id: "clock_toggle_24h",
+            icon: "mdi-hours-24",
+            label: "ribbon.btn.clock_24h",
+            action: "clock_toggle_24h",
+            color: "#1b4f8a",
+          },
+          {
+            id: "clock_toggle_seconds",
+            icon: "mdi-timer",
+            label: "ribbon.btn.clock_seconds",
+            action: "clock_toggle_seconds",
+            color: "#27ae60",
+          },
+        ],
+      },
+      {
+        id: "ctx_clock_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "clock_toggle_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.format",
+            action: "clock_toggle_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "clock_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.restore",
+            action: "clock_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_clock_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "clock_project",
+            type: "screen",
+            feature: "clock",
+            route: "/projection/module?module=clock",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ========== Configurar Cronômetro (contextual) ==========
+  {
+    id: "ctx_stopwatch",
+    title: "ribbon.pages.ctx_stopwatch",
+    contextual: true,
+    activeOnModules: ["stopwatch"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_stopwatch_actions",
+        title: "ribbon.groups.actions",
+        buttons: [
+          {
+            id: "stopwatch_toggle",
+            icon: "mdi-play-pause",
+            label: "ribbon.btn.stopwatch_toggle",
+            action: "stopwatch_toggle",
+            color: "#27ae60",
+          },
+          {
+            id: "stopwatch_reset",
+            icon: "mdi-restart",
+            label: "ribbon.btn.stopwatch_reset",
+            action: "stopwatch_reset",
+            color: "#7f8c8d",
+          },
+        ],
+      },
+      {
+        id: "ctx_stopwatch_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "stopwatch_toggle_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.format",
+            action: "stopwatch_toggle_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "stopwatch_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.restore",
+            action: "stopwatch_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_stopwatch_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "stopwatch_project",
+            type: "screen",
+            feature: "stopwatch",
+            route: "/projection/module?module=stopwatch",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
+
+  // ========== Configurar Painel de Recados (contextual) ==========
+  {
+    id: "ctx_message_board",
+    title: "ribbon.pages.ctx_message_board",
+    contextual: true,
+    activeOnModules: ["message_board"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_message_board_actions",
+        title: "ribbon.groups.actions",
+        buttons: [
+          {
+            id: "message_board_clear",
+            icon: "mdi-stop-circle",
+            label: "ribbon.btn.message_board_clear",
+            action: "message_board_clear",
+            color: "#e74c3c",
+          },
+        ],
+      },
+      {
+        id: "ctx_message_board_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "message_board_toggle_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.format",
+            action: "message_board_toggle_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "message_board_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.restore",
+            action: "message_board_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_message_board_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "message_board_project",
+            type: "screen",
+            feature: "message_board",
+            route: "/projection/module?module=message_board",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 /**

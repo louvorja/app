@@ -172,7 +172,7 @@
    * ================================================================= */
   --lj-popup-bg: var(--lj-surface-bg);
   --lj-popup-border: var(--lj-surface-border-strong);
-  --lj-popup-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --lj-popup-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 24px rgba(0, 0, 0, 0.12);
 
   /* App Menu sidebar (Sobre/Opções) */
   --lj-appmenu-sidebar-bg: var(--lj-navy);
@@ -235,7 +235,7 @@
   --lj-appmenu-width: 44px;
 
   --lj-fixed-btn-width: 30px;
-  --lj-large-btn-width: 76px;
+  --lj-large-btn-width: 86px;
   --lj-large-btn-height: 70px;
   --lj-small-btn-height: 22px;
 
@@ -258,19 +258,21 @@
   /* =================================================================
    * 12. RAIO DE BORDA
    * ================================================================= */
-  --lj-radius-xs: 2px; /* tags, badges */
-  --lj-radius-sm: 3px; /* botões padrão */
-  --lj-radius-md: 4px; /* popups, cards */
-  --lj-radius-lg: 6px; /* dialogs */
-  --lj-radius-tab: 4px 4px 0 0; /* tabs */
+  --lj-radius-xs: 3px; /* tags, badges */
+  --lj-radius-sm: 4px; /* botões padrão */
+  --lj-radius-md: 6px; /* popups, cards */
+  --lj-radius-lg: 8px; /* dialogs */
+  --lj-radius-tab: 5px 5px 0 0; /* tabs */
 
   /* =================================================================
    * 13. TIPOGRAFIA
    * ================================================================= */
-  --lj-font-shell: "Tahoma", "Segoe UI", "Helvetica Neue", sans-serif;
+  --lj-font-shell:
+    "Inter", "Segoe UI Variable", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui,
+    "Helvetica Neue", "Tahoma", sans-serif;
   --lj-font-projection:
     "DINCondensedBold", "DIN Condensed", "Bebas Neue", "Arial Narrow", sans-serif;
-  --lj-font-mono: "SF Mono", "Consolas", monospace;
+  --lj-font-mono: "SF Mono", "JetBrains Mono", "Consolas", monospace;
 
   /* Escala de tamanhos */
   --lj-text-xs: 10px; /* badges, group labels */
@@ -291,22 +293,28 @@
    * 14. ELEVAÇÃO / SOMBRAS
    * ================================================================= */
 
-  /* Sombras de elevação (z-axis) */
-  --lj-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --lj-shadow-2: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --lj-shadow-3: 0 4px 16px rgba(0, 0, 0, 0.2);
+  /* Sombras com 2 camadas (key + ambient) — produz profundidade premium */
+  --lj-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --lj-shadow-2: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.1);
+  --lj-shadow-3: 0 4px 8px rgba(0, 0, 0, 0.08), 0 12px 24px rgba(0, 0, 0, 0.14);
 
-  /* Focus rings com cor navy */
-  --lj-shadow-focus-navy: 0 0 0 2px rgba(var(--lj-navy-ch), 0.2);
-  --lj-shadow-focus-navy-sm: 0 0 0 2px rgba(var(--lj-navy-ch), 0.15);
+  /* Focus rings com cor navy — ring duplo (inner light + outer ring) */
+  --lj-shadow-focus-navy: 0 0 0 2px var(--lj-surface-bg), 0 0 0 4px rgba(var(--lj-navy-ch), 0.4);
+  --lj-shadow-focus-navy-sm: 0 0 0 2px rgba(var(--lj-navy-ch), 0.25);
 
   /* =================================================================
    * 15. ANIMAÇÕES
    * ================================================================= */
   --lj-fade-duration: 256ms;
-  --lj-transition-fast: 0.08s ease;
-  --lj-transition-normal: 0.15s ease;
-  --lj-transition-slow: 0.25s ease;
+
+  /* Curva cubic-bezier "standard" (Material/iOS) — saída acelerada, entrada smooth */
+  --lj-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --lj-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --lj-ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  --lj-transition-fast: 0.12s var(--lj-ease);
+  --lj-transition-normal: 0.2s var(--lj-ease);
+  --lj-transition-slow: 0.3s var(--lj-ease);
 }
 
 /* =====================================================================
@@ -377,7 +385,7 @@
   /* Popups */
   --lj-popup-bg: #1f2937;
   --lj-popup-border: #374151;
-  --lj-popup-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --lj-popup-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.5);
 
   /* Link e kbd */
   --lj-link-color: var(--lj-info-light);

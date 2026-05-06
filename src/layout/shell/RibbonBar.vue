@@ -91,17 +91,28 @@
         :key="`${activePage}:${group.id}`"
         :title="$t(group.title)"
       >
-        <RibbonButton
-          v-for="btn in group.buttons"
-          :key="`${activePage}:${group.id}:${btn.id}`"
-          :icon="btn.icon"
-          :icon-color="btn.color"
-          :label="$t(btn.label)"
-          :size="btn.size || 'large'"
-          :active="isButtonActive(btn)"
-          :testid="`ribbon-btn-${btn.id}`"
-          @click="executeButton(btn)"
-        />
+        <template v-for="btn in group.buttons" :key="`${activePage}:${group.id}:${btn.id}`">
+          <RibbonScreenButton
+            v-if="btn.type === 'screen'"
+            :feature="btn.feature"
+            :route="btn.route"
+            :icon="btn.icon"
+            :icon-color="btn.color"
+            :label="$t(btn.label)"
+            :size="btn.size || 'large'"
+            :testid="`ribbon-btn-${btn.id}`"
+          />
+          <RibbonButton
+            v-else
+            :icon="btn.icon"
+            :icon-color="btn.color"
+            :label="$t(btn.label)"
+            :size="btn.size || 'large'"
+            :active="isButtonActive(btn)"
+            :testid="`ribbon-btn-${btn.id}`"
+            @click="executeButton(btn)"
+          />
+        </template>
       </RibbonGroup>
       <div v-if="activeGroups.length === 0" class="ribbon-empty">
         {{ $t("shell.empty_ribbon_page") }}
@@ -116,6 +127,7 @@ import { useI18n } from "vue-i18n";
 import { useTheme } from "vuetify";
 import RibbonGroup from "./RibbonGroup.vue";
 import RibbonButton from "./RibbonButton.vue";
+import RibbonScreenButton from "./RibbonScreenButton.vue";
 import AppMenuButton from "./AppMenuButton.vue";
 import { useShell } from "@/composables/useShell";
 import { RIBBON_PAGES } from "./ribbon-pages.js";
@@ -201,6 +213,41 @@ const LITURGY_ACTIONS = {
   lit_lock: "toggle_lock",
 };
 
+const BIBLE_ACTIONS = {
+  bible_clear: "clear",
+  bible_prev_verse: "prev_verse",
+  bible_next_verse: "next_verse",
+  bible_format: "toggle_format",
+  bible_restore: "restore",
+};
+
+const EDITOR_ACTIONS = new Set([
+  "editor_new",
+  "editor_open",
+  "editor_save",
+  "editor_save_as",
+  "editor_import_txt",
+  "editor_project",
+  "editor_new_slide",
+  "editor_duplicate_slide",
+  "editor_remove_slide",
+  "editor_split_slide",
+  "editor_merge_next",
+  "editor_audio_attach",
+  "editor_play_pause",
+  "editor_record_advance",
+  "editor_record_start",
+  "editor_record_retroactive",
+  "editor_record_clear",
+  "editor_image_set",
+  "editor_image_remove",
+  "editor_replicate_bg_all",
+  "editor_replicate_text_all",
+  "editor_view_full",
+  "editor_view_4_3",
+  "editor_view_16_9",
+]);
+
 function executeButton(btn) {
   if (btn.module) {
     // Marca qual botão originou a abertura — evita destacar todos os botões
@@ -214,6 +261,33 @@ function executeButton(btn) {
     Broadcast.send(BROADCAST_TYPE.LITURGY_RIBBON_ACTION, {
       action: LITURGY_ACTIONS[btn.action],
     });
+    return;
+  }
+  if (btn.action && btn.action in BIBLE_ACTIONS) {
+    Broadcast.send(BROADCAST_TYPE.BIBLE_RIBBON_ACTION, {
+      action: BIBLE_ACTIONS[btn.action],
+    });
+    return;
+  }
+  if (btn.action && EDITOR_ACTIONS.has(btn.action)) {
+    Broadcast.send(BROADCAST_TYPE.MODULE_RIBBON_ACTION, {
+      module: "slide_editor",
+      action: btn.action.replace(/^editor_/, ""),
+    });
+    return;
+  }
+  // Pattern genérico: action "<module>_<verb>" → MODULE_RIBBON_ACTION
+  // Suporta os módulos novos (counter, draw, name_draw, clock, stopwatch,
+  // message_board) sem precisar de tabela explícita.
+  if (btn.action) {
+    const m = btn.action.match(/^(counter|draw|name_draw|clock|stopwatch|message_board)_(.+)$/);
+    if (m) {
+      Broadcast.send(BROADCAST_TYPE.MODULE_RIBBON_ACTION, {
+        module: m[1],
+        action: m[2],
+      });
+      return;
+    }
   }
 }
 
@@ -394,6 +468,7 @@ function toggleTheme() {
   overflow-y: hidden;
   position: relative;
   z-index: 1;
+  padding-left: var(--lj-space-3);
   transition: background var(--lj-transition-normal);
 }
 

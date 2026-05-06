@@ -27,8 +27,42 @@ export const BROADCAST_TYPE = Object.freeze({
   GO_TO_SLIDE: "go_to_slide",
 
   /** Versículo bíblico selecionado. Emitido por bible/Index.vue.
-   *  Recebido por: ObsBible. */
+   *  Recebido por: ObsBible, ProjectionBible. */
   BIBLE_VERSE: "bible_verse",
+
+  /** Formatação da Bíblia mudou (cor/fonte/tamanho/fundo). Emitido por
+   *  bible/Index.vue ao alterar fmt.*. Recebido por: ProjectionBible. */
+  BIBLE_FORMAT_CHANGED: "bible_format_changed",
+
+  /** Ação da ribbon contextual da Bíblia (Limpar Texto, Verso Anterior, etc).
+   *  Emitido por: RibbonBar. Recebido por: bible/Index.vue. */
+  BIBLE_RIBBON_ACTION: "bible_ribbon_action",
+
+  /** Solicita reemissão do versículo atual da Bíblia. Emitido por
+   *  ProjectionBible ao montar — sem isso, janelas que abrem depois ficam
+   *  pretas até que o usuário troque de versículo.
+   *  Recebido por: bible/Index.vue (re-emite BIBLE_VERSE). */
+  REQUEST_BIBLE_STATE: "request_bible_state",
+
+  // ─── Pattern genérico de projeção de módulo ──────────────────────────────
+
+  /** Valor a ser projetado por um módulo qualquer (texto, número, etc.).
+   *  Payload: { module: string, text?: string, reference?: string, active?: boolean }
+   *  Emitido por: módulos com LScreenBtn (counter, draw, name_draw, message_board,
+   *  clock, stopwatch). Recebido por: ModuleProjection. */
+  MODULE_PROJECTION_VALUE: "module_projection_value",
+
+  /** Formatação de algum módulo mudou. Payload: { module, key, value }.
+   *  Emitido por: useModuleFormat. Recebido por: ModuleProjection. */
+  MODULE_FORMAT_CHANGED: "module_format_changed",
+
+  /** Solicita reemissão do estado de um módulo. Payload: { module: string }.
+   *  Emitido por: ModuleProjection ao montar. Recebido por: módulo correspondente. */
+  REQUEST_MODULE_STATE: "request_module_state",
+
+  /** Ação ribbon contextual de qualquer módulo. Payload: { module, action }.
+   *  Emitido por: RibbonBar. Recebido por: módulo correspondente. */
+  MODULE_RIBBON_ACTION: "module_ribbon_action",
 
   /** Texto do painel de recados. Emitido por message_board/Index.vue.
    *  Recebido por: (recepção futura). */

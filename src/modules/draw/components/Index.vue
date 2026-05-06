@@ -15,59 +15,66 @@
       />
     </template>
 
-    <!-- Config -->
-    <div class="d-flex align-center pa-3" style="gap: 12px">
-      <v-text-field
-        v-model.number="min"
-        type="number"
-        :label="t('inputs.min')"
-        density="compact"
-        hide-details
-        style="flex: 1"
-        :disabled="drawn.length > 0"
-      />
-      <v-text-field
-        v-model.number="max"
-        type="number"
-        :label="t('inputs.max')"
-        density="compact"
-        hide-details
-        style="flex: 1"
-        :disabled="drawn.length > 0"
-      />
-    </div>
+    <div class="d-flex h-100">
+      <aside v-if="show_format" class="format-col">
+        <FormatPanel :module-id="'draw'" :manifest="manifest" />
+      </aside>
+      <div class="d-flex flex-column flex-grow-1" style="min-width: 0">
+        <!-- Config -->
+        <div class="d-flex align-center pa-3" style="gap: 12px">
+          <v-text-field
+            v-model.number="min"
+            type="number"
+            :label="t('inputs.min')"
+            density="compact"
+            hide-details
+            style="flex: 1"
+            :disabled="drawn.length > 0"
+          />
+          <v-text-field
+            v-model.number="max"
+            type="number"
+            :label="t('inputs.max')"
+            density="compact"
+            hide-details
+            style="flex: 1"
+            :disabled="drawn.length > 0"
+          />
+        </div>
 
-    <!-- Display do número sorteado -->
-    <div class="d-flex flex-column align-center py-4" style="gap: 8px">
-      <div class="draw-number" :class="{ 'draw-animating': animating }">
-        {{ current ?? "—" }}
-      </div>
-      <div class="text-caption text-medium-emphasis">
-        {{ t("data.remaining") }}: {{ remaining }} / {{ total }}
-      </div>
-    </div>
+        <!-- Display do número sorteado -->
+        <div class="d-flex flex-column align-center py-4" style="gap: 8px">
+          <div class="draw-number" :class="{ 'draw-animating': animating }">
+            {{ current ?? "—" }}
+          </div>
+          <div class="text-caption text-medium-emphasis">
+            {{ t("data.remaining") }}: {{ remaining }} / {{ total }}
+          </div>
+        </div>
 
-    <!-- Botões -->
-    <div class="d-flex justify-center pa-3" style="gap: 8px">
-      <v-btn
-        :color="primaryColor"
-        :disabled="remaining === 0"
-        prepend-icon="mdi-dice-5"
-        @click="drawNumber"
-      >
-        {{ t("actions.draw") }}
-      </v-btn>
-      <v-btn variant="tonal" prepend-icon="mdi-restart" @click="reset">
-        {{ t("actions.reset") }}
-      </v-btn>
-    </div>
+        <!-- Botões -->
+        <div class="d-flex justify-center pa-3" style="gap: 8px">
+          <v-btn
+            :color="primaryColor"
+            :disabled="remaining === 0"
+            prepend-icon="mdi-dice-5"
+            @click="drawNumber"
+          >
+            {{ t("actions.draw") }}
+          </v-btn>
+          <v-btn variant="tonal" prepend-icon="mdi-restart" @click="reset">
+            {{ t("actions.reset") }}
+          </v-btn>
+        </div>
 
-    <!-- Histórico -->
-    <v-divider v-if="drawn.length" />
-    <div v-if="drawn.length" class="pa-3">
-      <div class="text-caption text-medium-emphasis mb-2">{{ t("data.drawn") }}:</div>
-      <div class="d-flex flex-wrap" style="gap: 6px">
-        <v-chip v-for="n in drawn" :key="n" size="small" variant="tonal">{{ n }}</v-chip>
+        <!-- Histórico -->
+        <v-divider v-if="drawn.length" />
+        <div v-if="drawn.length" class="pa-3">
+          <div class="text-caption text-medium-emphasis mb-2">{{ t("data.drawn") }}:</div>
+          <div class="d-flex flex-wrap" style="gap: 6px">
+            <v-chip v-for="n in drawn" :key="n" size="small" variant="tonal">{{ n }}</v-chip>
+          </div>
+        </div>
       </div>
     </div>
   </ModuleContainer>
@@ -119,7 +126,21 @@
 import { ref, computed, watch, nextTick } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
+import FormatPanel from "@/components/FormatPanel.vue";
 import AppData from "@/helpers/AppData";
+import { useModuleProjection } from "@/composables/useModuleProjection";
+import { useModuleFormat } from "@/composables/useModuleFormat";
+
+const { restoreFormat, show_format } = useModuleFormat("draw", manifest);
+
+const projection = useModuleProjection("draw", {
+  onAction(action) {
+    if (action === "draw") drawNumber();
+    else if (action === "reset") reset();
+    else if (action === "toggle_format") show_format.value = !show_format.value;
+    else if (action === "restore") restoreFormat();
+  },
+});
 
 const moduleContainer = ref(null);
 const fsRoot = ref(null);
@@ -153,6 +174,7 @@ function drawNumber() {
   const n = pool.value[Math.floor(Math.random() * pool.value.length)];
   drawn.value.push(n);
   current.value = n;
+  projection.emit({ text: String(n), active: true });
   setTimeout(() => {
     animating.value = false;
   }, 400);
@@ -161,6 +183,7 @@ function drawNumber() {
 function reset() {
   drawn.value = [];
   current.value = null;
+  projection.emit({ text: "", active: false });
 }
 
 function close() {
@@ -224,5 +247,13 @@ function close() {
   justify-content: center;
   max-width: 80vw;
   padding: 0 24px;
+}
+
+.format-col {
+  flex: 0 0 200px;
+  width: 200px;
+  border-right: 1px solid var(--lj-surface-border);
+  background: var(--lj-surface-bg);
+  height: 100%;
 }
 </style>

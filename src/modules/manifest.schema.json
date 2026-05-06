@@ -109,7 +109,8 @@
               "image",
               "opacity",
               "object-fit",
-              "select"
+              "select",
+              "boolean"
             ],
             "description": "Tipo do controle de customização renderizado em CustomizationTools.vue"
           },

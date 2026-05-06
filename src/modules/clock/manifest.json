@@ -66,6 +66,17 @@
       "label": "customization.time_format",
       "default": "hh:mm:ss",
       "options": ["hh:mm:ss", "hh:mm"]
+    },
+    "show_date": {
+      "type": "boolean",
+      "label": "customization.show_date",
+      "default": true
+    },
+    "date_format": {
+      "type": "select",
+      "label": "customization.date_format",
+      "default": "long",
+      "options": ["long", "medium", "short", "weekday", "month_year", "weekday_only"]
     }
   }
 }

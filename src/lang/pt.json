@@ -19,6 +19,30 @@
     }
   },
   "components": {
+    "format_panel": {
+      "text_section": "Texto",
+      "reference_section": "Referência",
+      "background_section": "Fundo",
+      "layout_section": "Layout",
+      "other_section": "Outros",
+      "align_start": "Início",
+      "align_center": "Centro",
+      "align_end": "Fim",
+      "fit_cover": "Preencher",
+      "fit_contain": "Ajustar",
+      "fit_fill": "Esticar",
+      "fit_none": "Original",
+      "date_long": "Domingo, 06 de Maio de 2026",
+      "date_medium": "06 de Maio de 2026",
+      "date_short": "06/05/2026",
+      "date_weekday": "Domingo, 06 de Maio",
+      "date_month_year": "Maio de 2026",
+      "date_weekday_only": "Domingo",
+      "time_12h": "12 horas",
+      "time_24h": "24 horas",
+      "time_hms": "hh:mm:ss",
+      "time_hm": "hh:mm"
+    },
     "letterpagination": {
       "all": "Todas"
     },
@@ -83,7 +107,9 @@
     "monitors": {
       "title": "Monitores",
       "identify": "Identificar Monitores",
-      "no_displays": "Nenhum monitor adicional disponível (modo web ou monitor único)."
+      "no_displays": "Nenhum monitor adicional disponível (modo web ou monitor único).",
+      "primary_short": "Principal",
+      "use_default": "Usar padrão"
     },
     "slides": {
       "title": "Slides de Músicas",
@@ -268,7 +294,15 @@
       "utilities": "Utilitários",
       "favorites": "Favoritos",
       "ctx_hymnal": "Configurar Hinos",
-      "ctx_liturgy": "Configurar Liturgia"
+      "ctx_liturgy": "Configurar Liturgia",
+      "ctx_bible": "Configurar Bíblia",
+      "ctx_slide_editor": "Editor de Músicas",
+      "ctx_counter": "Configurar Contador",
+      "ctx_draw": "Configurar Sorteio",
+      "ctx_name_draw": "Configurar Nomes",
+      "ctx_clock": "Configurar Relógio",
+      "ctx_stopwatch": "Configurar Cronômetro",
+      "ctx_message_board": "Configurar Recados"
     },
     "groups": {
       "hymnal_adventist": "Hinário Adventista",
@@ -291,7 +325,15 @@
       "add": "Adicionar",
       "items": "Itens",
       "delete": "Apagar",
-      "options": "Opções"
+      "options": "Opções",
+      "controls": "Controles",
+      "format": "Formatação",
+      "actions": "Ações",
+      "expanded_area": "Área Expandida",
+      "file": "Arquivo",
+      "slides": "Slides",
+      "audio_recording": "Áudio/Gravação",
+      "view": "Visualização"
     },
     "btn": {
       "hymnal": "Hinário Adventista",
@@ -339,7 +381,50 @@
       "delete_selected": "Apagar Selecionados",
       "mark_done": "Marcar como Concluído",
       "show_notes": "Exibir Painel de Anotações",
-      "lock_items": "Bloquear Itens"
+      "lock_items": "Bloquear Itens",
+      "bible_clear": "Limpar Texto",
+      "bible_prev_verse": "Verso Anterior",
+      "bible_next_verse": "Próximo Verso",
+      "bible_format": "Formatar",
+      "bible_restore": "Restaurar",
+      "format": "Formatar",
+      "restore": "Restaurar",
+      "project": "Projetar",
+      "counter_increment": "Incrementar",
+      "counter_decrement": "Decrementar",
+      "counter_reset": "Zerar",
+      "draw_action": "Sortear",
+      "draw_reset": "Reiniciar",
+      "name_draw_action": "Sortear Nome",
+      "clock_24h": "12h / 24h",
+      "clock_seconds": "Segundos",
+      "stopwatch_toggle": "Iniciar/Pausar",
+      "stopwatch_reset": "Reiniciar",
+      "message_board_clear": "Limpar Painel",
+      "editor_new": "Nova",
+      "editor_open": "Abrir",
+      "editor_save": "Salvar",
+      "editor_save_as": "Salvar como",
+      "editor_import_txt": "Importar TXT",
+      "editor_project": "Projetar",
+      "editor_new_slide": "Novo Slide",
+      "editor_duplicate_slide": "Duplicar",
+      "editor_remove_slide": "Excluir",
+      "editor_split_slide": "Dividir",
+      "editor_merge_next": "Mesclar Próx.",
+      "editor_audio_attach": "Anexar Áudio",
+      "editor_play_pause": "Play/Pause",
+      "editor_record_advance": "Gravar e Avançar",
+      "editor_record_start": "Gravar Início",
+      "editor_record_retroactive": "Gravar Retroativo",
+      "editor_record_clear": "Limpar Tempos",
+      "editor_image_set": "Imagem de Fundo",
+      "editor_image_remove": "Remover Imagem",
+      "editor_replicate_bg": "Replicar Fundo",
+      "editor_replicate_text": "Replicar Texto",
+      "editor_view_full": "Tela Cheia",
+      "editor_view_4_3": "4:3",
+      "editor_view_16_9": "16:9"
     }
   },
   "shell": {

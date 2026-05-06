@@ -12,7 +12,7 @@ const MODULES_DIR = join(ROOT, "src/modules");
 const VALID_CATEGORIES = new Set(["musics", "bible", "utilities", null]);
 const VALID_CUSTOMIZATION_TYPES = new Set([
   "font", "color", "font-size", "border-spacing",
-  "v-align", "h-align", "image", "opacity", "object-fit", "select",
+  "v-align", "h-align", "image", "opacity", "object-fit", "select", "boolean",
 ]);
 const VALID_MODULE_OPTION_SIZES = new Set(["small", "medium", "large"]);
 const ID_PATTERN = /^[a-z][a-z0-9_]*$/;

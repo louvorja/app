@@ -1,13 +1,25 @@
 <template>
   <ModuleContainer :manifest="manifest" compact :index="loading" @close="close()">
     <template #header>
-      <l-select
-        v-model="bible.id_bible_version"
-        :label="t('version')"
-        :items="versions_list ?? []"
-        item-value="value"
-        item-title="title"
-      />
+      <div class="d-flex align-center" style="gap: 12px; flex: 1; min-width: 0">
+        <l-select
+          v-model="bible.id_bible_version"
+          :label="t('version')"
+          :items="versions_list ?? []"
+          item-value="value"
+          item-title="title"
+        />
+
+        <v-checkbox
+          v-if="!compact"
+          v-model="show_history"
+          :label="t('show_history')"
+          density="compact"
+          hide-details
+          color="primary"
+          style="flex-shrink: 0"
+        />
+      </div>
 
       <!-- Os campos abaixo serão exibidos apenas no mobile / reolução pequena -->
       <div v-if="compact">
@@ -43,181 +55,224 @@
       </div>
     </template>
 
-    <template #left>
-      <div v-if="!compact" class="d-flex flex-row h-100">
-        <!-- Combined Book Selection Area -->
-        <div class="w-70 h-100 d-flex flex-column pt-2">
-          <!-- Book Search Menu (inline above book list) -->
-          <div style="flex-shrink: 0" class="ps-4 pe-1">
-            <l-select
-              v-model="bible.id_bible_book"
-              :label="t('book')"
-              :items="books ?? []"
-              item-value="id_bible_book"
-              item-title="name"
-              item-subtitle="abbreviation"
-              icon="mdi-book-open-page-variant"
-            />
-          </div>
-
-          <!-- Book Grid List -->
-          <div
-            style="flex: 1; min-height: 0"
-            class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
-          >
-            <v-skeleton-loader
-              v-for="n in 10"
-              v-show="loading_book"
-              :key="n"
-              class="ma-1"
-              :height="80"
-              :width="100"
-            />
-            <v-card
-              v-for="book in books"
-              :id="`listBook_${book.id_bible_book}`"
-              :key="book.id_bible_book"
-              :color="book.color"
-              class="ma-1 d-flex align-center flex-column"
-              :height="80"
-              :width="100"
-              hover
-              :variant="book.id_bible_book == bible.id_bible_book ? 'flat' : 'tonal'"
-              @click="selBook(book.id_bible_book)"
-            >
-              <v-card-title class="flex-grow-1 pa-0 ma-0 text-h4 d-flex align-center">
-                {{ book.abbreviation }}
-              </v-card-title>
-              <v-card-text
-                class="flex-grow-0 pa-0 px-1 ma-0 text-caption text-truncate text-center w-100"
-              >
-                {{ book.name }}
-              </v-card-text>
-            </v-card>
-          </div>
-        </div>
-
-        <!-- compoenente dos versiculos -->
-        <div class="w-30 h-100 d-flex flex-column pt-2">
-          <!-- Chapter Search Menu (inline above chapter list) -->
-          <div style="flex-shrink: 0" class="px-1">
-            <l-select
-              v-model="bible.chapter"
-              :label="t('chapter')"
-              :items="chaptersList"
-              item-value="id"
-              item-title="value"
-              icon="mdi-bookmark"
-            />
-          </div>
-
-          <!-- Chapter Grid List -->
-          <div
-            style="flex: 1; min-height: 0"
-            class="overflow-auto d-flex flex-row flex-wrap justify-center align-content-start px-2 mt-2"
-          >
-            <v-skeleton-loader
-              v-for="n in 10"
-              v-show="loading_book"
-              :key="n"
-              class="ma-1"
-              :height="40"
-              :width="40"
-            />
-            <v-card
-              v-for="chapter in chapters"
-              :id="`listChapter_${chapter}`"
-              :key="chapter"
-              :color="book?.color"
-              class="ma-1 d-flex align-center flex-column"
-              :height="40"
-              :width="40"
-              hover
-              :variant="chapter == bible.chapter ? 'flat' : 'tonal'"
-              @click="selChapter(chapter)"
-            >
-              <v-card-title
-                class="flex-grow-1 pa-0 ma-0 d-flex align-center font-weight-regular"
-                style="font-size: 16px"
-              >
-                {{ chapter }}
-              </v-card-title>
-            </v-card>
-          </div>
-        </div>
+    <div v-if="!compact" class="bible-layout">
+      <!-- Coluna Formatar -->
+      <div v-if="show_format" class="bible-col bible-col--format">
+        <FormatPanel :module-id="moduleId" :manifest="manifest" />
       </div>
-    </template>
 
-    <template #right>
-      <div class="d-flex flex-column h-100 pt-2">
-        <!-- Verse Search Menu (above verse list) -->
-        <div class="ps-1 pe-4 pb-3" style="flex-shrink: 0">
+      <!-- Coluna Livros -->
+      <div class="bible-col bible-col--books">
+        <div class="bible-col__search">
           <l-select
-            v-if="!compact"
-            v-model="bible_verses"
-            :label="t('verses')"
-            :items="versesList"
-            item-value="id"
-            item-title="value"
-            multiple
-            icon="mdi-format-list-numbered"
+            v-model="bible.id_bible_book"
+            :label="t('book')"
+            :items="books ?? []"
+            item-value="id_bible_book"
+            item-title="name"
+            item-subtitle="abbreviation"
+            icon="mdi-book-open-page-variant"
           />
         </div>
+        <div class="bible-col__grid">
+          <v-skeleton-loader
+            v-for="n in 10"
+            v-show="loading_book"
+            :key="n"
+            class="ma-1"
+            :height="80"
+            :width="100"
+          />
+          <v-card
+            v-for="b in books"
+            :id="`listBook_${b.id_bible_book}`"
+            :key="b.id_bible_book"
+            :color="b.color"
+            class="ma-1 d-flex align-center flex-column"
+            :height="80"
+            :width="100"
+            hover
+            :variant="b.id_bible_book == bible.id_bible_book ? 'flat' : 'tonal'"
+            @click="selBook(b.id_bible_book)"
+          >
+            <v-card-title class="flex-grow-1 pa-0 ma-0 text-h4 d-flex align-center">
+              {{ b.abbreviation }}
+            </v-card-title>
+            <v-card-text
+              class="flex-grow-0 pa-0 px-1 ma-0 text-caption text-truncate text-center w-100"
+            >
+              {{ b.name }}
+            </v-card-text>
+          </v-card>
+        </div>
+      </div>
 
-        <div class="mt-2" style="flex: 1; overflow: auto; min-height: 0">
+      <!-- Coluna Capítulos -->
+      <div class="bible-col bible-col--chapters">
+        <div class="bible-col__search">
+          <l-select
+            v-model="bible.chapter"
+            :label="t('chapter')"
+            :items="chaptersList"
+            item-value="id"
+            item-title="value"
+            icon="mdi-bookmark"
+          />
+        </div>
+        <div class="bible-col__grid">
+          <v-skeleton-loader
+            v-for="n in 10"
+            v-show="loading_book"
+            :key="n"
+            class="ma-1"
+            :height="40"
+            :width="40"
+          />
+          <v-card
+            v-for="chapter in chapters"
+            :id="`listChapter_${chapter}`"
+            :key="chapter"
+            :color="book?.color"
+            class="ma-1 d-flex align-center flex-column"
+            :height="40"
+            :width="40"
+            hover
+            :variant="chapter == bible.chapter ? 'flat' : 'tonal'"
+            @click="selChapter(chapter)"
+          >
+            <v-card-title
+              class="flex-grow-1 pa-0 ma-0 d-flex align-center font-weight-regular"
+              style="font-size: 16px"
+            >
+              {{ chapter }}
+            </v-card-title>
+          </v-card>
+        </div>
+      </div>
+
+      <!-- Coluna Versículos -->
+      <div class="bible-col bible-col--verses">
+        <div class="bible-col__search">
+          <v-text-field
+            v-model="verse_filter"
+            :label="t('locate')"
+            density="compact"
+            variant="outlined"
+            hide-details
+            clearable
+            prepend-inner-icon="mdi-magnify"
+          />
+        </div>
+        <div class="bible-col__verses-list">
           <v-skeleton-loader v-show="loading_book || loading_verses" type="list-item-two-line" />
-          <v-list class="overflow h-100 ma-0 pa-0 no-select" width="100%">
-            <v-list-item
-              v-for="(verse, num) in verses"
+          <div v-show="!loading_book && !loading_verses" class="bible-verses-list">
+            <div
+              v-for="(verse, num) in filteredVerses"
               :id="`listVerse_${num}`"
               :key="num"
-              link
-              variant="flat"
-              :value="verse"
-              :active="bible.verses.includes(+num)"
-              density="compact"
+              :class="['bible-verse', { 'bible-verse--active': bible.verses.includes(+num) }]"
               @click="selVerse($event, num)"
             >
-              <template #prepend>
-                <v-chip class="mr-2">{{ num }}</v-chip>
-              </template>
-
-              <div class="text-caption" v-html="verse"></div>
-            </v-list-item>
-          </v-list>
+              <span class="bible-verse__num">{{ num }}</span>
+              <span class="bible-verse__text" v-html="verse"></span>
+            </div>
+          </div>
         </div>
-        <div style="height: 48px; flex-shrink: 0">
-          <v-toolbar density="compact">
-            <v-spacer />
-            <v-divider vertical />
-            <v-btn
-              :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
-              variant="text"
-              size="small"
-              icon="mdi-chevron-left"
-              @click="prevVerse()"
-            />
-            <v-btn
-              :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
-              variant="text"
-              size="small"
-              icon="mdi-chevron-right"
-              @click="nextVerse()"
-            />
-            <v-divider vertical />
-            <v-btn
-              :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
-              variant="text"
-              size="small"
-              icon="mdi-eraser"
-              @click="clean()"
-            />
-            <v-divider vertical />
-            <LScreenBtn module="bible" />
-          </v-toolbar>
+        <!-- Preview da projeção (estilo área expandida do Delphi) -->
+        <div class="bible-col__preview">
+          <Screen :height="160" />
         </div>
-        <Screen />
       </div>
+
+      <!-- Coluna Histórico -->
+      <div v-if="show_history" class="bible-col bible-col--history">
+        <div class="bible-history-pane__title">
+          {{ t("history") }}
+        </div>
+        <div class="bible-history-pane__list">
+          <div v-if="!history.length" class="bible-history-pane__empty">
+            {{ t("no_history") }}
+          </div>
+          <div
+            v-for="(entry, idx) in history"
+            :key="entry.opened_at"
+            :class="[
+              'bible-history-item',
+              { 'bible-history-item--selected': history_selected === idx },
+            ]"
+            @click="history_selected = idx"
+            @dblclick="loadHistoryEntry(entry)"
+          >
+            <div class="bible-history-item__ref">{{ entry.scriptural_reference }}</div>
+            <div class="bible-history-item__text">{{ truncate(entry.text, 90) }}</div>
+          </div>
+        </div>
+        <div class="bible-history-pane__footer">
+          <v-btn
+            block
+            size="small"
+            variant="tonal"
+            :disabled="history_selected === null"
+            @click="removeHistoryEntry()"
+          >
+            {{ t("delete_selected") }}
+          </v-btn>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modo compacto (mobile): só lista de versículos -->
+    <div v-else class="bible-layout bible-layout--compact">
+      <div class="bible-col bible-col--verses">
+        <div class="bible-col__verses-list">
+          <v-skeleton-loader v-show="loading_book || loading_verses" type="list-item-two-line" />
+          <div v-show="!loading_book && !loading_verses" class="bible-verses-list">
+            <div
+              v-for="(verse, num) in filteredVerses"
+              :id="`listVerse_${num}`"
+              :key="num"
+              :class="['bible-verse', { 'bible-verse--active': bible.verses.includes(+num) }]"
+              @click="selVerse($event, num)"
+            >
+              <span class="bible-verse__num">{{ num }}</span>
+              <span class="bible-verse__text" v-html="verse"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <template #footer>
+      <v-spacer />
+      <v-divider vertical />
+      <v-btn
+        :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
+        variant="text"
+        size="small"
+        :prepend-icon="'mdi-eraser'"
+        @click="clean()"
+      >
+        {{ t("clear_text") }}
+      </v-btn>
+      <v-divider vertical />
+      <v-btn
+        :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
+        variant="text"
+        size="small"
+        prepend-icon="mdi-chevron-left"
+        @click="prevVerse()"
+      >
+        {{ t("prev_verse") }}
+      </v-btn>
+      <v-btn
+        :disabled="!(select_bible?.verses && select_bible.verses.length > 0)"
+        variant="text"
+        size="small"
+        append-icon="mdi-chevron-right"
+        @click="nextVerse()"
+      >
+        {{ t("next_verse") }}
+      </v-btn>
     </template>
   </ModuleContainer>
 </template>
@@ -229,15 +284,19 @@ import { useDisplay } from "vuetify";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import Screen from "../components/Screen.vue";
+import FormatPanel from "@/components/FormatPanel.vue";
 import LSelect from "@/components/inputs/LjSelect.vue";
-import LScreenBtn from "@/components/buttons/Screen.vue";
 import { BROADCAST_TYPE } from "@/helpers/BroadcastTypes";
+import { useBroadcastListener } from "@/composables/useBroadcastListener";
 import Hotkeys from "@/helpers/Hotkeys";
 import Modules from "@/helpers/Modules";
 import AppData from "@/helpers/AppData";
+import UserData from "@/helpers/UserData";
 import Database from "@/helpers/Database";
 import Broadcast from "@/helpers/Broadcast";
 import { scrollToElement } from "@/helpers/Dom";
+
+const HISTORY_MAX = 30;
 
 const { t: i18nT, locale } = useI18n();
 const { width } = useDisplay();
@@ -254,6 +313,46 @@ const last_bible_file = ref(null);
 const versions = ref([]);
 const books = ref([]);
 const verses = ref({});
+const verse_filter = ref("");
+const history_selected = ref(null);
+
+const show_history = computed({
+  get: () => UserData.get(`modules.${moduleId}.show_history`, true),
+  set: (v) => UserData.set(`modules.${moduleId}.show_history`, v),
+});
+
+const show_format = computed({
+  get: () => UserData.get(`modules.${moduleId}.show_format`, false),
+  set: (v) => UserData.set(`modules.${moduleId}.show_format`, v),
+});
+
+const FONT_OPTIONS = [
+  "Arial, sans-serif",
+  "Helvetica, sans-serif",
+  "Verdana, sans-serif",
+  "Tahoma, sans-serif",
+  "Georgia, serif",
+  "Times New Roman, serif",
+  "Courier New, monospace",
+];
+
+// Proxy reativo para campos de customization (lê/escreve em UserData
+// e dispara broadcast para a janela de projeção atualizar em tempo real).
+const fmt = new Proxy(
+  {},
+  {
+    get(_, key) {
+      return UserData.get(`modules.${moduleId}.${String(key)}`, null);
+    },
+    set(_, key, value) {
+      UserData.set(`modules.${moduleId}.${String(key)}`, value);
+      Broadcast.send(BROADCAST_TYPE.BIBLE_FORMAT_CHANGED, { key: String(key), value });
+      return true;
+    },
+  }
+);
+
+const history = computed(() => UserData.get(`modules.${moduleId}.history`, []));
 
 const bible = reactive({
   id_bible_version: null,
@@ -535,7 +634,62 @@ async function selVerse(event, num) {
     active: true,
   });
 
+  pushHistory(select_bible);
   scrollToElement(document.getElementById(`listVerse_${last_verse.value}`));
+}
+
+function pushHistory(data) {
+  if (!data?.scriptural_reference || !data?.text) return;
+  const entry = {
+    id_bible_version: data.id_bible_version,
+    id_bible_book: data.id_bible_book,
+    version: data.version,
+    book: data.book,
+    chapter: data.chapter,
+    verses: [...(data.verses || [])],
+    scriptural_reference: data.scriptural_reference,
+    text: data.text,
+    opened_at: Date.now(),
+  };
+  const list = (UserData.get(`modules.${moduleId}.history`, []) || []).filter(
+    (h) => h.scriptural_reference !== entry.scriptural_reference
+  );
+  list.unshift(entry);
+  UserData.set(`modules.${moduleId}.history`, list.slice(0, HISTORY_MAX));
+}
+
+async function loadHistoryEntry(entry) {
+  if (!entry) return;
+  if (entry.id_bible_version && entry.id_bible_version !== bible.id_bible_version) {
+    await selVersion(entry.id_bible_version);
+  }
+  if (entry.id_bible_book && entry.id_bible_book !== bible.id_bible_book) {
+    await selBook(entry.id_bible_book);
+  }
+  if (entry.chapter && entry.chapter !== bible.chapter) {
+    await selChapter(entry.chapter);
+  }
+  if (entry.verses?.length) {
+    bible.verses = [];
+    for (const v of entry.verses) {
+      selVerse({ ctrlKey: true }, v);
+    }
+  }
+}
+
+function removeHistoryEntry() {
+  const idx = history_selected.value;
+  if (idx === null || idx === undefined) return;
+  const list = [...(UserData.get(`modules.${moduleId}.history`, []) || [])];
+  list.splice(idx, 1);
+  UserData.set(`modules.${moduleId}.history`, list);
+  history_selected.value = null;
+}
+
+function truncate(text, n) {
+  if (!text) return "";
+  const clean = String(text).replace(/<[^>]+>/g, "");
+  return clean.length > n ? clean.slice(0, n).trim() + "…" : clean;
 }
 
 async function prevVerse() {
@@ -592,6 +746,22 @@ const chaptersList = computed(() => {
 const versesList = computed(() => {
   if (!verses.value) return [];
   return Object.keys(verses.value).map((v) => ({ id: +v, value: +v }));
+});
+
+const filteredVerses = computed(() => {
+  if (!verses.value) return {};
+  const term = (verse_filter.value || "").trim().toLowerCase();
+  if (!term) return verses.value;
+  const match = (text) =>
+    String(text || "")
+      .replace(/<[^>]+>/g, "")
+      .toLowerCase()
+      .includes(term);
+  const out = {};
+  for (const [num, text] of Object.entries(verses.value)) {
+    if (term === String(num) || match(text)) out[num] = text;
+  }
+  return out;
 });
 
 function numbersInterval(numbers) {
@@ -658,4 +828,303 @@ function clean() {
 function close() {
   clean();
 }
+
+function restoreFormat() {
+  const customization = manifest.customization || {};
+  for (const [key, def] of Object.entries(customization)) {
+    UserData.set(`modules.${moduleId}.${key}`, def?.default ?? null);
+  }
+  Broadcast.send(BROADCAST_TYPE.BIBLE_FORMAT_CHANGED, { key: "*", value: null });
+}
+
+// Ações da ribbon contextual "Configurar Bíblia" → executa localmente.
+useBroadcastListener(BROADCAST_TYPE.BIBLE_RIBBON_ACTION, (payload) => {
+  if (!show.value) return; // Só responde se a Bíblia está aberta
+  switch (payload?.action) {
+    case "clear":
+      clean();
+      break;
+    case "prev_verse":
+      prevVerse();
+      break;
+    case "next_verse":
+      nextVerse();
+      break;
+    case "toggle_format":
+      show_format.value = !show_format.value;
+      break;
+    case "restore":
+      restoreFormat();
+      break;
+  }
+});
+
+// Quando uma janela de projeção pede o estado, reemitir o versículo atual.
+useBroadcastListener(BROADCAST_TYPE.REQUEST_BIBLE_STATE, () => {
+  Broadcast.send(BROADCAST_TYPE.BIBLE_VERSE, {
+    text: select_bible.text || "",
+    reference: select_bible.scriptural_reference || "",
+    active: !!(select_bible.text && select_bible.verses?.length),
+  });
+});
 </script>
+
+<style scoped>
+.bible-layout {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  gap: 1px;
+  background: var(--lj-surface-border);
+}
+
+.bible-layout--compact {
+  flex-direction: column;
+}
+
+.bible-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--lj-surface-bg);
+  overflow: hidden;
+}
+
+.bible-col--format {
+  flex: 0 0 200px;
+  width: 200px;
+  padding: 8px 10px;
+  overflow-y: auto;
+}
+
+.bible-col--books {
+  flex: 1.4 1 0;
+}
+
+.bible-col--chapters {
+  flex: 0.6 1 0;
+}
+
+.bible-col--verses {
+  flex: 1.5 1 0;
+}
+
+.bible-col--history {
+  flex: 0 0 260px;
+  width: 260px;
+}
+
+.bible-col__search {
+  flex-shrink: 0;
+  padding: 8px 8px 6px;
+  border-bottom: 1px solid var(--lj-surface-border);
+}
+
+.bible-col__grid {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  padding: 4px;
+  min-height: 0;
+}
+
+.bible-col__verses-list {
+  flex: 1;
+  overflow: auto;
+  padding: 0 8px;
+  min-height: 0;
+}
+
+.bible-col__preview {
+  flex-shrink: 0;
+  border-top: 1px solid var(--lj-surface-border);
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.bible-col__group-title {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--lj-text-muted, #666);
+  background: var(--lj-surface-bg-soft, #eee);
+  padding: 4px 6px;
+  margin: 8px -10px 6px;
+  border-top: 1px solid var(--lj-surface-border);
+  border-bottom: 1px solid var(--lj-surface-border);
+}
+
+.bible-col__group-title:first-child {
+  margin-top: 0;
+}
+
+.bible-col__group-title--alt {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 8px 0 4px;
+  margin: 6px 0 4px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.bible-format-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.bible-format-label {
+  font-size: 11px;
+  color: var(--lj-text-muted, #666);
+}
+
+.bible-format-input {
+  font-size: 12px;
+  padding: 4px 6px;
+  border: 1px solid var(--lj-surface-border);
+  border-radius: 3px;
+  background: var(--lj-surface-bg);
+  color: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bible-format-input--narrow {
+  width: 70px;
+}
+
+.bible-format-color {
+  width: 100%;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--lj-surface-border);
+  border-radius: 3px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.bible-verses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 2px 12px;
+}
+
+.bible-verse {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.78);
+  color: #f1f1f1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.bible-verse:hover {
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.bible-verse--active {
+  background: rgba(33, 150, 243, 0.85);
+  color: #fff;
+}
+
+.bible-verse__num {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  min-width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  margin-top: 2px;
+}
+
+.bible-verse__text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.bible-history-pane__title {
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 1px solid var(--lj-surface-border);
+  flex-shrink: 0;
+}
+
+.bible-history-pane__list {
+  flex: 1;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 4px;
+  min-height: 0;
+}
+
+.bible-history-pane__empty {
+  padding: 16px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.bible-history-item {
+  padding: 8px 10px;
+  margin: 2px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s ease;
+}
+
+.bible-history-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bible-history-item--selected {
+  background: rgba(33, 150, 243, 0.55);
+  color: #fff;
+}
+
+.bible-history-item__ref {
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.bible-history-item__text {
+  font-size: 11px;
+  line-height: 1.3;
+  opacity: 0.78;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bible-history-pane__footer {
+  padding: 8px;
+  border-top: 1px solid var(--lj-surface-border);
+  flex-shrink: 0;
+}
+</style>

@@ -24,70 +24,77 @@
       />
     </template>
 
-    <!-- Input de novo recado -->
-    <div class="pa-3 d-flex flex-column border-b" style="gap: 8px">
-      <v-textarea
-        v-model="draft"
-        :placeholder="t('inputs.message')"
-        rows="3"
-        auto-grow
-        density="compact"
-        hide-details
-        variant="outlined"
-        @keydown.ctrl.enter.prevent="addMessage"
-      />
-      <div class="d-flex" style="gap: 8px">
-        <v-btn
-          :color="primaryColor"
-          size="small"
-          prepend-icon="mdi-plus"
-          :disabled="!draft.trim()"
-          @click="addMessage"
-        >
-          {{ t("actions.add") }}
-        </v-btn>
-        <v-chip v-if="showing" color="success" size="small" prepend-icon="mdi-check-circle">
-          {{ t("data.showing") }}
-        </v-chip>
+    <div class="d-flex h-100">
+      <aside v-if="show_format" class="format-col">
+        <FormatPanel :module-id="'message_board'" :manifest="manifest" />
+      </aside>
+      <div class="d-flex flex-column flex-grow-1" style="min-width: 0">
+        <!-- Input de novo recado -->
+        <div class="pa-3 d-flex flex-column border-b" style="gap: 8px">
+          <v-textarea
+            v-model="draft"
+            :placeholder="t('inputs.message')"
+            rows="3"
+            auto-grow
+            density="compact"
+            hide-details
+            variant="outlined"
+            @keydown.ctrl.enter.prevent="addMessage"
+          />
+          <div class="d-flex" style="gap: 8px">
+            <v-btn
+              :color="primaryColor"
+              size="small"
+              prepend-icon="mdi-plus"
+              :disabled="!draft.trim()"
+              @click="addMessage"
+            >
+              {{ t("actions.add") }}
+            </v-btn>
+            <v-chip v-if="showing" color="success" size="small" prepend-icon="mdi-check-circle">
+              {{ t("data.showing") }}
+            </v-chip>
+          </div>
+        </div>
+
+        <!-- Lista de recados -->
+        <div v-if="messages.length === 0" class="pa-6 text-center text-disabled">
+          {{ t("data.empty") }}
+        </div>
+
+        <v-list v-else density="compact">
+          <v-list-item
+            v-for="(msg, i) in messages"
+            :key="msg.id"
+            class="border-b"
+            :class="{ 'msg-active': activeIndex === i }"
+            @click="present(i)"
+          >
+            <v-list-item-title class="text-body-2" style="white-space: pre-wrap">
+              {{ msg.text }}
+            </v-list-item-title>
+            <template #append>
+              <v-btn
+                icon="mdi-presentation-play"
+                variant="text"
+                density="compact"
+                size="small"
+                :color="activeIndex === i ? 'success' : primaryColor"
+                @click.stop="present(i)"
+              />
+              <v-btn
+                icon="mdi-close"
+                variant="text"
+                density="compact"
+                size="small"
+                color="error"
+                @click.stop="removeMessage(i)"
+              />
+            </template>
+          </v-list-item>
+        </v-list>
       </div>
     </div>
-
-    <!-- Lista de recados -->
-    <div v-if="messages.length === 0" class="pa-6 text-center text-disabled">
-      {{ t("data.empty") }}
-    </div>
-
-    <v-list v-else density="compact">
-      <v-list-item
-        v-for="(msg, i) in messages"
-        :key="msg.id"
-        class="border-b"
-        :class="{ 'msg-active': activeIndex === i }"
-        @click="present(i)"
-      >
-        <v-list-item-title class="text-body-2" style="white-space: pre-wrap">
-          {{ msg.text }}
-        </v-list-item-title>
-        <template #append>
-          <v-btn
-            icon="mdi-presentation-play"
-            variant="text"
-            density="compact"
-            size="small"
-            :color="activeIndex === i ? 'success' : primaryColor"
-            @click.stop="present(i)"
-          />
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            density="compact"
-            size="small"
-            color="error"
-            @click.stop="removeMessage(i)"
-          />
-        </template>
-      </v-list-item>
-    </v-list>
   </ModuleContainer>
 
   <!-- Fullscreen overlay -->
@@ -112,9 +119,22 @@
 import { ref, computed, watch, nextTick, onMounted } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
+import FormatPanel from "@/components/FormatPanel.vue";
 import $broadcast, { BROADCAST_TYPE } from "@/helpers/Broadcast";
 import UserData from "@/helpers/UserData";
 import AppData from "@/helpers/AppData";
+import { useModuleProjection } from "@/composables/useModuleProjection";
+import { useModuleFormat } from "@/composables/useModuleFormat";
+
+const { restoreFormat, show_format } = useModuleFormat("message_board", manifest);
+
+const projection = useModuleProjection("message_board", {
+  onAction(action) {
+    if (action === "clear") clearPresentation();
+    else if (action === "toggle_format") show_format.value = !show_format.value;
+    else if (action === "restore") restoreFormat();
+  },
+});
 
 function uid() {
   return Date.now() + Math.random();
@@ -164,12 +184,14 @@ function present(index) {
   const text = messages.value[index]?.text || "";
   fsText.value = text;
   $broadcast.send(BROADCAST_TYPE.MESSAGE_BOARD, { text, active: true });
+  projection.emit({ text, active: true });
 }
 
 function clearPresentation() {
   activeIndex.value = -1;
   fsText.value = "";
   $broadcast.send(BROADCAST_TYPE.MESSAGE_BOARD, { text: "", active: false });
+  projection.emit({ text: "", active: false });
 }
 
 function close() {
@@ -229,5 +251,12 @@ function close() {
 }
 .fade-slide-leave-to {
   opacity: 0;
+}
+.format-col {
+  flex: 0 0 200px;
+  width: 200px;
+  border-right: 1px solid var(--lj-surface-border);
+  background: var(--lj-surface-bg);
+  height: 100%;
 }
 </style>

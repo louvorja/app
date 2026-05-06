@@ -4,5 +4,20 @@
     "toggle_format": "Alternar 12h/24h",
     "toggle_seconds": "Mostrar/ocultar segundos",
     "fullscreen": "Abrir em tela cheia"
+  },
+  "customization": {
+    "font": "Fonte",
+    "color": "Cor",
+    "size": "Tamanho",
+    "border": "Borda",
+    "vertical": "Vertical",
+    "horizontal": "Horizontal",
+    "image": "Imagem de Fundo",
+    "transparency": "Transparência",
+    "adjust": "Ajuste da Imagem",
+    "hour_cycle": "Formato do Relógio",
+    "time_format": "Formato da Hora",
+    "show_date": "Exibir data",
+    "date_format": "Formato da Data"
   }
 }

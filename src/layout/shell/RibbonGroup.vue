@@ -33,7 +33,7 @@ defineProps({
   align-items: flex-start;
   flex: 1;
   gap: var(--lj-space-1);
-  padding: var(--lj-space-1) 0;
+  padding: var(--lj-space-1) 0 0;
   min-height: 0;
   /* Limita a 3 botões small empilhados em coluna (estilo Office Ribbon).
      Botões large quebram em coluna nova naturalmente.
@@ -50,8 +50,9 @@ defineProps({
   font-size: var(--lj-text-xs);
   color: var(--lj-group-label-color);
   letter-spacing: 0.02em;
-  padding: 2px var(--lj-space-2) 3px;
+  padding: 0 var(--lj-space-2) 3px;
   white-space: nowrap;
   font-weight: var(--lj-weight-regular);
+  line-height: 1;
 }
 </style>

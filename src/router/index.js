@@ -42,6 +42,16 @@ const routes = [
     name: "ObsBible",
     component: () => import("@/views/ObsBible.vue"),
   },
+  {
+    path: "/projection/bible",
+    name: "ProjectionBible",
+    component: () => import("@/views/ProjectionBible.vue"),
+  },
+  {
+    path: "/projection/module",
+    name: "ModuleProjection",
+    component: () => import("@/views/ModuleProjection.vue"),
+  },
 ];
 
 // Em Electron prod o app é servido via file:// — vue-router NÃO consegue

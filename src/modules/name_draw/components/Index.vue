@@ -21,48 +21,55 @@
       />
     </template>
 
-    <!-- Modo lista para editar nomes -->
-    <div v-if="showList" class="pa-3">
-      <v-textarea
-        v-model="namesText"
-        :placeholder="t('inputs.names')"
-        rows="8"
-        auto-grow
-        density="compact"
-        hide-details
-        variant="outlined"
-      />
-      <v-btn class="mt-2" size="small" :color="primaryColor" @click="applyList">
-        {{ t("actions.apply") }}
-      </v-btn>
-    </div>
+    <div class="d-flex h-100">
+      <aside v-if="show_format" class="format-col">
+        <FormatPanel :module-id="'name_draw'" :manifest="manifest" />
+      </aside>
+      <div class="d-flex flex-column flex-grow-1" style="min-width: 0">
+        <!-- Modo lista para editar nomes -->
+        <div v-if="showList" class="pa-3">
+          <v-textarea
+            v-model="namesText"
+            :placeholder="t('inputs.names')"
+            rows="8"
+            auto-grow
+            density="compact"
+            hide-details
+            variant="outlined"
+          />
+          <v-btn class="mt-2" size="small" :color="primaryColor" @click="applyList">
+            {{ t("actions.apply") }}
+          </v-btn>
+        </div>
 
-    <!-- Modo sorteio -->
-    <div v-else class="d-flex flex-column align-center py-4" style="gap: 8px">
-      <div class="name-display" :class="{ 'name-animating': animating }">
-        {{ current || "—" }}
-      </div>
-      <div class="text-caption text-medium-emphasis">
-        {{ t("data.remaining") }}: {{ pool.length }} / {{ names.length }}
-      </div>
-      <div class="d-flex" style="gap: 8px">
-        <v-btn
-          :color="primaryColor"
-          :disabled="!pool.length"
-          prepend-icon="mdi-shuffle"
-          @click="drawName"
-        >
-          {{ t("actions.draw") }}
-        </v-btn>
-        <v-btn variant="tonal" prepend-icon="mdi-restart" @click="reset">
-          {{ t("actions.reset") }}
-        </v-btn>
-      </div>
-      <div v-if="drawn.length" class="w-100 px-3">
-        <v-divider class="mb-2" />
-        <div class="text-caption text-medium-emphasis mb-1">{{ t("data.drawn") }}:</div>
-        <div class="d-flex flex-wrap" style="gap: 4px">
-          <v-chip v-for="n in drawn" :key="n" size="x-small" variant="tonal">{{ n }}</v-chip>
+        <!-- Modo sorteio -->
+        <div v-else class="d-flex flex-column align-center py-4" style="gap: 8px">
+          <div class="name-display" :class="{ 'name-animating': animating }">
+            {{ current || "—" }}
+          </div>
+          <div class="text-caption text-medium-emphasis">
+            {{ t("data.remaining") }}: {{ pool.length }} / {{ names.length }}
+          </div>
+          <div class="d-flex" style="gap: 8px">
+            <v-btn
+              :color="primaryColor"
+              :disabled="!pool.length"
+              prepend-icon="mdi-shuffle"
+              @click="drawName"
+            >
+              {{ t("actions.draw") }}
+            </v-btn>
+            <v-btn variant="tonal" prepend-icon="mdi-restart" @click="reset">
+              {{ t("actions.reset") }}
+            </v-btn>
+          </div>
+          <div v-if="drawn.length" class="w-100 px-3">
+            <v-divider class="mb-2" />
+            <div class="text-caption text-medium-emphasis mb-1">{{ t("data.drawn") }}:</div>
+            <div class="d-flex flex-wrap" style="gap: 4px">
+              <v-chip v-for="n in drawn" :key="n" size="x-small" variant="tonal">{{ n }}</v-chip>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -113,7 +120,21 @@
 import { ref, computed, watch, nextTick } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
+import FormatPanel from "@/components/FormatPanel.vue";
 import AppData from "@/helpers/AppData";
+import { useModuleProjection } from "@/composables/useModuleProjection";
+import { useModuleFormat } from "@/composables/useModuleFormat";
+
+const { restoreFormat, show_format } = useModuleFormat("name_draw", manifest);
+
+const projection = useModuleProjection("name_draw", {
+  onAction(action) {
+    if (action === "draw") drawName();
+    else if (action === "reset") reset();
+    else if (action === "toggle_format") show_format.value = !show_format.value;
+    else if (action === "restore") restoreFormat();
+  },
+});
 
 const moduleContainer = ref(null);
 const fsRoot = ref(null);
@@ -150,6 +171,7 @@ function drawName() {
   const n = pool.value[Math.floor(Math.random() * pool.value.length)];
   drawn.value.push(n);
   current.value = n;
+  projection.emit({ text: n, active: true });
   setTimeout(() => {
     animating.value = false;
   }, 400);
@@ -158,6 +180,7 @@ function drawName() {
 function reset() {
   drawn.value = [];
   current.value = null;
+  projection.emit({ text: "", active: false });
 }
 
 function openFullscreen() {
@@ -227,5 +250,12 @@ function close() {
   justify-content: center;
   max-width: 80vw;
   padding: 0 24px;
+}
+.format-col {
+  flex: 0 0 200px;
+  width: 200px;
+  border-right: 1px solid var(--lj-surface-border);
+  background: var(--lj-surface-bg);
+  height: 100%;
 }
 </style>

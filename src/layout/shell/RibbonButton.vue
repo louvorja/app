@@ -40,7 +40,9 @@ defineEmits(["click"]);
   color: var(--lj-rbtn-color);
   transition:
     background var(--lj-transition-fast),
-    border-color var(--lj-transition-fast);
+    border-color var(--lj-transition-fast),
+    box-shadow var(--lj-transition-fast),
+    transform var(--lj-transition-fast);
   outline: none;
   user-select: none;
   font-family: var(--lj-font-shell);
@@ -48,6 +50,16 @@ defineEmits(["click"]);
 
 .ribbon-btn:hover {
   background: var(--lj-rbtn-hover-bg);
+  border-color: var(--lj-rbtn-hover-border);
+}
+
+.ribbon-btn:active {
+  transform: translateY(0.5px);
+  background: var(--lj-rbtn-active-bg);
+}
+
+.ribbon-btn:focus-visible {
+  box-shadow: var(--lj-shadow-focus-navy-sm);
   border-color: var(--lj-rbtn-hover-border);
 }
 
@@ -77,7 +89,7 @@ defineEmits(["click"]);
   line-height: 1.15;
   word-break: break-word;
   hyphens: auto;
-  max-width: 70px;
+  max-width: 80px;
   color: inherit;
   font-weight: var(--lj-weight-regular);
 }
