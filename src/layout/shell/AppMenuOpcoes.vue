@@ -183,6 +183,21 @@
       </div>
 
       <div class="opt-row">
+        <label class="opt-label" for="opt-slides-text-size">
+          {{ $t("options.slides.text_size") }}
+        </label>
+        <input
+          id="opt-slides-text-size"
+          type="number"
+          min="6"
+          max="60"
+          class="opt-input opt-input--num"
+          :value="userdata.text_size ?? 17"
+          @input="setUd('text_size', Number($event.target.value) || 17)"
+        />
+      </div>
+
+      <div class="opt-row">
         <label class="opt-checkbox">
           <input
             type="checkbox"
@@ -190,6 +205,173 @@
             @change="setUd('show_title_first_slide', $event.target.checked)"
           />
           <span>{{ $t("options.slides.show_title") }}</span>
+        </label>
+      </div>
+
+      <!-- Formatação de texto personalizada -->
+      <div class="opt-row">
+        <label class="opt-checkbox">
+          <input
+            type="checkbox"
+            :checked="userdata.custom_text_format ?? false"
+            @change="setUd('custom_text_format', $event.target.checked)"
+          />
+          <span>{{ $t("options.slides.custom_text_format") }}</span>
+        </label>
+      </div>
+      <div v-if="userdata.custom_text_format" class="opt-format-block">
+        <div class="opt-format-row">
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.title_color") }}</span>
+            <input
+              type="color"
+              class="opt-color"
+              :value="userdata.title_color ?? '#ffd84d'"
+              @input="setUd('title_color', $event.target.value)"
+            />
+          </label>
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.text_color") }}</span>
+            <input
+              type="color"
+              class="opt-color"
+              :value="userdata.text_color ?? '#ffffff'"
+              @input="setUd('text_color', $event.target.value)"
+            />
+          </label>
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.repeat_color") }}</span>
+            <input
+              type="color"
+              class="opt-color"
+              :value="userdata.repeat_color ?? '#bbbbbb'"
+              @input="setUd('repeat_color', $event.target.value)"
+            />
+          </label>
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.aux_color") }}</span>
+            <input
+              type="color"
+              class="opt-color"
+              :value="userdata.aux_color ?? '#cccccc'"
+              @input="setUd('aux_color', $event.target.value)"
+            />
+          </label>
+          <label class="opt-checkbox opt-format-check">
+            <input
+              type="checkbox"
+              :checked="userdata.text_bg_transparent ?? false"
+              @change="setUd('text_bg_transparent', $event.target.checked)"
+            />
+            <span>{{ $t("options.slides.text_bg_transparent") }}</span>
+          </label>
+        </div>
+        <div class="opt-format-row">
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.title_size") }}</span>
+            <input
+              type="number"
+              min="6"
+              max="60"
+              class="opt-input opt-input--num"
+              :value="userdata.title_size ?? 18"
+              @input="setUd('title_size', Number($event.target.value) || 18)"
+            />
+          </label>
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.text_size_label") }}</span>
+            <input
+              type="number"
+              min="6"
+              max="60"
+              class="opt-input opt-input--num"
+              :value="userdata.body_size ?? 14"
+              @input="setUd('body_size', Number($event.target.value) || 14)"
+            />
+          </label>
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.aux_size") }}</span>
+            <input
+              type="number"
+              min="6"
+              max="60"
+              class="opt-input opt-input--num"
+              :value="userdata.aux_size ?? 10"
+              @input="setUd('aux_size', Number($event.target.value) || 10)"
+            />
+          </label>
+          <button type="button" class="opt-btn opt-btn--ghost" @click="restoreTextFormat">
+            <v-icon icon="mdi-refresh" size="14" class="mr-1" />
+            {{ $t("options.slides.restore") }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Fundo personalizado -->
+      <div class="opt-row">
+        <label class="opt-checkbox">
+          <input
+            type="checkbox"
+            :checked="userdata.custom_background ?? false"
+            @change="setUd('custom_background', $event.target.checked)"
+          />
+          <span>{{ $t("options.slides.custom_background") }}</span>
+        </label>
+      </div>
+      <div v-if="userdata.custom_background" class="opt-format-block">
+        <div class="opt-format-row">
+          <label class="opt-checkbox opt-format-check">
+            <input
+              type="checkbox"
+              :checked="userdata.bg_transparent ?? false"
+              @change="setUd('bg_transparent', $event.target.checked)"
+            />
+            <span>{{ $t("options.slides.bg_transparent") }}</span>
+          </label>
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.bg_color") }}</span>
+            <input
+              type="color"
+              class="opt-color"
+              :value="userdata.bg_color ?? '#000000'"
+              @input="setUd('bg_color', $event.target.value)"
+            />
+          </label>
+          <label class="opt-format-field opt-format-field--grow">
+            <span class="opt-format-label">{{ $t("options.slides.bg_image") }}</span>
+            <input
+              type="text"
+              class="opt-input"
+              :value="userdata.bg_image ?? ''"
+              :placeholder="$t('options.slides.bg_image_placeholder')"
+              @input="setUd('bg_image', $event.target.value)"
+            />
+          </label>
+          <label class="opt-format-field">
+            <span class="opt-format-label">{{ $t("options.slides.bg_position") }}</span>
+            <select
+              class="opt-select"
+              :value="userdata.bg_position ?? 'center'"
+              @change="setUd('bg_position', $event.target.value)"
+            >
+              <option value="center">{{ $t("options.slides.pos_center") }}</option>
+              <option value="cover">{{ $t("options.slides.pos_cover") }}</option>
+              <option value="contain">{{ $t("options.slides.pos_contain") }}</option>
+              <option value="stretch">{{ $t("options.slides.pos_stretch") }}</option>
+              <option value="tile">{{ $t("options.slides.pos_tile") }}</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="opt-row">
+        <label class="opt-checkbox">
+          <input
+            type="checkbox"
+            :checked="userdata.affect_external_slides ?? true"
+            @change="setUd('affect_external_slides', $event.target.checked)"
+          />
+          <span>{{ $t("options.slides.affect_external") }}</span>
         </label>
       </div>
     </section>
@@ -264,6 +446,22 @@
             @change="setMedia('lazy_load', $event.target.checked)"
           />
           <span>{{ $t("options.player.lazy_load") }}</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Imagem de Fundo -->
+    <section class="opt-section">
+      <h3 class="opt-section-title">{{ $t("options.background.title") }}</h3>
+      <div class="opt-row">
+        <label class="opt-format-field">
+          <span class="opt-format-label">{{ $t("options.background.color") }}</span>
+          <input
+            type="color"
+            class="opt-color"
+            :value="userdata.global_bg_color ?? '#000033'"
+            @input="setUd('global_bg_color', $event.target.value)"
+          />
         </label>
       </div>
     </section>
@@ -402,6 +600,17 @@ const userdata = computed(() => {
 
 function setUd(key, value) {
   $userdata.set(`options.${key}`, value);
+}
+
+function restoreTextFormat() {
+  setUd("title_color", "#ffd84d");
+  setUd("text_color", "#ffffff");
+  setUd("repeat_color", "#bbbbbb");
+  setUd("aux_color", "#cccccc");
+  setUd("title_size", 18);
+  setUd("body_size", 14);
+  setUd("aux_size", 10);
+  setUd("text_bg_transparent", false);
 }
 
 // Player de mídia: chaves vivem em modules.media.* (lugar onde Media.js lê)
@@ -560,237 +769,3 @@ async function clearFiles() {
   });
 }
 </script>
-
-<style scoped>
-.opt {
-  font-family: var(--lj-font-shell);
-  color: var(--lj-text);
-  max-width: 720px;
-}
-
-.opt-section {
-  margin-bottom: var(--lj-space-8);
-}
-
-.opt-section-title {
-  font-size: var(--lj-text-lg);
-  font-weight: var(--lj-weight-semibold);
-  color: var(--lj-text);
-  margin: 0 0 var(--lj-space-4);
-  padding-bottom: var(--lj-space-2);
-  border-bottom: 1px solid var(--lj-surface-border);
-}
-
-.opt-row {
-  display: flex;
-  align-items: center;
-  gap: var(--lj-space-4);
-  margin-bottom: var(--lj-space-3);
-  font-size: var(--lj-text-base);
-}
-
-.opt-label {
-  flex: 0 0 auto;
-  min-width: 180px;
-  color: var(--lj-text-muted);
-  font-weight: var(--lj-weight-medium);
-}
-
-.opt-select {
-  background: var(--lj-surface-bg);
-  border: 1px solid var(--lj-surface-border-strong);
-  border-radius: var(--lj-radius-sm);
-  padding: var(--lj-space-2) var(--lj-space-3);
-  font-size: var(--lj-text-base);
-  font-family: inherit;
-  color: var(--lj-text);
-  cursor: pointer;
-  outline: none;
-  min-width: 220px;
-}
-
-.opt-select--inline {
-  margin-left: var(--lj-space-3);
-  min-width: 180px;
-}
-
-.opt-select:focus {
-  border-color: var(--lj-navy);
-  box-shadow: var(--lj-focus-ring);
-}
-
-.opt-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--lj-space-3);
-  cursor: pointer;
-  user-select: none;
-}
-
-.opt-checkbox input {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: var(--lj-navy);
-}
-
-.opt-hint {
-  margin: -8px 0 var(--lj-space-3) 28px;
-  font-size: var(--lj-text-sm);
-  color: var(--lj-text-muted);
-  line-height: 1.4;
-}
-
-.opt-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--lj-space-2);
-  background: var(--lj-surface-bg);
-  border: 1px solid var(--lj-surface-border-strong);
-  border-radius: var(--lj-radius-sm);
-  padding: var(--lj-space-3) var(--lj-space-5);
-  cursor: pointer;
-  color: var(--lj-text);
-  font-size: var(--lj-text-base);
-  font-family: inherit;
-  margin-top: var(--lj-space-3);
-  transition: background var(--lj-transition-fast);
-}
-
-.opt-btn:hover {
-  background: var(--lj-surface-bg-hover);
-}
-
-.opt-btn--danger {
-  border-color: var(--lj-danger, #c0392b);
-  color: var(--lj-danger, #c0392b);
-}
-.opt-btn--danger:hover {
-  background: rgba(192, 57, 43, 0.08);
-}
-
-/* Storage section */
-.opt-row--col {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--lj-space-2);
-}
-.opt-folder {
-  display: flex;
-  flex-direction: column;
-  gap: var(--lj-space-2);
-  width: 100%;
-}
-.opt-folder-path {
-  background: var(--lj-surface-bg);
-  border: 1px solid var(--lj-surface-border);
-  border-radius: var(--lj-radius-sm);
-  padding: var(--lj-space-2) var(--lj-space-3);
-  font-size: var(--lj-text-sm);
-  font-family: monospace;
-  color: var(--lj-text-muted);
-  word-break: break-all;
-  white-space: normal;
-}
-.opt-folder-actions {
-  display: flex;
-  gap: var(--lj-space-3);
-  flex-wrap: wrap;
-}
-.opt-stats {
-  display: flex;
-  flex-direction: column;
-  gap: var(--lj-space-2);
-  background: var(--lj-surface-bg);
-  border: 1px solid var(--lj-surface-border);
-  border-radius: var(--lj-radius-sm);
-  padding: var(--lj-space-3) var(--lj-space-4);
-  margin-bottom: var(--lj-space-4);
-}
-.opt-stat {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--lj-text-base);
-}
-.opt-stat--total {
-  border-top: 1px solid var(--lj-surface-divider);
-  padding-top: var(--lj-space-2);
-  font-weight: var(--lj-weight-semibold);
-}
-.opt-stat-label {
-  color: var(--lj-text-muted);
-}
-.opt-stat-value {
-  font-variant-numeric: tabular-nums;
-}
-.opt-stat-value small {
-  color: var(--lj-text-subtle, var(--lj-text-muted));
-  margin-left: var(--lj-space-2);
-  font-weight: var(--lj-weight-regular);
-}
-.opt-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--lj-space-3);
-  margin-top: var(--lj-space-3);
-}
-
-/* Monitores */
-.opt-monitors {
-  display: flex;
-  gap: var(--lj-space-4);
-  margin-bottom: var(--lj-space-3);
-  flex-wrap: wrap;
-}
-
-.opt-monitor {
-  flex: 0 0 auto;
-  width: 140px;
-  height: 90px;
-  background: var(--lj-gray-800);
-  border: 2px solid var(--lj-gray-300);
-  border-radius: var(--lj-radius-md);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--lj-white);
-  position: relative;
-}
-
-.opt-monitor--primary {
-  border-color: var(--lj-orange);
-}
-
-.opt-monitor--primary::after {
-  content: "★";
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  color: var(--lj-orange);
-  font-size: 14px;
-}
-
-.opt-monitor-num {
-  font-size: 28px;
-  font-weight: var(--lj-weight-bold);
-  letter-spacing: 0.04em;
-}
-
-.opt-monitor-size {
-  font-size: var(--lj-text-sm);
-  opacity: 0.7;
-  font-variant-numeric: tabular-nums;
-}
-
-.opt-empty {
-  padding: var(--lj-space-5);
-  background: var(--lj-surface-bg-soft);
-  border: 1px dashed var(--lj-surface-border-strong);
-  border-radius: var(--lj-radius-md);
-  color: var(--lj-text-muted);
-  font-size: var(--lj-text-base);
-  text-align: center;
-}
-</style>

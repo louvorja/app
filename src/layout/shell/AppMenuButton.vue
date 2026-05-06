@@ -64,8 +64,10 @@
 
               <!-- Painéis específicos por item -->
               <AppMenuOpcoes v-if="activeItem?.id === 'settings'" />
-
               <AppMenuSobre v-else-if="activeItem?.id === 'about'" />
+              <AppMenuTransmitir v-else-if="activeItem?.id === 'transmission'" />
+              <AppMenuSincronizar v-else-if="activeItem?.id === 'sync'" />
+              <AppMenuAtualizacoes v-else-if="activeItem?.id === 'updates'" />
 
               <p v-else class="app-menu-content-placeholder">
                 {{ $t("shell.appmenu_content_placeholder") }}
@@ -87,6 +89,9 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import packageJson from "@root/package.json";
 import AppMenuOpcoes from "./AppMenuOpcoes.vue";
 import AppMenuSobre from "./AppMenuSobre.vue";
+import AppMenuTransmitir from "./AppMenuTransmitir.vue";
+import AppMenuSincronizar from "./AppMenuSincronizar.vue";
+import AppMenuAtualizacoes from "./AppMenuAtualizacoes.vue";
 import $modules from "@/helpers/Modules";
 import $database from "@/helpers/Database";
 import $appdata from "@/helpers/AppData";
@@ -118,35 +123,21 @@ const versionLabel = computed(() => `LouvorJA v${packageJson.version}.${dbVersio
 const items = computed(() => [
   { id: "about", label: "shell.appmenu_items.about", inline: true },
   { id: "settings", label: "shell.appmenu_items.settings", inline: true },
-  {
-    id: "formatacao",
-    label: "formatacao.menu",
-    action: () => $appdata.set("ui.formatacao_open", true),
-  },
-  {
-    id: "transmission",
-    label: "shell.appmenu_items.transmission",
-    action: () => $modules.open("transmission"),
-  },
+  { id: "transmission", label: "shell.appmenu_items.transmission", inline: true },
   {
     id: "import_export",
     label: "shell.appmenu_items.import_export",
     action: () => $modules.open("liturgy"),
   },
-  { id: "sync", label: "shell.appmenu_items.sync", action: () => $modules.open("downloads") },
+  { id: "sync", label: "shell.appmenu_items.sync", inline: true },
   { id: "feedback", label: "shell.appmenu_items.feedback", action: openFeedback },
-  {
-    id: "check_update",
-    label: "shell.appmenu_items.check_update",
-    action: () => $modules.open("update"),
-  },
+  { id: "updates", label: "shell.appmenu_items.check_update", inline: true },
   {
     id: "albums",
     label: "shell.appmenu_items.albums",
     action: () => $modules.open("collections"),
   },
   { id: "donate", label: "shell.appmenu_items.donate", action: openDonation },
-  { id: "dev", label: "shell.appmenu_items.dev", action: () => $modules.open("dev") },
   { id: "exit", label: "shell.appmenu_items.exit", action: exitApp },
 ]);
 

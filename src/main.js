@@ -10,6 +10,7 @@ import "./assets/styles/tokens.css";
 import "./assets/styles/utilities.css";
 import "./assets/styles/main.css";
 import "./assets/styles/fonts.css";
+import "./assets/styles/appmenu-options.css";
 
 loadFonts();
 
@@ -291,10 +292,13 @@ $storage.hydrate().then(async () => {
 
     const _ifMedia = (fn) => (e) => {
       if (_mediaIsActive()) {
-        // Quando media está ativa, prevenir default das setas evita que
-        // Vuetify (slider/btn-toggle/v-list) ou Electron (history nav)
-        // intercepte e impeça a navegação de slides.
+        // preventDefault bloqueia ação default do browser (back/forward, scroll).
+        // stopImmediatePropagation garante que listeners internos do Vuetify
+        // (v-list/v-dialog focus trap) não vejam o evento e movam o foco em
+        // vez de navegar slides. Sem isso, com a janela do media (v-dialog)
+        // aberta as setas mexiam o foco do v-list ao invés de navegar.
         if (e && typeof e.preventDefault === "function") e.preventDefault();
+        if (e && typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
         fn();
       }
     };
@@ -365,12 +369,19 @@ $storage.hydrate().then(async () => {
     // PageUp/PageDown também navegam slides puros.
     const _prevSlide = _ifMedia(() => Media.prevSlide());
     const _nextSlide = _ifMedia(() => Media.nextSlide());
+    // preventDefault: false aqui é importante — Hotkeys.js só executa o handler
+    // (não chama preventDefault automático). _ifMedia decide: se media está
+    // ativa, chama preventDefault + stopImmediatePropagation; senão, libera
+    // o evento para o browser/inputs.
+    // allowInForm: true replica o FormKeyUp Delphi — setas navegam slides em
+    // qualquer janela com a música aberta, mesmo com foco em um campo.
     Hotkeys.register("ArrowLeft", _prevSlide, {
       context: "media",
       description: "hotkeys.prev_slide",
       group: "navigation",
       label: "←",
-      preventDefault: false, // Não prevenir default em listas/inputs do app
+      preventDefault: false,
+      allowInForm: true,
     });
     Hotkeys.register("ArrowRight", _nextSlide, {
       context: "media",
@@ -378,6 +389,7 @@ $storage.hydrate().then(async () => {
       group: "navigation",
       label: "→",
       preventDefault: false,
+      allowInForm: true,
     });
     Hotkeys.register("ArrowUp", _prevSlide, {
       context: "media",
@@ -385,6 +397,7 @@ $storage.hydrate().then(async () => {
       group: "navigation",
       label: "↑",
       preventDefault: false,
+      allowInForm: true,
     });
     Hotkeys.register("ArrowDown", _nextSlide, {
       context: "media",
@@ -392,6 +405,7 @@ $storage.hydrate().then(async () => {
       group: "navigation",
       label: "↓",
       preventDefault: false,
+      allowInForm: true,
     });
     Hotkeys.register("PageUp", _prevSlide, {
       context: "media",

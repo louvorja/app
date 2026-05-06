@@ -131,31 +131,6 @@ function staticCommands(t) {
       category: "module",
       run: () => Modules.open("slide_editor"),
     },
-    {
-      id: "module:transmission",
-      title: t("shell.cmd.open_transmission"),
-      keywords: ["transmissao", "obs", "monitor", "projecao"],
-      icon: "mdi-broadcast",
-      category: "module",
-      run: () => Modules.open("transmission"),
-    },
-    {
-      id: "module:downloads",
-      title: t("shell.cmd.open_downloads"),
-      keywords: ["download", "baixar", "coletaneas"],
-      icon: "mdi-cloud-download",
-      category: "module",
-      run: () => Modules.open("downloads"),
-    },
-    {
-      id: "module:update",
-      title: t("shell.cmd.open_update"),
-      keywords: ["update", "atualizar", "versao"],
-      icon: "mdi-refresh",
-      category: "module",
-      run: () => Modules.open("update"),
-    },
-
     // Ações de mídia
     {
       id: "media:close",
