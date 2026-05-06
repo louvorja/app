@@ -247,6 +247,19 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     });
   }
 
+  // No macOS, destruir uma NSWindow em kiosk SEM sair do modo kiosk antes
+  // deixa menu bar e dock escondidos system-wide. Sintoma: depois de fechar
+  // a projeção, o usuário precisa "tocar" no topo da tela / borda do dock
+  // pra eles voltarem (ou eles ficam permanentemente sumidos até reiniciar
+  // o app). Forçar setKiosk(false) em "close" (antes de "closed") restaura
+  // a presentationOptions do NSApplication.
+  if (fullscreen && isMac) {
+    win.on("close", () => {
+      try { if (win.isKiosk && win.isKiosk()) win.setKiosk(false); } catch (_) { /* ignore */ }
+      try { if (win.isFullScreen && win.isFullScreen()) win.setFullScreen(false); } catch (_) { /* ignore */ }
+    });
+  }
+
   win.on("closed", () => _openWindows.delete(feature));
 
   // Carregar URL com route

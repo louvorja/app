@@ -23,7 +23,6 @@
       </div>
     </v-main>
 
-    <ShellStatusBar />
     <AppFooter />
 
     <CommandPalette v-model="cmdPaletteOpen" />
@@ -44,7 +43,6 @@ import AppLoading from "@/layout/Loading.vue";
 import CommandPalette from "@/layout/shell/CommandPalette.vue";
 import RibbonBar from "@/layout/shell/RibbonBar.vue";
 import OpenModulesTabs from "@/layout/shell/OpenModulesTabs.vue";
-import ShellStatusBar from "@/layout/shell/StatusBar.vue";
 import ShellLiturgyPanel from "@/layout/shell/ShellLiturgyPanel.vue";
 import HotkeysCheatsheet from "@/layout/shell/HotkeysCheatsheet.vue";
 import $appdata from "@/helpers/AppData";

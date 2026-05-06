@@ -74,10 +74,6 @@
               </p>
             </div>
           </div>
-
-          <footer class="app-menu-footer">
-            <span>{{ versionLabel }}</span>
-          </footer>
         </div>
       </div>
     </Teleport>
@@ -85,16 +81,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import packageJson from "@root/package.json";
+import { ref, computed, onBeforeUnmount } from "vue";
 import AppMenuOpcoes from "./AppMenuOpcoes.vue";
 import AppMenuSobre from "./AppMenuSobre.vue";
 import AppMenuTransmitir from "./AppMenuTransmitir.vue";
 import AppMenuSincronizar from "./AppMenuSincronizar.vue";
 import AppMenuAtualizacoes from "./AppMenuAtualizacoes.vue";
 import $modules from "@/helpers/Modules";
-import $database from "@/helpers/Database";
-import $appdata from "@/helpers/AppData";
 import Platform from "@/helpers/Platform";
 
 // Detecta macOS via Platform (Electron) ou navigator (web fallback) —
@@ -110,11 +103,8 @@ const isMac = computed(() => {
 });
 
 const open = ref(false);
-const dbVersion = ref(0);
 const trigger = ref(null);
 const activeItem = ref(null);
-
-const versionLabel = computed(() => `LouvorJA v${packageJson.version}.${dbVersion.value}`);
 
 /**
  * Itens com `inline: true` são renderizados DENTRO do AppMenu
@@ -192,16 +182,6 @@ function exitApp() {
   else window.close();
 }
 
-async function loadDBVersion() {
-  try {
-    const config = await $database.get("config");
-    dbVersion.value = config?.version_number ?? "?";
-  } catch {
-    dbVersion.value = "?";
-  }
-}
-
-onMounted(loadDBVersion);
 onBeforeUnmount(() => document.removeEventListener("keydown", onKeydown));
 </script>
 
