@@ -54,13 +54,15 @@ const routes = [
   },
 ];
 
-// Em Electron prod o app é servido via file:// — vue-router NÃO consegue
-// usar history mode (não há servidor pra reescrever rotas), então cai
-// pra hash mode. No web/PWA mantém history (URLs limpas).
-const isFileProtocol = typeof window !== "undefined" && window.location.protocol === "file:";
+// Em Electron prod o app é servido via file:// (legacy) ou louvorja://app
+// (atual) — vue-router NÃO consegue usar history mode em ambos (não há
+// servidor pra reescrever rotas), então cai pra hash mode. No web/PWA
+// (http/https) mantém history (URLs limpas).
+const isLocalProtocol =
+  typeof window !== "undefined" && ["file:", "louvorja:"].includes(window.location.protocol);
 
 const router = createRouter({
-  history: isFileProtocol
+  history: isLocalProtocol
     ? createWebHashHistory()
     : createWebHistory(import.meta.env.BASE_URL ?? "/"),
   routes,
