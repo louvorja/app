@@ -86,7 +86,9 @@ nsis:
 # macOS — DMG
 # ---------------------------------------------------------------------------
 mac:
-  target: dmg
+  target:
+    - dmg
+    - zip
   icon: build/icon-512.png
   category: public.app-category.music
 
