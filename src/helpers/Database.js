@@ -30,7 +30,17 @@ export default {
 
       return data;
     } catch (error) {
-      $alert.error({ text: "messages.file_database_not_found", error });
+      if (import.meta.env.DEV) {
+        const url = $path.db(`/${file}`);
+        $alert.error({
+          text: "messages.file_database_not_found",
+          title: `[DEV] Falha ao carregar: ${file}`,
+          error: `URL: ${url}\n\nVerifique:\n• O arquivo .env existe e tem VITE_URL_DATABASE definido\n• O servidor de dados está rodando (npm run files ou API local)\n• O arquivo ${file}.json existe no servidor\n\n${error}`,
+          translate: false,
+        });
+      } else {
+        $alert.error({ text: "messages.file_database_not_found", error });
+      }
       return null;
     }
   },
