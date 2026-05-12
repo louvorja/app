@@ -37,6 +37,7 @@ const _SCALAR_ACTIONS: Record<string, string> = {
   is_desktop: "SET_IS_DESKTOP",
   is_online: "SET_IS_ONLINE",
   import_modules: "SET_IMPORT_MODULES",
+  active_module: "SET_ACTIVE_MODULE",
   popup: "SET_POPUP",
   popup_module: "SET_POPUP_MODULE",
   module_group: "SET_MODULE_GROUP",

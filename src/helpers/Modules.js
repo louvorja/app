@@ -23,7 +23,7 @@ export default {
   },
 
   /**
-   * Abre um módulo. Fecha embedded abertos quando o que abre é embedded.
+   * Abre um módulo e marca como ativo.
    * @param {string} id
    */
   open(id) {
@@ -36,21 +36,8 @@ export default {
     }
     $dev.write("open", id);
 
-    const opening = $appdata.get(`modules.${id}`);
-    const openingIsPopup = opening?.popup === true;
-
-    if (!openingIsPopup) {
-      const all = $appdata.get("modules") || {};
-      Object.keys(all).forEach((other) => {
-        if (other === id) return;
-        const m = all[other];
-        if (m?.show && m?.popup !== true) {
-          $appdata.set(`modules.${other}.show`, false);
-        }
-      });
-    }
-
     $appdata.set(`modules.${id}.show`, true);
+    $appdata.set("active_module", id);
   },
 
   /**
@@ -60,7 +47,17 @@ export default {
   close(id) {
     if (!this.check(id)) return;
     $dev.write("close", id);
+
     $appdata.set(`modules.${id}.show`, false);
+
+    if ($appdata.get("active_module") === id) {
+      const all = $appdata.get("modules") || {};
+      const next = Object.values(all)
+        .filter((m) => m && m.id !== id && m.show === true && m.popup !== true)
+        .at(-1);
+
+      $appdata.set("active_module", next?.id || null);
+    }
   },
 
   /**

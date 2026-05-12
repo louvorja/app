@@ -135,6 +135,9 @@ export const useAppStore = defineStore("app", {
     SET_IMPORT_MODULES(value) {
       this.import_modules = value;
     },
+    SET_ACTIVE_MODULE(value) {
+      this.active_module = value;
+    },
 
     // ── Popup ─────────────────────────────────────────────────────────────────
     SET_POPUP(value) {
