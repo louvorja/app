@@ -72,7 +72,17 @@
         "fill": "Ampliar",
         "contain": "Ajustar",
         "cover": "Preencher"
-      }
+      },
+      "font": "Fonte",
+      "color": "Cor",
+      "size": "Tamanho da fonte",
+      "image": "Imagem de fundo",
+      "transparency": "Transparência",
+      "adjust": "Ajuste da imagem",
+      "border": "Borda",
+      "vertical": "Alinhamento vertical",
+      "horizontal": "Alinhamento horizontal",
+      "alert_color": "Cor do alerta"
     }
   },
   "alert": {
@@ -356,7 +366,7 @@
       "online_videos": "Vídeos On-line",
       "online_personal": "Vídeos Personalizados",
       "scheduled_items": "Itens Agendados",
-      "stopwatch_culto": "Cronômetro de Culto",
+      "timer_cult": "Temporizador de Culto",
       "history": "Histórico",
       "favorites": "Favoritos",
       "liturgy": "Liturgia",
@@ -395,6 +405,8 @@
       "bible_next_verse": "Próximo Verso",
       "bible_format": "Formatar",
       "bible_restore": "Restaurar",
+      "toggle": "Iniciar/Pausar",
+      "reset": "Reiniciar",
       "format": "Formatar",
       "restore": "Restaurar",
       "project": "Projetar",

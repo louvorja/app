@@ -310,6 +310,7 @@
       "ctx_name_draw": "Configurar Nombres",
       "ctx_clock": "Configurar Reloj",
       "ctx_stopwatch": "Configurar Cronómetro",
+      "ctx_timer_cult": "Configurar Temporizador de Culto",
       "ctx_message_board": "Configurar Recados"
     },
     "groups": {
@@ -356,7 +357,7 @@
       "online_videos": "Vídeos On-line",
       "online_personal": "Vídeos Personalizados",
       "scheduled_items": "Ítems Programados",
-      "stopwatch_culto": "Cronómetro de Culto",
+      "timer_cult": "Temporizador de Culto",
       "history": "Historial",
       "favorites": "Favoritos",
       "liturgy": "Liturgia",
@@ -395,6 +396,8 @@
       "bible_next_verse": "Siguiente Verso",
       "bible_format": "Formato",
       "bible_restore": "Restaurar",
+      "toggle": "Iniciar/Pausar",
+      "reset": "Reiniciar",
       "format": "Formato",
       "restore": "Restaurar",
       "project": "Proyectar",

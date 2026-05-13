@@ -171,10 +171,10 @@ export const RIBBON_PAGES = [
         title: "ribbon.groups.church",
         buttons: [
           {
-            id: "stopwatch_culto",
+            id: "timer_cult",
             icon: "mdi-timer-sand",
-            label: "ribbon.btn.stopwatch_culto",
-            module: "stopwatch",
+            label: "ribbon.btn.timer_cult",
+            module: "timer_cult",
             color: "#1b4f8a",
           },
           {
@@ -1123,6 +1123,72 @@ export const RIBBON_PAGES = [
     ],
   },
 
+  // ========== Configurar Temporizador de Culto (contextual) ==========
+  {
+    id: "ctx_timer_cult",
+    title: "modules.timer_cult.ribbon.ctx_timer_cult",
+    contextual: true,
+    activeOnModules: ["timer_cult"],
+    defaultModule: null,
+    groups: [
+      {
+        id: "ctx_timer_cult_actions",
+        title: "ribbon.groups.actions",
+        buttons: [
+          {
+            id: "timer_cult_toggle",
+            icon: "mdi-play-pause",
+            label: "ribbon.btn.toggle",
+            action: "timer_cult_toggle",
+            color: "#27ae60",
+          },
+          {
+            id: "timer_cult_reset",
+            icon: "mdi-restart",
+            label: "ribbon.btn.reset",
+            action: "timer_cult_reset",
+            color: "#7f8c8d",
+          },
+        ],
+      },
+      {
+        id: "ctx_timer_cult_format",
+        title: "ribbon.groups.format",
+        buttons: [
+          {
+            id: "timer_cult_toggle_format",
+            icon: "mdi-format-color-fill",
+            label: "ribbon.btn.format",
+            action: "timer_cult_toggle_format",
+            color: "#1b4f8a",
+          },
+          {
+            id: "timer_cult_restore",
+            icon: "mdi-restore",
+            label: "ribbon.btn.restore",
+            action: "timer_cult_restore",
+            color: "#9b59b6",
+          },
+        ],
+      },
+      {
+        id: "ctx_timer_cult_screen",
+        title: "ribbon.groups.expanded_area",
+        buttons: [
+          {
+            id: "timer_cult_project",
+            type: "screen",
+            feature: "timer_cult",
+            route: "/projection/module?module=timer_cult",
+            icon: "mdi-projector-screen-outline",
+            label: "ribbon.btn.project",
+            color: "#1b4f8a",
+          },
+        ],
+      },
+    ],
+  },
+
   // ========== Configurar Painel de Recados (contextual) ==========
   {
     id: "ctx_message_board",
@@ -1198,6 +1264,7 @@ export const MODULE_ICONS = {
   favorites: "mdi-star",
   history: "mdi-history",
   stopwatch: "mdi-timer",
+  timer_cult: "mdi-timer-sand",
   clock: "mdi-clock-outline",
   draw: "mdi-dice-multiple",
   name_draw: "mdi-account-multiple",

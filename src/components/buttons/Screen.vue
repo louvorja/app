@@ -123,6 +123,7 @@ const ROUTE_BY_MODULE = {
   counter: "/projection/module?module=counter",
   clock: "/projection/module?module=clock",
   stopwatch: "/projection/module?module=stopwatch",
+  timer_cult: "/projection/module?module=timer_cult",
 };
 
 const is_mobile = computed(() => AppData.get("is_mobile"));

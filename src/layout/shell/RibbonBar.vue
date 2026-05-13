@@ -293,7 +293,9 @@ function executeButton(btn) {
   // Suporta os módulos novos (counter, draw, name_draw, clock, stopwatch,
   // message_board) sem precisar de tabela explícita.
   if (btn.action) {
-    const m = btn.action.match(/^(counter|draw|name_draw|clock|stopwatch|message_board)_(.+)$/);
+    const m = btn.action.match(
+      /^(counter|draw|name_draw|clock|stopwatch|timer_cult|message_board)_(.+)$/
+    );
     if (m) {
       Broadcast.send(BROADCAST_TYPE.MODULE_RIBBON_ACTION, {
         module: m[1],
