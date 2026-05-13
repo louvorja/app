@@ -36,7 +36,7 @@ export interface UserDataState {
   language: "pt" | "es";
   layout: "apps" | "ribbon";
   remote: RemoteConfig;
-  favorites: string[];
+  favorites: object[];
   history: string[];
   modules: Record<string, unknown>;
 }
@@ -188,7 +188,18 @@ export default {
     //
     // Listeners deduplicam pelo `_src`, então não há risco de aplicar o
     // mesmo patch duas vezes na janela destino.
-    const payload = { path: param, value, _src: _SRC };
+
+    // Sanitizar value para garantir que é JPure JSON — evita "object could not be cloned"
+    // no IPC do Electron quando há dados não-serializáveis (funções, refs, etc.)
+    let sanitizedValue = value;
+    try {
+      sanitizedValue = JSON.parse(JSON.stringify(value));
+    } catch {
+      // Se falhar ao serializar, mantém o valor original e deixa o IPC tentar
+      console.warn(`[UserData] Falha ao sanitizar value para "${param}" — enviando original`);
+    }
+
+    const payload = { path: param, value: sanitizedValue, _src: _SRC };
     try {
       $broadcast.send(BROADCAST_TYPE.USERDATA_PATCH, payload);
     } catch {
@@ -197,15 +208,21 @@ export default {
     if (Platform.isDesktop) {
       try {
         const api = Platform.api as
-          | { invoke?: (channel: string, ...args: unknown[]) => unknown }
+          | { invoke?: (channel: string, ...args: unknown[]) => Promise<unknown> }
           | null;
         if (api && typeof api.invoke === "function") {
-          api.invoke("userdata:patch", payload);
+          // Fire-and-forget é OK aqui — o main persiste sincronamente após receber.
+          // Em caso de crash/quit rápido, o handler before-quit sincroniza.
+          api.invoke("userdata:patch", payload).catch((err) => {
+            console.warn("[UserData] IPC userdata:patch falhou:", err);
+          });
         } else if (Platform.userdata?.patch) {
-          Platform.userdata.patch(payload);
+          Platform.userdata.patch(payload).catch((err: any) => {
+            console.warn("[UserData] patch alternativo falhou:", err);
+          });
         }
-      } catch {
-        /* IPC offline durante boot inicial — broadcast já cobriu */
+      } catch (err) {
+        console.warn("[UserData] IPC offline:", err);
       }
     }
   },
