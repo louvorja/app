@@ -21,7 +21,7 @@
   </Window>
 
   <!-- Modo EMBEDDED (default — replica PageControl Delphi) -->
-  <div v-else-if="show" class="module-embedded">
+  <div v-else-if="show" v-show="isActiveEmbedded" class="module-embedded">
     <header class="module-embedded-header">
       <div v-if="moduleIcon" class="module-embedded-icon">
         <v-icon :icon="moduleIcon" size="18" />
@@ -95,6 +95,13 @@ const show = computed({
       AppData.set(`modules.${moduleId.value}.show`, v);
     }
   },
+});
+
+const isActiveEmbedded = computed(() => {
+  if (props.popup) return true;
+  if (!moduleId.value) return false;
+
+  return AppData.get("active_module") === moduleId.value;
 });
 
 const moduleIcon = computed(() => module_.value?.icon || props.manifest?.icon || null);

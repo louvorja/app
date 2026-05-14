@@ -146,6 +146,8 @@ const activePage = ref("collections");
 
 const isDark = computed(() => $appdata.get("is_dark", false));
 
+const activeModuleId = computed(() => $appdata.get("active_module"));
+
 const openModuleIds = computed(() => {
   const modules = $appdata.get("modules") || {};
   return Object.keys(modules).filter((id) => modules[id]?.show === true);
@@ -154,7 +156,9 @@ const openModuleIds = computed(() => {
 const visiblePages = computed(() =>
   RIBBON_PAGES.filter((p) => {
     if (!p.contextual) return true;
-    return (p.activeOnModules || []).some((id) => openModuleIds.value.includes(id));
+    if (!activeModuleId.value) return false;
+
+    return (p.activeOnModules || []).includes(activeModuleId.value);
   })
 );
 
@@ -162,23 +166,32 @@ const activePageObj = computed(() => RIBBON_PAGES.find((p) => p.id === activePag
 const activeGroups = computed(() => activePageObj.value?.groups || []);
 const isContextualActive = computed(() => !!activePageObj.value?.contextual);
 
-watch(openModuleIds, (now, prev) => {
+function selectContextualPageForModule(moduleId) {
+  if (!moduleId) return;
+
+  const ctxPage = RIBBON_PAGES.find(
+    (p) => p.contextual && (p.activeOnModules || []).includes(moduleId)
+  );
+
+  if (ctxPage) {
+    activePage.value = ctxPage.id;
+  }
+}
+
+watch(openModuleIds, (now) => {
   const cur = activePageObj.value;
+
   if (cur?.contextual) {
     const stillVisible = (cur.activeOnModules || []).some((id) => now.includes(id));
-    if (!stillVisible) activePage.value = "collections";
-  }
-  // Auto-select tab contextual quando um módulo correspondente acaba de abrir.
-  const newlyOpened = now.filter((id) => !(prev || []).includes(id));
-  for (const moduleId of newlyOpened) {
-    const ctxPage = RIBBON_PAGES.find(
-      (p) => p.contextual && (p.activeOnModules || []).includes(moduleId)
-    );
-    if (ctxPage) {
-      activePage.value = ctxPage.id;
-      break;
+
+    if (!stillVisible) {
+      activePage.value = "collections";
     }
   }
+});
+
+watch(activeModuleId, (moduleId) => {
+  selectContextualPageForModule(moduleId);
 });
 
 function selectPage(id) {
@@ -280,7 +293,9 @@ function executeButton(btn) {
   // Suporta os módulos novos (counter, draw, name_draw, clock, stopwatch,
   // message_board) sem precisar de tabela explícita.
   if (btn.action) {
-    const m = btn.action.match(/^(counter|draw|name_draw|clock|stopwatch|message_board)_(.+)$/);
+    const m = btn.action.match(
+      /^(counter|draw|name_draw|clock|stopwatch|timer_cult|message_board)_(.+)$/
+    );
     if (m) {
       Broadcast.send(BROADCAST_TYPE.MODULE_RIBBON_ACTION, {
         module: m[1],

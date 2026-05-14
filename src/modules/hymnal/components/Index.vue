@@ -9,7 +9,7 @@
   >
     <template #header>
       <div :class="classform.group">
-        <div :class="classform.group_item" style="flex-basis: 600px">
+        <div :class="classform.group_item">
           <l-search v-model="search" :label="t('inputs.search')" :error="data.filter_count <= 0" />
         </div>
       </div>
@@ -100,7 +100,7 @@ const has_scroll = ref(false);
 
 const classform = computed(() => ({
   group: "d-flex flex-wrap",
-  group_item: "flex-shrink-1 flex-grow-1 d-flex flex-wrap justify-space-around",
+  group_item: "flex-shrink-1 flex-grow-1 d-flex flex-wrap justify-space-around search-box",
 }));
 
 const t = (text) => i18nT(`modules.${moduleId}.${text}`);
@@ -121,3 +121,11 @@ function close() {
   search.value = "";
 }
 </script>
+
+<style scoped>
+.search-box {
+  flex-basis: 600px;
+  width: 350px;
+  margin-top: 10px;
+}
+</style>

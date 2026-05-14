@@ -118,6 +118,7 @@ function write(key, value) {
   try {
     fs.writeJsonSync(tmp, value, { spaces: 2 });
     fs.moveSync(tmp, file, { overwrite: true });
+    console.log(`[userStore] Gravou "${key}" em ${file}`);
   } catch (e) {
     // Limpar arquivo temporário em caso de erro
     try { fs.removeSync(tmp); } catch (_) { /* ignorar */ }

@@ -48,8 +48,7 @@ const openModules = computed(() => {
 });
 
 function isActive(id) {
-  const list = openModules.value.map((m) => m.id);
-  return list[list.length - 1] === id;
+  return $appdata.get("active_module") === id;
 }
 
 function iconFor(id) {

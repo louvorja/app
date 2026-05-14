@@ -273,6 +273,26 @@ app.on("window-all-closed", () => {
 
 // D5 — Parar servidor HTTP antes de quit
 app.on("before-quit", async () => {
+  // Sincronizar _userDataMain em disco ANTES de sair.
+  // Garante que mudanças feitas no últimosMilissegundos (ex: adicionar favorito e sair)
+  // sejam persistidas. Sem isso, mudanças via IPC async podem ser perdidas se o app
+  // fechar rapidamente.
+  try {
+    if (Object.keys(_userDataMain || {}).length > 0) {
+      const favCount = Array.isArray(_userDataMain?.favorites)
+        ? _userDataMain.favorites.length
+        : 0;
+      console.log("[before-quit] Sincronizando user_data:", {
+        keys: Object.keys(_userDataMain),
+        favCount,
+      });
+      userStore.write("user_data", _userDataMain);
+      console.log("[before-quit] user_data sincronizado com sucesso");
+    }
+  } catch (e) {
+    console.warn("[before-quit] Falha ao sincronizar user_data:", e?.message || e);
+  }
+
   await httpServer.stop();
 });
 
@@ -354,6 +374,10 @@ function _walkSet(obj, path, value) {
 }
 
 let _userDataMain = userStore.read("user_data") || {};
+console.log("[main] user_data carregado no boot:", {
+  keys: Object.keys(_userDataMain || {}),
+  favCount: Array.isArray(_userDataMain?.favorites) ? _userDataMain.favorites.length : 0,
+});
 
 ipcMain.handle("userdata:fetch", () => {
   // Snapshot defensivo — evita que renderer mute o objeto compartilhado.
@@ -372,9 +396,19 @@ ipcMain.handle("userdata:patch", (event, payload) => {
     try {
       _walkSet(_userDataMain, payload.path, payload.value);
       userStore.write("user_data", _userDataMain);
+      console.log(
+        `[userdata:patch] Persistiu: path="${payload.path}", value=`,
+        typeof payload.value === "object" && Array.isArray(payload.value)
+          ? `Array(${payload.value.length})`
+          : typeof payload.value === "object"
+          ? "Object"
+          : JSON.stringify(payload.value).slice(0, 100)
+      );
     } catch (e) {
       console.warn("[userdata:patch] persist falhou:", e?.message || e);
     }
+  } else {
+    console.warn('[userdata:patch] payload inválido:', payload);
   }
   // Fan-out para todas as outras janelas — listener no preload aplica via
   // Pinia $patch no respectivo renderer.
