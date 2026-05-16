@@ -7,10 +7,10 @@
  * Integra com displays.js para persistir preferências de monitor por feature.
  */
 
-const { BrowserWindow, screen } = require("electron");
+const { app, BrowserWindow, screen } = require("electron");
 const displays = require("./displays.js");
 
-/** Mantém referência das janelas abertas por feature, para evitar duplicatas */
+/** Mantém referência das janelas abertas por feature para evitar duplicatas */
 const _openWindows = new Map();
 
 /**
@@ -49,10 +49,12 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
   const isMac = process.platform === "darwin";
   const isWin = process.platform === "win32";
   const isLin = process.platform === "linux";
-  // Em macOS Liquid Retina, o sistema aplica máscara de cantos arredondados
-  // na NSWindow em kiosk, revelando o wallpaper nas bordas. Aumentamos a
-  // janela alguns px para fora do display útil — os cantos arredondados
-  // ficam fora da área visível e o conteúdo cobre 100% do que aparece.
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const useMacPrimaryKiosk = fullscreen && isMac && target.id === primaryDisplay.id;
+  // Em macOS Liquid Retina, o sistema pode aplicar máscara de cantos
+  // arredondados na NSWindow, revelando o wallpaper nas bordas. Aumentamos a
+  // janela alguns px para fora do display útil; os cantos arredondados ficam
+  // fora da área visível e o conteúdo cobre 100% do que aparece.
   const overscan = fullscreen && isMac ? 24 : 0;
 
   // No Windows/Linux NÃO passar `fullscreen: true` no construtor com bounds
@@ -60,22 +62,21 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
   // monitor primário e DEPOIS migra, deixando a janela "presa" no display
   // errado em alguns drivers de projetor. Estratégia mais determinística:
   // criar como borderless cobrindo os bounds exatos do display alvo, e em
-  // ready-to-show aplicar setFullScreen(true). No macOS o `kiosk` no
-  // construtor é o caminho correto (replica o Delphi instantaneamente).
+  // ready-to-show aplicar setFullScreen(true). No macOS usamos `kiosk`
+  // somente quando a projeção está no monitor principal, pois ali precisa
+  // cobrir Dock/menu bar. Em monitores secundários, kiosk é agressivo demais
+  // e pode deixar o app preso no modo apresentação.
   const useDeferredFullscreen = fullscreen && (isWin || isLin);
   const winOpts = {
     x: bounds.x - overscan,
     y: bounds.y - overscan,
     width: fullscreen ? bounds.width + overscan * 2 : (width || 800),
     height: fullscreen ? bounds.height + overscan * 2 : (height || 600),
-    // No macOS, fullscreen padrão dispara animação de "espaço dedicado".
-    // kiosk cobre TUDO (incluindo menu bar e dock) instantaneamente —
-    // replica o comportamento Delphi.
     fullscreen: false,
-    kiosk: fullscreen && isMac,
+    kiosk: useMacPrimaryKiosk,
     enableLargerThanScreen: fullscreen && isMac,
     frame,
-    alwaysOnTop,
+    alwaysOnTop: alwaysOnTop && !(fullscreen && isMac),
     title: feature,
     show: false,
     autoHideMenuBar: true,
@@ -102,8 +103,8 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
   const win = new BrowserWindow(winOpts);
 
   // Em modo dev, abre DevTools automaticamente em janelas de projeção/operador.
-  // Em janelas fullscreen/kiosk o atalho Ctrl+Shift+I não funciona (kiosk
-  // bloqueia atalhos), então a única forma de inspecionar é abrir aqui.
+  // Em janelas fullscreen o atalho Ctrl+Shift+I pode não chegar até a página,
+  // então a forma mais confiável de inspecionar é abrir aqui.
   // Também abre se LJ_DEVTOOLS=1 estiver setado (debug pontual em prod).
   const _isDevMode =
     process.env.ELECTRON_DEV === "1" ||
@@ -115,8 +116,7 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     });
   }
 
-  // Atalho de emergência: Cmd/Ctrl+Shift+D abre/fecha DevTools mesmo em kiosk.
-  // O kiosk bloqueia muitos atalhos do sistema; este é tratado ANTES de chegar
+  // Atalho de emergência: Cmd/Ctrl+Shift+D abre/fecha DevTools antes de chegar
   // na página, via webContents.before-input-event.
   win.webContents.on("before-input-event", (_e, input) => {
     if (input.type !== "keyDown") return;
@@ -131,7 +131,7 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
   });
 
   if (fullscreen && isMac && overscan > 0) {
-    // Reforça bounds expandidos depois do construtor — kiosk pode reescrever.
+    // Reforça bounds expandidos depois do construtor.
     win.setBounds({
       x: bounds.x - overscan,
       y: bounds.y - overscan,
@@ -192,8 +192,6 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
       // ressincronizar — força aqui.
       try { win.setAlwaysOnTop(true, "screen-saver"); } catch (_) { /* ignore */ }
     } else if (alwaysOnTop && !(fullscreen && isMac)) {
-      // Em macOS+kiosk a janela já fica acima de tudo; setAlwaysOnTop("screen-saver")
-      // adicional pode promover o processo a UIElement e sumir do dock.
       win.setAlwaysOnTop(true, "pop-up-menu");
     }
     // Não roubar foco do main window — `showInactive` já fez isso.
@@ -237,8 +235,7 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     });
   }
 
-  // Em modo kiosk (macOS) Cmd+Q e atalhos do sistema ficam bloqueados.
-  // Esc fecha a janela como saída de emergência.
+  // Esc fecha a janela fullscreen no macOS como saída de emergência.
   if (fullscreen && isMac) {
     win.webContents.on("before-input-event", (_e, input) => {
       if (input.type === "keyDown" && input.key === "Escape") {
@@ -247,20 +244,36 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
     });
   }
 
-  // No macOS, destruir uma NSWindow em kiosk SEM sair do modo kiosk antes
-  // deixa menu bar e dock escondidos system-wide. Sintoma: depois de fechar
-  // a projeção, o usuário precisa "tocar" no topo da tela / borda do dock
-  // pra eles voltarem (ou eles ficam permanentemente sumidos até reiniciar
-  // o app). Forçar setKiosk(false) em "close" (antes de "closed") restaura
-  // a presentationOptions do NSApplication.
+  // Defesa para macOS: quando a projeção do monitor principal usa kiosk, sai
+  // desse modo antes de destruir a janela. Fechar a NSWindow ainda em kiosk
+  // pode deixar Dock/menu bar escondidos enquanto o LouvorJA estiver em foco.
   if (fullscreen && isMac) {
-    win.on("close", () => {
+    let closingAfterKioskExit = false;
+    win.on("close", (event) => {
+      if (useMacPrimaryKiosk && !closingAfterKioskExit && win.isKiosk && win.isKiosk()) {
+        event.preventDefault();
+        closingAfterKioskExit = true;
+        try { win.setAlwaysOnTop(false); } catch (_) { /* ignore */ }
+        try { win.setKiosk(false); } catch (_) { /* ignore */ }
+        setTimeout(() => {
+          if (!win.isDestroyed()) win.close();
+        }, 120);
+        return;
+      }
+      try { win.setAlwaysOnTop(false); } catch (_) { /* ignore */ }
       try { if (win.isKiosk && win.isKiosk()) win.setKiosk(false); } catch (_) { /* ignore */ }
       try { if (win.isFullScreen && win.isFullScreen()) win.setFullScreen(false); } catch (_) { /* ignore */ }
     });
   }
 
-  win.on("closed", () => _openWindows.delete(feature));
+  win.on("closed", () => {
+    _openWindows.delete(feature);
+    if (useMacPrimaryKiosk && app.dock && typeof app.dock.show === "function") {
+      setTimeout(() => {
+        try { app.dock.show(); } catch (_) { /* ignore */ }
+      }, 200);
+    }
+  });
 
   // Carregar URL com route
   if (devUrl) {
