@@ -65,8 +65,9 @@ function relativeDate(ts) {
   const now = Date.now();
   const diff = Math.floor((now - ts) / 1000);
   if (diff < 60) return t("time.now");
-  if (diff < 3600) return t("time.minutes").replace("{n}", Math.floor(diff / 60));
-  if (diff < 86400) return t("time.hours").replace("{n}", Math.floor(diff / 3600));
+  if (diff < 3600) return t("time.minutes").replace("[n]", Math.floor(diff / 60));
+  if (diff < 86400) return t("time.hours").replace("[n]", Math.floor(diff / 3600));
+
   const d = new Date(ts);
   const today = new Date();
   const yesterday = new Date(today);

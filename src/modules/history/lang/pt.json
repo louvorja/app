@@ -1,5 +1,5 @@
 {
-  "title": "Recentes",
+  "title": "Histórico",
   "data": {
     "empty": "Nenhuma música aberta ainda.",
     "empty_hint": "As músicas que você abrir aparecerão aqui."
@@ -10,8 +10,8 @@
   },
   "time": {
     "now": "agora",
-    "minutes": "há {n} min",
-    "hours": "há {n} h",
+    "minutes": "há [n] min",
+    "hours": "há [n] h",
     "yesterday": "ontem"
   }
 }
