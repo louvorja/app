@@ -312,7 +312,7 @@
       "ctx_name_draw": "Configurar Nombres",
       "ctx_clock": "Configurar Reloj",
       "ctx_stopwatch": "Configurar Cronómetro",
-      "ctx_timer_cult": "Configurar Temporizador de Culto",
+      "ctx_timer": "Configurar Temporizador",
       "ctx_message_board": "Configurar Recados"
     },
     "groups": {
@@ -359,7 +359,7 @@
       "online_videos": "Vídeos On-line",
       "online_personal": "Vídeos Personalizados",
       "scheduled_items": "Ítems Programados",
-      "timer_cult": "Temporizador de Culto",
+      "timer": "Temporizador",
       "history": "Historial",
       "favorites": "Favoritos",
       "liturgy": "Liturgia",

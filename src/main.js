@@ -202,14 +202,7 @@ $storage.hydrate().then(async () => {
       // Para módulos com LScreenBtn, REQUEST_MODULE_STATE espera um
       // module id; sem janela de projeção pedindo, reemitimos para os
       // ids conhecidos que têm captura.
-      const moduleIds = [
-        "counter",
-        "draw",
-        "name_draw",
-        "message_board",
-        "stopwatch",
-        "timer_cult",
-      ];
+      const moduleIds = ["counter", "draw", "name_draw", "message_board", "stopwatch", "timer"];
       for (const id of moduleIds) {
         Broadcast.send(BROADCAST_TYPE.REQUEST_MODULE_STATE, { module: id });
       }

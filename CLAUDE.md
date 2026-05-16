@@ -91,7 +91,7 @@ src/
 │   ├── remote_control/
 │   ├── slide_editor/    # Editor de slides (autosave sessionStorage)
 │   ├── stopwatch/       # Cronômetro (alarme sonoro via Web Audio API)
-│   ├── timer_cult/   # Temporizador de Culto (alarme sonoro via Web Audio API)
+│   ├── timer/   # Temporizador (alarme sonoro via Web Audio API)
 │   ├── theme/
 │   ├── transmission/    # Links para todas as views de projeção/OBS
 │   └── update/          # Verificação de versão do banco

@@ -171,10 +171,10 @@ export const RIBBON_PAGES = [
         title: "ribbon.groups.church",
         buttons: [
           {
-            id: "timer_cult",
+            id: "timer",
             icon: "mdi-timer-sand",
-            label: "ribbon.btn.timer_cult",
-            module: "timer_cult",
+            label: "ribbon.btn.timer",
+            module: "timer",
             color: "#1b4f8a",
           },
           {
@@ -1123,63 +1123,63 @@ export const RIBBON_PAGES = [
     ],
   },
 
-  // ========== Configurar Temporizador de Culto (contextual) ==========
+  // ========== Configurar Temporizador (contextual) ==========
   {
-    id: "ctx_timer_cult",
-    title: "modules.timer_cult.ribbon.ctx_timer_cult",
+    id: "ctx_timer",
+    title: "modules.timer.ribbon.ctx_timer",
     contextual: true,
-    activeOnModules: ["timer_cult"],
+    activeOnModules: ["timer"],
     defaultModule: null,
     groups: [
       {
-        id: "ctx_timer_cult_actions",
+        id: "ctx_timer_actions",
         title: "ribbon.groups.actions",
         buttons: [
           {
-            id: "timer_cult_toggle",
+            id: "timer_toggle",
             icon: "mdi-play-pause",
             label: "ribbon.btn.toggle",
-            action: "timer_cult_toggle",
+            action: "timer_toggle",
             color: "#27ae60",
           },
           {
-            id: "timer_cult_reset",
+            id: "timer_reset",
             icon: "mdi-restart",
             label: "ribbon.btn.reset",
-            action: "timer_cult_reset",
+            action: "timer_reset",
             color: "#7f8c8d",
           },
         ],
       },
       {
-        id: "ctx_timer_cult_format",
+        id: "ctx_timer_format",
         title: "ribbon.groups.format",
         buttons: [
           {
-            id: "timer_cult_toggle_format",
+            id: "timer_toggle_format",
             icon: "mdi-format-color-fill",
             label: "ribbon.btn.format",
-            action: "timer_cult_toggle_format",
+            action: "timer_toggle_format",
             color: "#1b4f8a",
           },
           {
-            id: "timer_cult_restore",
+            id: "timer_restore",
             icon: "mdi-restore",
             label: "ribbon.btn.restore",
-            action: "timer_cult_restore",
+            action: "timer_restore",
             color: "#9b59b6",
           },
         ],
       },
       {
-        id: "ctx_timer_cult_screen",
+        id: "ctx_timer_screen",
         title: "ribbon.groups.expanded_area",
         buttons: [
           {
-            id: "timer_cult_project",
+            id: "timer_project",
             type: "screen",
-            feature: "timer_cult",
-            route: "/projection/module?module=timer_cult",
+            feature: "timer",
+            route: "/projection/module?module=timer",
             icon: "mdi-projector-screen-outline",
             label: "ribbon.btn.project",
             color: "#1b4f8a",
@@ -1264,7 +1264,7 @@ export const MODULE_ICONS = {
   favorites: "mdi-star",
   history: "mdi-history",
   stopwatch: "mdi-timer",
-  timer_cult: "mdi-timer-sand",
+  timer: "mdi-timer-sand",
   clock: "mdi-clock-outline",
   draw: "mdi-dice-multiple",
   name_draw: "mdi-account-multiple",

@@ -58,7 +58,7 @@ const FEATURE_GROUP: Record<string, "presentation" | "return"> = {
   name_draw: "presentation",
   message_board: "presentation",
   stopwatch: "presentation",
-  timer_cult: "presentation",
+  timer: "presentation",
   // Stage display / monitor de retorno (visível ao músico/operador)
   clock: "return",
 };
