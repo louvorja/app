@@ -272,17 +272,11 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
 
     const itemToClone = items.value[index];
 
-    // Remove propriedades que não devem ser clonadas
     const { id, checked_days, ...cloned } = itemToClone;
 
-    // Cria e adiciona
-    const newItem = $liturgy.add(cloned, activeDay.value);
+    $liturgy.insert(cloned, activeDay.value, index + 1);
 
-    // Remove do final
-    items.value.pop();
-
-    // Insere logo após o original
-    items.value.splice(index + 1, 0, newItem);
+    items.value = $liturgy.list(activeDay.value);
   }
 
   function confirmClear(stopTimer) {

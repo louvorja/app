@@ -180,6 +180,34 @@ export default {
     return merged;
   },
 
+  insert(item, day, index) {
+    const items = [...this.list(day)];
+
+    const merged = {
+      id: uid(),
+      tipo: "anotacao",
+      item: "",
+      subitem: "",
+      cor: DEFAULT_COLOR,
+      checked: "",
+      duration: 0,
+      ...item,
+    };
+
+    // normaliza índice
+    const targetIndex = Math.max(0, Math.min(index, items.length));
+
+    // insere no índice desejado
+    items.splice(targetIndex, 0, merged);
+
+    // salva lista atualizada
+    this.set(items, day);
+
+    $dev.write("liturgy:insert", merged.item || merged.tipo, `index=${targetIndex}`);
+
+    return merged;
+  },
+
   update(id, patch, day) {
     const items = this.list(day).map((i) => (i.id === id ? { ...i, ...patch } : i));
     this.set(items, day);
