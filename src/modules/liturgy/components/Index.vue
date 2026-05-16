@@ -30,6 +30,8 @@
         :subtitle-for="subtitleFor"
         :on-reorder="onReorder"
         :open-item-dialog="openItemDialog"
+        :clone-item="cloneItem"
+        :confirm-remove="confirmRemove"
         :execute-item="executeItemMaybeMark"
         :play-music="playMusic"
         :change-color="changeColor"
@@ -171,6 +173,7 @@ const {
   onScheduledCategoryChange,
   saveItem,
   confirmRemove,
+  cloneItem,
   executeItem,
   playMusic,
   openSite,

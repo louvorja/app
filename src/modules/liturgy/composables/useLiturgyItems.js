@@ -267,6 +267,24 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
     if (fromDialog) dialog.value = false;
   }
 
+  function cloneItem(index) {
+    if (index < 0 || index >= items.value.length) return;
+
+    const itemToClone = items.value[index];
+
+    // Remove propriedades que não devem ser clonadas
+    const { id, checked_days, ...cloned } = itemToClone;
+
+    // Cria e adiciona
+    const newItem = $liturgy.add(cloned, activeDay.value);
+
+    // Remove do final
+    items.value.pop();
+
+    // Insere logo após o original
+    items.value.splice(index + 1, 0, newItem);
+  }
+
   function confirmClear(stopTimer) {
     if (!items.value.length) return;
     if (!confirm(t("dialog.clear_confirm"))) return;
@@ -486,6 +504,7 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
     onScheduledCategoryChange,
     saveItem,
     confirmRemove,
+    cloneItem,
     confirmClear,
     executeItem,
     playMusic,

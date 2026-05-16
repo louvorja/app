@@ -112,6 +112,22 @@
         >
           <v-icon icon="mdi-pencil" size="16" />
         </button>
+        <button
+          v-if="!locked"
+          class="lit-card-action"
+          :title="t('actions.clone')"
+          @click.stop="$emit('clone', index)"
+        >
+          <v-icon icon="mdi-content-copy" size="16" />
+        </button>
+        <button
+          v-if="!locked"
+          class="lit-card-action"
+          :title="t('actions.delete')"
+          @click.stop="$emit('confirm-remove', index)"
+        >
+          <v-icon icon="mdi-delete" color="red" size="16" />
+        </button>
         <button v-if="!locked" class="lit-card-grip" :title="t('actions.drag')" @click.stop>
           <v-icon icon="mdi-arrow-up-down" size="16" />
         </button>
@@ -154,6 +170,8 @@ withDefaults(
 
 defineEmits<{
   edit: [index: number];
+  clone: [index: number];
+  "confirm-remove": [index: number];
   execute: [item: LiturgyItemData];
   "play-music": [item: LiturgyItemData, mode: string];
   "change-color": [index: number];

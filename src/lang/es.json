@@ -91,6 +91,8 @@
     "delete": "Eliminar",
     "edit": "Editar",
     "add": "Agregar",
+    "copy": "Copiar",
+    "clone": "Duplicar",
     "open": "Abrir",
     "back": "Volver",
     "next": "Siguiente",

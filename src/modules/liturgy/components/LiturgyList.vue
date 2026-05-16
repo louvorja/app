@@ -35,6 +35,8 @@
           :icon-for="iconForItem"
           :subtitle-for="subtitleFor"
           @edit="openItemDialog"
+          @clone="cloneItem"
+          @confirm-remove="confirmRemove"
           @execute="executeItem"
           @play-music="playMusic"
           @change-color="changeColor"
@@ -77,6 +79,8 @@ withDefaults(
     subtitleFor: (item: LiturgyItemData) => string;
     onReorder: (items: LiturgyItemData[]) => void;
     openItemDialog: (index?: number) => void;
+    cloneItem: (index: number) => void;
+    confirmRemove: (index?: number) => void;
     executeItem: (item: LiturgyItemData) => void;
     playMusic: (item: LiturgyItemData, mode: string) => void;
     changeColor: (index: number) => void;
