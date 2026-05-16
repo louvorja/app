@@ -77,13 +77,6 @@ export const RIBBON_PAGES = [
             module: "collections",
             color: "#c0392b",
           },
-          {
-            id: "liturgy",
-            icon: "mdi-view-list-outline",
-            label: "ribbon.btn.liturgy",
-            module: "liturgy",
-            color: "#27ae60",
-          },
         ],
       },
       {
@@ -170,6 +163,13 @@ export const RIBBON_PAGES = [
         id: "church",
         title: "ribbon.groups.church",
         buttons: [
+          {
+            id: "liturgy",
+            icon: "mdi-script",
+            label: "ribbon.btn.liturgy",
+            module: "liturgy",
+            color: "#27ae60",
+          },
           {
             id: "timer",
             icon: "mdi-timer-sand",
@@ -1260,7 +1260,7 @@ export const MODULE_ICONS = {
   album: "mdi-album",
   collections: "mdi-folder-multiple",
   slide_editor: "mdi-presentation-play",
-  liturgy: "mdi-view-list-outline",
+  liturgy: "mdi-script",
   favorites: "mdi-star",
   history: "mdi-history",
   stopwatch: "mdi-timer",

@@ -10,7 +10,7 @@
       >
         <v-icon :icon="collapsed ? 'mdi-chevron-left' : 'mdi-chevron-right'" size="16" />
       </button>
-      <v-icon icon="mdi-view-list-outline" size="14" class="liturgy-header-icon" />
+      <v-icon icon="mdi-script" size="14" class="liturgy-header-icon" />
       <span class="liturgy-header-title lj-u-truncate">{{ $t("shell.liturgy_title") }}</span>
       <span v-if="!collapsed && totals.count > 0" class="liturgy-totals">
         {{ totals.count }} · {{ totals.duration }}
