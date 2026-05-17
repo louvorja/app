@@ -122,7 +122,7 @@
             <button
               v-bind="props"
               class="lit-music-btn"
-              @click.stop="$emit('play-music', element, 'lyric')"
+              @click.stop="$emit('open-lyric', element.musica, 'lyric')"
             >
               <v-icon icon="mdi-text-box-outline" size="18" color="#27ae60" />
             </button>
@@ -220,6 +220,7 @@ defineEmits<{
   "confirm-remove": [index: number];
   execute: [item: LiturgyItemData];
   "play-music": [item: LiturgyItemData, mode: string];
+  "open-lyric": [item: LiturgyItemData, mode: string];
   "change-color": [index: number];
   "toggle-checked": [element: LiturgyItemData];
 }>();

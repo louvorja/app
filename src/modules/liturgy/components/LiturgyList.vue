@@ -38,6 +38,7 @@
             @confirm-remove="confirmRemove"
             @execute="executeItem"
             @play-music="playMusic"
+            @open-lyric="openLyric"
             @change-color="changeColor"
             @toggle-checked="toggleChecked"
           />
@@ -83,6 +84,7 @@ withDefaults(
     confirmRemove: (index?: number) => void;
     executeItem: (item: LiturgyItemData) => void;
     playMusic: (item: LiturgyItemData, mode: string) => void;
+    openLyric: (musica: number) => void;
     changeColor: (index: number) => void;
     toggleChecked: (element: LiturgyItemData) => void;
   }>(),

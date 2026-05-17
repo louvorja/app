@@ -318,6 +318,20 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
     $media.open(map[mode] || map.sung);
   }
 
+  // Abre a visualização da letra (usa useMedia.openLyric)
+  function openLyric(musica) {
+    if (!musica || Number.isNaN(musica) || musica === -1) {
+      // mantém a mesma mensagem usada em playMusic
+      alert(t("dialog.music_choose_first"));
+      return;
+    }
+
+    // Chama o composable de mídia para abrir a letra
+    $media.openLyric({ id_music: musica }).catch((err) => {
+      console.warn("[useLiturgyItems] openLyric falhou:", err);
+    });
+  }
+
   function openUrl(url) {
     if (!url) return;
     const valid = $liturgy.validateUrl(url);
@@ -502,6 +516,7 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
     confirmClear,
     executeItem,
     playMusic,
+    openLyric,
     openUrl,
     openFile,
     openSite,

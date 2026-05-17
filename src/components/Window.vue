@@ -265,7 +265,7 @@ function listenerResize(active) {
   padding: var(--lj-space-3) var(--lj-space-4);
   background: var(--lj-surface-bg-soft);
   border-bottom: 1px solid var(--lj-surface-divider);
-  min-height: 52px;
+  min-height: 85px;
 }
 
 .lj-window-icon {

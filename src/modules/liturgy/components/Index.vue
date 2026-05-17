@@ -34,6 +34,7 @@
         :confirm-remove="confirmRemove"
         :execute-item="executeItemMaybeMark"
         :play-music="playMusic"
+        :open-lyric="openLyric"
         :change-color="changeColor"
         :toggle-checked="toggleChecked"
       />
@@ -176,6 +177,7 @@ const {
   cloneItem,
   executeItem,
   playMusic,
+  openLyric,
   openSite,
   chooseFolder,
   chooseFile,
