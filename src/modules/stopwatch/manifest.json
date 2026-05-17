@@ -7,57 +7,57 @@
   "customization": {
     "font": {
       "type": "font",
-      "label": "customization.font",
+      "label": "components.customization.font",
       "default": "Arial, sans-serif"
     },
     "font_color": {
       "type": "color",
-      "label": "customization.color",
+      "label": "components.customization.color",
       "default": "#FFFFFF"
     },
     "font_size": {
       "type": "font-size",
-      "label": "customization.size",
+      "label": "components.customization.size",
       "default": 50
     },
     "alert_color": {
       "type": "color",
-      "label": "customization.alert_color",
+      "label": "components.customization.alert_color",
       "default": "#E74C3C"
     },
     "background_color": {
       "type": "color",
-      "label": "customization.color",
+      "label": "components.customization.color",
       "default": "#000000"
     },
     "border_spacing": {
       "type": "border-spacing",
-      "label": "customization.border",
+      "label": "components.customization.border",
       "default": 10
     },
     "vertical_align": {
       "type": "v-align",
-      "label": "customization.vertical",
+      "label": "components.customization.vertical",
       "default": "center"
     },
     "horizontal_align": {
       "type": "h-align",
-      "label": "customization.horizontal",
+      "label": "components.customization.horizontal",
       "default": "center"
     },
     "image": {
       "type": "image",
-      "label": "customization.image",
+      "label": "components.customization.image",
       "default": ""
     },
     "image_opacity": {
       "type": "opacity",
-      "label": "customization.transparency",
+      "label": "components.customization.transparency",
       "default": 100
     },
     "image_fit": {
       "type": "object-fit",
-      "label": "customization.adjust",
+      "label": "components.customization.adjust",
       "default": "cover"
     }
   }
