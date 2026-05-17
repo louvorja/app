@@ -71,66 +71,112 @@
 
       <!-- Ações específicas de música -->
       <div v-if="element.tipo === 'musica'" class="lit-card-music-actions">
-        <button
-          class="lit-music-btn"
-          :title="t('music.play_lyric')"
-          @click.stop="$emit('play-music', element, 'sung')"
-        >
-          <v-icon icon="mdi-filmstrip" size="18" color="#c0392b" />
-        </button>
-        <button
+        <v-tooltip location="top" :open-delay="700">
+          <template #activator="{ props }">
+            <button
+              v-bind="props"
+              class="lit-music-btn"
+              @click.stop="$emit('play-music', element, 'sung')"
+            >
+              <v-icon icon="mdi-filmstrip" size="18" color="#c0392b" />
+            </button>
+          </template>
+
+          {{ t("music.play_lyric") }}
+        </v-tooltip>
+
+        <v-tooltip
           v-if="element.has_instrumental_music || element.subtipo === 'ja'"
-          class="lit-music-btn"
-          :title="t('music.play_lyric_pb')"
-          @click.stop="$emit('play-music', element, 'pb')"
+          location="top"
+          :open-delay="700"
         >
-          <v-icon icon="mdi-filmstrip-box" size="18" color="#1b4f8a" />
-        </button>
-        <button
-          class="lit-music-btn"
-          :title="t('music.no_audio')"
-          @click.stop="$emit('play-music', element, 'no_audio')"
-        >
-          <v-icon icon="mdi-music-note-off" size="18" color="#7f8c8d" />
-        </button>
-        <button
-          class="lit-music-btn"
-          :title="t('music.show_lyric')"
-          @click.stop="$emit('play-music', element, 'lyric')"
-        >
-          <v-icon icon="mdi-music-note" size="18" color="#27ae60" />
-        </button>
+          <template #activator="{ props }">
+            <button
+              v-bind="props"
+              class="lit-music-btn"
+              @click.stop="$emit('play-music', element, 'pb')"
+            >
+              <v-icon icon="mdi-filmstrip-box" size="18" color="#1b4f8a" />
+            </button>
+          </template>
+
+          {{ t("music.play_lyric_pb") }}
+        </v-tooltip>
+
+        <v-tooltip location="top" :open-delay="700">
+          <template #activator="{ props }">
+            <button
+              v-bind="props"
+              class="lit-music-btn"
+              @click.stop="$emit('play-music', element, 'no_audio')"
+            >
+              <v-icon icon="mdi-music-note-off" size="18" color="#7f8c8d" />
+            </button>
+          </template>
+
+          {{ t("music.no_audio") }}
+        </v-tooltip>
+
+        <v-tooltip location="top" :open-delay="700">
+          <template #activator="{ props }">
+            <button
+              v-bind="props"
+              class="lit-music-btn"
+              @click.stop="$emit('play-music', element, 'lyric')"
+            >
+              <v-icon icon="mdi-text-box-outline" size="18" color="#27ae60" />
+            </button>
+          </template>
+
+          {{ t("music.show_lyric") }}
+        </v-tooltip>
       </div>
 
       <!-- Ações: editar + reordenar (sem X — exclusão pelo ribbon "Apagar Selecionados") -->
       <div class="lit-card-end">
-        <button
-          v-if="!locked"
-          class="lit-card-action"
-          :title="t('actions.edit')"
-          @click.stop="$emit('edit', index)"
-        >
-          <v-icon icon="mdi-pencil" size="16" />
-        </button>
-        <button
-          v-if="!locked"
-          class="lit-card-action"
-          :title="t('actions.clone')"
-          @click.stop="$emit('clone', index)"
-        >
-          <v-icon icon="mdi-content-copy" size="16" />
-        </button>
-        <button
-          v-if="!locked"
-          class="lit-card-action"
-          :title="t('actions.delete')"
-          @click.stop="$emit('confirm-remove', index)"
-        >
-          <v-icon icon="mdi-delete" color="red" size="16" />
-        </button>
-        <button v-if="!locked" class="lit-card-grip" :title="t('actions.drag')" @click.stop>
-          <v-icon icon="mdi-arrow-up-down" size="16" />
-        </button>
+        <v-tooltip v-if="!locked" location="top" :open-delay="500">
+          <template #activator="{ props }">
+            <button v-bind="props" class="lit-card-action" @click.stop="$emit('edit', index)">
+              <v-icon icon="mdi-pencil" size="16" />
+            </button>
+          </template>
+
+          {{ t("actions.edit") }}
+        </v-tooltip>
+
+        <v-tooltip v-if="!locked" location="top" :open-delay="500">
+          <template #activator="{ props }">
+            <button v-bind="props" class="lit-card-action" @click.stop="$emit('clone', index)">
+              <v-icon icon="mdi-content-copy" size="16" />
+            </button>
+          </template>
+
+          {{ t("actions.clone") }}
+        </v-tooltip>
+
+        <v-tooltip v-if="!locked" location="top" :open-delay="500">
+          <template #activator="{ props }">
+            <button
+              v-bind="props"
+              class="lit-card-action"
+              @click.stop="$emit('confirm-remove', index)"
+            >
+              <v-icon icon="mdi-delete" color="red" size="16" />
+            </button>
+          </template>
+
+          {{ t("actions.delete") }}
+        </v-tooltip>
+
+        <v-tooltip v-if="!locked" location="top" :open-delay="500">
+          <template #activator="{ props }">
+            <button v-bind="props" class="lit-card-grip" @click.stop>
+              <v-icon icon="mdi-arrow-up-down" size="16" />
+            </button>
+          </template>
+
+          {{ t("actions.drag") }}
+        </v-tooltip>
       </div>
     </div>
   </div>
