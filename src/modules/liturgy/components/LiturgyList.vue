@@ -1,7 +1,7 @@
 <template>
   <div class="liturgy-list-area" :class="{ 'liturgy-list-area--locked': locked }">
     <div v-if="items.length === 0" class="liturgy-empty">
-      <v-icon icon="mdi-view-list-outline" size="80" class="text-disabled" />
+      <v-icon icon="mdi-script" size="80" class="text-disabled" />
       <div class="liturgy-empty-title">{{ t("data.empty") }}</div>
       <div class="liturgy-empty-hint">{{ t("data.empty_hint") }}</div>
       <button
@@ -14,34 +14,37 @@
         <span>{{ t("actions.add") }}</span>
       </button>
     </div>
-
-    <draggable
-      v-else
-      :model-value="items"
-      item-key="id"
-      :disabled="locked"
-      handle=".lit-card-grip"
-      class="liturgy-list"
-      ghost-class="lit-card--ghost"
-      @update:model-value="onReorder"
-    >
-      <template #item="{ element, index }">
-        <LiturgyItem
-          :element="element"
-          :index="index"
-          :locked="locked"
-          :default-color="defaultColor"
-          :is-checked="isChecked"
-          :icon-for="iconForItem"
-          :subtitle-for="subtitleFor"
-          @edit="openItemDialog"
-          @execute="executeItem"
-          @play-music="playMusic"
-          @change-color="changeColor"
-          @toggle-checked="toggleChecked"
-        />
-      </template>
-    </draggable>
+    <div v-else class="liturgy-scroll">
+      <draggable
+        :model-value="items"
+        item-key="id"
+        :disabled="locked"
+        handle=".lit-card-grip"
+        class="liturgy-list"
+        ghost-class="lit-card--ghost"
+        @update:model-value="onReorder"
+      >
+        <template #item="{ element, index }">
+          <LiturgyItem
+            :element="element"
+            :index="index"
+            :locked="locked"
+            :default-color="defaultColor"
+            :is-checked="isChecked"
+            :icon-for="iconForItem"
+            :subtitle-for="subtitleFor"
+            @edit="openItemDialog"
+            @clone="cloneItem"
+            @confirm-remove="confirmRemove"
+            @execute="executeItem"
+            @play-music="playMusic"
+            @open-lyric="openLyric"
+            @change-color="changeColor"
+            @toggle-checked="toggleChecked"
+          />
+        </template>
+      </draggable>
+    </div>
   </div>
 </template>
 
@@ -77,8 +80,11 @@ withDefaults(
     subtitleFor: (item: LiturgyItemData) => string;
     onReorder: (items: LiturgyItemData[]) => void;
     openItemDialog: (index?: number) => void;
+    cloneItem: (index: number) => void;
+    confirmRemove: (index?: number) => void;
     executeItem: (item: LiturgyItemData) => void;
     playMusic: (item: LiturgyItemData, mode: string) => void;
+    openLyric: (musica: number) => void;
     changeColor: (index: number) => void;
     toggleChecked: (element: LiturgyItemData) => void;
   }>(),
@@ -100,10 +106,21 @@ const t = (key: string) => _t(key, locale.value);
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+  min-height: 0;
+}
+.liturgy-scroll {
+  flex: 1;
+
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .liturgy-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 8px;
   display: flex;
   flex-direction: column;

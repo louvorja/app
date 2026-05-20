@@ -267,6 +267,18 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
     if (fromDialog) dialog.value = false;
   }
 
+  function cloneItem(index) {
+    if (index < 0 || index >= items.value.length) return;
+
+    const itemToClone = items.value[index];
+
+    const { id, checked_days, ...cloned } = itemToClone;
+
+    $liturgy.insert(cloned, activeDay.value, index + 1);
+
+    items.value = $liturgy.list(activeDay.value);
+  }
+
   function confirmClear(stopTimer) {
     if (!items.value.length) return;
     if (!confirm(t("dialog.clear_confirm"))) return;
@@ -304,6 +316,20 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
       no_audio: { id_music: item.id_music, mode: "no_audio" },
     };
     $media.open(map[mode] || map.sung);
+  }
+
+  // Abre a visualização da letra (usa useMedia.openLyric)
+  function openLyric(musica) {
+    if (!musica || Number.isNaN(musica) || musica === -1) {
+      // mantém a mesma mensagem usada em playMusic
+      alert(t("dialog.music_choose_first"));
+      return;
+    }
+
+    // Chama o composable de mídia para abrir a letra
+    $media.openLyric({ id_music: musica }).catch((err) => {
+      console.warn("[useLiturgyItems] openLyric falhou:", err);
+    });
   }
 
   function openUrl(url) {
@@ -486,9 +512,11 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
     onScheduledCategoryChange,
     saveItem,
     confirmRemove,
+    cloneItem,
     confirmClear,
     executeItem,
     playMusic,
+    openLyric,
     openUrl,
     openFile,
     openSite,

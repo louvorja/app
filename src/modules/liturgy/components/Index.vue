@@ -30,8 +30,11 @@
         :subtitle-for="subtitleFor"
         :on-reorder="onReorder"
         :open-item-dialog="openItemDialog"
+        :clone-item="cloneItem"
+        :confirm-remove="confirmRemove"
         :execute-item="executeItemMaybeMark"
         :play-music="playMusic"
+        :open-lyric="openLyric"
         :change-color="changeColor"
         :toggle-checked="toggleChecked"
       />
@@ -171,8 +174,10 @@ const {
   onScheduledCategoryChange,
   saveItem,
   confirmRemove,
+  cloneItem,
   executeItem,
   playMusic,
+  openLyric,
   openSite,
   chooseFolder,
   chooseFile,

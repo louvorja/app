@@ -1,6 +1,6 @@
 {
-  "id": "timer_cult",
-  "name": "Temporizador de Culto",
+  "id": "timer",
+  "name": "Temporizador",
   "description": "Temporizador progressivo e regressivo para controle de tempo no culto.",
   "category": "utilities",
   "icon": "mdi-timer-sand",

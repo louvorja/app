@@ -7,7 +7,7 @@
   >
     <div class="d-flex h-100">
       <aside v-if="show_format" class="format-col">
-        <FormatPanel :module-id="'timer_cult'" :manifest="manifest" />
+        <FormatPanel :module-id="'timer'" :manifest="manifest" />
       </aside>
       <div class="d-flex flex-column align-center pa-4 flex-grow-1" style="gap: 16px">
         <!-- Seletor de modo -->
@@ -68,9 +68,9 @@ import AppData from "@/helpers/AppData";
 import { useModuleProjection } from "@/composables/useModuleProjection";
 import { useModuleFormat } from "@/composables/useModuleFormat";
 
-const { restoreFormat, show_format } = useModuleFormat("timer_cult", manifest);
+const { restoreFormat, show_format } = useModuleFormat("timer", manifest);
 
-const projection = useModuleProjection("timer_cult", {
+const projection = useModuleProjection("timer", {
   onAction(action) {
     if (action === "toggle") toggle();
     else if (action === "reset") reset();

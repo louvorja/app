@@ -124,7 +124,7 @@ const border_spacing_px = computed(() => pcToPx(border_spacing.value));
 // Módulos com valor que muda continuamente (clock, stopwatch) — desabilita
 // a transição fade pra não "piscar" a cada segundo. A `key` fica estável
 // (apenas troca quando active passa para true/false).
-const LIVE_MODULES = new Set(["clock", "stopwatch", "timer_cult"]);
+const LIVE_MODULES = new Set(["clock", "stopwatch", "timer"]);
 const isLive = computed(() => LIVE_MODULES.has(moduleId.value));
 const transitionKey = computed(() =>
   isLive.value ? `live:${active.value}` : `${text.value}|${extra.value}`
@@ -138,7 +138,7 @@ const EMPTY_ICONS = {
   counter: "🔢",
   clock: "🕐",
   stopwatch: "⏱",
-  timer_cult: "⏳",
+  timer: "⏳",
 };
 const emptyIcon = computed(() => EMPTY_ICONS[moduleId.value] || "🖥");
 const emptyHint = computed(() => "Aguardando…");
