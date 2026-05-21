@@ -75,6 +75,11 @@ const props = defineProps({
   index: { type: [Boolean, Number, String], default: null },
   /** Quando true, renderiza como popup v-dialog. Default false (embedded inline). */
   popup: { type: Boolean, default: false },
+  /**
+   * Callback síncrono ou assíncrono executado antes de fechar.
+   * Retornar `false` (ou Promise<false>) cancela o fechamento.
+   */
+  beforeClose: { type: Function, default: null },
 });
 
 const emit = defineEmits(["close", "minimize", "scroll", "hasScroll", "show"]);
@@ -119,7 +124,15 @@ watch(show, (v) => {
   emit("show", v);
 });
 
-function close() {
+async function close() {
+  if (props.beforeClose) {
+    try {
+      const result = await props.beforeClose();
+      if (result === false) return;
+    } catch {
+      return;
+    }
+  }
   Modules.close(moduleId.value);
   emit("close");
 }

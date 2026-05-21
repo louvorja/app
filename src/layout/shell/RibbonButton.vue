@@ -100,8 +100,9 @@ defineEmits(["click"]);
   align-items: center;
   height: var(--lj-small-btn-height);
   padding: 0 var(--lj-space-3);
-  width: 100%;
-  min-width: 110px;
+  width: var(--lj-small-btn-width);
+  min-width: var(--lj-small-btn-width);
+  max-width: var(--lj-small-btn-width);
   gap: var(--lj-space-2);
   flex-shrink: 0;
 }
@@ -116,5 +117,8 @@ defineEmits(["click"]);
   font-weight: var(--lj-weight-regular);
   text-align: left;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

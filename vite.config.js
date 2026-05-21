@@ -171,7 +171,7 @@ export default async ({ mode }) => {
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: "true",
     },
     optimizeDeps: {
-      exclude: ["jszip"],
+      include: ["jszip"],
     },
     resolve: {
       alias: {
@@ -188,10 +188,6 @@ export default async ({ mode }) => {
     },
     build: {
       rollupOptions: {
-        // jszip é uma dependência opcional (necessária apenas para loadSlja).
-        // Marcada como external para não falhar o build quando não está instalada.
-        // Instalar com: npm install jszip
-        external: ["jszip"],
         output: {
           manualChunks: {
             // Framework core — raramente muda, longa vida no cache do browser

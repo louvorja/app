@@ -106,6 +106,7 @@ function parseSlja(iniText) {
       imagem: sec.imagem || "",
       imagem_posicao: parseInt(sec.imagem_posicao || "5", 10),
       tempo_seconds: hmsToSeconds(sec.tempo_hms || sec.tempo),
+      text_align: sec.text_align || "center",
     });
   }
 
@@ -151,6 +152,7 @@ function buildIniFromSlides({ meta = {}, slides = [], audioPath = "" }) {
 
     if (s.imagem) sec.imagem = s.imagem;
     if (s.imagem_posicao) sec.imagem_posicao = String(s.imagem_posicao);
+    if (s.text_align && s.text_align !== "center") sec.text_align = s.text_align;
 
     const seconds = Number(s.tempo_seconds || 0);
     sec.tempo_hms = secondsToHms(seconds);
@@ -163,13 +165,20 @@ function buildIniFromSlides({ meta = {}, slides = [], audioPath = "" }) {
 }
 
 async function loadSlja(file) {
-  const { default: JSZip } = await import("jszip");
+  const jszipMod = await import("jszip");
+  const JSZip = jszipMod.default?.default ?? jszipMod.default ?? jszipMod;
   const zip = await JSZip.loadAsync(file);
 
   const ljaFile = zip.file("slides.lja");
   if (!ljaFile) throw new Error("slides.lja não encontrado no arquivo .slja");
 
-  const iniText = await ljaFile.async("text");
+  const iniBytes = await ljaFile.async("uint8array");
+  let iniText;
+  try {
+    iniText = new TextDecoder("utf-8", { fatal: true }).decode(iniBytes);
+  } catch {
+    iniText = new TextDecoder("windows-1252").decode(iniBytes);
+  }
   const parsed = parseSlja(iniText);
 
   let audio = null;
@@ -219,7 +228,8 @@ async function writeSlja({
   audioName = "audio.mp3",
   images = null,
 } = {}) {
-  const { default: JSZip } = await import("jszip");
+  const jszipMod = await import("jszip");
+  const JSZip = jszipMod.default?.default ?? jszipMod.default ?? jszipMod;
   const zip = new JSZip();
 
   let audioPath = "";
