@@ -139,7 +139,7 @@
           ref="audioEl"
           :src="audioUrl"
           hidden
-          @play="audioPlaying = true"
+          @play="onAudioPlay"
           @pause="audioPlaying = false"
           @ended="audioPlaying = false"
           @timeupdate="onAudioTime"
@@ -606,11 +606,15 @@ function goSlide(idx) {
   if (!slides.value.length) return;
   const clamped = Math.max(0, Math.min(slides.value.length - 1, idx));
   current.value = clamped;
-  // Sincronia com o áudio: se o slide tem tempo gravado, dá seek para que o
-  // player reflita a posição daquele slide. Funciona tanto pausado (preview)
-  // quanto tocando (operador pulando para um ponto da música).
+  if (!audioEl.value) return;
+  // Paridade Delphi (carregaSlide em fmEditorSlides.pas:1136): primeiro slide
+  // sempre dá seek para 0, mesmo que não tenha tempo gravado — "começo da
+  // música" é implícito. Outros slides só fazem seek se têm tempo gravado.
   const ts = slides.value[clamped]?.tempo_seconds || 0;
-  if (audioEl.value && ts > 0) {
+  if (clamped === 0) {
+    audioEl.value.currentTime = 0;
+    audioCurrentTime.value = 0;
+  } else if (ts > 0) {
     audioEl.value.currentTime = ts;
     audioCurrentTime.value = ts;
   }
@@ -672,25 +676,35 @@ watch(
   { immediate: true }
 );
 
+let _lastSyncTime = -1;
+
+function onAudioPlay() {
+  audioPlaying.value = true;
+  _lastSyncTime = audioEl.value?.currentTime ?? -1;
+}
+
 function onAudioTime() {
   if (!audioEl.value) return;
   audioCurrentTime.value = audioEl.value.currentTime;
-  // Paridade Delphi: durante reprodução, troca de slide automaticamente quando
-  // o tempo do áudio cruza o tempo_seconds de outro slide.
   if (audioPlaying.value) syncSlideFromAudio();
 }
 
+// Auto-sync apenas em playback contínuo: avança o slide quando o tempo cruza
+// um marker gravado. Saltos (seek, navegação manual) são ignorados — quem
+// causa o salto já sabe em que slide quer ficar.
 function syncSlideFromAudio() {
   const t = audioCurrentTime.value;
-  // Encontra o último slide cujo tempo_seconds <= t.
-  let target = -1;
+  const last = _lastSyncTime;
+  _lastSyncTime = t;
+  if (last < 0) return;
+  if (Math.abs(t - last) > 1.5) return; // delta grande = seek, não sincroniza
+  // Avanço linear: procura primeiro marker cruzado em (last, t].
   for (let i = 0; i < slides.value.length; i++) {
     const ts = slides.value[i].tempo_seconds;
-    if (ts > 0 && ts <= t) target = i;
-    else if (ts > t) break;
-  }
-  if (target >= 0 && target !== current.value) {
-    current.value = target;
+    if (ts > 0 && ts > last && ts <= t && i !== current.value) {
+      current.value = i;
+      break;
+    }
   }
 }
 function onAudioLoad() {
@@ -1201,7 +1215,7 @@ function requireAudio() {
   if (!audioEl.value) {
     $alert.info({
       title: t("data.no_audio"),
-      text: t("actions.audio_attach"),
+      text: "Anexe um arquivo de áudio para usar este recurso.",
       translate: false,
     });
     return false;
@@ -1215,18 +1229,10 @@ function togglePlay() {
     audioEl.value.pause();
     return;
   }
-  // Validação paridade Delphi (fmEditorSlides.pas:849): se o slide atual não
-  // tem tempo gravado e não é o primeiro, orienta a começar do início.
-  const slide = activeSlide.value;
-  if (slide && slide.tempo_seconds === 0 && current.value > 0) {
-    $alert.info({
-      title: t("data.no_audio"),
-      text: "Não há tempo gravado neste slide. Reproduza a partir do primeiro slide para começar a gravar os tempos.",
-      translate: false,
-    });
-    return;
-  }
   // Seek para o tempo do slide atual antes de iniciar (paridade Delphi:1136).
+  // Slide sem tempo gravado: toca de onde estiver — não bloqueia, pois o
+  // operador pode estar avaliando ou querendo gravar a partir daqui.
+  const slide = activeSlide.value;
   if (slide && slide.tempo_seconds > 0) {
     audioEl.value.currentTime = slide.tempo_seconds;
   }
@@ -1235,8 +1241,14 @@ function togglePlay() {
 
 function recordAdvance() {
   if (!requireAudio() || !slides.value.length) return;
-  activeSlide.value.tempo_seconds = Math.round(audioEl.value.currentTime);
-  if (current.value < slides.value.length - 1) current.value += 1;
+  // Paridade Delphi (acaoSlide 'prox_grava' em fmEditorSlides.pas:629):
+  // avança PRIMEIRO, depois grava o tempo atual no slide novo. A premissa é
+  // "este tempo é o início do próximo slide". Gravar no slide atual e depois
+  // avançar fazia o syncSlideFromAudio puxar o operador de volta.
+  if (current.value >= slides.value.length - 1) return;
+  const t = Math.round(audioEl.value.currentTime);
+  current.value += 1;
+  activeSlide.value.tempo_seconds = t;
   markDirty();
 }
 
@@ -1246,13 +1258,23 @@ function recordStart() {
   markDirty();
 }
 
-// "Retroativo": grava no slide ATUAL um instante levemente anterior ao tempo
-// do áudio agora — premissa: o operador percebeu o início tarde demais.
-const RETROACTIVE_OFFSET_S = 2;
+// "Retroativo" — paridade Delphi (btGravaRClick em fmEditorSlides.pas:634):
+// se é o primeiro slide, faz seek para 0; senão pega o tempo já gravado no
+// slide atual, recua um pouco, faz seek e regrava. Permite ajustar o início
+// do slide quando percebeu-se que estava atrasado.
+const RETROACTIVE_OFFSET_S = 1;
 function recordRetroactive() {
   if (!requireAudio() || !slides.value.length) return;
-  const t = Math.max(0, Math.round(audioEl.value.currentTime - RETROACTIVE_OFFSET_S));
-  activeSlide.value.tempo_seconds = t;
+  if (current.value === 0) {
+    audioEl.value.currentTime = 0;
+    audioCurrentTime.value = 0;
+    return;
+  }
+  const cur = activeSlide.value.tempo_seconds || Math.round(audioEl.value.currentTime);
+  const newTime = Math.max(0, cur - RETROACTIVE_OFFSET_S);
+  audioEl.value.currentTime = newTime;
+  audioCurrentTime.value = newTime;
+  activeSlide.value.tempo_seconds = newTime;
   markDirty();
 }
 
