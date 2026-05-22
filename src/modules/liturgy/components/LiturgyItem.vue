@@ -7,12 +7,7 @@
       :style="{ background: element.cor || defaultColor }"
       @click="!locked && $emit('edit', index)"
     >
-      <button
-        v-if="!locked"
-        class="lit-card-grip lit-card-grip--cat"
-        :title="t('actions.drag')"
-        @click.stop
-      >
+      <button v-if="!locked" class="lit-card-grip" data-handle="true" :title="t('actions.drag')">
         <v-icon icon="mdi-drag-vertical" size="16" />
       </button>
       <span class="lit-category-text">
@@ -122,7 +117,7 @@
             <button
               v-bind="props"
               class="lit-music-btn"
-              @click.stop="$emit('open-lyric', element.musica, 'lyric')"
+              @click.stop="$emit('open-lyric', element.id_music || element.musica)"
             >
               <v-icon icon="mdi-text-box-outline" size="18" color="#27ae60" />
             </button>
@@ -168,15 +163,9 @@
           {{ t("actions.delete") }}
         </v-tooltip>
 
-        <v-tooltip v-if="!locked" location="top" :open-delay="500">
-          <template #activator="{ props }">
-            <button v-bind="props" class="lit-card-grip" @click.stop>
-              <v-icon icon="mdi-arrow-up-down" size="16" />
-            </button>
-          </template>
-
-          {{ t("actions.drag") }}
-        </v-tooltip>
+        <button v-if="!locked" class="lit-card-grip" data-handle="true" :title="t('actions.drag')">
+          <v-icon icon="mdi-arrow-up-down" size="16" />
+        </button>
       </div>
     </div>
   </div>
@@ -220,7 +209,7 @@ defineEmits<{
   "confirm-remove": [index: number];
   execute: [item: LiturgyItemData];
   "play-music": [item: LiturgyItemData, mode: string];
-  "open-lyric": [item: LiturgyItemData, mode: string];
+  "open-lyric": [musica: number];
   "change-color": [index: number];
   "toggle-checked": [element: LiturgyItemData];
 }>();
@@ -231,13 +220,15 @@ const t = (key: string) => _t(key, locale.value);
 
 <style scoped>
 .lit-row {
-  display: contents;
+  display: flex;
+  width: 100%;
 }
 
 /* ====================== Card item normal ====================== */
 .lit-card {
   display: flex;
   align-items: stretch;
+  flex: 1;
   background: var(--lj-surface-bg);
   border: 1px solid rgba(var(--v-border-color), 0.4);
   border-radius: 4px;
@@ -401,11 +392,13 @@ const t = (key: string) => _t(key, locale.value);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 3px;
   color: rgba(var(--lj-on-surface-ch), 0.6);
   padding: 0;
+  user-select: none;
+  flex-shrink: 0;
 }
 .lit-card-grip {
   cursor: grab;
@@ -434,6 +427,7 @@ const t = (key: string) => _t(key, locale.value);
 .lit-category {
   display: flex;
   align-items: center;
+  flex: 1;
   height: 36px;
   margin-top: 12px;
   border-radius: 4px;

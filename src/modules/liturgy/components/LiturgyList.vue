@@ -17,10 +17,12 @@
     <div v-else class="liturgy-scroll">
       <draggable
         :model-value="items"
-        item-key="id"
+        :item-key="(item) => item.id"
         :disabled="locked"
-        handle=".lit-card-grip"
+        handle="button[data-handle='true']"
+        tag="div"
         class="liturgy-list"
+        :animation="150"
         ghost-class="lit-card--ghost"
         @update:model-value="onReorder"
       >
