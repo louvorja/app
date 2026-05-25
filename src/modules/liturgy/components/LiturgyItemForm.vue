@@ -8,8 +8,8 @@
   >
     <v-card class="lit-dialog">
       <div class="lit-dialog-title">
-        <v-icon :icon="editIndex >= 0 ? 'mdi-pencil' : 'mdi-plus'" size="18" />
-        <span>{{ editIndex >= 0 ? t("dialog.edit_title") : t("dialog.add_title") }}</span>
+        <v-icon :icon="editIndex!! >= 0 ? 'mdi-pencil' : 'mdi-plus'" size="18" />
+        <span>{{ editIndex!! >= 0 ? t("dialog.edit_title") : t("dialog.add_title") }}</span>
         <v-spacer />
         <button class="lit-card-action" @click="$emit('update:modelValue', false)">
           <v-icon icon="mdi-close" size="14" />
@@ -241,7 +241,7 @@
             </button>
           </div>
         </div>
-        <div v-if="scheduledCategories.length === 0" class="lit-hint">
+        <div v-if="scheduledCategories?.length === 0" class="lit-hint">
           {{ t("inputs.scheduled_empty") }}
         </div>
       </div>
@@ -256,12 +256,12 @@
 
       <div class="lit-dialog-footer">
         <button
-          v-if="editIndex >= 0"
+          v-if="editIndex!! >= 0"
           class="lit-btn lit-btn--danger"
-          @click="confirmRemove(editIndex, true)"
+          @click="confirmRemove(editIndex!!, true)"
         >
           <v-icon icon="mdi-delete" size="14" />
-          <span>{{ t("actions.remove") }}</span>
+          <span>{{ t("actions.delete") }}</span>
         </button>
         <v-spacer />
         <button class="lit-btn lit-btn--ghost" @click="$emit('update:modelValue', false)">
@@ -269,11 +269,11 @@
         </button>
         <button class="lit-btn-add" data-testid="item-save" @click="saveItem">
           <v-icon
-            :icon="editIndex >= 0 ? 'mdi-content-save' : 'mdi-plus-circle'"
+            :icon="editIndex!! >= 0 ? 'mdi-content-save' : 'mdi-plus-circle'"
             size="22"
             color="#3a6fb5"
           />
-          <span>{{ editIndex >= 0 ? t("actions.save") : t("actions.add") }}</span>
+          <span>{{ editIndex!! >= 0 ? t("actions.save") : t("actions.add") }}</span>
         </button>
       </div>
     </v-card>

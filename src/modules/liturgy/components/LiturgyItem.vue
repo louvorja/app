@@ -65,7 +65,10 @@
       </button>
 
       <!-- Ações específicas de música -->
-      <div v-if="element.tipo === 'musica'" class="lit-card-music-actions">
+      <div
+        v-if="element.tipo === 'musica' && element.escolha === '0'"
+        class="lit-card-music-actions"
+      >
         <v-tooltip location="top" :open-delay="700">
           <template #activator="{ props }">
             <button
@@ -117,7 +120,7 @@
             <button
               v-bind="props"
               class="lit-music-btn"
-              @click.stop="$emit('open-lyric', element.id_music || element.musica)"
+              @click.stop="$emit('open-lyric', element.musica)"
             >
               <v-icon icon="mdi-text-box-outline" size="18" color="#27ae60" />
             </button>

@@ -271,6 +271,10 @@ function executeButton(btn) {
     $modules.open(btn.module);
     return;
   }
+  if (btn.action === "search_music") {
+    shell.openMusicSearch();
+    return;
+  }
   if (btn.action && btn.action in LITURGY_ACTIONS) {
     Broadcast.send(BROADCAST_TYPE.LITURGY_RIBBON_ACTION, {
       action: LITURGY_ACTIONS[btn.action],

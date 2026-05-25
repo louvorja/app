@@ -17,7 +17,7 @@
     <div v-else class="liturgy-scroll">
       <draggable
         :model-value="items"
-        :item-key="(item) => item.id"
+        :item-key="(item: LiturgyItemData) => item.id"
         :disabled="locked"
         handle="button[data-handle='true']"
         tag="div"
