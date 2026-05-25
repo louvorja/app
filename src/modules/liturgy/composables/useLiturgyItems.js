@@ -191,7 +191,7 @@ export function useLiturgyItems(activeDay, scheduledCategories) {
   function onMusicChange() {
     const m = musicsList.value.find((x) => x.id_music === form.value.musica);
     if (m) {
-      form.value.item = m.name;
+      // form.value.item = m.name;
       form.value.has_instrumental_music = !!m.has_instrumental_music;
       form.value.escolha = "0";
     }
