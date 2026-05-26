@@ -164,10 +164,10 @@ onBeforeUnmount(() => {
 
 .return-title {
   position: absolute;
-  top: 12px;
-  left: 16px;
+  top: 37px;
+  left: 35px;
   right: 16px;
-  font-size: 0.85rem;
+  font-size: 1.7rem;
   font-weight: 500;
   color: #efb400;
   letter-spacing: 0.06em;
