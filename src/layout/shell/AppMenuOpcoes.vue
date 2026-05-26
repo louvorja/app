@@ -102,6 +102,20 @@
           <option value="bottom">{{ $t("options.slides.align_bottom") }}</option>
         </select>
       </div>
+      <div class="opt-row">
+        <label class="opt-label" for="opt-slides-text-size">
+          {{ $t("options.slides.text_size") }}
+        </label>
+        <input
+          id="opt-slides-text-size"
+          type="number"
+          min="6"
+          max="60"
+          class="opt-input opt-input--num"
+          :value="userdata.text_size ?? 17"
+          @input="setUd('text_size', Number($event.target.value) || 17)"
+        />
+      </div>
 
       <div class="opt-row">
         <label class="opt-checkbox">
@@ -125,6 +139,7 @@
         </label>
       </div>
 
+      <!--      Configurações da tela do operador  -->
       <div class="opt-row">
         <label class="opt-checkbox">
           <input
@@ -170,7 +185,6 @@
           </option>
         </select>
       </div>
-
       <div class="opt-row">
         <label class="opt-label" for="opt-slides-text-size">
           {{ $t("options.slides.text_size") }}
@@ -178,11 +192,11 @@
         <input
           id="opt-slides-text-size"
           type="number"
-          min="6"
-          max="60"
+          min="3"
+          max="15"
           class="opt-input opt-input--num"
-          :value="userdata.text_size ?? 17"
-          @input="setUd('text_size', Number($event.target.value) || 17)"
+          :value="userdata.slides?.font_size_next ?? 6"
+          @input="setUd('slides.font_size_next', Number($event.target.value) || 6)"
         />
       </div>
 

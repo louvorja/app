@@ -35,8 +35,10 @@
     <!-- Painel fixo no rodapé com próximo slide + contador (alBottom Delphi) -->
     <div class="return-bottom">
       <div class="return-bottom-grid">
-        <div class="return-next-text">
+        <div>
           <span class="return-next-label">{{ t("shell.proj_return_next") }}</span>
+        </div>
+        <div class="return-next-text">
           <span
             class="return-next-content"
             :style="slideStyle.nextStyle(nextSlide)"
@@ -181,7 +183,7 @@ onBeforeUnmount(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 10px;
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -194,18 +196,20 @@ onBeforeUnmount(() => {
 /* Painel inferior (alBottom Delphi: 39px) com próximo slide */
 .return-bottom {
   flex: 0 0 auto;
-  height: 17vh;
+  height: 20vh;
+  width: 100%;
   min-height: 100px;
   background: linear-gradient(180deg, #1d251d, #131b13);
   border-top: 2px solid #efb400;
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: 8px 60px 10px 20px;
+  margin: 0 20px 15px 20px;
 }
 
 .return-bottom-grid {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto;
   gap: 16px;
   width: 100%;
   align-items: center;
@@ -213,44 +217,45 @@ onBeforeUnmount(() => {
 
 .return-next-text {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  flex-direction: column;
+  gap: 15px;
   overflow: hidden;
+  min-width: 0;
+  font-size: 14px;
 }
 
 .return-next-label {
-  font-size: 1.4vh;
+  font-size: 2vh;
   font-weight: 700;
   letter-spacing: 0.15em;
   color: #efb400;
   background: rgba(239, 180, 0, 0.12);
   border: 1px solid rgba(239, 180, 0, 0.4);
-  padding: 4px 10px;
+  padding: 5px 5px 0 5px;
   border-radius: 2px;
   flex-shrink: 0;
   text-transform: uppercase;
 }
 
 .return-next-content {
-  font-size: clamp(14px, 5vh, 60px);
   color: rgba(255, 255, 255, 0.85);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.35;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   flex: 1;
 }
 
 .return-counter {
-  font-size: clamp(18px, 4vh, 48px);
+  font-size: clamp(20px, 7vh, 70px);
   font-weight: 700;
   color: #efb400;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.05em;
   flex-shrink: 0;
   padding-left: 12px;
-  border-left: 1px solid rgba(239, 180, 0, 0.3);
+  border-left: 3px solid rgba(239, 180, 0, 0.3);
+  align-self: center;
 }
 </style>
