@@ -38,6 +38,7 @@ const CHANNEL_NAME = "louvorja";
  */
 const STATEFUL_TYPES = new Set<string>([
   "slide_change",
+  "slide_progress",
   "slides_data",
   "media_close",
   "bible_verse",

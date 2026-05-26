@@ -2,6 +2,14 @@
   <div class="return-root" :class="{ 'return-root--ready': ready }">
     <!-- Slide atual ocupa quase toda a tela (alClient) -->
     <div class="return-current">
+      <!-- Progresso total da música (barra no topo) -->
+      <div v-if="slideStyle.cfg.value.show_progress_bar" class="return-track-progress-bar">
+        <div
+          class="return-track-progress-fill"
+          :style="{ width: progress + '%', background: slideStyle.cfg.value.progress_color }"
+        />
+      </div>
+
       <!-- Imagem de fundo do slide atual -->
       <div
         v-if="(slide && slide.url_image) || slideStyle.cfg.value.background_image"
@@ -27,7 +35,7 @@
       <div v-if="slideStyle.cfg.value.show_progress_bar" class="return-progress-bar">
         <div
           class="return-progress-fill"
-          :style="{ width: progress + '%', background: slideStyle.cfg.value.progress_color }"
+          :style="{ width: slideProgress + '%', background: slideStyle.cfg.value.progress_color }"
         />
       </div>
     </div>
@@ -58,7 +66,7 @@ import { useProjectionState } from "@/composables/useProjectionState";
 import { useSlideStyle } from "@/composables/useSlideStyle";
 
 const { t } = useI18n();
-const { slide, isCover, progress, title, slideIndex, totalSlides, nextSlide } =
+const { slide, isCover, progress, slideProgress, title, slideIndex, totalSlides, nextSlide } =
   useProjectionState();
 const slideStyle = useSlideStyle();
 
@@ -114,11 +122,12 @@ onBeforeUnmount(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #293329; /* Cor exata do fmMusicaRetorno Delphi */
+  background: #293329;
   font-family: var(--lj-font-projection);
   opacity: 0;
-  /* Fade-in rápido (antes 256ms) */
   transition: opacity 120ms linear;
+  box-sizing: border-box;
+  padding: 24px 24px; /* área segura nas bordas */
 }
 .return-root--ready {
   opacity: 1;
@@ -144,7 +153,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 50px 40px 80px;
+  padding: 20px;
 }
 
 .return-text {
@@ -164,8 +173,8 @@ onBeforeUnmount(() => {
 
 .return-title {
   position: absolute;
-  top: 37px;
-  left: 35px;
+  top: 20px;
+  left: 15px;
   right: 16px;
   font-size: 1.7rem;
   font-weight: 500;
@@ -190,21 +199,37 @@ onBeforeUnmount(() => {
 .return-progress-fill {
   height: 100%;
   background: #efb400;
-  transition: width 0.6s linear;
+  transition: width 0.12s linear;
+}
+
+.return-track-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  z-index: 2;
+}
+
+.return-track-progress-fill {
+  height: 100%;
+  background: #efb400;
+  transition: width 0.25s linear;
 }
 
 /* Painel inferior (alBottom Delphi: 39px) com próximo slide */
 .return-bottom {
   flex: 0 0 auto;
-  height: 20vh;
+  height: 18vh;
+  min-height: 90px;
   width: 100%;
-  min-height: 100px;
   background: linear-gradient(180deg, #1d251d, #131b13);
   border-top: 2px solid #efb400;
   display: flex;
   align-items: center;
-  padding: 8px 60px 10px 20px;
-  margin: 0 20px 15px 20px;
+  margin: 0;
+  padding: 8px;
 }
 
 .return-bottom-grid {
