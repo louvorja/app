@@ -120,7 +120,7 @@
             <button
               v-bind="props"
               class="lit-music-btn"
-              @click.stop="$emit('open-lyric', element.musica)"
+              @click.stop="$emit('open-lyric', Number(element.musica ?? element.id_music))"
             >
               <v-icon icon="mdi-text-box-outline" size="18" color="#27ae60" />
             </button>

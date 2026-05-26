@@ -103,11 +103,11 @@
         </select>
       </div>
       <div class="opt-row">
-        <label class="opt-label" for="opt-slides-text-size">
+        <label class="opt-label" for="opt-slides-main-text-size">
           {{ $t("options.slides.text_size") }}
         </label>
         <input
-          id="opt-slides-text-size"
+          id="opt-slides-main-text-size"
           type="number"
           min="6"
           max="60"
@@ -186,11 +186,11 @@
         </select>
       </div>
       <div class="opt-row">
-        <label class="opt-label" for="opt-slides-text-size">
+        <label class="opt-label" for="opt-slides-next-text-size">
           {{ $t("options.slides.text_size") }}
         </label>
         <input
-          id="opt-slides-text-size"
+          id="opt-slides-next-text-size"
           type="number"
           min="3"
           max="15"

@@ -166,6 +166,8 @@ async function loadMusics() {
       ? data.slice().sort((a, b) => Strings.sort(a.name, b.name))
       : [];
     loadedLocale.value = locale.value;
+  } catch {
+    musics.value = [];
   } finally {
     loading.value = false;
   }
