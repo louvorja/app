@@ -162,10 +162,12 @@ async function loadMusics() {
   loading.value = true;
   try {
     const data = await Database.get(`${locale.value}_musics`);
-    musics.value = Array.isArray(data)
-      ? data.slice().sort((a, b) => Strings.sort(a.name, b.name))
-      : [];
-    loadedLocale.value = locale.value;
+    if (Array.isArray(data)) {
+      musics.value = data.slice().sort((a, b) => Strings.sort(a.name, b.name));
+      loadedLocale.value = locale.value;
+    } else {
+      musics.value = [];
+    }
   } catch {
     musics.value = [];
   } finally {
