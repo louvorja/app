@@ -33,8 +33,8 @@
         :clone-item="cloneItem"
         :confirm-remove="confirmRemove"
         :execute-item="executeItemMaybeMark"
-        :play-music="playMusic"
-        :open-lyric="openLyric"
+        :play-music="playMusicMaybeChoose"
+        :open-lyric="openLyricMaybeChoose"
         :change-color="changeColor"
         :toggle-checked="toggleChecked"
       />
@@ -82,6 +82,13 @@
       :update-scheduled="updateScheduled"
       :remove-scheduled="removeScheduled"
     />
+
+    <MusicSearchSpotlight
+      v-model="chooseMusicSearchOpen"
+      mode="pick"
+      :musics-list="musicsList"
+      @pick="onChooseLaterMusicPicked"
+    />
   </div>
 </template>
 
@@ -99,8 +106,9 @@ import LiturgyDayTabs from "./LiturgyDayTabs.vue";
 import LiturgyList from "./LiturgyList.vue";
 import LiturgyNotesPanel from "./LiturgyNotesPanel.vue";
 import LiturgyItemForm from "./LiturgyItemForm.vue";
+import MusicSearchSpotlight from "@/components/MusicSearchSpotlight.vue";
 import LiturgySchedules from "./LiturgySchedules.vue";
-import type { LiturgyItemData } from "../types";
+import type { LiturgyItemData, LiturgyMusicItem } from "../types";
 
 const TRANSLATIONS: Record<string, Record<string, unknown>> = { pt, es };
 
@@ -123,6 +131,9 @@ const module_ = computed(() => Modules.get("liturgy") as { show: boolean } | nul
 
 const persist = useLiturgyPersistence();
 const litItems = useLiturgyItems(persist.activeDay, persist.scheduledCategories);
+const chooseMusicSearchOpen = ref(false);
+const chooseLaterItem = ref<LiturgyItemData | null>(null);
+const chooseLaterMode = ref("sung");
 
 const {
   activeDay,
@@ -188,11 +199,70 @@ const {
 } = litItems;
 
 const openItemDialogRoot = () => openItemDialog();
+const isChooseLaterMusic = (item: LiturgyItemData) =>
+  item.tipo === "musica" && (item.escolha === "1" || !item.id_music);
+
+async function openChooseLaterSearch(item: LiturgyItemData, mode = "sung") {
+  chooseLaterItem.value = item;
+  chooseLaterMode.value = mode;
+  chooseMusicSearchOpen.value = true;
+  if (!musicsList.value.length) await loadMusicsList();
+}
+
+function onChooseLaterMusicPicked(music: LiturgyMusicItem) {
+  const item = chooseLaterItem.value;
+  const id = Number(music.id_music);
+  if (!item || !Number.isFinite(id)) return;
+
+  const hasInstrumental = !!music.has_instrumental_music;
+  const musica = {
+    item: music.name,
+    subitem: t("data.music_prefix") + " " + music.name,
+    musica: id,
+    id_music: id,
+    escolha: "0",
+    subtipo: hasInstrumental ? "ja" : "div",
+    has_instrumental_music: hasInstrumental,
+  };
+
+  chooseLaterItem.value = null;
+  const executable = { ...item, ...musica };
+  playMusic(executable, chooseLaterMode.value);
+  if (markOnAccess.value && !isChecked(executable)) {
+    toggleChecked(executable);
+  }
+}
+
 const executeItemMaybeMark = (item: LiturgyItemData) => {
+  if (isChooseLaterMusic(item)) {
+    openChooseLaterSearch(item);
+    return;
+  }
+
   executeItem(item);
   if (markOnAccess.value && item.tipo !== "categoria" && !isChecked(item)) {
     toggleChecked(item);
   }
+};
+
+const playMusicMaybeChoose = (item: LiturgyItemData, mode: string) => {
+  if (isChooseLaterMusic(item)) {
+    openChooseLaterSearch(item, mode);
+    return;
+  }
+  playMusic(item, mode);
+};
+
+const openLyricMaybeChoose = (target: LiturgyItemData | number) => {
+  const item =
+    typeof target === "object"
+      ? target
+      : safeItems.value.find((current) => current.id_music === target || current.musica === target);
+  if (item && isChooseLaterMusic(item)) {
+    openChooseLaterSearch(item, "no_audio");
+    return;
+  }
+  openLyric(typeof target === "object" ? Number(target.id_music || target.musica) : target);
 };
 
 const colors = COLORS;

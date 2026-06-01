@@ -42,6 +42,8 @@ function _create(): SlidesInstance {
   const title         = ref("");
 
   let _lastBroadcastIndex = -1;
+  let _lastProgressSendAt = 0;
+  let _lastSlideProgressSent = -1;
   let _stopAudioWatch: (() => void) | null = null;
   let _audio: AudioPlayback | null = null;
 
@@ -75,6 +77,8 @@ function _create(): SlidesInstance {
     slideIndex.value    = 0;
     slideProgress.value = 0;
     _lastBroadcastIndex = -1;
+    _lastProgressSendAt = 0;
+    _lastSlideProgressSent = -1;
   }
 
   function broadcastSlide(): void {
@@ -88,6 +92,13 @@ function _create(): SlidesInstance {
       total_slides: totalSlides.value,
       // Presente apenas em dev/test — mede latência cross-window até o receptor (Projection)
       ...(import.meta.env.DEV ? { _ts: Date.now() } : {}),
+    });
+
+    // Também reenviamos o progresso do SLIDE atual (0-100) para janelas
+    // de retorno (que não têm acesso direto ao áudio).
+    $broadcast.send(BROADCAST_TYPE.SLIDE_PROGRESS, {
+      slide_index: idx,
+      slide_progress: slideProgress.value,
     });
   }
 
@@ -126,10 +137,25 @@ function _create(): SlidesInstance {
         const si    = Math.max(0, ts.filter((t) => t <= ct).length - 1);
         const start = ts[si] ?? 0;
         const end   = ts[si + 1] ?? d;
-        const sp    = end > start ? ((ct - start) / (end - start)) * 100 : 0;
+        const spRaw = end > start ? ((ct - start) / (end - start)) * 100 : 0;
+        const sp    = Math.max(0, Math.min(100, spRaw));
 
         slideProgress.value = sp;
         slideIndex.value    = si;
+
+        // Envia progresso do slide de forma contínua (throttled) para
+        // permitir animação fluida em ProjectionReturn.
+        const now = Date.now();
+        const sendByTime = now - _lastProgressSendAt >= 100; // ~10fps
+        const sendByDelta = Math.abs(sp - _lastSlideProgressSent) >= 0.75;
+        if (sendByTime || sendByDelta) {
+          _lastProgressSendAt = now;
+          _lastSlideProgressSent = sp;
+          $broadcast.send(BROADCAST_TYPE.SLIDE_PROGRESS, {
+            slide_index: si,
+            slide_progress: sp,
+          });
+        }
 
         if (si !== _lastBroadcastIndex) {
           _lastBroadcastIndex = si;
@@ -155,6 +181,8 @@ function _create(): SlidesInstance {
     slideProgress.value = 0;
     title.value         = "";
     _lastBroadcastIndex = -1;
+    _lastProgressSendAt = 0;
+    _lastSlideProgressSent = -1;
   }
 
   return {

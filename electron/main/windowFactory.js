@@ -13,6 +13,21 @@ const displays = require("./displays.js");
 /** Mantém referência das janelas abertas por feature para evitar duplicatas */
 const _openWindows = new Map();
 
+function _routePath(route) {
+  return String(route || "").split("?")[0].split("#")[0];
+}
+
+function _isProjectionPresentationWindow(route, feature) {
+  const path = _routePath(route);
+  return (
+    path === "/projection" ||
+    path.startsWith("/projection/") ||
+    feature === "media:musicas" ||
+    feature === "media:retorno" ||
+    feature === "shell:projection"
+  );
+}
+
 /**
  * Cria uma BrowserWindow em um monitor específico, opcionalmente fullscreen.
  *
@@ -51,6 +66,7 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
   const isLin = process.platform === "linux";
   const primaryDisplay = screen.getPrimaryDisplay();
   const useMacPrimaryKiosk = fullscreen && isMac && target.id === primaryDisplay.id;
+  const useMacPresentationLevel = fullscreen && isMac && _isProjectionPresentationWindow(route, feature);
   // Em macOS Liquid Retina, o sistema pode aplicar máscara de cantos
   // arredondados na NSWindow, revelando o wallpaper nas bordas. Aumentamos a
   // janela alguns px para fora do display útil; os cantos arredondados ficam
@@ -190,6 +206,10 @@ function openOnMonitor({ route, feature, monitorId, fullscreen = true, frame = f
       // barra de tarefas sempre visível". Em fullscreen real isso já é
       // o caso, mas alguns drivers de projetor perdem esse z-order ao
       // ressincronizar — força aqui.
+      try { win.setAlwaysOnTop(true, "screen-saver"); } catch (_) { /* ignore */ }
+    } else if (useMacPresentationLevel) {
+      // macOS desenha a menu bar acima de janelas normais, mesmo borderless.
+      // Para janelas de projeção precisamos cobrir essa área no monitor projetado.
       try { win.setAlwaysOnTop(true, "screen-saver"); } catch (_) { /* ignore */ }
     } else if (alwaysOnTop && !(fullscreen && isMac)) {
       win.setAlwaysOnTop(true, "pop-up-menu");

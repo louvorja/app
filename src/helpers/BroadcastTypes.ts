@@ -21,6 +21,11 @@ export const BROADCAST_TYPE = Object.freeze({
    *  Recebido por: Projection, ProjectionReturn, Obs, Operator. */
   SLIDE_CHANGE: "slide_change",
 
+  /** Atualização contínua (0-100) do progresso do SLIDE atual.
+   *  Emitido durante playback (throttle) e recebido por: ProjectionReturn (barra de progresso).
+   *  Payload: { slide_index, slide_progress } */
+  SLIDE_PROGRESS: "slide_progress",
+
   /** Carga inicial de slides ao abrir uma música. Emitido por Media.js.
    *  Recebido por: Operator. */
   SLIDES_DATA: "slides_data",
@@ -137,6 +142,12 @@ export interface SlideChangePayload {
   total_slides: number;
   /** Timestamp de emissão (Date.now()) — presente apenas em dev/test para medir latência cross-window. */
   _ts?: number;
+}
+
+export interface SlideProgressPayload {
+  slide_index: number;
+  /** 0-100. */
+  slide_progress: number;
 }
 
 export interface SlidesDataPayload {

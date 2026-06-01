@@ -1,4 +1,7 @@
 {
   "title": "Coletâneas",
-  "all_collections": "Todas as Coletâneas"
+  "all_collections": "Todas as Coletâneas",
+  "music_search": {
+    "title": "Localizar Músicas"
+  }
 }

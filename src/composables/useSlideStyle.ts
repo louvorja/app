@@ -245,7 +245,7 @@ export function useSlideStyle(): SlideStyleAPI {
     const sizePct = cfg.value.font_size_next;
     return {
       fontFamily: _baseFont(slide ?? null),
-      fontSize: `clamp(14px, ${sizePct}vh, 60px)`,
+      fontSize: `clamp(14px, ${sizePct}vh, 120px)`,
       color: cfg.value.color_next,
       opacity: 0.85,
       fontWeight: 600,

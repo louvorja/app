@@ -30,6 +30,8 @@ interface ProjectionStateReturn {
   nextSlide: Ref<Slide>;
   title: Ref<string>;
   progress: Ref<number>;
+  /** 0-100. Progresso contínuo do slide atual (para barra fina no Return). */
+  slideProgress: Ref<number>;
   slideIndex: Ref<number>;
   totalSlides: Ref<number>;
   isCover: ComputedRef<boolean>;
@@ -45,6 +47,7 @@ export function useProjectionState(): ProjectionStateReturn {
   const nextSlide   = ref<Slide>(null);
   const title       = ref("");
   const progress    = ref(0);
+  const slideProgress = ref(0);
   const slideIndex  = ref(0);
   const totalSlides = ref(0);
 
@@ -78,8 +81,19 @@ export function useProjectionState(): ProjectionStateReturn {
     nextSlide.value   = null;
     title.value       = "";
     progress.value    = 0;
+    slideProgress.value = 0;
     slideIndex.value  = 0;
     totalSlides.value = 0;
+  });
+
+  // Progresso contínuo do slide atual (throttled) para a barra no stage display.
+  useBroadcastListener(BROADCAST_TYPE.SLIDE_PROGRESS, (payload) => {
+    const p = payload as Record<string, unknown>;
+    const sp = (p.slide_progress as number) ?? 0;
+    slideProgress.value = sp;
+    // Mantém consistência caso uma janela receba slide_progress antes do slide_change.
+    const idx = p.slide_index as number | undefined;
+    if (typeof idx === "number") slideIndex.value = idx;
   });
 
   const isCover = computed<boolean>(() =>
@@ -104,7 +118,13 @@ export function useProjectionState(): ProjectionStateReturn {
   });
 
   return {
-    slide, nextSlide, title, progress, slideIndex, totalSlides,
+    slide,
+    nextSlide,
+    title,
+    progress,
+    slideProgress,
+    slideIndex,
+    totalSlides,
     isCover, bgImgStyle,
   };
 }

@@ -54,6 +54,15 @@
     "inputs": {
       "search": "Buscar"
     },
+    "music_search": {
+      "placeholder": "Escriba el nombre de la canción...",
+      "empty": "Escriba para localizar una canción.",
+      "empty_search": "No se encontró ninguna canción para esta búsqueda.",
+      "album": "Colección",
+      "music": "Música",
+      "select": "Seleccionar",
+      "results": "resultados"
+    },
     "music_menu": {
       "add_to": "Agregar en",
       "add_to_favorites": "Agregar a Favoritos",

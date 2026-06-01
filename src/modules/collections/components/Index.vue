@@ -12,7 +12,7 @@
                 v-for="category in categories"
                 :key="category.id_category"
                 :title="category.name"
-                :active="id_category == category.id_category"
+                :active="id_category === category.id_category"
                 @click="setCategory(category.id_category)"
               />
 
@@ -21,7 +21,7 @@
               <v-list-item
                 class="mt-auto"
                 :title="t('all_collections')"
-                :active="id_category == 0"
+                :active="id_category === 0"
                 @click="setCategory(0)"
               />
             </v-list>
@@ -38,6 +38,10 @@
           class="text-h6"
           :text="categories.find((c) => c.id_category == id_category).name"
         />
+
+        <template #append>
+          <v-btn icon="mdi-magnify" :title="t('music_search.title')" @click="openMusicSearch" />
+        </template>
       </v-toolbar>
     </template>
 
@@ -45,17 +49,23 @@
       <v-list v-if="!compact" :color="primaryColor" :width="200" class="d-flex flex-column h-100">
         <v-progress-linear v-if="loading" :color="primaryColor" indeterminate />
         <v-list-item
+          prepend-icon="mdi-magnify"
+          :title="t('music_search.title')"
+          @click="openMusicSearch"
+        />
+        <v-divider />
+        <v-list-item
           v-for="category in categories"
           :key="category.id_category"
           :title="category.name"
-          :active="id_category == category.id_category"
+          :active="id_category === category.id_category"
           @click="setCategory(category.id_category)"
         />
 
         <v-list-item
           class="mt-auto"
           :title="t('all_collections')"
-          :active="id_category == 0"
+          :active="id_category === 0"
           @click="setCategory(0)"
         />
       </v-list>
@@ -108,9 +118,11 @@ import Modules from "@/helpers/Modules";
 import Media from "@/composables/useMedia";
 import AppData from "@/helpers/AppData";
 import Path from "@/helpers/Path";
+import { useShell } from "@/composables/useShell";
 
 const { locale } = useI18n();
 const { width } = useDisplay();
+const shell = useShell();
 
 const moduleContainer = ref(null);
 const categories = ref([]);
@@ -133,7 +145,7 @@ const albums = computed(() => {
     ].sort((a, b) => Strings.sort(a.name, b.name));
   }
   return categories.value
-    .filter((item) => item.id_category == id_category.value)[0]
+    .filter((item) => item.id_category === id_category.value)[0]
     ?.albums.sort((a, b) => a.order - b.order);
 });
 
@@ -171,6 +183,10 @@ function setCategory(id = null) {
 
 function openAlbum(id_album) {
   Media.openAlbum(id_album);
+}
+
+function openMusicSearch() {
+  shell.openMusicSearch();
 }
 
 async function show(value) {

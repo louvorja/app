@@ -26,6 +26,7 @@
     <AppFooter />
 
     <CommandPalette v-model="cmdPaletteOpen" />
+    <MusicSearchSpotlight v-model="musicSearchOpen" />
     <HotkeysCheatsheet v-model="hotkeysOpen" />
   </v-app>
 </template>
@@ -41,6 +42,7 @@ import AppModules from "@/layout/Modules.vue";
 import AppAlert from "@/layout/Alert.vue";
 import AppLoading from "@/layout/Loading.vue";
 import CommandPalette from "@/layout/shell/CommandPalette.vue";
+import MusicSearchSpotlight from "@/components/MusicSearchSpotlight.vue";
 import RibbonBar from "@/layout/shell/RibbonBar.vue";
 import OpenModulesTabs from "@/layout/shell/OpenModulesTabs.vue";
 import ShellLiturgyPanel from "@/layout/shell/ShellLiturgyPanel.vue";
@@ -56,6 +58,7 @@ const vuetifyTheme = useTheme();
 const display = useDisplay();
 
 const cmdPaletteOpen = ref(false);
+const musicSearchOpen = ref(false);
 const hotkeysOpen = ref(false);
 const ready = ref(false);
 
@@ -70,6 +73,9 @@ const onOpenCommandPalette = () => {
 const onOpenHotkeys = () => {
   hotkeysOpen.value = true;
 };
+const onOpenMusicSearch = () => {
+  musicSearchOpen.value = true;
+};
 
 let beforeUnloadHandler = null;
 let messageHandler = null;
@@ -81,18 +87,22 @@ function openCommandPalette() {
 function openHotkeysCheatsheet() {
   hotkeysOpen.value = true;
 }
+function openMusicSearch() {
+  musicSearchOpen.value = true;
+}
 
-defineExpose({ openCommandPalette, openHotkeysCheatsheet });
+defineExpose({ openCommandPalette, openHotkeysCheatsheet, openMusicSearch });
 
 // Registra ações do shell no composable (substitui `$appdata.set("shell._ref")`)
-registerShell({ openCommandPalette, openHotkeysCheatsheet });
+registerShell({ openCommandPalette, openHotkeysCheatsheet, openMusicSearch });
 
 onMounted(() => {
   // Re-registra no mount (importante após HMR)
-  registerShell({ openCommandPalette, openHotkeysCheatsheet });
+  registerShell({ openCommandPalette, openHotkeysCheatsheet, openMusicSearch });
 
   window.addEventListener("louvorja:open-command-palette", onOpenCommandPalette);
   window.addEventListener("louvorja:open-hotkeys", onOpenHotkeys);
+  window.addEventListener("louvorja:open-music-search", onOpenMusicSearch);
 
   $userdata.load();
 
@@ -181,6 +191,7 @@ onBeforeUnmount(() => {
 
   window.removeEventListener("louvorja:open-command-palette", onOpenCommandPalette);
   window.removeEventListener("louvorja:open-hotkeys", onOpenHotkeys);
+  window.removeEventListener("louvorja:open-music-search", onOpenMusicSearch);
 });
 </script>
 
