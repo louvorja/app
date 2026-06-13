@@ -8,7 +8,7 @@ const path = require("path");
 // https://vitejs.dev/config/
 export default ({ mode }) => {
   // Load app-level env vars to node-level env vars.
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+  Object.assign(process.env, loadEnv(mode, process.cwd()));
 
   return defineConfig({
     base: process.env.VITE_BASE_URL ?? "/",
