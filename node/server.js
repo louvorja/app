@@ -2,6 +2,14 @@ const http = require("http");
 const path = require("path");
 const fs = require("fs");
 
+// Escape HTML to prevent XSS
+const escapeHtml = (unsafe) => unsafe
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&#39;");
+
 const PORT = 7070;
 const DIRECTORY = path.join(__dirname, "..", "files"); // Pasta a ser servida
 
@@ -65,20 +73,17 @@ const requestHandler = (req, res) => {
         const list = files
           .map(
             (file) =>
-              `<li><a href="${path.join(
-                req.url,
-                encodeURIComponent(file)
-              )}">${file}</a></li>`
+              `<li><a href="${escapeHtml(path.join(req.url, encodeURIComponent(file)))}">${escapeHtml(file)}</a></li>`
           )
           .join("");
         const html = `
           <html>
             <head>
               <meta charset="UTF-8">
-              <title>Arquivos em ${req.url}</title>
+              <title>Arquivos em ${escapeHtml(req.url)}</title>
             </head>
             <body>
-              <h1>Arquivos em ${req.url}</h1>
+              <h1>Arquivos em ${escapeHtml(req.url)}</h1>
               <ul>${list}</ul>
             </body>
           </html>
