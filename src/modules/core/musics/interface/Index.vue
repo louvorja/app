@@ -143,6 +143,7 @@
 /* ########################################################### */
 /* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
+defineOptions({ name: "MusicsIndex" });
 import { ref, computed, getCurrentInstance } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";

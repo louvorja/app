@@ -57,9 +57,10 @@ export default {
       return {
         ...Object.fromEntries(
           list.map((module) => {
+            const data = $appdata.get(`modules.${module}`);
             return [
               module,
-              { id: module, ...$appdata.get(`modules.${module}`) } || {
+              data ? { id: module, ...data } : {
                 invalid: true,
                 title: "modules.invalid.title",
                 icon: "mdi-alert-circle-outline",
@@ -68,7 +69,7 @@ export default {
           })
         ),
       };
-    } catch (e) {
+    } catch {
       return {};
     }
   },
