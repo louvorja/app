@@ -159,11 +159,11 @@ onMounted(() => {
 
   // create another object describing the time's value, for the rotation of the hands
   // this to avoid the glitch occurring when the time goes back to 0 (or back to 1 for the hours)
-  const rotation = {
-    hours: twelveClock(hours),
-    minutes,
-    seconds,
-  };
+  // const rotation = {
+  //   hours: twelveClock(hours),
+  //   minutes,
+  //   seconds,
+  // };
 
   // use the values to update the svg and the text of the span elements
   const entries = Object.entries(time);

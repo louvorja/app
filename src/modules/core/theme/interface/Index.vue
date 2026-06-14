@@ -24,7 +24,8 @@
 /* ########################################################### */
 /* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
-import { ref, computed, getCurrentInstance, onMounted } from "vue";
+defineOptions({ name: "ThemeIndex" });
+import { ref, getCurrentInstance, onMounted } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 const moduleContainer = ref(null);

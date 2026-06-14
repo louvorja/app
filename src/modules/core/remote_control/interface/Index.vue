@@ -52,6 +52,7 @@
 /* ########################################################### */
 /* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
+defineOptions({ name: "RemoteControlIndex" });
 import { ref, computed, getCurrentInstance, onMounted } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";

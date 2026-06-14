@@ -17,7 +17,7 @@ export default {
       let data_parse;
       try {
         data_parse = JSON.parse(data);
-      } catch (e) {
+      } catch {
         data_parse = data;
       }
       return data_parse;

@@ -604,7 +604,7 @@ export default {
     if (!$appdata.get("modules.media.config.lazy")) {
       try {
         audio.buffered = 100;
-      } catch (error) {
+      } catch {
         //
       }
       buffered = 100;

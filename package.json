@@ -2,6 +2,7 @@
   "name": "louvorja",
   "version": "1.27.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "version:major": "npm version major",
     "version:minor": "npm version minor",

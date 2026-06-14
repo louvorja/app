@@ -564,7 +564,7 @@ export default {
       if (event) {
         try {
           event.preventDefault();
-        } catch (e) {
+        } catch {
           null;
         }
       }

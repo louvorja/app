@@ -2,13 +2,12 @@ import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
 import { VitePWA } from "vite-plugin-pwa";
-
-const path = require("path");
+import path from "path";
 
 // https://vitejs.dev/config/
 export default ({ mode }) => {
   // Load app-level env vars to node-level env vars.
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+  Object.assign(process.env, loadEnv(mode, process.cwd()));
 
   return defineConfig({
     base: process.env.VITE_BASE_URL ?? "/",
