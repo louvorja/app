@@ -113,31 +113,6 @@ export default {
     }
   },
 
-  // Remote module installation method
-  async installRemoteModule(moduleId) {
-    try {
-      // Fetch module manifest from remote module store
-      const manifest = await this.fetchModuleManifest(moduleId);
-
-      // Download module module dynamically
-      const ModuleClass = await this.downloadModuleModule(manifest);
-
-      // Create module instance
-      const moduleInstance = new ModuleClass();
-
-      // Register and install module
-      if (this.register(moduleId, moduleInstance)) {
-        await this.installModule(moduleInstance);
-        return moduleInstance;
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Remote module installation failed:", error);
-      throw error;
-    }
-  },
-
   async init(i18n) {
     this.i18n = i18n;
 
@@ -163,13 +138,5 @@ export default {
 
     //Importa as interfaces dos modules
     $appdata.set("import_modules", true);
-
-    // Optional: Remote module installation
-    try {
-      // Uncomment and modify as needed
-      // await ModuleManager.installRemoteModule('some-module-id');
-    } catch (error) {
-      console.error("Failed to install remote module", error);
-    }
   },
 };
