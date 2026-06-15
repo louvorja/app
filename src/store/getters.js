@@ -22,13 +22,12 @@ export default {
     const keys = data.split(".");
     let current = state;
 
-    for (let i = 0; i < keys.length - 1; i++) {
-      const key = keys[i];
-      if (!current[key]) {
-        current[key] = {};
+    for (let i = 0; i < keys.length; i++) {
+      if (current === null || current === undefined || !(keys[i] in current)) {
+        return false;
       }
-      current = current[key];
+      current = current[keys[i]];
     }
-    return current[keys[keys.length - 1]] !== undefined;
+    return current !== undefined;
   },
 };
