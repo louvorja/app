@@ -45,10 +45,10 @@ module/
 
 ### Criando um Modulo Novo
 
-1. Copie `src/modules/template` (ou um existente como `bible`)
-2. Atualize `manifest.json`
-3. Registre no `src/store/modules/index.js`
-4. Adicione rotas em `src/router/modules/`
+1. Copie `src/modules/base_module` como ponto de partida
+2. Atualize `manifest.json` com nome, versao e dependencias
+3. O ModuleManager carrega modulos automaticamente via `import.meta.glob("@/modules/**/index.js")`
+4. Adicione rotas em `src/router/index.js` se necessario
 
 ---
 
