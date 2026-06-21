@@ -2,7 +2,20 @@ import store from "@/store";
 
 export default {
   set(param, value) {
+    const oldValue = this.get(param);
+
     store.commit("setData", [param, value]);
+
+    if (
+      typeof oldValue === "object" &&
+      oldValue !== null &&
+      JSON.stringify(oldValue) === JSON.stringify(value)
+    ) {
+      return;
+    }
+    if (oldValue === value) {
+      return;
+    }
 
     const popup = this.get("popup");
     if (
@@ -13,7 +26,6 @@ export default {
     ) {
       if (popup.closed) {
         this.set("popup", null);
-        //this.set("popup_module", null);
       } else {
         try {
           popup.postMessage({ param, value }, window.location.origin);
