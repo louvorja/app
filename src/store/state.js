@@ -23,6 +23,10 @@ export default {
       title: "module_group.utilities.title",
       modules: [],
     },
+    midias_online: {
+      title: "module_group.midias_online.title",
+      modules: [],
+    },
   },
   menu: {
     show: false,

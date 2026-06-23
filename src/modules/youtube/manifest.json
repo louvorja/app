@@ -1,0 +1,13 @@
+{
+  "id": "youtube",
+  "name": "Vídeos informativos",
+  "version": "1.0.0",
+  "description": "Integração com YouTube para reprodução de vídeos - Prova e Vede, Informativo Mundial das Missões, Minutos de Saudade",
+  "author": "LouvorJA",
+  "category": "midias_online",
+  "icon": "mdi-youtube",
+  "showInMainMenu": true,
+  "minAppVersion": "1.0.0",
+  "dependencies": [],
+  "permissions": ["network"]
+}
