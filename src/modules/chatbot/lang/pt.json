@@ -1,0 +1,15 @@
+{
+    "title": "LouvorJ.AI",
+    "status_online": "Online - Especialista em LouvorJA",
+    "placeholder": "Digite sua mensagem...",
+    "hint": "Enter para enviar, Shift+Enter para nova linha",
+    "welcome": "Olá! Sou a <strong>LouvorJ.AI</strong>, assistente virtual do LouvorJA. Posso te ajudar com músicas, hinos, liturgia, coleções e configuração do app.",
+    "off_topic": "Desculpe, sou a IA LouvorJ.AI e só posso ajudar com dúvidas sobre o LouvorJA, como músicas, hinários e recursos do app.",
+    "typing": "Digitando...",
+    "new_chat": "Nova conversa",
+    "customization": {
+        "background": "Fundo",
+        "color": "Cor",
+        "size": "Tamanho"
+    }
+}
