@@ -371,7 +371,7 @@ export default {
       const t = text.toLowerCase();
       const isSearch = t.includes("buscar") || t.includes("procurar") || t.includes("achar") || t.includes("encontrar");
       const isMusic = t.includes("m\u00fasica") || t.includes("hino") || t.includes("som") || t.includes("louvor");
-      const isCollection = t.includes("cole\u00e7\u00e3o") || t.includes("coletanea") || t.includes("playlist") || t.includes("colet\u00e2nea");
+      const isCollection = t.includes("coleção") || t.includes("colecoes") || t.includes("coletanea") || t.includes("coletaneas") || t.includes("playlist") || t.includes("coletânea") || t.includes("coletâneas") || t.includes("album") || t.includes("albuns") || t.includes("álbum") || t.includes("álbuns");
       const hasTopic = t.includes("volta") || t.includes("jesus") || t.includes("deus") || t.includes("amor") || t.includes("fe") || t.includes("esperan") || t.includes("salva") || t.includes("gratid") || t.includes("alegr") || t.includes("paz") || t.includes("redenc") || t.includes("perdao") || t.includes("adora") || t.includes("grac") || t.includes("bondade");
       // If user asks about a topic WITHIN collections, let LLM handle it (cross-reference)
       if (hasTopic && isCollection) return "knowledge";

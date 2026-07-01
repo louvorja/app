@@ -159,7 +159,7 @@ export default {
       const t = text.toLowerCase();
       const isSearch = t.includes("buscar") || t.includes("procurar") || t.includes("achar") || t.includes("encontrar");
       const isMusic = t.includes("música") || t.includes("hino") || t.includes("som") || t.includes("louvor");
-      const isCollection = t.includes("coleção") || t.includes("coletanea") || t.includes("playlist") || t.includes("coletânea");
+      const isCollection = t.includes("coleção") || t.includes("colecoes") || t.includes("coletanea") || t.includes("coletaneas") || t.includes("playlist") || t.includes("coletânea") || t.includes("coletâneas") || t.includes("album") || t.includes("albuns") || t.includes("álbum") || t.includes("álbuns");
       const hasTopic = t.includes("volta") || t.includes("jesus") || t.includes("deus") || t.includes("amor") || t.includes("fé") || t.includes("esperan") || t.includes("salva") || t.includes("gratid") || t.includes("alegr") || t.includes("paz") || t.includes("redenc") || t.includes("perdao") || t.includes("adora") || t.includes("grac") || t.includes("bondade");
       if (hasTopic && isCollection) return "knowledge";
       if (isSearch && isMusic) return "music_search";
