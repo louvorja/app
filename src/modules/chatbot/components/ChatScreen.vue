@@ -160,7 +160,7 @@ export default {
       const isSearch = t.includes("buscar") || t.includes("procurar") || t.includes("achar") || t.includes("encontrar");
       const isMusic = t.includes("música") || t.includes("hino") || t.includes("som") || t.includes("louvor");
       const isCollection = t.includes("coleção") || t.includes("coletanea") || t.includes("playlist") || t.includes("coletânea");
-      const hasTopic = t.includes("volta") || t.includes("jesus") || t.includes("deus") || t.includes("amor") || t.includes("fé") || t.includes("esperan") || t.includes("salva") || t.includes("gratid") || t.includes("alegr") || t.includes("paz");
+      const hasTopic = t.includes("volta") || t.includes("jesus") || t.includes("deus") || t.includes("amor") || t.includes("fé") || t.includes("esperan") || t.includes("salva") || t.includes("gratid") || t.includes("alegr") || t.includes("paz") || t.includes("redenc") || t.includes("perdao") || t.includes("adora") || t.includes("grac") || t.includes("bondade");
       if (hasTopic && isCollection) return "knowledge";
       if (isSearch && isMusic) return "music_search";
       if (t.includes("hinari") || t.includes("hino adventista") || (/\d/.test(t) && !isCollection)) return "hymnal_search";
