@@ -371,9 +371,13 @@ export default {
       const t = text.toLowerCase();
       const isSearch = t.includes("buscar") || t.includes("procurar") || t.includes("achar") || t.includes("encontrar");
       const isMusic = t.includes("m\u00fasica") || t.includes("hino") || t.includes("som") || t.includes("louvor");
+      const isCollection = t.includes("cole\u00e7\u00e3o") || t.includes("coletanea") || t.includes("playlist") || t.includes("colet\u00e2nea");
+      const hasTopic = t.includes("volta") || t.includes("jesus") || t.includes("deus") || t.includes("amor") || t.includes("fe") || t.includes("esperan") || t.includes("salva") || t.includes("gratid") || t.includes("alegr") || t.includes("paz");
+      // If user asks about a topic WITHIN collections, let LLM handle it (cross-reference)
+      if (hasTopic && isCollection) return "knowledge";
       if (isSearch && isMusic) return "music_search";
-      if (t.includes("hinari") || t.includes("hino adventista") || /\d/.test(t)) return "hymnal_search";
-      if (t.includes("categor") || t.includes("cole\u00e7\u00e3o") || t.includes("tipo") || t.includes("tema")) return "categories";
+      if (t.includes("hinari") || t.includes("hino adventista") || (/\d/.test(t) && !isCollection)) return "hymnal_search";
+      if (isCollection) return "categories";
       return "knowledge";
     },
     async generateBotResponse(userText) {
