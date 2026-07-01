@@ -7,7 +7,7 @@
   />
   <v-app id="app-container">
     <router-view />
-    <ChatFab key="v2" />
+    <ChatFab v-if="$route.name !== 'Popup'" key="v2" />
   </v-app>
 </template>
 
