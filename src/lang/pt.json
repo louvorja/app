@@ -1,61 +1,74 @@
 {
-    "app": {
-        "name": "Louvor JA"
-    },
-    "modules": {
-        "invalid": {
-            "title": "#Erro#"
-        }
-    },
-    "module_group": {
-        "musics": {
-            "title": "Músicas"
-        },
-        "bible": {
-            "title": "Bíblia"
-        },
-        "utilities": {
-            "title": "Utilitários"
-        }
-    },
-    "components": {
-        "letterpagination": {
-            "all": "Todas"
-        },
-        "datatable": {
-            "alerts": {
-                "not_found": "Não foi possível localizar o arquivo para exibir essas informações!"
-            }
-        },
-        "inputs": {
-            "search": "Buscar"
-        },
-        "customization": {
-            "restore": "Restaurar",
-            "restore_configs": "Restaurar Configurações",
-            "restore_dialog": "Deseja restaurar as configurações?",
-            "fit": {
-                "none": "Nenhum",
-                "fill": "Ampliar",
-                "contain": "Ajustar",
-                "cover": "Preencher"
-            }
-        }
-    },
-    "alert": {
-        "close": "Fechar",
-        "yes": "Sim",
-        "no": "Não",
-        "wait": "Aguarde..."
-    },
-    "popup": {
-        "close": "Fechar Janela"
-    },
-    "messages": {
-        "file_database_not_found": "Arquivo de dados não encontrado!",
-        "developer_mode_enabled": "Modo DESENVOLVEDOR ativado!",
-        "developer_mode_disabled": "Modo DESENVOLVEDOR desativado!",
-        "error_import_module": "Erro ao importar módulo",
-        "misconfigured_module": "Este módulo está mal configurado. O id informado no manifest.json deve ter o mesmo nome da pasta onde está localizado!"
+  "app": {
+    "name": "Louvor JA"
+  },
+  "modules": {
+    "invalid": {
+      "title": "#Erro#"
     }
+  },
+  "module_group": {
+    "musics": {
+      "title": "Músicas"
+    },
+    "bible": {
+      "title": "Bíblia"
+    },
+    "utilities": {
+      "title": "Utilitários"
+    }
+  },
+  "components": {
+    "letterpagination": {
+      "all": "Todas"
+    },
+    "datatable": {
+      "alerts": {
+        "not_found": "Não foi possível localizar o arquivo para exibir essas informações!"
+      }
+    },
+    "inputs": {
+      "search": "Buscar"
+    },
+    "customization": {
+      "restore": "Restaurar",
+      "restore_configs": "Restaurar Configurações",
+      "restore_dialog": "Deseja restaurar as configurações?",
+      "fit": {
+        "none": "Nenhum",
+        "fill": "Ampliar",
+        "contain": "Ajustar",
+        "cover": "Preencher"
+      }
+    }
+  },
+  "alert": {
+    "close": "Fechar",
+    "yes": "Sim",
+    "no": "Não",
+    "wait": "Aguarde..."
+  },
+  "popup": {
+    "close": "Fechar Janela"
+  },
+  "messages": {
+    "file_database_not_found": "Arquivo de dados não encontrado!",
+    "developer_mode_enabled": "Modo DESENVOLVEDOR ativado!",
+    "developer_mode_disabled": "Modo DESENVOLVEDOR desativado!",
+    "error_import_module": "Erro ao importar módulo",
+    "misconfigured_module": "Este módulo está mal configurado. O id informado no manifest.json deve ter o mesmo nome da pasta onde está localizado!"
+  },
+  "chatbot": {
+    "name": "LouvorJ.AI",
+    "status": "Online — Especialista em LouvorJA",
+    "placeholder": "Digite sua mensagem...",
+    "send_file": "Enviar arquivo",
+    "guardrail": "Desculpe, sou a IA LouvorJ.AI e só posso ajudar com dúvidas sobre o LouvorJA.",
+    "fallback": "Precisa de ajuda? Visite <strong>louvorja.com/ajuda</strong> para tutoriais completos.",
+    "welcome": "Olá! Sou a <strong>LouvorJ.AI</strong> sua assistente virtual. \n\nPosso te ajudar com <strong>músicas</strong>, <strong>hinários</strong>, <strong>atalhos da tecla</strong>, <strong>tradução</strong> e mais!",
+    "error": "Ocorreu um erro ao processar sua mensagem.",
+    "new_conversation": "Nova conversa",
+    "close": "Fechar chat",
+    "open": "Abrir chat"
+  }
 }

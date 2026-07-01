@@ -15,10 +15,10 @@ export const createI18nInstance = async () => {
   const messages = await loadLocaleMessages();
 
   return createI18n({
-    legacy: false, // Usando a API Composition
-    locale: "pt", // Idioma padrão
-    fallbackLocale: "pt", // Idioma de fallback
-    messages, // Carregar as mensagens
+    legacy: true, // Options API para compatibilidade com this.$i18n.locale
+    locale: "pt",
+    fallbackLocale: "pt",
+    messages,
   });
 };
 

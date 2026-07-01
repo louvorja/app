@@ -1,61 +1,74 @@
 {
-    "app": {
-        "name": "Loor JA"
-    },
-    "modules": {
-        "invalid": {
-            "title": "#Error#"
-        }
-    },
-    "module_group": {
-        "musics": {
-            "title": "Músicas"
-        },
-        "bible": {
-            "title": "Biblia"
-        },
-        "utilities": {
-            "title": "Utilidades"
-        }
-    },
-    "components": {
-        "letterpagination": {
-            "all": "Todas"
-        },
-        "datatable": {
-            "alerts": {
-                "not_found": "¡No se pudo encontrar el archivo para mostrar esta información!"
-            }
-        },
-        "inputs": {
-            "search": "Buscar"
-        },
-        "customization": {
-            "restore": "Restaurar",
-            "restore_configs": "Restaurar Configuración",
-            "restore_dialog": "¿Quieres restaurar la configuración?",
-            "fit": {
-                "none": "Ninguno",
-                "fill": "Expandir",
-                "contain": "Ajustar",
-                "cover": "Rellenar"
-            }
-        }
-    },
-    "alert": {
-        "close": "Cerrar",
-        "yes": "Sí",
-        "no": "No",
-        "wait": "Aguardar..."
-    },
-    "popup": {
-        "close": "Cerrar Ventana"
-    },
-    "messages": {
-        "file_database_not_found": "Archivo de datos no encontrado!",
-        "developer_mode_enabled": "Modo DESARROLLADOR activado!",
-        "developer_mode_disabled": "Modo DESARROLLADOR desactivado!",
-        "error_import_module": "Error al importar el módulo",
-        "misconfigured_module": "Este módulo está mal configurado. ¡La identificación ingresada en manifest.json debe tener el mismo nombre que la carpeta donde se encuentra!"
+  "app": {
+    "name": "Loor JA"
+  },
+  "modules": {
+    "invalid": {
+      "title": "#Error#"
     }
+  },
+  "module_group": {
+    "musics": {
+      "title": "Músicas"
+    },
+    "bible": {
+      "title": "Biblia"
+    },
+    "utilities": {
+      "title": "Utilidades"
+    }
+  },
+  "components": {
+    "letterpagination": {
+      "all": "Todas"
+    },
+    "datatable": {
+      "alerts": {
+        "not_found": "¡No se pudo encontrar el archivo para mostrar esta información!"
+      }
+    },
+    "inputs": {
+      "search": "Buscar"
+    },
+    "customization": {
+      "restore": "Restaurar",
+      "restore_configs": "Restaurar Configuración",
+      "restore_dialog": "¿Quieres restaurar la configuración?",
+      "fit": {
+        "none": "Ninguno",
+        "fill": "Expandir",
+        "contain": "Ajustar",
+        "cover": "Rellenar"
+      }
+    }
+  },
+  "alert": {
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No",
+    "wait": "Aguardar..."
+  },
+  "popup": {
+    "close": "Cerrar Ventana"
+  },
+  "messages": {
+    "file_database_not_found": "Archivo de datos no encontrado!",
+    "developer_mode_enabled": "Modo DESARROLLADOR activado!",
+    "developer_mode_disabled": "Modo DESARROLLADOR desactivado!",
+    "error_import_module": "Error al importar el módulo",
+    "misconfigured_module": "Este módulo está mal configurado. ¡La identificación ingresada en manifest.json debe tener el mismo nombre que la carpeta donde se encuentra!"
+  },
+  "chatbot": {
+    "name": "LouvorJ.AI",
+    "status": "Online — Especialista en LouvorJA",
+    "placeholder": "Escribe tu mensaje...",
+    "send_file": "Enviar archivo",
+    "guardrail": "Lo siento, soy la IA LouvorJ.AI y solo puedo ayudar con dudas sobre LouvorJA.",
+    "fallback": "¿Necesitas ayuda? Visita <strong>louvorja.com/ajuda</strong> para tutoriales.",
+    "welcome": "¡Hola! Soy la <strong>LouvorJ.AI</strong>, tu asistente virtual. \n\nPuedo ayudarte con <strong>músicas</strong>, <strong>himnarios</strong>, <strong>atajos</strong>, <strong>traducción</strong> y más!",
+    "error": "Ocurrió un error al procesar tu mensaje.",
+    "new_conversation": "Nueva conversación",
+    "close": "Cerrar chat",
+    "open": "Abrir chat"
+  }
 }

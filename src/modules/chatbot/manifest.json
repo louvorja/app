@@ -1,0 +1,24 @@
+{
+  "id": "chatbot",
+  "name": "LouvorJ.AI",
+  "description": "Assistente virtual do LouvorJA",
+  "category": "utilities",
+  "icon": "mdi-robot-outline",
+  "customization": {
+    "background_color": {
+      "type": "color",
+      "label": "customization.background",
+      "default": "#121212"
+    },
+    "font_color": {
+      "type": "color",
+      "label": "customization.color",
+      "default": "#FFFFFF"
+    },
+    "font_size": {
+      "type": "font-size",
+      "label": "customization.size",
+      "default": 13
+    }
+  }
+}
