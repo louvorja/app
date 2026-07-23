@@ -163,7 +163,7 @@ const KNOWLEDGE = [
   },
   {
     keywords: ["bibl", "versíc", "versic", "passage"],
-    text: "A busca bíblica fica no módulo <strong>Bíblia</strong>: escolha livro, capítulo e versão, marque os versículos desejados e use as setas do teclado para navegar rapidamente entre eles.",
+    text: "Pode digitar direto aqui algo como \"João 3:16\" ou \"Salmos 23\" que eu já busco o texto pra você. Para navegar livro por livro com mais calma, o módulo <strong>Bíblia</strong> tem seleção de livro, capítulo e versão, com as setas do teclado passando de versículo em versículo.",
   },
   {
     keywords: ["liturg", "culto", "programaç", "programacao", "agenda", "escala", "kanban"],
@@ -194,7 +194,8 @@ const KNOWLEDGE = [
 const QUICK_REPLIES = [
   { label: "Buscar música", text: "Quero buscar uma música" },
   { label: "Hinário", text: "Buscar no hinário" },
-  { label: "Abrir Liturgia", text: "Abrir liturgia" },
+  { label: "Um versículo", text: "Salmos 23" },
+  { label: "Liturgia de hoje", text: "O que tem no culto de hoje?" },
   { label: "Tela de projeção", text: "Como uso a segunda tela?" },
   { label: "Atalhos", text: "Quais são os atalhos do LouvorJA?" },
 ];
@@ -218,6 +219,9 @@ export default {
     categories: null,
     hymnalData: null,
     musicLoaded: false,
+    bibleBooks: null,
+    bibleVersions: null,
+    pendingBibleResult: null,
   }),
   computed: {
     botAvatar() {
@@ -343,6 +347,16 @@ export default {
       const moduleId = this.detectOpenModule(text);
       if (moduleId) return this.openModule(moduleId);
 
+      if (text.includes("hoje") && (text.includes("culto") || text.includes("liturgia"))) {
+        return await this.handleTodayLiturgy();
+      }
+
+      const bibleRef = this.parseBibleReference(text);
+      if (bibleRef) {
+        const bibleResult = await this.handleBibleSearch(bibleRef);
+        if (bibleResult) return bibleResult;
+      }
+
       const intent = this.detectIntent(text);
       switch (intent) {
         case "music_search": return await this.handleMusicSearch(text);
@@ -377,6 +391,110 @@ export default {
     openModule(id) {
       this.$modules.open(id);
       return { text: this.$t("chatbot.opening_module") };
+    },
+    // Detects things like "joão 3:16", "salmos 23", "romanos 8:28-30".
+    // Returns null when the text doesn't look like a bible reference at all.
+    parseBibleReference(text) {
+      const match = text.match(/^(.*?[a-zà-ú].*?)\s*(\d+)(?::(\d+)(?:-(\d+))?)?\s*$/i);
+      if (!match) return null;
+      const bookText = match[1].trim();
+      const chapter = parseInt(match[2], 10);
+      if (!bookText || !chapter) return null;
+      return {
+        bookText,
+        chapter,
+        verseStart: match[3] ? parseInt(match[3], 10) : null,
+        verseEnd: match[4] ? parseInt(match[4], 10) : null,
+      };
+    },
+    async handleBibleSearch(ref) {
+      const books = await this.fetchBibleBooks();
+      const versions = await this.fetchBibleVersions();
+      if (!books?.length || !versions?.length) return null;
+
+      const bookQuery = this.$string.clean(ref.bookText);
+      // Exact match first (e.g. "joao" === "joao"): checked across the whole
+      // list before any partial match, so a short name like "Jó" can't steal
+      // a query that's actually an exact match for "João" later in the list.
+      let book = books.find((b) => this.$string.clean(b.name) === bookQuery);
+      if (!book) {
+        const partial = books
+          .filter((b) => {
+            const name = this.$string.clean(b.name);
+            return bookQuery.startsWith(name) || name.startsWith(bookQuery);
+          })
+          .sort((a, b) => this.$string.clean(b.name).length - this.$string.clean(a.name).length);
+        book = partial[0];
+      }
+      if (!book) return null; // not a recognized bible book — let the caller fall back
+
+      if (ref.chapter > book.chapters) {
+        return { text: `O livro de <strong>${this.escapeHtml(book.name)}</strong> tem ${book.chapters} capítulo(s).` };
+      }
+
+      const version = versions[0];
+      const file = `bible_${version.id_bible_version}_${book.id_bible_book}_${ref.chapter}`;
+      let verses;
+      try {
+        verses = await this.$database.get(file);
+      } catch (e) {
+        console.warn("[ChatFab] Failed to load bible chapter:", e);
+      }
+      if (!verses) return { text: "Não consegui carregar esse capítulo. Tente novamente." };
+
+      let keys = Object.keys(verses).map(Number);
+      if (ref.verseStart) {
+        keys = keys.filter((k) => k >= ref.verseStart && k <= (ref.verseEnd || ref.verseStart));
+      }
+      if (!keys.length) {
+        return { text: `Não encontrei esse(s) versículo(s) em ${this.escapeHtml(book.name)} ${ref.chapter}.` };
+      }
+      keys.sort((a, b) => a - b);
+
+      const verseText = keys.map((k) => verses[k]).join(" ");
+      const verseRange = ref.verseStart ? `:${ref.verseStart}${ref.verseEnd ? "-" + ref.verseEnd : ""}` : "";
+      const reference = `${book.name} ${ref.chapter}${verseRange} (${version.abbreviation})`;
+
+      this.pendingBibleResult = { text: verseText, reference };
+
+      return {
+        text: `<strong>${this.escapeHtml(reference)}</strong><div class="lj-bible-verse">"${this.escapeHtml(verseText)}"</div><div class="lj-search-results"><div class="lj-search-item lj-search-item--playable" data-project-bible="1">Projetar na tela pública</div></div>`,
+      };
+    },
+    async handleTodayLiturgy() {
+      const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+      const today = weekdays[new Date().getDay()];
+      const dayLabel = this.$t(`modules.liturgy.weekdays.${today}`);
+      const board = this.$liturgy.load()[today];
+      const columnsWithCards = (board?.columns || []).filter((c) => c.cards.length);
+
+      if (!columnsWithCards.length) {
+        return {
+          text: `Ainda não há nada planejado na <strong>Liturgia</strong> para hoje (${this.escapeHtml(dayLabel)}). Quer que eu abra o módulo pra você preparar?`,
+        };
+      }
+
+      const html = columnsWithCards
+        .map((c) => {
+          const items = c.cards.map((card) => this.escapeHtml(card.title)).join(", ");
+          return `<div class="lj-search-item"><div class="lj-search-item__name">${this.escapeHtml(c.name)}</div><div class="lj-search-item__info">${items}</div></div>`;
+        })
+        .join("");
+      return { text: `Liturgia de hoje (<strong>${this.escapeHtml(dayLabel)}</strong>):<div class="lj-search-results">${html}</div>` };
+    },
+    async fetchBibleBooks() {
+      if (this.bibleBooks) return this.bibleBooks;
+      try {
+        this.bibleBooks = await this.$database.get(`${this.locale}_bible_book`);
+      } catch (e) { console.warn("[ChatFab] Failed to load bible books:", e); }
+      return this.bibleBooks;
+    },
+    async fetchBibleVersions() {
+      if (this.bibleVersions) return this.bibleVersions;
+      try {
+        this.bibleVersions = await this.$database.get(`${this.locale}_bible_version`);
+      } catch (e) { console.warn("[ChatFab] Failed to load bible versions:", e); }
+      return this.bibleVersions;
     },
     async fetchMusicIndex() {
       if (this.musicIndex) return;
@@ -439,16 +557,39 @@ export default {
       const html = results
         .map((m) => {
           const parts = [showTrack && m.track ? `Faixa ${m.track}` : null, this.$datetime.shortTime(m.duration)].filter(Boolean);
-          return `<div class="lj-search-item lj-search-item--playable" data-id-music="${m.id_music}"><div class="lj-search-item__name">${this.escapeHtml(m.name || "Sem título")}</div><div class="lj-search-item__info">${this.escapeHtml(parts.join(" • ") || "—")}</div></div>`;
+          return `<div class="lj-search-item lj-search-item--playable" data-id-music="${m.id_music}">
+            <div class="lj-search-item__name">${this.escapeHtml(m.name || "Sem título")}</div>
+            <div class="lj-search-item__info">${this.escapeHtml(parts.join(" • ") || "—")}</div>
+            <span class="lj-search-item__action" data-project-id="${m.id_music}">Projetar na tela pública</span>
+          </div>`;
         })
         .join("");
       return `<div class="lj-search-results">${html}</div>`;
     },
     handleMessageClick(event) {
+      const projectMusicBtn = event.target.closest("[data-project-id]");
+      if (projectMusicBtn) {
+        const id_music = Number(projectMusicBtn.dataset.projectId);
+        if (id_music) {
+          this.$media.open({ id_music, mode: "audio" });
+          this.$popup.open("media");
+        }
+        return;
+      }
+
+      const projectBibleBtn = event.target.closest("[data-project-bible]");
+      if (projectBibleBtn && this.pendingBibleResult) {
+        this.$appdata.set("modules.bible.data.text", this.pendingBibleResult.text);
+        this.$appdata.set("modules.bible.data.scriptural_reference", this.pendingBibleResult.reference);
+        this.$popup.open("bible");
+        return;
+      }
+
       const item = event.target.closest("[data-id-music]");
-      if (!item) return;
-      const id_music = Number(item.dataset.idMusic);
-      if (id_music) this.$media.open({ id_music, mode: "audio" });
+      if (item) {
+        const id_music = Number(item.dataset.idMusic);
+        if (id_music) this.$media.open({ id_music, mode: "audio" });
+      }
     },
     handleKnowledge(userText) {
       for (const k of KNOWLEDGE) {
@@ -714,6 +855,14 @@ export default {
 .lj-search-item:hover { background: rgba(0,0,0,0.06); }
 .lj-search-item__name { font-size: 13px; font-weight: 600; color: #333; }
 .lj-search-item__info { font-size: 11px; color: #888; margin-top: 2px; }
+.lj-search-item__action {
+  display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 600;
+  color: var(--current-primary, #1b2a41); cursor: pointer;
+}
+.lj-search-item__action:hover { text-decoration: underline; }
+.lj-bible-verse {
+  margin-top: 6px; font-style: italic; font-size: 13px; line-height: 1.5;
+}
 .lj-bubble--user + .lj-bubble__meta,
 .lj-bubble--user ~ .lj-bubble__meta {
   display: flex; justify-content: flex-end;

@@ -80,7 +80,7 @@
     "placeholder": "Digite sua mensagem...",
     "guardrail": "Não entendi. Posso ajudar com busca de músicas, hinário, bíblia, liturgia ou abrir algum módulo pra você — é só pedir.",
     "opening_module": "Pronto! Abri o módulo para você.",
-    "welcome": "Olá! Sou a <strong>LouvorJ.AI</strong>. Posso buscar <strong>músicas</strong> e <strong>hinos</strong>, explicar a <strong>Bíblia</strong> e a <strong>Liturgia</strong>, ou abrir módulos do programa para você.",
+    "welcome": "Olá! Sou a <strong>LouvorJ.AI</strong>. Posso buscar <strong>músicas</strong> e <strong>hinos</strong> (e já deixar tocando ou projetando na tela), trazer um <strong>versículo</strong> (ex: \"João 3:16\"), resumir a <strong>Liturgia</strong> de hoje, ou abrir qualquer módulo do programa para você.",
     "error": "Ocorreu um erro ao processar sua mensagem.",
     "new_conversation": "Nova conversa",
     "close": "Fechar chat",
