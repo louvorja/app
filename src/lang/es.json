@@ -38,21 +38,17 @@
       "selected": "Seleccionada",
       "detect": "Detectar pantallas"
     },
-    "mirror_panel": {
-      "tooltip": "Seguir por el celular (código QR)",
-      "title": "Seguir por el Celular",
-      "description": "Genera un código QR para que la congregación siga la letra de la música o el versículo en su propio celular, en tiempo real.",
-      "not_configured": "El servicio de espejo no está configurado en esta app. Es necesario publicar el servidor de retransmisión y definir VITE_MIRROR_RELAY_URL.",
-      "start": "Generar código QR",
-      "start_error": "No se pudo iniciar el espejo. Verifica tu conexión.",
-      "code_hint": "Apunta la cámara del celular al código, o accede al enlace y escribe el código de arriba.",
-      "viewers": "{count} conectado(s)",
-      "stop": "Detener espejo"
-    },
     "datatable": {
       "alerts": {
         "not_found": "¡No se pudo encontrar el archivo para mostrar esta información!"
       }
+    },
+    "install_prompt": {
+      "title": "Instala LouvorJA",
+      "hint": "Acceso más rápido, en pantalla completa, directo desde el inicio.",
+      "ios_hint": "Toca en Compartir y luego en \"Agregar a Inicio\".",
+      "install": "Instalar",
+      "dismiss": "Ahora no"
     },
     "inputs": {
       "search": "Buscar"

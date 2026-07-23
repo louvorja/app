@@ -11,6 +11,10 @@ body {
     overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
+    /* Sem "puxar para atualizar" nem bounce de scroll — comportamento de
+       app instalado, não de aba de navegador. */
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* SCROLL */

@@ -1,3 +1,0 @@
-# O relay de espelhamento (server/) é um serviço separado, publicado à
-# parte — não faz parte do build estático deste app.
-server/
