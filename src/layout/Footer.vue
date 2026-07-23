@@ -1,8 +1,17 @@
 <template>
   <v-footer id="footer-bar" class="pa-0" color="primary">
     <l-player v-if="$media.isMinimized()" location="footer" />
-    <v-row v-else class="ma-0 pa-0">
+    <v-row v-else class="ma-0 pa-0 align-center">
       <span class="text-caption pa-1">Versão {{ version }}</span>
+      <v-spacer />
+      <a
+        href="https://allananjos.dev.br"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-caption pa-1 lj-credit-link"
+      >
+        Adaptado por Allan Anjos
+      </a>
     </v-row>
   </v-footer>
 </template>
@@ -40,5 +49,16 @@ export default {
 <style scoped>
 #footer-bar {
   flex: 0 !important;
+}
+
+.lj-credit-link {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.lj-credit-link:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 </style>
