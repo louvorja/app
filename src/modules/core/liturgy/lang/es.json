@@ -28,7 +28,9 @@
       "bible": "Versículo",
       "link": "Enlace Externo",
       "media": "Medio Local"
-    }
+    },
+    "notes": "Nota (privada)",
+    "notes_hint": "Solo tú ves esto — no aparece en la proyección ni en el PDF exportado."
   },
   "actions": {
     "save": "Guardar",

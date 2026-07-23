@@ -1,5 +1,17 @@
 <template>
   <ModuleContainer ref="moduleContainer" :manifest="manifest">
+    <v-switch
+      v-model="autoTheme"
+      color="primary"
+      density="compact"
+      hide-details
+      :label="t('auto-theme')"
+      class="mb-3"
+    />
+    <div class="text-caption text-medium-emphasis mb-4" style="margin-top: -8px">
+      {{ t("auto-theme-hint") }}
+    </div>
+
     <div v-for="(group, mode) in themes" :key="mode" class="mb-3">
       <div class="subtitle-1 font-weight-medium">
         {{ mode == "dark" ? t("dark-themes") : t("light-themes") }}
@@ -25,7 +37,7 @@
 /* ####### INSTALAÇÃO DO MODULO ############################## */
 /* ########################################################### */
 defineOptions({ name: "ThemeIndex" });
-import { ref, getCurrentInstance, onMounted } from "vue";
+import { ref, computed, getCurrentInstance, onMounted } from "vue";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 const moduleContainer = ref(null);
@@ -42,6 +54,17 @@ const current = ref("");
 const themes = ref({
   light: {},
   dark: {},
+});
+const autoTheme = computed({
+  get: () => proxy.$theme.isAutoEnabled(),
+  set: (value) => {
+    if (value) {
+      proxy.$theme.enableAuto(proxy.$vuetify.theme);
+    } else {
+      proxy.$theme.disableAuto();
+    }
+    current.value = proxy.$vuetify.theme.global.name;
+  },
 });
 
 /* ########################################################### */

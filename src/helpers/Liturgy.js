@@ -112,13 +112,14 @@ export default {
     }
   },
 
-  newCard(type, payload) {
+  newCard(type, payload, notes = "") {
     return {
       id: uid(),
       type,
       title: payload.title,
       subtitle: payload.subtitle || "",
       payload,
+      notes,
     };
   },
 

@@ -100,6 +100,17 @@
                           {{ card.subtitle }}
                         </div>
                       </div>
+                      <v-tooltip v-if="card.notes" :text="card.notes" location="top" max-width="260">
+                        <template v-slot:activator="{ props }">
+                          <v-icon
+                            v-bind="props"
+                            icon="mdi-note-text-outline"
+                            size="small"
+                            color="warning"
+                            class="me-1"
+                          />
+                        </template>
+                      </v-tooltip>
                       <v-btn
                         :icon="isPlaying(card) ? 'mdi-stop' : 'mdi-play'"
                         :color="isPlaying(card) ? 'error' : 'primary'"
@@ -295,7 +306,7 @@ export default {
         }
       });
     },
-    saveCard({ type, payload }) {
+    saveCard({ type, payload, notes }) {
       const column = this.board.columns.find(
         (item) => item.id == this.editingColumnId,
       );
@@ -314,10 +325,11 @@ export default {
             title: payload.title,
             subtitle: payload.subtitle || "",
             payload,
+            notes: notes || "",
           });
         }
       } else {
-        column.cards.push(this.$liturgy.newCard(type, payload));
+        column.cards.push(this.$liturgy.newCard(type, payload, notes));
       }
     },
     async onExportPdfConfirm(days) {

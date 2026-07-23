@@ -1,5 +1,7 @@
 {
     "title": "Apariencia",
+    "auto-theme": "Tema automático (día/noche)",
+    "auto-theme-hint": "Cambia solo a un tema oscuro por la noche (desde las 18h) y vuelve al tema claro de día.",
     "light-themes": "Temas Claros",
     "dark-themes": "Temas Oscuros"
 }

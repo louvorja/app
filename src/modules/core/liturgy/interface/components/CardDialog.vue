@@ -41,6 +41,19 @@
           type="media"
           v-model="payload"
         />
+
+        <v-divider class="my-4" />
+        <v-textarea
+          v-model="notes"
+          :label="t('card.notes')"
+          :hint="t('card.notes_hint')"
+          persistent-hint
+          density="compact"
+          variant="outlined"
+          rows="2"
+          auto-grow
+          prepend-inner-icon="mdi-note-text-outline"
+        />
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -78,6 +91,7 @@ export default {
   data: () => ({
     type: "song",
     payload: null,
+    notes: "",
   }),
   computed: {
     show: {
@@ -94,6 +108,7 @@ export default {
       if (value) {
         this.type = this.card?.type || "song";
         this.payload = this.card?.payload || null;
+        this.notes = this.card?.notes || "";
       }
     },
   },
@@ -108,7 +123,7 @@ export default {
       if (!this.payload) {
         return;
       }
-      this.$emit("save", { type: this.type, payload: this.payload });
+      this.$emit("save", { type: this.type, payload: this.payload, notes: this.notes });
       this.show = false;
     },
   },

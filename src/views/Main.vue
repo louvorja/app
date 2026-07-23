@@ -62,6 +62,9 @@ export default {
     }
     this.$appdata.set("is_dark", this.$vuetify.theme.global.current.dark);
 
+    //Tema automático dia/noite (se ativado nas configurações de Temas)
+    this.$theme.startAutoCheck(this.$vuetify.theme);
+
     //Carrega o idioma
     let lang = this.$userdata.get("language");
     if (lang != "") {
