@@ -7,6 +7,7 @@
     :aux_text="slide.aux_lyric"
     :image="slide.url_image ? $path.file(slide.url_image) : null"
     :image_position="slide.image_position"
+    :musicianMode="musicianMode"
   />
 </template>
 
@@ -38,6 +39,9 @@ export default {
     },
     slide() {
       return this.$media.slide();
+    },
+    musicianMode() {
+      return !!this.$appdata.get("musician_mode");
     },
   },
 };

@@ -65,6 +65,9 @@ export default {
     //Tema automático dia/noite (se ativado nas configurações de Temas)
     this.$theme.startAutoCheck(this.$vuetify.theme);
 
+    //Modo músico (projeção só com a letra, sem imagens de fundo)
+    this.$appdata.set("musician_mode", !!this.$userdata.get("musician_mode"));
+
     //Carrega o idioma
     let lang = this.$userdata.get("language");
     if (lang != "") {

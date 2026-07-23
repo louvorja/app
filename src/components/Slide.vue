@@ -42,6 +42,7 @@ export default {
     aux_text: String,
     image: String,
     image_position: Number,
+    musicianMode: Boolean,
   },
   data: () => ({
     slides: [{}, {}],
@@ -56,7 +57,7 @@ export default {
         cover: this.cover,
         text: this.text,
         aux_text: this.aux_text,
-        image: this.image,
+        image: this.musicianMode ? null : this.image,
         image_position: this.image_position,
       };
     },
@@ -104,7 +105,7 @@ export default {
       return {
         overflow: "hidden",
         backgroundColor: "rgb(0, 0, 0)",
-        backgroundImage: `url(${slide.image})`,
+        backgroundImage: slide.image ? `url(${slide.image})` : "none",
         backgroundRepeat: "no-repeat",
         backgroundPosition: [
           "top left",

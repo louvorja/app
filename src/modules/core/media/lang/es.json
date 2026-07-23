@@ -16,6 +16,8 @@
         "lazy_load": "Carga Dinámica",
         "lazy_load_tooltip": "Si se desmarca, el audio solo se reproducirá después de cargarse completamente en la memoria.",
         "fade_audio": "Efecto de Desvanecimiento en el audio",
-        "fade_audio_tooltip": "Si se marca, el audio reducirá o aumentará el volumen suavemente al pausar o reproducir."
+        "fade_audio_tooltip": "Si se marca, el audio reducirá o aumentará el volumen suavemente al pausar o reproducir.",
+        "musician_mode": "Modo Músico",
+        "musician_mode_tooltip": "Proyecta solo la letra, sin imágenes de fondo — ideal para el monitor de los músicos en el escenario. Se aplica a todas las proyecciones hasta que lo desactives."
     }
 }

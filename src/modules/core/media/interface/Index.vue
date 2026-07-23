@@ -52,6 +52,16 @@
                 />
               </template>
             </v-tooltip>
+            <v-tooltip :text="t('inputs.musician_mode_tooltip')">
+              <template v-slot:activator="{ props }">
+                <v-switch
+                  color="blue"
+                  v-bind="props"
+                  v-model="musicianMode"
+                  :label="t('inputs.musician_mode')"
+                />
+              </template>
+            </v-tooltip>
           </v-card-text>
         </v-card>
       </v-menu>
@@ -74,6 +84,7 @@
             :aux_text="slide.aux_lyric"
             :image="slide.url_image ? $path.file(slide.url_image) : null"
             :image_position="slide.image_position"
+            :musicianMode="musicianMode"
           />
           <l-fullscreen-player v-if="fullscreen" />
         </fullscreen>
@@ -211,6 +222,15 @@ export default {
       },
       set(value) {
         this.$userdata.set("modules.media.fade_audio", value);
+      },
+    },
+    musicianMode: {
+      get() {
+        return !!this.$appdata.get("musician_mode");
+      },
+      set(value) {
+        this.$userdata.set("musician_mode", value);
+        this.$appdata.set("musician_mode", value);
       },
     },
   },

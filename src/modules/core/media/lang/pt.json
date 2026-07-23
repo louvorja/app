@@ -16,6 +16,8 @@
         "lazy_load": "Carregamento Dinâmico",
         "lazy_load_tooltip": "Se desmarcado, o áudio só será executado depois de totalmente carregado na memória.",
         "fade_audio": "Efeito de Fade no áudio",
-        "fade_audio_tooltip": "Se marcado, o áudio irá reduzir ou aumentar o volume suavemente ao pausar ou dar play."
+        "fade_audio_tooltip": "Se marcado, o áudio irá reduzir ou aumentar o volume suavemente ao pausar ou dar play.",
+        "musician_mode": "Modo Músico",
+        "musician_mode_tooltip": "Projeta só a letra, sem imagens de fundo — ideal para monitor de músicos no palco. Vale para todas as projeções até você desativar."
     }
 }
