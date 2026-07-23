@@ -35,6 +35,8 @@
 
     <v-divider v-if="remote" vertical />
 
+    <ScreenSelector />
+
     <v-btn
       :icon="layout == 'apps' ? 'mdi-tab' : 'mdi-apps'"
       @click="changeLayout()"
@@ -45,11 +47,13 @@
 
 <script>
 import LanguageSelector from "@/components/LanguageSelector.vue";
+import ScreenSelector from "@/components/ScreenSelector.vue";
 
 export default {
   name: "HeaderLayout",
   components: {
     LanguageSelector,
+    ScreenSelector,
   },
   computed: {
     layout() {

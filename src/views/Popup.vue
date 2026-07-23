@@ -41,6 +41,14 @@ export default {
   },
   mounted() {
     this.$appdata.set("is_popup", true);
+
+    // Tenta abrir em fullscreen na tela onde a janela foi posicionada,
+    // deixando a exibição pública pronta sem precisar de ação manual.
+    document.documentElement.requestFullscreen?.().catch(() => {
+      // Alguns navegadores exigem um gesto do usuário para permitir fullscreen;
+      // nesse caso a janela permanece do tamanho/posição definidos ao abrir.
+    });
+
     window.addEventListener("message", (event) => {
       if (event.origin === window.location.origin) {
         this.message = event.data;

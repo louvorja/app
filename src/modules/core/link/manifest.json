@@ -1,0 +1,8 @@
+{
+  "id": "link",
+  "name": "Link/Mídia",
+  "description": "Exibe um link externo (YouTube, etc) ou arquivo de mídia local na tela de projeção",
+  "category": null,
+  "icon": "mdi-link-variant",
+  "dependencies": []
+}

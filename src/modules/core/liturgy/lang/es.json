@@ -1,0 +1,65 @@
+{
+  "title": "Liturgia",
+  "weekdays": {
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado",
+    "sunday": "Domingo"
+  },
+  "column": {
+    "add": "Nueva columna",
+    "name": "Nombre de la columna",
+    "delete_confirm": "¿Eliminar esta columna y todos sus elementos?",
+    "empty": "Arrastra elementos aquí"
+  },
+  "card": {
+    "add": "Agregar elemento",
+    "edit": "Editar elemento",
+    "play": "Proyectar",
+    "stop": "Detener proyección",
+    "delete": "Eliminar elemento",
+    "delete_confirm": "¿Eliminar este elemento de la liturgia?",
+    "type": "Tipo de contenido",
+    "types": {
+      "song": "Música",
+      "bible": "Versículo",
+      "link": "Enlace Externo",
+      "media": "Medio Local"
+    }
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  },
+  "song": {
+    "search": "Buscar música",
+    "mode": "Modo de ejecución",
+    "mode_audio": "Cantado",
+    "mode_instrumental": "Playback",
+    "mode_no_audio": "Sin audio",
+    "not_selected": "Selecciona una música de la lista"
+  },
+  "bible": {
+    "book": "Libro",
+    "chapter": "Capítulo",
+    "version": "Versión",
+    "verses": "Versículos",
+    "not_selected": "Selecciona al menos un versículo"
+  },
+  "link": {
+    "kind": "Tipo de enlace",
+    "kind_youtube": "YouTube",
+    "kind_iframe": "Sitio/Embed",
+    "url": "URL del enlace"
+  },
+  "media": {
+    "kind": "Tipo de medio",
+    "kind_image": "Imagen",
+    "kind_video": "Video",
+    "kind_audio": "Audio",
+    "url": "URL o ruta del archivo"
+  }
+}

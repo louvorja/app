@@ -1,5 +1,6 @@
 import $appdata from "@/helpers/AppData";
 import $window from "@/helpers/Window";
+import $screen from "@/helpers/Screen";
 
 let popup = null;
 
@@ -13,7 +14,25 @@ export default {
     if (popup && !popup.closed) {
       popup.focus();
     } else {
-      popup = $window.open("/popup", "PopupWindow", "width=800,height=600");
+      const target = await $screen.getPreferredScreen();
+      const features = target
+        ? `left=${target.left},top=${target.top},width=${target.width},height=${target.height}`
+        : "width=800,height=600";
+
+      popup = $window.open("/popup", "PopupWindow", features);
+
+      if (target && popup) {
+        // Alguns navegadores não respeitam totalmente left/top/width/height
+        // no momento da abertura, então reforça a posição/tamanho depois.
+        setTimeout(() => {
+          try {
+            popup.moveTo(target.left, target.top);
+            popup.resizeTo(target.width, target.height);
+          } catch {
+            // Janela pode já ter sido fechada ou o navegador bloqueou a ação
+          }
+        }, 300);
+      }
     }
     $appdata.set("popup_module", params.module);
     $appdata.set("popup", popup);
