@@ -4,7 +4,7 @@
     v-model="isOpen"
     temporary
     location="right"
-    width="380"
+    :width="drawerWidth"
     class="louvorj-drawer"
   >
     <!-- Header -->
@@ -21,6 +21,13 @@
         <button class="lj-panel__btn" @click="clearChat" :title="$t('chatbot.new_conversation')">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M17.65 6.35A7.96 7.96 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+        </button>
+        <!-- Em telas estreitas o painel ocupa 100% da largura e some a área
+             de fundo clicável para fechar — por isso um X explícito aqui. -->
+        <button class="lj-panel__btn lj-panel__btn--close" @click="close" :title="$t('chatbot.close')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
         </button>
       </div>
@@ -229,6 +236,10 @@ export default {
     },
     locale() {
       return this.$i18n?.locale || "pt";
+    },
+    drawerWidth() {
+      const screenWidth = this.$vuetify.display.width;
+      return screenWidth <= 420 ? screenWidth : 380;
     },
     isDark() { return !!this.theme?.global?.current?.value?.dark; },
     primaryColor() {
@@ -645,8 +656,8 @@ export default {
 /* ========== TRIGGER BUTTON ========== */
 .louvorj-chat-trigger {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: calc(20px + var(--safe-bottom));
+  right: calc(20px + var(--safe-right));
   z-index: 999;
   width: 48px;
   height: 48px;
@@ -870,7 +881,12 @@ export default {
 
 /* ========== MOBILE RESPONSIVE ========== */
 @media (max-width: 480px) {
-  .louvorj-chat-trigger { bottom: 16px; right: 16px; width: 44px; height: 44px; }
+  .louvorj-chat-trigger {
+    bottom: calc(16px + var(--safe-bottom));
+    right: calc(16px + var(--safe-right));
+    width: 44px;
+    height: 44px;
+  }
   .lj-msg { max-width: 90%; }
 }
 </style>

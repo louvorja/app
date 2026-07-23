@@ -49,6 +49,10 @@ export default {
 <style scoped>
 #footer-bar {
   flex: 0 !important;
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  flex-wrap: wrap;
 }
 
 .lj-credit-link {

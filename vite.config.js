@@ -31,8 +31,10 @@ export default ({ mode }) => {
           description: "Software de músicas para Louvor e Adoração",
           start_url: process.env.VITE_BASE_URL ?? "/",
           display: "standalone",
-          background_color: "#000000",
-          theme_color: "#000000",
+          display_override: ["standalone", "fullscreen"],
+          orientation: "any",
+          background_color: "#003366",
+          theme_color: "#003366",
           icons: [
             {
               src: (process.env.VITE_BASE_URL ?? "/") + "ico/favicon-16x16.png",

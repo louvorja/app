@@ -86,6 +86,25 @@ body {
     background-attachment: fixed;
 }
 
+/* Áreas seguras (notch/home indicator) quando instalado como PWA no iOS */
+:root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+}
+
+/* Alvos de toque maiores em telas sensíveis ao toque (celular/tablet) */
+@media (pointer: coarse) {
+    .v-btn--icon.v-btn--density-compact {
+        --v-btn-height: 40px;
+    }
+
+    .v-btn--icon.v-btn--density-default {
+        --v-btn-height: 44px;
+    }
+}
+
 .v-theme--dark .bg-main {
     background-image:
         radial-gradient(at 15% 0%, rgba(0, 51, 102, 0.35) 0px, transparent 55%),

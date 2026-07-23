@@ -39,13 +39,19 @@
       </div>
     </template>
 
-    <div class="d-flex align-start" style="overflow-x: auto; min-height: 100%">
+    <div
+      class="d-flex align-start"
+      style="overflow-x: auto; min-height: 100%; -webkit-overflow-scrolling: touch"
+    >
       <draggable
         v-model="board.columns"
         group="liturgy-columns"
         item-key="id"
         class="d-flex align-start"
         handle=".liturgy-column-handle"
+        :delay="200"
+        delay-on-touch-only
+        :touch-start-threshold="5"
       >
         <template #item="{ element: column }">
           <v-card class="ma-2" width="280" variant="tonal">
@@ -75,6 +81,9 @@
                 item-key="id"
                 class="d-flex flex-column"
                 style="min-height: 60px"
+                :delay="200"
+                delay-on-touch-only
+                :touch-start-threshold="5"
               >
                 <template #item="{ element: card }">
                   <v-card class="mb-2" variant="outlined">

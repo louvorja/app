@@ -35,12 +35,15 @@
 
     <v-divider v-if="remote" vertical />
 
-    <ScreenSelector />
-
-    <v-btn
-      :icon="layout == 'apps' ? 'mdi-tab' : 'mdi-apps'"
-      @click="changeLayout()"
-    />
+    <!-- Escolher tela de projeção e alternar layout só fazem sentido no PC
+         que está de fato rodando a projeção — em celular/tablet só poluem o cabeçalho. -->
+    <template v-if="!isMobile">
+      <ScreenSelector />
+      <v-btn
+        :icon="layout == 'apps' ? 'mdi-tab' : 'mdi-apps'"
+        @click="changeLayout()"
+      />
+    </template>
     <LanguageSelector />
   </v-app-bar>
 </template>
@@ -56,6 +59,9 @@ export default {
     ScreenSelector,
   },
   computed: {
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
+    },
     layout() {
       return this.$userdata.get("layout");
     },
@@ -118,6 +124,9 @@ export default {
   flex: 0 !important;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
+  padding-top: var(--safe-top);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 :deep(#header-bar .v-toolbar__content) {

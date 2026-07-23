@@ -4,8 +4,18 @@
 <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/ico/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
     <meta name="google" content="notranslate">
+
+    <!-- PWA no iOS/iPadOS: abre em modo standalone (sem barra do Safari) quando
+         adicionado à tela de início, e usa nossa cor de marca na status bar. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LouvorJA" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#003366" />
+    <link rel="apple-touch-icon" href="/ico/favicon-180x180.png" />
+
     <title>LouvorJA</title>
 </head>
 
