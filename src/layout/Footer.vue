@@ -10,14 +10,6 @@
     <v-row v-else class="ma-0 pa-0 align-center">
       <span class="text-caption pa-1">Versão {{ version }}</span>
       <v-spacer />
-      <a
-        href="https://allananjos.dev.br"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-caption pa-1 lj-credit-link"
-      >
-        Adaptado por Allan Anjos
-      </a>
     </v-row>
   </v-footer>
 </template>
@@ -69,16 +61,5 @@ export default {
 .lj-footer--above-nav {
   padding-bottom: 0;
   margin-bottom: calc(56px + var(--safe-bottom));
-}
-
-.lj-credit-link {
-  color: inherit;
-  text-decoration: none;
-  opacity: 0.85;
-}
-
-.lj-credit-link:hover {
-  opacity: 1;
-  text-decoration: underline;
 }
 </style>

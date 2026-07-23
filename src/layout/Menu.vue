@@ -27,20 +27,11 @@
     </v-list>
 
     <!-- No mobile o rodapé fica escondido (dá lugar à navegação
-         inferior) — a versão e o crédito ficam aqui, abaixo da lista. -->
+         inferior) — a versão fica aqui, abaixo da lista. -->
     <template v-if="isMobile">
       <v-divider class="mt-2" />
       <div class="d-flex align-center flex-wrap px-4 py-3">
         <span class="text-caption text-medium-emphasis">Versão {{ version }}</span>
-        <v-spacer />
-        <a
-          href="https://allananjos.dev.br"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-caption lj-credit-link"
-        >
-          Adaptado por Allan Anjos
-        </a>
       </div>
     </template>
   </v-navigation-drawer>
@@ -113,16 +104,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.lj-credit-link {
-  color: inherit;
-  text-decoration: none;
-  opacity: 0.85;
-}
-
-.lj-credit-link:hover {
-  opacity: 1;
-  text-decoration: underline;
-}
-</style>
