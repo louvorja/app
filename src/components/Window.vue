@@ -3,17 +3,31 @@
     v-model="visible"
     scrollable
     persistent
+    :fullscreen="isFullscreen"
     @click:outside="minimize"
     @keydown.esc="minimize"
-    :width="w_width"
-    :height="w_height"
+    :width="isFullscreen ? undefined : w_width"
+    :height="isFullscreen ? undefined : w_height"
     :theme="dark ? 'dark' : ''"
   >
-    <v-card :color="color ? color : ''" class="lj-glass-window">
+    <v-card
+      :color="color ? color : ''"
+      class="lj-glass-window"
+      :class="{ 'lj-glass-window--fullscreen': isFullscreen }"
+    >
       <slot name="toolbar">
         <div
           class="d-flex flex-no-wrap align-stretch flex-row justify-space-between lj-glass-toolbar"
         >
+          <v-btn
+            v-if="isFullscreen && closable"
+            icon="mdi-arrow-left"
+            variant="text"
+            size="small"
+            class="ms-2 align-self-center"
+            :title="$t('window.back')"
+            @click="close()"
+          />
           <div
             v-if="icon"
             class="d-flex align-center"
@@ -169,6 +183,12 @@ export default {
     compact_height: function () {
       return this.$vuetify.display.height <= 600;
     },
+    isFullscreen() {
+      // Painéis "small" (ex: configurações rápidas) continuam como um
+      // diálogo centralizado no desktop — telas de conteúdo (o padrão)
+      // abrem em tela cheia, com navegação por botão de voltar.
+      return this.compact_screen || this.size != "small";
+    },
     w_width() {
       return this.compact_screen
         ? "100%"
@@ -283,6 +303,12 @@ export default {
   background: rgba(var(--v-theme-surface), 0.9) !important;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.35);
+}
+
+:deep(.lj-glass-window--fullscreen) {
+  border-radius: 0 !important;
+  border: none;
+  box-shadow: none;
 }
 
 .lj-glass-toolbar {

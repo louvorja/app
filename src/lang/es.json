@@ -2,6 +2,9 @@
   "app": {
     "name": "Loor JA"
   },
+  "window": {
+    "back": "Volver"
+  },
   "modules": {
     "invalid": {
       "title": "#Error#"
