@@ -8,18 +8,21 @@
   <v-app id="app-container">
     <router-view />
     <ChatFab v-if="$route.name !== 'Popup'" key="v2" />
+    <MirrorPublisher v-if="$route.name !== 'Popup'" />
   </v-app>
 </template>
 
 <script>
 import AppLoading from "@/layout/Loading.vue";
 import ChatFab from "@/components/ChatFab.vue";
+import MirrorPublisher from "@/components/MirrorPublisher.vue";
 
 export default {
   name: "App",
   components: {
     AppLoading,
     ChatFab,
+    MirrorPublisher,
   },
   methods: {
     handleKeydown() {

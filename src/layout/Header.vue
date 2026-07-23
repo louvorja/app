@@ -39,6 +39,7 @@
          que está de fato rodando a projeção — em celular/tablet só poluem o cabeçalho. -->
     <template v-if="!isMobile">
       <ScreenSelector />
+      <MirrorPanel />
       <v-btn
         :icon="layout == 'apps' ? 'mdi-tab' : 'mdi-apps'"
         @click="changeLayout()"
@@ -51,12 +52,14 @@
 <script>
 import LanguageSelector from "@/components/LanguageSelector.vue";
 import ScreenSelector from "@/components/ScreenSelector.vue";
+import MirrorPanel from "@/components/MirrorPanel.vue";
 
 export default {
   name: "HeaderLayout",
   components: {
     LanguageSelector,
     ScreenSelector,
+    MirrorPanel,
   },
   computed: {
     isMobile() {

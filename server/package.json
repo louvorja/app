@@ -1,0 +1,16 @@
+{
+  "name": "louvorja-mirror-relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servidor de retransmissão em tempo real para o espelhamento por QR Code do LouvorJA. Serviço independente do app (SPA) — roda separado, em qualquer host Node.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}

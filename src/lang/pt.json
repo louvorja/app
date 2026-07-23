@@ -38,6 +38,17 @@
       "selected": "Selecionada",
       "detect": "Detectar telas"
     },
+    "mirror_panel": {
+      "tooltip": "Acompanhar pelo celular (QR Code)",
+      "title": "Acompanhar pelo Celular",
+      "description": "Gere um QR Code para a congregação acompanhar a letra da música ou o versículo no próprio celular, em tempo real.",
+      "not_configured": "O serviço de espelhamento não está configurado neste app. É preciso publicar o servidor de retransmissão e definir VITE_MIRROR_RELAY_URL.",
+      "start": "Gerar QR Code",
+      "start_error": "Não foi possível iniciar o espelhamento. Verifique sua conexão.",
+      "code_hint": "Aponte a câmera do celular para o código, ou acesse o link e digite o código acima.",
+      "viewers": "{count} conectado(s)",
+      "stop": "Encerrar espelhamento"
+    },
     "datatable": {
       "alerts": {
         "not_found": "Não foi possível localizar o arquivo para exibir essas informações!"

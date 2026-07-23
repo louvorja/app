@@ -33,6 +33,7 @@ import Popup from "@/helpers/Popup";
 import Database from "@/helpers/Database";
 import Screen from "@/helpers/Screen";
 import Liturgy from "@/helpers/Liturgy";
+import Mirror from "@/helpers/Mirror";
 app.mixin({
   beforeCreate() {
     this.$userdata = UserData;
@@ -49,6 +50,7 @@ app.mixin({
     this.$database = Database;
     this.$screen = Screen;
     this.$liturgy = Liturgy;
+    this.$mirror = Mirror;
   },
 });
 

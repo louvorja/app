@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<meta name="robots" content="noindex" />
+<title>LouvorJA — Ao vivo</title>
+<style>
+  /* Sem fonte externa de propósito: carrega instantâneo, mesmo em 4G fraco. */
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+  }
+  #app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+              max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  }
+  #title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #7fb3e0;
+    margin-bottom: 18px;
+    min-height: 16px;
+  }
+  #text {
+    font-size: clamp(20px, 6vw, 34px);
+    line-height: 1.5;
+    font-weight: 600;
+    white-space: pre-line;
+    max-width: 640px;
+  }
+  #reference {
+    margin-top: 22px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  #status {
+    position: fixed;
+    top: max(10px, env(safe-area-inset-top));
+    right: max(10px, env(safe-area-inset-right));
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  #status .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #444;
+  }
+  #status.live .dot {
+    background: #2ecc71;
+  }
+  #idle {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 16px;
+  }
+</style>
+</head>
+<body>
+  <div id="status"><span class="dot"></span><span id="status-text">conectando…</span></div>
+  <div id="app">
+    <div id="title"></div>
+    <div id="text">
+      <span id="idle">Aguardando o início da transmissão…</span>
+    </div>
+    <div id="reference"></div>
+  </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var sessionId = params.get("session");
+      var relayUrl = params.get("relay");
+
+      var titleEl = document.getElementById("title");
+      var textEl = document.getElementById("text");
+      var referenceEl = document.getElementById("reference");
+      var statusEl = document.getElementById("status");
+      var statusTextEl = document.getElementById("status-text");
+
+      if (!sessionId || !relayUrl) {
+        textEl.textContent = "Link inválido. Escaneie o QR Code exibido na tela do culto.";
+        return;
+      }
+
+      function setStatus(live, label) {
+        statusEl.classList.toggle("live", live);
+        statusTextEl.textContent = label;
+      }
+
+      function render(state) {
+        if (!state || state.type === "idle" || (!state.text && !state.title)) {
+          titleEl.textContent = "";
+          textEl.innerHTML = '<span id="idle">Aguardando o início da transmissão…</span>';
+          referenceEl.textContent = "";
+          return;
+        }
+        titleEl.textContent = state.title || "";
+        textEl.textContent = state.text || "";
+        referenceEl.textContent = state.reference || "";
+      }
+
+      var streamUrl = relayUrl.replace(/\/$/, "") + "/api/sessions/" + encodeURIComponent(sessionId) + "/stream";
+      var stateUrl = relayUrl.replace(/\/$/, "") + "/api/sessions/" + encodeURIComponent(sessionId) + "/state";
+
+      var pollTimer = null;
+      var lastEtag = null;
+
+      function stopPolling() {
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+      }
+
+      function startPolling() {
+        if (pollTimer) return;
+        setStatus(false, "modo economia de dados");
+        pollTimer = setInterval(function () {
+          var headers = lastEtag ? { "If-None-Match": lastEtag } : {};
+          fetch(stateUrl, { headers: headers })
+            .then(function (res) {
+              if (res.status === 304) return null;
+              lastEtag = res.headers.get("ETag");
+              return res.json();
+            })
+            .then(function (state) {
+              if (state) render(state);
+            })
+            .catch(function () {});
+        }, 8000);
+      }
+
+      var es = null;
+      var retries = 0;
+
+      function connect() {
+        try {
+          es = new EventSource(streamUrl);
+        } catch (e) {
+          startPolling();
+          return;
+        }
+
+        es.addEventListener("open", function () {
+          retries = 0;
+          stopPolling();
+          setStatus(true, "ao vivo");
+        });
+
+        es.addEventListener("state", function (event) {
+          render(JSON.parse(event.data));
+        });
+
+        es.addEventListener("error", function () {
+          es.close();
+          retries++;
+          if (retries >= 3) {
+            // Depois de algumas falhas de reconexão (proxy bloqueando SSE,
+            // rede muito instável), cai para polling — menos instantâneo,
+            // mas continua funcionando.
+            startPolling();
+          } else {
+            setStatus(false, "reconectando…");
+            setTimeout(connect, 1500 * retries);
+          }
+        });
+      }
+
+      connect();
+    })();
+  </script>
+</body>
+</html>
