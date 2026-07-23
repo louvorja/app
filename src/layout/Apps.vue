@@ -39,11 +39,12 @@
                       ? 'error'
                       : module.development
                         ? 'warning'
-                        : $theme.primary()
+                        : groupColor(group_key)
                   "
                   @click="$modules.open(module_key)"
-                  class="ma-1"
+                  class="ma-1 lj-app-tile"
                   :width="140"
+                  rounded="xl"
                 >
                   <v-card-text
                     class="d-flex flex-column align-center justify-center h-100 px-0"
@@ -117,6 +118,18 @@ export default {
       //Ordena pelo idioma selecionado
       return this.$modules.sort(modules, this.$t);
     },
+    groupColor(group_key) {
+      // Cores da identidade visual oficial (Manual Prático de Marca),
+      // uma por categoria, para diferenciar os grupos na tela inicial.
+      return (
+        {
+          musics: "#2f557f", // Denim
+          bible: "#3e8391", // Ming
+          planning: "#4b207f", // Emperor
+          utilities: "#4d7549", // Cool
+        }[group_key] || this.$theme.primary()
+      );
+    },
     countModules(modules) {
       return Object.keys(modules).filter((key) =>
         !this.is_dev
@@ -135,5 +148,20 @@ export default {
 .apps {
   overflow: auto !important;
   width: 100%;
+}
+
+:deep(.lj-app-tile) {
+  background-image: linear-gradient(
+    150deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0) 55%
+  );
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease;
+}
+
+:deep(.lj-app-tile:hover) {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.26);
 }
 </style>

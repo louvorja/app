@@ -3,7 +3,7 @@
     <template v-slot:prepend>
       <v-app-bar-nav-icon @click="$appdata.toogle('menu.show')" />
     </template>
-    <v-app-bar-title>{{ $t("app.name") }}</v-app-bar-title>
+    <v-app-bar-title class="brand-font lj-app-title">{{ $t("app.name") }}</v-app-bar-title>
     <v-spacer />
 
     <v-bottom-sheet v-if="remote">
@@ -116,5 +116,15 @@ export default {
 #header-bar {
   position: initial !important;
   flex: 0 !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+:deep(#header-bar .v-toolbar__content) {
+  background: rgba(var(--v-theme-primary), 0.92);
+}
+
+.lj-app-title {
+  letter-spacing: 0.02em;
 }
 </style>

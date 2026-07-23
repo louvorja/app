@@ -9,10 +9,10 @@
     :height="w_height"
     :theme="dark ? 'dark' : ''"
   >
-    <v-card :color="color ? color : ''">
+    <v-card :color="color ? color : ''" class="lj-glass-window">
       <slot name="toolbar">
         <div
-          class="d-flex flex-no-wrap align-stretch flex-row justify-space-between"
+          class="d-flex flex-no-wrap align-stretch flex-row justify-space-between lj-glass-toolbar"
         >
           <div
             v-if="icon"
@@ -273,3 +273,20 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+:deep(.lj-glass-window) {
+  border-radius: 20px !important;
+  overflow: hidden;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  background: rgba(var(--v-theme-surface), 0.9) !important;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.35);
+}
+
+.lj-glass-toolbar {
+  background: rgba(var(--v-theme-primary), 0.06);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+</style>

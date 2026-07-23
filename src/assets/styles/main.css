@@ -76,3 +76,19 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
 }
+
+/* Fundo de trabalho: gradiente sutil com as cores oficiais da igreja */
+.bg-main {
+    background-image:
+        radial-gradient(at 15% 0%, rgba(0, 51, 102, 0.10) 0px, transparent 55%),
+        radial-gradient(at 85% 15%, rgba(62, 131, 145, 0.10) 0px, transparent 55%),
+        radial-gradient(at 50% 100%, rgba(75, 32, 127, 0.06) 0px, transparent 60%);
+    background-attachment: fixed;
+}
+
+.v-theme--dark .bg-main {
+    background-image:
+        radial-gradient(at 15% 0%, rgba(0, 51, 102, 0.35) 0px, transparent 55%),
+        radial-gradient(at 85% 15%, rgba(62, 131, 145, 0.18) 0px, transparent 55%),
+        radial-gradient(at 50% 100%, rgba(75, 32, 127, 0.16) 0px, transparent 60%);
+}

@@ -5,6 +5,23 @@ import "vuetify/styles";
 // Vuetify
 import { createVuetify } from "vuetify";
 
+// Paleta de cores da identidade visual oficial da Igreja Adventista do
+// Sétimo Dia (Manual Prático de Marca): a cor institucional adotada pela
+// Divisão Sul-Americana para materiais oficiais, mais as cores sugeridas
+// pela Associação Geral para uso institucional.
+// Fonte: Manual-Pratico-de-Marca-Versao1ponto2.pdf
+const BRAND = {
+  navy: "#003366", // Cor institucional (Divisão Sul-Americana)
+  denim: "#2f557f",
+  ming: "#3e8391",
+  treeFrog: "#448d21",
+  warm: "#ffa92d",
+  emperor: "#4b207f",
+  grapevine: "#7f264a",
+  earth: "#5e3929",
+  cool: "#4d7549",
+};
+
 export default createVuetify({
   theme: {
     defaultTheme: "darkblue",
@@ -12,55 +29,55 @@ export default createVuetify({
       light: {
         dark: false,
         colors: {
-          primary: "#29569b",
+          primary: BRAND.denim,
         },
       },
       darkblue: {
         dark: false,
         colors: {
-          primary: "#1b2a41",
+          primary: BRAND.navy,
         },
       },
       blue: {
         dark: false,
         colors: {
-          primary: "#0b3d62",
+          primary: BRAND.ming,
         },
       },
       green: {
         dark: false,
         colors: {
-          primary: "#077568",
+          primary: BRAND.treeFrog,
         },
       },
       orange: {
         dark: false,
         colors: {
-          primary: "#d24726",
+          primary: BRAND.warm,
         },
       },
       purple: {
         dark: false,
         colors: {
-          primary: "#80397b",
+          primary: BRAND.emperor,
         },
       },
       pink: {
         dark: false,
         colors: {
-          primary: "#e91e63",
+          primary: BRAND.grapevine,
         },
       },
       black: {
         dark: false,
         colors: {
-          primary: "#2e2e2e",
+          primary: BRAND.earth,
         },
       },
       dark: {
         dark: true,
         colors: {
-          primary: "#2e2e2e",
+          primary: BRAND.cool,
         },
       },
     },

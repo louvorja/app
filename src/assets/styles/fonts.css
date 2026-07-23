@@ -4,3 +4,23 @@
   font-weight: bold;
   font-style: normal;
 }
+
+/* Fonte oficial da Igreja Adventista (Manual Prático de Marca), reservada
+   para o nome do app e outros usos junto ao "logotipo" — não para texto
+   corrido, conforme orientação do manual. */
+@font-face {
+  font-family: "Advent Sans";
+  src: url("../fonts/AdventSans-Logo.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Noto Sans é a fonte auxiliar oficial para textos, indicada no mesmo manual. */
+.v-application,
+body {
+  font-family: "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.brand-font {
+  font-family: "Advent Sans", "Noto Sans", sans-serif;
+}
