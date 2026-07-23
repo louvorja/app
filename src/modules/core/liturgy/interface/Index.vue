@@ -2,33 +2,49 @@
   <ModuleContainer ref="moduleContainer" :manifest="manifest">
     <template v-slot:header>
       <div class="d-flex align-center">
-        <v-tabs v-model="activeDay" density="compact" show-arrows class="flex-grow-1">
+        <v-tabs v-model="activeDay" density="compact" show-arrows class="flex-grow-1" style="min-width: 0">
           <v-tab v-for="day in weekdays" :key="day" :value="day">
-            {{ t(`weekdays.${day}`) }}
+            {{ isMobile ? t(`weekdays_short.${day}`) : t(`weekdays.${day}`) }}
           </v-tab>
         </v-tabs>
 
-        <v-btn
-          icon="mdi-file-pdf-box"
-          variant="text"
-          size="small"
-          :title="t('export.pdf_tooltip')"
-          @click="exportDialog = true"
-        />
-        <v-btn
-          icon="mdi-download"
-          variant="text"
-          size="small"
-          :title="t('export.backup_tooltip')"
-          @click="exportBackup"
-        />
-        <v-btn
-          icon="mdi-upload"
-          variant="text"
-          size="small"
-          :title="t('export.import_tooltip')"
-          @click="triggerImport"
-        />
+        <!-- Mobile: os 3 botões de exportar/importar viram um menu, pra
+             sobrar espaço de verdade para as abas dos dias. -->
+        <template v-if="isMobile">
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" size="small" />
+            </template>
+            <v-list density="compact">
+              <v-list-item prepend-icon="mdi-file-pdf-box" :title="t('export.pdf_tooltip')" @click="exportDialog = true" />
+              <v-list-item prepend-icon="mdi-download" :title="t('export.backup_tooltip')" @click="exportBackup" />
+              <v-list-item prepend-icon="mdi-upload" :title="t('export.import_tooltip')" @click="triggerImport" />
+            </v-list>
+          </v-menu>
+        </template>
+        <template v-else>
+          <v-btn
+            icon="mdi-file-pdf-box"
+            variant="text"
+            size="small"
+            :title="t('export.pdf_tooltip')"
+            @click="exportDialog = true"
+          />
+          <v-btn
+            icon="mdi-download"
+            variant="text"
+            size="small"
+            :title="t('export.backup_tooltip')"
+            @click="exportBackup"
+          />
+          <v-btn
+            icon="mdi-upload"
+            variant="text"
+            size="small"
+            :title="t('export.import_tooltip')"
+            @click="triggerImport"
+          />
+        </template>
         <input
           ref="importInput"
           type="file"
@@ -218,6 +234,9 @@ export default {
     },
     board() {
       return this.liturgy[this.activeDay];
+    },
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
     },
   },
   watch: {

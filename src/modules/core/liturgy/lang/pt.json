@@ -9,6 +9,15 @@
     "saturday": "Sábado",
     "sunday": "Domingo"
   },
+  "weekdays_short": {
+    "monday": "Seg",
+    "tuesday": "Ter",
+    "wednesday": "Qua",
+    "thursday": "Qui",
+    "friday": "Sex",
+    "saturday": "Sáb",
+    "sunday": "Dom"
+  },
   "column": {
     "add": "Nova coluna",
     "name": "Nome da coluna",

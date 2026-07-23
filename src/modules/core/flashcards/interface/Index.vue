@@ -2,7 +2,11 @@
   <ModuleContainer ref="moduleContainer" :manifest="manifest">
     <div class="d-flex align-stretch" style="height: 100%; overflow: hidden">
       <!-- Lista de baralhos -->
-      <div style="width: 260px; min-width: 260px; overflow-y: auto" class="border-e">
+      <div
+        v-if="!isMobile || !selectedId"
+        :style="isMobile ? 'width:100%; overflow-y:auto' : 'width: 260px; min-width: 260px; overflow-y: auto'"
+        class="border-e"
+      >
         <v-list density="compact" nav>
           <v-list-item
             v-for="deck in decks"
@@ -36,8 +40,17 @@
       </div>
 
       <!-- Editor do baralho selecionado -->
-      <div class="flex-grow-1 pa-4" style="overflow-y: auto">
+      <div v-if="!isMobile || selectedId" class="flex-grow-1 pa-4" style="overflow-y: auto">
         <template v-if="selectedDeck">
+          <v-btn
+            v-if="isMobile"
+            variant="text"
+            prepend-icon="mdi-arrow-left"
+            class="mb-2"
+            @click="selectedId = null"
+          >
+            {{ t("title") }}
+          </v-btn>
           <div class="d-flex align-center mb-4 ga-2">
             <v-text-field
               v-model="selectedDeck.title"
@@ -218,6 +231,9 @@ export default {
     },
     showingAnswer() {
       return !!this.$appdata.get("modules.flashcards.data.show_answer");
+    },
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
     },
   },
   watch: {

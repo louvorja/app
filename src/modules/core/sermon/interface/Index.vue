@@ -3,7 +3,8 @@
     <div class="d-flex align-stretch" style="height: 100%; overflow: hidden">
       <!-- Lista de sermões -->
       <div
-        style="width: 260px; min-width: 260px; overflow-y: auto"
+        v-if="!isMobile || !selectedId"
+        :style="isMobile ? 'width:100%; overflow-y:auto' : 'width: 260px; min-width: 260px; overflow-y: auto'"
         class="border-e"
       >
         <v-list density="compact" nav>
@@ -47,8 +48,17 @@
       </div>
 
       <!-- Editor do sermão selecionado -->
-      <div class="flex-grow-1 pa-4" style="overflow-y: auto">
+      <div v-if="!isMobile || selectedId" class="flex-grow-1 pa-4" style="overflow-y: auto">
         <template v-if="selectedSermon">
+          <v-btn
+            v-if="isMobile"
+            variant="text"
+            prepend-icon="mdi-arrow-left"
+            class="mb-2"
+            @click="selectedId = null"
+          >
+            {{ t("title") }}
+          </v-btn>
           <v-text-field
             v-model="selectedSermon.title"
             :label="t('sermon_title')"
@@ -175,6 +185,9 @@ export default {
     },
     selectedSermon() {
       return this.sermons.find((sermon) => sermon.id == this.selectedId);
+    },
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
     },
   },
   watch: {

@@ -9,6 +9,15 @@
     "saturday": "Sábado",
     "sunday": "Domingo"
   },
+  "weekdays_short": {
+    "monday": "Lun",
+    "tuesday": "Mar",
+    "wednesday": "Mié",
+    "thursday": "Jue",
+    "friday": "Vie",
+    "saturday": "Sáb",
+    "sunday": "Dom"
+  },
   "column": {
     "add": "Nueva columna",
     "name": "Nombre de la columna",
