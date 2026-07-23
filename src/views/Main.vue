@@ -6,11 +6,11 @@
   <AppModules />
   <AppAlert />
 
-  <AppsRibbon v-if="this.$userdata.get('layout') == 'ribbon'" />
+  <AppsRibbon v-if="layout == 'ribbon' && !isMobile" />
 
-  <v-main v-if="this.$userdata.get('layout') !== 'ribbon'" class="bg-main">
+  <v-main v-if="layout !== 'ribbon' || isMobile" class="bg-main" :class="{ 'pb-mobile-nav': isMobile }">
     <Apps />
-    <AppTrayArea />
+    <AppTrayArea :horizontal="isMobile" />
   </v-main>
   <v-main class="d-flex flex-column" v-else>
     <v-sheet
@@ -25,6 +25,7 @@
   </v-main>
 
   <AppFooter />
+  <AppBottomNav v-if="isMobile" />
 </template>
 
 <script>
@@ -37,6 +38,7 @@ import AppAlert from "@/layout/Alert.vue";
 import Apps from "@/layout/Apps.vue";
 import AppsRibbon from "@/layout/AppsRibbon.vue";
 import AppTrayArea from "@/layout/TrayArea.vue";
+import AppBottomNav from "@/layout/BottomNav.vue";
 
 export default {
   name: "MainPage",
@@ -50,6 +52,15 @@ export default {
     Apps,
     AppsRibbon,
     AppTrayArea,
+    AppBottomNav,
+  },
+  computed: {
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
+    },
+    layout() {
+      return this.$userdata.get("layout");
+    },
   },
   mounted() {
     //Carregar os dados salvos
@@ -148,5 +159,11 @@ main {
   --v-layout-top: 0 !important;
   padding-top: 0 !important;
   overflow: auto !important;
+}
+
+/* Reserva espaço para a barra de navegação inferior fixa no mobile,
+   pra ela não tampar o fim do conteúdo. */
+.pb-mobile-nav {
+  padding-bottom: calc(56px + var(--safe-bottom));
 }
 </style>

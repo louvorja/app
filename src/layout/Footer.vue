@@ -1,5 +1,11 @@
 <template>
-  <v-footer id="footer-bar" class="pa-0" color="primary">
+  <v-footer
+    v-if="!isMobile || $media.isMinimized()"
+    id="footer-bar"
+    class="pa-0"
+    color="primary"
+    :class="{ 'lj-footer--above-nav': isMobile }"
+  >
     <l-player v-if="$media.isMinimized()" location="footer" />
     <v-row v-else class="ma-0 pa-0 align-center">
       <span class="text-caption pa-1">Versão {{ version }}</span>
@@ -30,6 +36,9 @@ export default {
     db_version: 0,
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
+    },
     version() {
       return packageJson.version + "." + this.db_version;
     },
@@ -53,6 +62,13 @@ export default {
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
   flex-wrap: wrap;
+}
+
+/* No mobile, a barra de navegação inferior é fixa por baixo — o rodapé
+   (player minimizado) precisa ficar acima dela, não por baixo. */
+.lj-footer--above-nav {
+  padding-bottom: 0;
+  margin-bottom: calc(56px + var(--safe-bottom));
 }
 
 .lj-credit-link {
