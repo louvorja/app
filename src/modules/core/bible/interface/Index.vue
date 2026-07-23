@@ -232,7 +232,7 @@
             />
           </div>
 
-          <div :style="`height: ${height / 2 - 30}px;`" class="mt-2">
+          <div :style="`height: ${compact ? height - 78 : height / 2 - 30}px;`" class="mt-2">
             <v-skeleton-loader
               v-show="loading_book || loading_verses"
               type="list-item-two-line"
@@ -299,7 +299,9 @@
               <LScreenBtn module="bible" />
             </v-toolbar>
           </div>
-          <Screen :height="compact ? height / 2 - 48 : height / 2 - 88" />
+          <!-- No mobile não existe segunda tela na maioria dos casos — o
+               preview preto só ocupa espaço sem servir pra nada. -->
+          <Screen v-if="!compact" :height="height / 2 - 88" />
         </div>
       </div>
     </template>
