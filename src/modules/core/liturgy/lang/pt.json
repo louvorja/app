@@ -27,7 +27,8 @@
       "song": "Música",
       "bible": "Versículo",
       "link": "Link Externo",
-      "media": "Mídia Local"
+      "media": "Mídia Local",
+      "sermon": "Sermão"
     },
     "notes": "Anotação (privada)",
     "notes_hint": "Só você vê isso — não aparece na projeção nem no PDF exportado."
@@ -63,6 +64,11 @@
     "kind_video": "Vídeo",
     "kind_audio": "Áudio",
     "url": "URL ou caminho do arquivo"
+  },
+  "sermon": {
+    "sermon": "Sermão",
+    "point": "Ponto",
+    "not_selected": "Crie um sermão com pontos no módulo Sermão para poder selecioná-lo aqui."
   },
   "export": {
     "pdf_tooltip": "Exportar em PDF",

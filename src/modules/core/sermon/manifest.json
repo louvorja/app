@@ -1,0 +1,11 @@
+{
+  "id": "sermon",
+  "name": "Sermão",
+  "description": "Organize os pontos do sermão com antecedência e projete-os na tela pública",
+  "category": "planning",
+  "icon": "mdi-podium",
+  "dependencies": [],
+  "moduleOptions": {
+    "size": "large"
+  }
+}

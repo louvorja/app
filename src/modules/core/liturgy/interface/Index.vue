@@ -239,6 +239,7 @@ export default {
           bible: "mdi-book-cross",
           link: "mdi-link-variant",
           media: "mdi-image-multiple",
+          sermon: "mdi-podium",
         }[type] || "mdi-file"
       );
     },
@@ -265,6 +266,12 @@ export default {
         return (
           popupModule == "link" &&
           this.$appdata.get("modules.link.data.url") == card.payload.url
+        );
+      }
+      if (card.type == "sermon") {
+        return (
+          popupModule == "sermon" &&
+          this.$appdata.get("modules.sermon.data.id") == card.id
         );
       }
       return false;

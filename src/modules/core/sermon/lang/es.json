@@ -1,0 +1,18 @@
+{
+  "title": "Sermón",
+  "new_sermon": "Nuevo sermón",
+  "sermon_title": "Título del sermón",
+  "delete_sermon_confirm": "¿Eliminar este sermón y todos sus puntos?",
+  "no_sermons": "Aún no hay sermones registrados.",
+  "select_sermon": "Selecciona un sermón a la izquierda, o crea uno nuevo.",
+  "no_points": "Ningún punto agregado. Haz clic en \"Agregar punto\".",
+  "point": {
+    "add": "Agregar punto",
+    "title": "Título del punto",
+    "text": "Texto / desarrollo",
+    "play": "Proyectar",
+    "stop": "Detener proyección",
+    "delete": "Eliminar punto",
+    "delete_confirm": "¿Eliminar este punto del sermón?"
+  }
+}

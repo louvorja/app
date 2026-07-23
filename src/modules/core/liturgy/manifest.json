@@ -4,7 +4,7 @@
   "description": "Organize o conteúdo do culto (músicas, versículos, links e mídias) em um quadro kanban, por dia da semana",
   "category": "planning",
   "icon": "mdi-view-column-outline",
-  "dependencies": ["musics", "bible", "media", "link"],
+  "dependencies": ["musics", "bible", "media", "link", "sermon"],
   "moduleOptions": {
     "size": "large"
   }

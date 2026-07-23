@@ -27,6 +27,10 @@
             <v-icon start icon="mdi-image-multiple" />
             {{ t("card.types.media") }}
           </v-btn>
+          <v-btn value="sermon" class="flex-grow-1">
+            <v-icon start icon="mdi-podium" />
+            {{ t("card.types.sermon") }}
+          </v-btn>
         </v-btn-toggle>
 
         <SongPicker v-if="type == 'song'" v-model="payload" />
@@ -41,6 +45,7 @@
           type="media"
           v-model="payload"
         />
+        <SermonPicker v-else-if="type == 'sermon'" v-model="payload" />
 
         <v-divider class="my-4" />
         <v-textarea
@@ -75,6 +80,7 @@
 import SongPicker from "./SongPicker.vue";
 import BiblePicker from "./BiblePicker.vue";
 import MediaLinkPicker from "./MediaLinkPicker.vue";
+import SermonPicker from "./SermonPicker.vue";
 
 export default {
   name: "LiturgyCardDialog",
@@ -82,6 +88,7 @@ export default {
     SongPicker,
     BiblePicker,
     MediaLinkPicker,
+    SermonPicker,
   },
   props: {
     modelValue: Boolean,

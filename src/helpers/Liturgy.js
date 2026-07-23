@@ -154,6 +154,16 @@ export default {
         });
         $popup.open("link");
         break;
+
+      case "sermon":
+        $appdata.set("modules.sermon.data", {
+          id: card.id,
+          title: card.payload.title,
+          text: card.payload.text,
+          sermon_title: card.payload.sermon_title,
+        });
+        $popup.open("sermon");
+        break;
     }
   },
 };
