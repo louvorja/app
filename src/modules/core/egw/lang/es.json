@@ -1,0 +1,24 @@
+{
+  "title": "Elena G. de White",
+  "tabs": {
+    "search": "Buscar",
+    "books": "Libros"
+  },
+  "search": {
+    "label": "Buscar en los escritos",
+    "hint": "Escribe una palabra o tema, ej: esperanza, oración, salud",
+    "empty": "Escribe un término arriba para buscar en los libros y escritos de Elena G. de White.",
+    "no_results": "No se encontraron resultados.",
+    "results_count": "{n} resultado(s)"
+  },
+  "book": {
+    "label": "Libro",
+    "select": "Selecciona un libro a la izquierda"
+  },
+  "toc": {
+    "select": "Selecciona un capítulo o sección"
+  },
+  "play": "Proyectar",
+  "loading": "Cargando...",
+  "error_generic": "No se pudo cargar el contenido. Verifica tu conexión e inténtalo de nuevo."
+}

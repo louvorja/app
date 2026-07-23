@@ -1,0 +1,24 @@
+{
+  "title": "Ellen G. White",
+  "tabs": {
+    "search": "Buscar",
+    "books": "Livros"
+  },
+  "search": {
+    "label": "Buscar nos escritos",
+    "hint": "Digite uma palavra ou tema, ex: esperança, oração, saúde",
+    "empty": "Digite um termo acima para buscar nos livros e escritos de Ellen G. White.",
+    "no_results": "Nenhum resultado encontrado.",
+    "results_count": "{n} resultado(s)"
+  },
+  "book": {
+    "label": "Livro",
+    "select": "Selecione um livro à esquerda"
+  },
+  "toc": {
+    "select": "Selecione um capítulo ou seção"
+  },
+  "play": "Projetar",
+  "loading": "Carregando...",
+  "error_generic": "Não foi possível carregar o conteúdo. Verifique sua conexão e tente novamente."
+}

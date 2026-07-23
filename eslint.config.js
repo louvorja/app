@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import pluginVue from "eslint-plugin-vue";
+import globals from "globals";
 
 export default [
   {
@@ -19,9 +20,9 @@ export default [
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {
-        browser: true,
-        node: true,
-        es2021: true,
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021,
         anime: "readonly",
       },
     },
