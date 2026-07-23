@@ -329,10 +329,7 @@ export default {
         const resp = await this.generateBotResponse(text);
         this.isTyping = false;
         this.messages.push({ role: "bot", text: resp.text, time: this.getCurrentTime() });
-        this.$nextTick(() => {
-          this.scrollToBottom();
-          if (this.messages.length <= 2) this.showQuickReplies = true;
-        });
+        this.$nextTick(() => this.scrollToBottom());
       } catch {
         this.isTyping = false;
         this.messages.push({ role: "bot", text: this.$t("chatbot.error"), time: this.getCurrentTime() });
@@ -473,7 +470,7 @@ export default {
       this.pendingBibleResult = { text: verseText, reference };
 
       return {
-        text: `<strong>${this.escapeHtml(reference)}</strong><div class="lj-bible-verse">"${this.escapeHtml(verseText)}"</div><div class="lj-search-results"><div class="lj-search-item lj-search-item--playable" data-project-bible="1">Projetar na tela pública</div></div>`,
+        text: `<strong>${this.escapeHtml(reference)}</strong><div class="lj-bible-verse">"${this.escapeHtml(verseText)}"</div><span class="lj-search-item__action" data-project-bible="1">Projetar na tela pública</span>`,
       };
     },
     async handleTodayLiturgy() {
@@ -639,6 +636,7 @@ export default {
         text: this.$t("chatbot.welcome"),
         time: this.getCurrentTime(),
       });
+      this.showQuickReplies = true;
     },
   },
 };
@@ -832,26 +830,43 @@ export default {
   30% { transform: translateY(-5px); opacity: 1; }
 }
 
-/* ========== SEARCH RESULTS ========== */
-.lj-search-results {
+/* ========== SEARCH RESULTS ==========
+   Estes seletores alcançam conteúdo injetado via v-html (respostas do bot),
+   que nunca recebe o atributo de escopo do Vue — por isso usam :deep(),
+   sem o qual essas regras nunca combinariam com nada. */
+.lj-bubble :deep(.lj-search-results) {
   margin-top: 8px; display: flex; flex-direction: column;
   gap: 4px; max-height: 240px; overflow-y: auto;
 }
-.lj-search-item {
+.lj-bubble :deep(.lj-search-item) {
   padding: 8px 10px; background: rgba(0,0,0,0.03);
   border-radius: 8px; transition: background 0.2s;
 }
-.lj-search-item--playable { cursor: pointer; }
-.lj-search-item:hover { background: rgba(0,0,0,0.06); }
-.lj-search-item__name { font-size: 13px; font-weight: 600; color: #333; }
-.lj-search-item__info { font-size: 11px; color: #888; margin-top: 2px; }
-.lj-search-item__action {
-  display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 600;
-  color: var(--current-primary, #1b2a41); cursor: pointer;
+.lj-bubble :deep(.lj-search-item--playable) { cursor: pointer; }
+.lj-bubble :deep(.lj-search-item:hover) { background: rgba(0,0,0,0.06); }
+.lj-bubble :deep(.lj-search-item__name) { font-size: 13px; font-weight: 600; color: #333; }
+.lj-bubble :deep(.lj-search-item__info) { font-size: 11px; color: #888; margin-top: 2px; }
+.lj-bubble :deep(.lj-search-item__action) {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 6px; font-size: 11px; font-weight: 700;
+  padding: 5px 12px; border-radius: 14px; cursor: pointer;
+  color: white; background: var(--current-primary, #1b2a41);
+  transition: filter 0.15s, transform 0.15s;
 }
-.lj-search-item__action:hover { text-decoration: underline; }
-.lj-bible-verse {
+.lj-bubble :deep(.lj-search-item__action)::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; opacity: 0.9;
+}
+.lj-bubble :deep(.lj-search-item__action:hover) { filter: brightness(1.15); transform: translateY(-1px); }
+.lj-bubble :deep(.lj-bible-verse) {
   margin-top: 6px; font-style: italic; font-size: 13px; line-height: 1.5;
+}
+
+/* ========== MESSAGE ENTRANCE ========== */
+.lj-msg { animation: ljMsgIn 0.25s ease; }
+@keyframes ljMsgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .lj-bubble--user + .lj-bubble__meta,
 .lj-bubble--user ~ .lj-bubble__meta {
