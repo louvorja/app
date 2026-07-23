@@ -135,6 +135,13 @@ const MODULE_INTENTS = [
   { id: "clock", keywords: ["abrir relogio", "abrir relógio"] },
   { id: "stopwatch", keywords: ["abrir cronometro", "abrir cronômetro"] },
   { id: "remote_control", keywords: ["controle remoto", "conectar no desktop"] },
+  { id: "egw", keywords: ["abrir ellen white", "abrir espirito de profecia", "abrir espírito de profecia", "abrir egw"] },
+];
+
+// Gatilhos que indicam um pedido de citação de Ellen G. White (não uma
+// pergunta bíblica) — usados para extrair o tema de busca do restante do texto.
+const EGW_TRIGGERS = [
+  "ellen white", "ellen g. white", "espirito de profecia", "espírito de profecia", "egw",
 ];
 
 // Base de conhecimento com apenas recursos que realmente existem no LouvorJA.
@@ -189,6 +196,7 @@ const QUICK_REPLIES = [
   { label: "Buscar música", text: "Quero buscar uma música" },
   { label: "Hinário", text: "Buscar no hinário" },
   { label: "Um versículo", text: "Salmos 23" },
+  { label: "Ellen White", text: "Ellen White sobre esperança" },
   { label: "Liturgia de hoje", text: "O que tem no culto de hoje?" },
   { label: "Tela de projeção", text: "Como uso a segunda tela?" },
   { label: "Atalhos", text: "Quais são os atalhos do LouvorJA?" },
@@ -214,6 +222,7 @@ export default {
     bibleBooks: null,
     bibleVersions: null,
     pendingBibleResult: null,
+    pendingEgwResults: [],
   }),
   computed: {
     // Aberto/fechado a partir de $appdata para poder ser acionado por um
@@ -348,6 +357,7 @@ export default {
       const isSearch = t.includes("buscar") || t.includes("procurar") || t.includes("achar") || t.includes("encontrar");
       const isMusic = t.includes("música") || t.includes("musica") || t.includes("hino") || t.includes("som") || t.includes("louvor");
       const isCollection = t.includes("coleção") || t.includes("colecoes") || t.includes("coletanea") || t.includes("coletânea") || t.includes("playlist") || t.includes("album") || t.includes("álbum") || t.includes("albuns") || t.includes("álbuns");
+      if (EGW_TRIGGERS.some((kw) => t.includes(kw))) return "egw_search";
       if (isSearch && isMusic) return "music_search";
       if (t.includes("hinari") || t.includes("hino adventista") || (/\d/.test(t) && !isCollection && isMusic)) return "hymnal_search";
       if (isCollection) return "categories";
@@ -371,6 +381,7 @@ export default {
 
       const intent = this.detectIntent(text);
       switch (intent) {
+        case "egw_search": return await this.handleEgwSearch(text);
         case "music_search": return await this.handleMusicSearch(text);
         case "hymnal_search": return await this.handleHymnalSearch(text);
         case "categories": return await this.handleCategories();
@@ -472,6 +483,47 @@ export default {
       return {
         text: `<strong>${this.escapeHtml(reference)}</strong><div class="lj-bible-verse">"${this.escapeHtml(verseText)}"</div><span class="lj-search-item__action" data-project-bible="1">Projetar na tela pública</span>`,
       };
+    },
+    async handleEgwSearch(query) {
+      let q = query.toLowerCase();
+      EGW_TRIGGERS.forEach((kw) => { q = q.replaceAll(kw, " "); });
+      q = q
+        .replace(/o que|diz|disse|escreveu|fala|falou|cite|citação|citacao|sobre|uma|algo|acerca de/gi, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!q) {
+        return { text: this.$t("chatbot.guardrail") };
+      }
+
+      let data;
+      try {
+        data = await this.$egw.search(q, this.locale, 5);
+      } catch (e) {
+        console.warn("[ChatFab] EGW search failed:", e);
+        return { text: "Não consegui buscar nos escritos de Ellen G. White agora. Tente novamente." };
+      }
+
+      if (!data.results?.length) {
+        return { text: `Não encontrei nada sobre "<strong>${this.escapeHtml(q)}</strong>" nos escritos de Ellen G. White.` };
+      }
+
+      this.pendingEgwResults = data.results;
+      return {
+        text: `Encontrei <strong>${data.results.length}</strong> trecho(s) de Ellen G. White sobre "<strong>${this.escapeHtml(q)}</strong>":${this.renderEgwResults(data.results)}`,
+      };
+    },
+    renderEgwResults(results) {
+      const html = results
+        .map(
+          (item, index) => `<div class="lj-search-item">
+            <div class="lj-search-item__name">${this.escapeHtml(item.refcode_long)}</div>
+            <div class="lj-bible-verse">${item.snippet}</div>
+            <span class="lj-search-item__action" data-project-egw-index="${index}">Projetar na tela pública</span>
+          </div>`,
+        )
+        .join("");
+      return `<div class="lj-search-results">${html}</div>`;
     },
     async handleTodayLiturgy() {
       const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -594,6 +646,16 @@ export default {
         this.$appdata.set("modules.bible.data.text", this.pendingBibleResult.text);
         this.$appdata.set("modules.bible.data.scriptural_reference", this.pendingBibleResult.reference);
         this.$popup.open("bible");
+        return;
+      }
+
+      const projectEgwBtn = event.target.closest("[data-project-egw-index]");
+      if (projectEgwBtn) {
+        const index = Number(projectEgwBtn.dataset.projectEgwIndex);
+        const item = this.pendingEgwResults[index];
+        if (item) {
+          this.$egw.project(this.$egw.stripHtml(item.snippet), item.refcode_long);
+        }
         return;
       }
 
