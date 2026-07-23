@@ -53,6 +53,20 @@
           />
         </l-toolbar-item>
 
+        <l-toolbar-item>
+          <v-text-field
+            v-model.number="userdata.target_minutes"
+            :label="t('customization.target_minutes')"
+            type="number"
+            min="0"
+            density="compact"
+            variant="outlined"
+            hide-details
+            style="max-width: 150px"
+            prepend-inner-icon="mdi-timer-alert-outline"
+          />
+        </l-toolbar-item>
+
         <v-spacer />
         <l-toolbar-item>
           <v-btn

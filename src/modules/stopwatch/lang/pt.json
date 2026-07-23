@@ -24,6 +24,7 @@
         "horizontal": "Horizontal",
         "border": "Borda",
         "size": "Tamanho",
-        "time_format": "Formato"
+        "time_format": "Formato",
+        "target_minutes": "Alvo (min)"
     }
 }

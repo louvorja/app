@@ -18,7 +18,7 @@
         opacity: userdata.image_opacity / 100,
       }"
     />
-    <span class="text-right" :style="textStyle">
+    <span :style="textStyle">
       {{ formattedTime }}
     </span>
   </div>
@@ -104,6 +104,9 @@ export default {
     timeFormat() {
       return this.userdata.time_format || "hh.mm.ss.ms";
     },
+    targetMinutes() {
+      return Number(this.userdata.target_minutes) || 0;
+    },
     alignClass() {
       const vertical = {
         start: "align-start",
@@ -130,11 +133,25 @@ export default {
     textStyle() {
       return {
         fontFamily: this.font,
-        color: this.fontColor,
+        color: this.alertColor || this.fontColor,
         zIndex: 1,
         fontSize: `${this.fontSizePc(this.fontSize)}px`,
         textAlign: `${this.horizontalAlign}`,
+        fontVariantNumeric: "tabular-nums",
+        letterSpacing: "0.02em",
+        transition: "color 0.4s ease",
+        textShadow: this.image
+          ? "0 0.05em 0.15em rgba(0, 0, 0, 0.55)"
+          : "none",
       };
+    },
+
+    alertColor() {
+      if (!this.targetMinutes) return null;
+      const targetMs = this.targetMinutes * 60000;
+      if (this.elapsedMs >= targetMs) return "#ff5252";
+      if (this.elapsedMs >= targetMs * 0.8) return "#ffb300";
+      return null;
     },
 
     startTime() {
@@ -151,12 +168,12 @@ export default {
       return this.appdata.is_running ?? null;
     },
 
-    formattedTime() {
-      const elapsedTime = this.now
-        ? this.now - (this.startTime ?? this.now)
-        : 0;
+    elapsedMs() {
+      return this.now ? this.now - (this.startTime ?? this.now) : 0;
+    },
 
-      const totalMilliseconds = elapsedTime;
+    formattedTime() {
+      const totalMilliseconds = this.elapsedMs;
       const hours = Math.floor(totalMilliseconds / 3600000);
       const minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
       const seconds = Math.floor((totalMilliseconds % 60000) / 1000);

@@ -24,6 +24,7 @@
         "horizontal": "Horizontal",
         "border": "Borde",
         "size": "Tamaño",
-        "time_format": "Formato"
+        "time_format": "Formato",
+        "target_minutes": "Meta (min)"
     }
 }
