@@ -59,6 +59,14 @@
         item-title="title"
       />
 
+      <l-select
+        :label="t('bilingual_mode')"
+        v-model="secondaryLang"
+        :items="secondaryLangOptions"
+        item-value="value"
+        item-title="title"
+      />
+
       <!-- Os campos abaixo serão exibidos apenas no mobile / reolução pequena -->
       <div v-if="compact">
         <div class="my-2" />
@@ -346,6 +354,14 @@ export default {
     verses: [],
     last_verse: 1,
     last_bible_file: null,
+    secondary: {
+      locale: null,
+      books: [],
+      versions: [],
+      verses: {},
+      id_bible_version: null,
+      last_bible_file: null,
+    },
   }),
   computed: {
     /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
@@ -427,6 +443,28 @@ export default {
     super_compact: function () {
       return this.$vuetify.display.width <= 400;
     },
+    otherLocale() {
+      return this.$i18n.locale == "pt" ? "es" : "pt";
+    },
+    secondaryLangOptions() {
+      return [
+        { value: "", title: this.t("bilingual_off") },
+        { value: "translation", title: this.otherLocale == "es" ? "Español" : "Português" },
+        { value: "grc", title: this.t("bilingual_greek") },
+        { value: "hbo", title: this.t("bilingual_hebrew") },
+      ];
+    },
+    secondaryLang: {
+      get() {
+        return this.$appdata.get(`modules.${this.module_id}.secondary_lang`) || "";
+      },
+      set(value) {
+        this.$userdata.set(`modules.${this.module_id}.secondary_lang`, value);
+        this.$appdata.set(`modules.${this.module_id}.secondary_lang`, value);
+        this.secondary.last_bible_file = null;
+        this.updateSecondaryText();
+      },
+    },
   },
   watch: {
     async show() {
@@ -458,6 +496,7 @@ export default {
     select_bible() {
       this.send("scriptural_reference", this.select_bible.scriptural_reference);
       this.send("text", this.select_bible.text);
+      this.updateSecondaryText();
     },
   },
   methods: {
@@ -745,6 +784,147 @@ export default {
       ).trim();
     },
 
+    async loadSecondaryLangData() {
+      if (
+        this.secondary.locale == this.otherLocale &&
+        this.secondary.books.length &&
+        this.secondary.versions.length
+      ) {
+        return;
+      }
+      this.secondary.locale = this.otherLocale;
+      this.secondary.books = await this.$database.get(
+        `${this.otherLocale}_bible_book`,
+      );
+      this.secondary.versions = await this.$database.get(
+        `${this.otherLocale}_bible_version`,
+      );
+      this.secondary.id_bible_version =
+        this.secondary.versions?.[0]?.id_bible_version || null;
+    },
+    clearSecondaryText(reference = null) {
+      this.send("text_secondary", null);
+      this.send("scriptural_reference_secondary", reference);
+      this.send("text_secondary_rtl", false);
+    },
+    async updateSecondaryText() {
+      const lang = this.secondaryLang;
+      if (!lang || !this.select_bible?.verses?.length) {
+        this.clearSecondaryText();
+        return;
+      }
+
+      try {
+        if (lang == "translation") {
+          await this.updateSecondaryTextTranslation();
+        } else {
+          await this.updateSecondaryTextOriginal(lang);
+        }
+      } catch {
+        this.clearSecondaryText();
+      }
+    },
+    async updateSecondaryTextTranslation() {
+      await this.loadSecondaryLangData();
+
+      const primaryBook = this.books.find(
+        (b) => b.id_bible_book == this.select_bible.id_bible_book,
+      );
+      const secondaryBook = this.secondary.books.find(
+        (b) => b.book_number == primaryBook?.book_number,
+      );
+      if (!secondaryBook || !this.secondary.id_bible_version) {
+        this.clearSecondaryText();
+        return;
+      }
+
+      const bible_file = `bible_${this.secondary.id_bible_version}_${secondaryBook.id_bible_book}_${this.select_bible.chapter}`;
+      if (bible_file != this.secondary.last_bible_file) {
+        this.secondary.verses = await this.$database.get(bible_file);
+        this.secondary.last_bible_file = bible_file;
+      }
+
+      const secondaryVersion = this.secondary.versions.find(
+        (v) => v.id_bible_version == this.secondary.id_bible_version,
+      );
+      const text = this.select_bible.verses
+        .map((num) => this.secondary.verses?.[num])
+        .filter((v) => v)
+        .join(" ");
+      const verses_interval = this.numbersInterval(
+        this.select_bible.verses.slice(),
+      );
+
+      this.send("text_secondary", text || null);
+      this.send(
+        "scriptural_reference_secondary",
+        text
+          ? (
+              secondaryBook.name +
+              " " +
+              this.select_bible.chapter +
+              (verses_interval ? `:${verses_interval}` : "") +
+              (secondaryVersion ? ` (${secondaryVersion.abbreviation})` : "")
+            ).trim()
+          : null,
+      );
+      this.send("text_secondary_rtl", false);
+    },
+    async updateSecondaryTextOriginal(lang) {
+      const primaryBook = this.books.find(
+        (b) => b.id_bible_book == this.select_bible.id_bible_book,
+      );
+      if (!primaryBook) {
+        this.clearSecondaryText();
+        return;
+      }
+
+      // Livros 1-39 = Antigo Testamento (Hebraico/Aramaico), 40-66 = Novo Testamento (Grego)
+      const isOldTestament = primaryBook.book_number <= 39;
+      if (
+        (lang == "grc" && isOldTestament) ||
+        (lang == "hbo" && !isOldTestament)
+      ) {
+        this.clearSecondaryText(
+          lang == "grc"
+            ? this.t("bilingual_greek_nt_only")
+            : this.t("bilingual_hebrew_ot_only"),
+        );
+        return;
+      }
+
+      const translation = lang == "grc" ? "TR" : "WLC";
+      const cache_key = `${translation}_${primaryBook.book_number}_${this.select_bible.chapter}`;
+      if (cache_key != this.secondary.last_bible_file) {
+        const response = await fetch(
+          `https://bolls.life/get-chapter/${translation}/${primaryBook.book_number}/${this.select_bible.chapter}/`,
+        );
+        if (!response.ok) throw new Error();
+        const data = await response.json();
+        this.secondary.verses = {};
+        data.forEach((v) => {
+          this.secondary.verses[v.verse] = v.text;
+        });
+        this.secondary.last_bible_file = cache_key;
+      }
+
+      const text = this.select_bible.verses
+        .map((num) => this.secondary.verses?.[num])
+        .filter((v) => v)
+        .join(" ");
+      const verses_interval = this.numbersInterval(
+        this.select_bible.verses.slice(),
+      );
+
+      this.send("text_secondary", text || null);
+      this.send(
+        "scriptural_reference_secondary",
+        text
+          ? `${lang == "grc" ? this.t("bilingual_greek") : this.t("bilingual_hebrew")} — ${primaryBook.name} ${this.select_bible.chapter}${verses_interval ? ":" + verses_interval : ""}`
+          : null,
+      );
+      this.send("text_secondary_rtl", lang == "hbo");
+    },
     getSelectedVerses(keys) {
       keys.sort((a, b) => a - b); // Ordena os versículos para garantir a sequência correta
       let result = "";
@@ -792,6 +972,10 @@ export default {
     },
   },
   async mounted() {
+    this.$appdata.set(
+      `modules.${this.module_id}.secondary_lang`,
+      this.$userdata.get(`modules.${this.module_id}.secondary_lang`) || "",
+    );
     await this.loadData();
   },
 };

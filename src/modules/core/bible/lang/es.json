@@ -6,6 +6,12 @@
     "verse": "Versículo",
     "verses": "Versículos",
     "verses_select": "Seleccionar versículos",
+    "bilingual_mode": "Modo Bilingüe / Estudio",
+    "bilingual_off": "Desactivado",
+    "bilingual_greek": "Griego (Textus Receptus)",
+    "bilingual_hebrew": "Hebreo/Arameo (Texto Masorético)",
+    "bilingual_greek_nt_only": "El griego solo está disponible para libros del Nuevo Testamento.",
+    "bilingual_hebrew_ot_only": "El hebreo/arameo solo está disponible para libros del Antiguo Testamento.",
     "customization": {
         "font": "Fuente",
         "color": "Color",

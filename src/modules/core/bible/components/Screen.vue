@@ -62,6 +62,47 @@
       >
         {{ bible.scriptural_reference }}
       </span>
+
+      <span
+        v-if="bible.text_secondary"
+        :dir="bible.text_secondary_rtl ? 'rtl' : 'ltr'"
+        :class="
+          'text-' +
+          (userdata.horizontal_align == 'start'
+            ? 'left'
+            : userdata.horizontal_align == 'end'
+              ? 'right'
+              : 'center')
+        "
+        :style="{
+          zIndex: 1,
+          marginTop: `${this.fontSizePc(2)}px`,
+          fontStyle: bible.text_secondary_rtl ? 'normal' : 'italic',
+          opacity: 0.85,
+          color: userdata.font_color,
+          fontSize: `${this.fontSizePc(userdata.font_size * 0.7)}px`,
+          fontFamily: bible.text_secondary_rtl
+            ? '\'Noto Sans Hebrew\', \'Arial Hebrew\', Arial, sans-serif'
+            : userdata.font || 'Arial, sans-serif',
+        }"
+      >
+        {{ bible.text_secondary }}
+      </span>
+      <span
+        v-if="bible.scriptural_reference_secondary"
+        :class="
+          'text-' + (userdata.horizontal_align == 'start' ? 'left' : 'right')
+        "
+        :style="{
+          zIndex: 1,
+          opacity: 0.85,
+          color: userdata.reference_font_color,
+          fontSize: `${this.fontSizePc(userdata.reference_font_size * 0.8)}px`,
+          fontFamily: userdata.reference_font || 'Arial, sans-serif',
+        }"
+      >
+        {{ bible.scriptural_reference_secondary }}
+      </span>
     </div>
   </div>
 </template>
