@@ -16,7 +16,7 @@
     "dev": "vite",
     "host": "vite --host",
     "files": "node node/server.js",
-    "git:tag": "git tag -a -f v%npm_package_version% -m \"Vers\u00e3o %npm_package_version%\" && git push origin -f v%npm_package_version% && git push -u origin main"
+    "git:tag": "git tag -a -f v%npm_package_version% -m \"Versão %npm_package_version%\" && git push origin -f v%npm_package_version% && git push -u origin main"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -25,6 +25,7 @@
     "core-js": "^3.40.0",
     "dotenv": "^17.3.1",
     "fs-extra": "^11.2.0",
+    "jspdf": "^4.2.1",
     "roboto-fontface": "*",
     "vue": "^3.5.29",
     "vue-country-flag-next": "^2.3.2",

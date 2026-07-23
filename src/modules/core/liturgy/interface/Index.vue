@@ -1,11 +1,42 @@
 <template>
   <ModuleContainer ref="moduleContainer" :manifest="manifest">
     <template v-slot:header>
-      <v-tabs v-model="activeDay" density="compact" show-arrows>
-        <v-tab v-for="day in weekdays" :key="day" :value="day">
-          {{ t(`weekdays.${day}`) }}
-        </v-tab>
-      </v-tabs>
+      <div class="d-flex align-center">
+        <v-tabs v-model="activeDay" density="compact" show-arrows class="flex-grow-1">
+          <v-tab v-for="day in weekdays" :key="day" :value="day">
+            {{ t(`weekdays.${day}`) }}
+          </v-tab>
+        </v-tabs>
+
+        <v-btn
+          icon="mdi-file-pdf-box"
+          variant="text"
+          size="small"
+          :title="t('export.pdf_tooltip')"
+          @click="exportDialog = true"
+        />
+        <v-btn
+          icon="mdi-download"
+          variant="text"
+          size="small"
+          :title="t('export.backup_tooltip')"
+          @click="exportBackup"
+        />
+        <v-btn
+          icon="mdi-upload"
+          variant="text"
+          size="small"
+          :title="t('export.import_tooltip')"
+          @click="triggerImport"
+        />
+        <input
+          ref="importInput"
+          type="file"
+          accept="application/json"
+          class="d-none"
+          @change="onImportFile"
+        />
+      </div>
     </template>
 
     <div class="d-flex align-start" style="overflow-x: auto; min-height: 100%">
@@ -118,6 +149,11 @@
     </div>
 
     <CardDialog v-model="dialog" :card="editingCard" @save="saveCard" />
+    <ExportPdfDialog
+      v-model="exportDialog"
+      :active-day="activeDay"
+      @confirm="onExportPdfConfirm"
+    />
   </ModuleContainer>
 </template>
 
@@ -126,6 +162,7 @@ import draggable from "vuedraggable";
 import manifest from "../manifest.json";
 import ModuleContainer from "@/components/ModuleContainer.vue";
 import CardDialog from "./components/CardDialog.vue";
+import ExportPdfDialog from "./components/ExportPdfDialog.vue";
 import { WEEKDAYS } from "@/helpers/Liturgy";
 
 export default {
@@ -134,6 +171,7 @@ export default {
     ModuleContainer,
     draggable,
     CardDialog,
+    ExportPdfDialog,
   },
   data: () => ({
     weekdays: WEEKDAYS,
@@ -142,6 +180,7 @@ export default {
     dialog: false,
     editingCard: null,
     editingColumnId: null,
+    exportDialog: false,
   }),
   computed: {
     /* COMPUTEDS OBRIGATÓRIAS - INÍCIO */
@@ -271,6 +310,64 @@ export default {
       } else {
         column.cards.push(this.$liturgy.newCard(type, payload));
       }
+    },
+    async onExportPdfConfirm(days) {
+      const { generateLiturgyPdf } = await import("../pdf.js");
+      const dayLabels = {};
+      this.weekdays.forEach((day) => {
+        dayLabels[day] = this.t(`weekdays.${day}`);
+      });
+      const doc = generateLiturgyPdf(
+        days,
+        this.liturgy,
+        dayLabels,
+        this.t("export.pdf_doc_title"),
+      );
+      doc.save(`liturgia-${new Date().toISOString().slice(0, 10)}.pdf`);
+    },
+    exportBackup() {
+      const json = this.$liturgy.exportData(this.liturgy);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `liturgia-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    triggerImport() {
+      this.$refs.importInput.click();
+    },
+    onImportFile(event) {
+      const file = event.target.files[0];
+      event.target.value = "";
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        let imported;
+        try {
+          imported = this.$liturgy.importData(reader.result);
+        } catch (e) {
+          this.$alert.error({
+            text: `modules.${this.module_id}.export.import_error`,
+            error: e,
+          });
+          return;
+        }
+
+        this.$alert.yesno(`modules.${this.module_id}.export.import_confirm`, (btn) => {
+          if (btn == "yes") {
+            this.liturgy = imported;
+          }
+        });
+      };
+      reader.onerror = () => {
+        this.$alert.error({ text: `modules.${this.module_id}.export.import_error` });
+      };
+      reader.readAsText(file);
     },
   },
   created() {

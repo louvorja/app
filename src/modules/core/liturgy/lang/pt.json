@@ -61,5 +61,16 @@
     "kind_video": "Vídeo",
     "kind_audio": "Áudio",
     "url": "URL ou caminho do arquivo"
+  },
+  "export": {
+    "pdf_tooltip": "Exportar em PDF",
+    "pdf_title": "Exportar programação em PDF",
+    "pdf_description": "Escolha os dias que deseja incluir no PDF.",
+    "pdf_doc_title": "Programação do Culto",
+    "download_pdf": "Baixar PDF",
+    "backup_tooltip": "Exportar arquivo de backup (todos os dias)",
+    "import_tooltip": "Importar arquivo de backup",
+    "import_confirm": "Importar este arquivo vai substituir toda a programação atual (todos os dias). Deseja continuar?",
+    "import_error": "Não foi possível importar este arquivo. Verifique se é um backup válido da Liturgia."
   }
 }

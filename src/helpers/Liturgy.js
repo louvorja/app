@@ -57,6 +57,43 @@ export default {
     $storage.set(STORAGE_KEY, data);
   },
 
+  /**
+   * Serializa toda a liturgia (todos os dias) para um arquivo de backup
+   * que pode ser importado depois, no mesmo computador ou em outro.
+   */
+  exportData(data) {
+    return JSON.stringify(
+      {
+        app: "louvorja",
+        type: "liturgy_export",
+        version: 1,
+        exported_at: new Date().toISOString(),
+        data,
+      },
+      null,
+      2,
+    );
+  },
+
+  /**
+   * Lê o conteúdo de um arquivo exportado por exportData() (ou o formato
+   * bruto, para compatibilidade) e devolve um objeto de liturgia válido,
+   * preenchendo com o padrão qualquer dia ausente ou inválido.
+   */
+  importData(jsonText) {
+    const parsed = JSON.parse(jsonText);
+    const data = parsed && typeof parsed === "object" && parsed.data ? parsed.data : parsed;
+
+    const result = {};
+    WEEKDAYS.forEach((day) => {
+      result[day] =
+        data?.[day] && Array.isArray(data[day].columns)
+          ? data[day]
+          : { columns: defaultColumns() };
+    });
+    return result;
+  },
+
   addColumn(board, name) {
     board.columns.push({ id: uid(), name, cards: [] });
   },
