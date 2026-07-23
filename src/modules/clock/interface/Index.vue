@@ -65,6 +65,16 @@
             style="width: 160px"
           />
         </l-toolbar-item>
+
+        <l-toolbar-item>
+          <v-switch
+            v-model="userdata.show_date"
+            color="primary"
+            density="compact"
+            hide-details
+            :label="t('customization.show_date')"
+          />
+        </l-toolbar-item>
       </l-toolbar>
     </template>
 

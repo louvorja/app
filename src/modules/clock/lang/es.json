@@ -15,6 +15,7 @@
         "border": "Borde",
         "size": "Tamano",
         "hour_cycle": "Ciclo de Horas",
-        "time_format": "Formato de Hora"
+        "time_format": "Formato de Hora",
+        "show_date": "Mostrar fecha"
     }
 }

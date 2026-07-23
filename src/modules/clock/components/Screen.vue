@@ -19,9 +19,14 @@
       }"
     />
 
-    <span class="text-right" :style="textStyle">
-      {{ time }}
-    </span>
+    <div class="d-flex flex-column" :style="{ alignItems: alignItems }">
+      <span :style="textStyle">
+        {{ time }}
+      </span>
+      <span v-if="showDate" :style="dateStyle">
+        {{ date }}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -35,6 +40,7 @@ export default {
     s_height: 0,
     timer: null,
     time: null,
+    date: null,
   }),
   computed: {
     module_id() {
@@ -93,6 +99,16 @@ export default {
     timeFormat() {
       return this.userdata.time_format || "hh:mm:ss";
     },
+    showDate() {
+      return !!this.userdata.show_date;
+    },
+    alignItems() {
+      return (
+        { start: "flex-start", center: "center", end: "flex-end" }[
+          this.horizontalAlign
+        ] || "center"
+      );
+    },
     alignClass() {
       const vertical = {
         start: "align-start",
@@ -123,7 +139,30 @@ export default {
         zIndex: 1,
         fontSize: `${this.fontSizePc(this.fontSize)}px`,
         textAlign: `${this.horizontalAlign}`,
+        fontVariantNumeric: "tabular-nums",
+        letterSpacing: "0.03em",
+        lineHeight: 1.1,
+        textShadow: this.image
+          ? "0 0.05em 0.15em rgba(0, 0, 0, 0.55)"
+          : "none",
       };
+    },
+    dateStyle() {
+      return {
+        fontFamily: this.font,
+        color: this.fontColor,
+        zIndex: 1,
+        opacity: 0.75,
+        fontSize: `${this.fontSizePc(this.fontSize * 0.28)}px`,
+        textAlign: `${this.horizontalAlign}`,
+        textTransform: "capitalize",
+        letterSpacing: "0.02em",
+      };
+    },
+  },
+  watch: {
+    showDate() {
+      this.updateTime();
     },
   },
   methods: {
@@ -176,6 +215,14 @@ export default {
       }
 
       this.time = timeStr;
+
+      if (this.showDate) {
+        this.date = new Intl.DateTimeFormat(this.$i18n.locale, {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        }).format(now);
+      }
     },
   },
   mounted() {
