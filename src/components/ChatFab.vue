@@ -351,11 +351,28 @@ export default {
         default: {
           const local = this.handleKnowledge(text);
           if (local) return local;
-          return {
-            text: this.$t("chatbot.guardrail"),
-          };
+          return await this.handleImplicitSearch(text);
         }
       }
+    },
+    // Fallback for free text that isn't an explicit "buscar música X" command
+    // (e.g. the user just types a song/hymn name or a line from the lyrics).
+    async handleImplicitSearch(text) {
+      const q = text.trim();
+      if (q.length < 2) {
+        return { text: this.$t("chatbot.guardrail") };
+      }
+
+      await this.fetchMusicIndex();
+      const arr = Array.isArray(this.musicIndex) ? this.musicIndex : (this.musicIndex?.data || []);
+      const results = arr.filter((m) => (m.name || "").toLowerCase().includes(q)).slice(0, 8);
+      if (results.length) {
+        return {
+          text: `Encontrei <strong>${results.length}</strong> resultado(s) para "<strong>${this.escapeHtml(q)}</strong>", toque para reproduzir:${this.renderMusicResults(results)}`,
+        };
+      }
+
+      return { text: this.$t("chatbot.guardrail") };
     },
     openModule(id) {
       this.$modules.open(id);
