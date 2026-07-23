@@ -1,0 +1,33 @@
+{
+  "title": "Preguntas y Respuestas",
+  "new_deck": "Nuevo mazo",
+  "untitled": "Mazo sin título",
+  "deck_title": "Título del mazo",
+  "delete_deck_confirm": "¿Eliminar este mazo y todas sus cartas?",
+  "no_decks": "Aún no hay mazos registrados.",
+  "select_deck": "Selecciona un mazo a la izquierda, o crea uno nuevo.",
+  "no_cards": "Ninguna carta agregada. Haz clic en \"Agregar carta\".",
+  "card": {
+    "add": "Agregar carta",
+    "front": "Pregunta",
+    "back": "Respuesta",
+    "delete": "Eliminar carta",
+    "delete_confirm": "¿Eliminar esta carta?"
+  },
+  "present": "Presentar",
+  "present_dialog": {
+    "title": "Iniciar presentación",
+    "count": "Cuántas cartas",
+    "count_hint": "Deja en blanco para usar las {n} cartas del mazo",
+    "shuffle": "Mezclar orden",
+    "start": "Iniciar",
+    "cancel": "Cancelar"
+  },
+  "session": {
+    "reveal": "Revelar respuesta",
+    "hide": "Mostrar pregunta",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "stop": "Terminar presentación"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "title": "Perguntas e Respostas",
+  "new_deck": "Novo baralho",
+  "untitled": "Baralho sem título",
+  "deck_title": "Título do baralho",
+  "delete_deck_confirm": "Remover este baralho e todos os seus cards?",
+  "no_decks": "Nenhum baralho cadastrado ainda.",
+  "select_deck": "Selecione um baralho à esquerda, ou crie um novo.",
+  "no_cards": "Nenhum card adicionado. Clique em \"Adicionar card\".",
+  "card": {
+    "add": "Adicionar card",
+    "front": "Pergunta",
+    "back": "Resposta",
+    "delete": "Remover card",
+    "delete_confirm": "Remover este card?"
+  },
+  "present": "Apresentar",
+  "present_dialog": {
+    "title": "Iniciar apresentação",
+    "count": "Quantos cards",
+    "count_hint": "Deixe em branco para usar todos os {n} cards do baralho",
+    "shuffle": "Embaralhar ordem",
+    "start": "Iniciar",
+    "cancel": "Cancelar"
+  },
+  "session": {
+    "reveal": "Revelar resposta",
+    "hide": "Mostrar pergunta",
+    "prev": "Anterior",
+    "next": "Próximo",
+    "stop": "Encerrar apresentação"
+  }
+}

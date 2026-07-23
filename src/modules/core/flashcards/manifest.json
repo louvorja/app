@@ -1,0 +1,11 @@
+{
+  "id": "flashcards",
+  "name": "Perguntas e Respostas",
+  "description": "Crie baralhos de cards com pergunta de um lado e resposta do outro, para apresentar na tela pública",
+  "category": "planning",
+  "icon": "mdi-cards-outline",
+  "dependencies": [],
+  "moduleOptions": {
+    "size": "large"
+  }
+}
