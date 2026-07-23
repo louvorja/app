@@ -14,6 +14,9 @@
     "bible": {
       "title": "Biblia"
     },
+    "planning": {
+      "title": "Planificación"
+    },
     "utilities": {
       "title": "Utilidades"
     }
@@ -21,6 +24,19 @@
   "components": {
     "letterpagination": {
       "all": "Todas"
+    },
+    "screen_selector": {
+      "title": "Pantalla de Proyección",
+      "tooltip": "Elegir pantalla de proyección",
+      "description": "Elige en qué pantalla conectada debe abrirse automáticamente la exhibición pública (segunda pantalla).",
+      "not_supported": "Tu navegador no permite elegir la pantalla automáticamente. La ventana de exhibición se abrirá normalmente y podrás arrastrarla hacia la pantalla del proyector.",
+      "only_one_screen": "Solo se detectó una pantalla. Conecta el proyector/TV como pantalla extendida para poder elegir.",
+      "current_screen": "Esta pantalla",
+      "primary_screen": "Pantalla principal",
+      "screen": "Pantalla",
+      "select": "Usar esta pantalla",
+      "selected": "Seleccionada",
+      "detect": "Detectar pantallas"
     },
     "datatable": {
       "alerts": {
@@ -60,12 +76,11 @@
   },
   "chatbot": {
     "name": "LouvorJ.AI",
-    "status": "Online — Especialista en LouvorJA",
+    "status": "En línea — Asistente de LouvorJA",
     "placeholder": "Escribe tu mensaje...",
-    "send_file": "Enviar archivo",
-    "guardrail": "Lo siento, soy la IA LouvorJ.AI y solo puedo ayudar con dudas sobre LouvorJA.",
-    "fallback": "¿Necesitas ayuda? Visita <strong>louvorja.com/ajuda</strong> para tutoriales.",
-    "welcome": "¡Hola! Soy la <strong>LouvorJ.AI</strong>, tu asistente virtual. \n\nPuedo ayudarte con <strong>músicas</strong>, <strong>himnarios</strong>, <strong>atajos</strong>, <strong>traducción</strong> y más!",
+    "guardrail": "No entendí. Puedo ayudarte a buscar músicas, himnario, biblia, liturgia, o abrir algún módulo por ti — solo pídelo.",
+    "opening_module": "¡Listo! Abrí el módulo para ti.",
+    "welcome": "¡Hola! Soy la <strong>LouvorJ.AI</strong>. Puedo buscar <strong>músicas</strong> e <strong>himnos</strong>, explicar la <strong>Biblia</strong> y la <strong>Liturgia</strong>, o abrir módulos del programa por ti.",
     "error": "Ocurrió un error al procesar tu mensaje.",
     "new_conversation": "Nueva conversación",
     "close": "Cerrar chat",

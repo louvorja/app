@@ -14,6 +14,9 @@
     "bible": {
       "title": "Bíblia"
     },
+    "planning": {
+      "title": "Planejamento"
+    },
     "utilities": {
       "title": "Utilitários"
     }
@@ -21,6 +24,19 @@
   "components": {
     "letterpagination": {
       "all": "Todas"
+    },
+    "screen_selector": {
+      "title": "Tela de Projeção",
+      "tooltip": "Escolher tela de projeção",
+      "description": "Escolha em qual tela conectada a exibição pública (segunda tela) deve abrir automaticamente.",
+      "not_supported": "Seu navegador não permite escolher a tela automaticamente. A janela de exibição abrirá normalmente e você poderá arrastá-la para a tela do projetor.",
+      "only_one_screen": "Apenas uma tela foi detectada. Conecte o projetor/TV como tela estendida para poder escolher.",
+      "current_screen": "Esta tela",
+      "primary_screen": "Tela principal",
+      "screen": "Tela",
+      "select": "Usar esta tela",
+      "selected": "Selecionada",
+      "detect": "Detectar telas"
     },
     "datatable": {
       "alerts": {
@@ -60,12 +76,11 @@
   },
   "chatbot": {
     "name": "LouvorJ.AI",
-    "status": "Online — Especialista em LouvorJA",
+    "status": "Online — Assistente do LouvorJA",
     "placeholder": "Digite sua mensagem...",
-    "send_file": "Enviar arquivo",
-    "guardrail": "Desculpe, sou a IA LouvorJ.AI e só posso ajudar com dúvidas sobre o LouvorJA.",
-    "fallback": "Precisa de ajuda? Visite <strong>louvorja.com/ajuda</strong> para tutoriais completos.",
-    "welcome": "Olá! Sou a <strong>LouvorJ.AI</strong> sua assistente virtual. \n\nPosso te ajudar com <strong>músicas</strong>, <strong>hinários</strong>, <strong>atalhos da tecla</strong>, <strong>tradução</strong> e mais!",
+    "guardrail": "Não entendi. Posso ajudar com busca de músicas, hinário, bíblia, liturgia ou abrir algum módulo pra você — é só pedir.",
+    "opening_module": "Pronto! Abri o módulo para você.",
+    "welcome": "Olá! Sou a <strong>LouvorJ.AI</strong>. Posso buscar <strong>músicas</strong> e <strong>hinos</strong>, explicar a <strong>Bíblia</strong> e a <strong>Liturgia</strong>, ou abrir módulos do programa para você.",
     "error": "Ocorreu um erro ao processar sua mensagem.",
     "new_conversation": "Nova conversa",
     "close": "Fechar chat",

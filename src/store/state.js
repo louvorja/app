@@ -19,6 +19,10 @@ export default {
       title: "module_group.bible.title",
       modules: [],
     },
+    planning: {
+      title: "module_group.planning.title",
+      modules: [],
+    },
     utilities: {
       title: "module_group.utilities.title",
       modules: [],
