@@ -9,27 +9,27 @@
           variant="outlined"
           mandatory
           divided
-          class="mb-4 w-100"
+          class="mb-4 w-100 flex-wrap"
         >
-          <v-btn value="song" class="flex-grow-1">
-            <v-icon start icon="mdi-music-note" />
-            {{ t("card.types.song") }}
+          <v-btn value="song" class="flex-grow-1" :title="t('card.types.song')">
+            <v-icon :start="!isMobile" icon="mdi-music-note" />
+            <span v-if="!isMobile">{{ t("card.types.song") }}</span>
           </v-btn>
-          <v-btn value="bible" class="flex-grow-1">
-            <v-icon start icon="mdi-book-cross" />
-            {{ t("card.types.bible") }}
+          <v-btn value="bible" class="flex-grow-1" :title="t('card.types.bible')">
+            <v-icon :start="!isMobile" icon="mdi-book-cross" />
+            <span v-if="!isMobile">{{ t("card.types.bible") }}</span>
           </v-btn>
-          <v-btn value="link" class="flex-grow-1">
-            <v-icon start icon="mdi-link-variant" />
-            {{ t("card.types.link") }}
+          <v-btn value="link" class="flex-grow-1" :title="t('card.types.link')">
+            <v-icon :start="!isMobile" icon="mdi-link-variant" />
+            <span v-if="!isMobile">{{ t("card.types.link") }}</span>
           </v-btn>
-          <v-btn value="media" class="flex-grow-1">
-            <v-icon start icon="mdi-image-multiple" />
-            {{ t("card.types.media") }}
+          <v-btn value="media" class="flex-grow-1" :title="t('card.types.media')">
+            <v-icon :start="!isMobile" icon="mdi-image-multiple" />
+            <span v-if="!isMobile">{{ t("card.types.media") }}</span>
           </v-btn>
-          <v-btn value="sermon" class="flex-grow-1">
-            <v-icon start icon="mdi-podium" />
-            {{ t("card.types.sermon") }}
+          <v-btn value="sermon" class="flex-grow-1" :title="t('card.types.sermon')">
+            <v-icon :start="!isMobile" icon="mdi-podium" />
+            <span v-if="!isMobile">{{ t("card.types.sermon") }}</span>
           </v-btn>
         </v-btn-toggle>
 
@@ -108,6 +108,9 @@ export default {
       set(value) {
         this.$emit("update:modelValue", value);
       },
+    },
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
     },
   },
   watch: {
