@@ -3,7 +3,7 @@
   "name": "Módulo Template",
   "development": true,
   "description": "Módulo base para criação de outros módulos",
-  "category": "utilities",
+  "category": null,
   "icon": "mdi-monitor-dashboard",
   "customization": {
     "font": {
