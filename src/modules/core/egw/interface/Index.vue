@@ -82,6 +82,81 @@
     </div>
 
     <!-- LIVROS -->
+    <!-- Mobile: navegação em passos (só uma coluna por vez, com botão de
+         voltar) — os 3 painéis lado a lado do desktop não cabem numa tela
+         de celular. -->
+    <div v-else-if="isMobile" style="height: 100%; overflow-y: auto">
+      <template v-if="!books.selectedBookId">
+        <v-progress-linear v-if="books.loading" indeterminate />
+        <v-list density="compact" nav>
+          <v-list-item
+            v-for="book in books.list"
+            :key="book.book_id"
+            link
+            @click="selectBook(book)"
+          >
+            <v-list-item-title class="text-truncate">{{ book.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </template>
+
+      <template v-else-if="!books.selectedPara">
+        <v-btn variant="text" prepend-icon="mdi-arrow-left" class="ma-2" @click="books.selectedBookId = null">
+          {{ t("book.label") }}
+        </v-btn>
+        <v-progress-linear v-if="books.loadingToc" indeterminate />
+        <v-list density="compact" nav>
+          <v-list-item
+            v-for="entry in books.toc"
+            :key="entry.para_id"
+            link
+            :style="{ paddingLeft: `${12 + (entry.level || 0) * 14}px` }"
+            @click="selectTocEntry(entry)"
+          >
+            <v-list-item-title class="text-truncate text-body-2">
+              {{ entry.title }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </template>
+
+      <template v-else>
+        <v-btn variant="text" prepend-icon="mdi-arrow-left" class="ma-2" @click="books.selectedPara = null">
+          {{ t("toc.select") }}
+        </v-btn>
+        <div class="pa-4 pt-0">
+          <v-progress-linear v-if="books.loadingChapter" indeterminate class="mb-2" />
+          <template v-for="para in books.chapterParagraphs" :key="para.para_id">
+            <div
+              v-if="para.element_type != 'p'"
+              class="font-weight-bold mt-3 mb-1"
+              :class="para.element_type == 'h1' ? 'text-h6' : 'text-subtitle-1'"
+              v-html="para.content"
+            />
+            <v-card v-else variant="outlined" class="mb-2">
+              <v-card-text>
+                <div class="text-caption font-weight-medium text-primary mb-1">
+                  {{ para.refcode_long }}
+                </div>
+                <div class="text-body-2" v-html="para.content" />
+                <v-btn
+                  class="mt-2"
+                  size="small"
+                  color="primary"
+                  variant="tonal"
+                  prepend-icon="mdi-cast"
+                  @click="playParagraph(para)"
+                >
+                  {{ t("play") }}
+                </v-btn>
+              </v-card-text>
+            </v-card>
+          </template>
+        </div>
+      </template>
+    </div>
+
+    <!-- Desktop: 3 colunas lado a lado -->
     <div v-else class="d-flex align-stretch" style="height: 100%; overflow: hidden">
       <div style="width: 260px; min-width: 260px; overflow-y: auto" class="border-e">
         <v-progress-linear v-if="books.loading" indeterminate />
@@ -204,6 +279,9 @@ export default {
     },
     lang() {
       return this.$i18n.locale == "es" ? "es" : "pt";
+    },
+    isMobile() {
+      return this.$vuetify.display.width <= 600;
     },
   },
   watch: {
