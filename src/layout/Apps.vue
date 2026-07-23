@@ -64,6 +64,34 @@
                   </v-card-text>
                 </v-card>
               </template>
+
+              <!-- LouvorJ.AI não é um módulo (é o painel global de chat), mas
+                   mora visualmente junto dos Utilitários, como pedido. -->
+              <v-card
+                v-if="group_key === 'utilities'"
+                :color="groupColor('utilities')"
+                @click="$appdata.toogle('chatbot_open')"
+                class="ma-1 lj-app-tile"
+                :width="140"
+                rounded="xl"
+              >
+                <v-card-text
+                  class="d-flex flex-column align-center justify-center h-100 px-0"
+                >
+                  <v-icon
+                    icon="mdi-robot-outline"
+                    color="#FFFFFF"
+                    :size="40"
+                    style="flex: 1"
+                  />
+                  <v-card-title
+                    class="text-center font-weight-light text-title-small"
+                    style="text-wrap: initial"
+                  >
+                    <small>{{ $t("chatbot.name") }}</small>
+                  </v-card-title>
+                </v-card-text>
+              </v-card>
             </v-row>
           </v-container>
         </v-expansion-panel-text>

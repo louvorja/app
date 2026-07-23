@@ -118,19 +118,6 @@
       </button>
     </div>
   </v-navigation-drawer>
-
-  <!-- Toolbar button to open the chat -->
-  <v-btn
-    icon
-    variant="text"
-    size="small"
-    class="louvorj-chat-trigger"
-    :title="isOpen ? $t('chatbot.close') : $t('chatbot.open')"
-    @click="toggle"
-  >
-    <v-badge v-if="!isOpen && unreadCount > 0" :content="unreadCount" color="error" location="top-end" dot />
-    <img :src="botAvatar" alt="LouvorJ.AI" class="louvorj-chat-trigger__icon" />
-  </v-btn>
 </template>
 
 <script>
@@ -214,12 +201,10 @@ export default {
     return { theme };
   },
   data: () => ({
-    isOpen: false,
     messages: [],
     inputText: "",
     isTyping: false,
     welcomeShown: false,
-    unreadCount: 0,
     showQuickReplies: false,
     quickReplies: QUICK_REPLIES,
     musicIndex: null,
@@ -231,6 +216,16 @@ export default {
     pendingBibleResult: null,
   }),
   computed: {
+    // Aberto/fechado a partir de $appdata para poder ser acionado por um
+    // botão fora deste componente (o ícone na grade de Utilitários).
+    isOpen: {
+      get() {
+        return this.$appdata.get("chatbot_open", false);
+      },
+      set(value) {
+        this.$appdata.set("chatbot_open", value);
+      },
+    },
     botAvatar() {
       return new URL("@/assets/imgs/chatbot-avatar.jpg", import.meta.url).href;
     },
@@ -285,6 +280,25 @@ export default {
       return new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long" });
     },
   },
+  watch: {
+    // Roda os efeitos de abertura/fechamento não importa quem mudou isOpen
+    // (o botão de fechar daqui, ou o ícone de Utilitários em outro componente).
+    isOpen(value) {
+      if (value) {
+        this.$nextTick(() => {
+          this.showWelcome();
+          this.scrollToBottom();
+          if (this.$refs.inputField) this.$refs.inputField.focus();
+        });
+        if (!this.musicLoaded) {
+          this.musicLoaded = true;
+          this.fetchMusicIndex().catch(() => {});
+        }
+      } else {
+        this.showQuickReplies = false;
+      }
+    },
+  },
   methods: {
     darken(hex, percent) {
       const h = hex.replace("#", "");
@@ -296,18 +310,9 @@ export default {
     getCurrentTime() {
       return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     },
-    toggle() { this.isOpen ? this.close() : this.open(); },
-    open() {
-      this.isOpen = true;
-      this.unreadCount = 0;
-      this.$nextTick(() => {
-        this.showWelcome();
-        this.scrollToBottom();
-        if (this.$refs.inputField) this.$refs.inputField.focus();
-      });
-      if (!this.musicLoaded) { this.musicLoaded = true; this.fetchMusicIndex().catch(() => {}); }
-    },
-    close() { this.isOpen = false; this.showQuickReplies = false; },
+    toggle() { this.isOpen = !this.isOpen; },
+    open() { this.isOpen = true; },
+    close() { this.isOpen = false; },
     async sendMessage() {
       const text = this.inputText.trim();
       if (!text || this.isTyping) return;
@@ -324,7 +329,6 @@ export default {
         const resp = await this.generateBotResponse(text);
         this.isTyping = false;
         this.messages.push({ role: "bot", text: resp.text, time: this.getCurrentTime() });
-        if (!this.isOpen) this.unreadCount++;
         this.$nextTick(() => {
           this.scrollToBottom();
           if (this.messages.length <= 2) this.showQuickReplies = true;
@@ -653,31 +657,6 @@ export default {
   height: 100%;
 }
 
-/* ========== TRIGGER BUTTON ========== */
-.louvorj-chat-trigger {
-  position: fixed;
-  bottom: calc(20px + var(--safe-bottom));
-  right: calc(20px + var(--safe-right));
-  z-index: 999;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.louvorj-chat-trigger:hover {
-  transform: scale(1.05);
-}
-.louvorj-chat-trigger:active {
-  transform: scale(0.95);
-}
-.louvorj-chat-trigger__icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 /* ========== PANEL HEADER ========== */
 .lj-panel__header {
   display: flex;
@@ -881,12 +860,6 @@ export default {
 
 /* ========== MOBILE RESPONSIVE ========== */
 @media (max-width: 480px) {
-  .louvorj-chat-trigger {
-    bottom: calc(16px + var(--safe-bottom));
-    right: calc(16px + var(--safe-right));
-    width: 44px;
-    height: 44px;
-  }
   .lj-msg { max-width: 90%; }
 }
 </style>
