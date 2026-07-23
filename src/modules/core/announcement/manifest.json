@@ -1,0 +1,11 @@
+{
+  "id": "announcement",
+  "name": "Recados",
+  "description": "Crie recados com texto e imagem para divulgar e projetar na tela pública",
+  "category": "planning",
+  "icon": "mdi-bullhorn-outline",
+  "dependencies": [],
+  "moduleOptions": {
+    "size": "large"
+  }
+}

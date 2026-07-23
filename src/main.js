@@ -34,6 +34,7 @@ import Database from "@/helpers/Database";
 import Screen from "@/helpers/Screen";
 import Liturgy from "@/helpers/Liturgy";
 import Sermon from "@/helpers/Sermon";
+import Announcement from "@/helpers/Announcement";
 app.mixin({
   beforeCreate() {
     this.$userdata = UserData;
@@ -51,6 +52,7 @@ app.mixin({
     this.$screen = Screen;
     this.$liturgy = Liturgy;
     this.$sermon = Sermon;
+    this.$announcement = Announcement;
   },
 });
 

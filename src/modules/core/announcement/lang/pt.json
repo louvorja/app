@@ -1,0 +1,20 @@
+{
+  "title": "Recados",
+  "new_announcement": "Novo recado",
+  "untitled": "Recado sem título",
+  "announcement_title": "Título",
+  "announcement_text": "Texto",
+  "image": "Imagem",
+  "add_image": "Adicionar imagem",
+  "remove_image": "Remover imagem",
+  "image_too_large": "Imagem muito grande. Escolha um arquivo de até 5 MB.",
+  "no_announcements": "Nenhum recado cadastrado ainda.",
+  "select_announcement": "Selecione um recado à esquerda, ou crie um novo.",
+  "delete_confirm": "Remover este recado?",
+  "play": "Projetar",
+  "stop": "Parar projeção",
+  "export_tooltip": "Exportar recados",
+  "import_tooltip": "Importar recados",
+  "import_confirm": "Importar este arquivo vai substituir todos os recados atuais. Deseja continuar?",
+  "import_error": "Não foi possível importar este arquivo. Verifique se é um backup válido de Recados."
+}

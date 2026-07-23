@@ -1,0 +1,20 @@
+{
+  "title": "Avisos",
+  "new_announcement": "Nuevo aviso",
+  "untitled": "Aviso sin título",
+  "announcement_title": "Título",
+  "announcement_text": "Texto",
+  "image": "Imagen",
+  "add_image": "Agregar imagen",
+  "remove_image": "Quitar imagen",
+  "image_too_large": "Imagen demasiado grande. Elige un archivo de hasta 5 MB.",
+  "no_announcements": "Aún no hay avisos registrados.",
+  "select_announcement": "Selecciona un aviso a la izquierda, o crea uno nuevo.",
+  "delete_confirm": "¿Eliminar este aviso?",
+  "play": "Proyectar",
+  "stop": "Detener proyección",
+  "export_tooltip": "Exportar avisos",
+  "import_tooltip": "Importar avisos",
+  "import_confirm": "Importar este archivo reemplazará todos los avisos actuales. ¿Deseas continuar?",
+  "import_error": "No se pudo importar este archivo. Verifica que sea un respaldo válido de Avisos."
+}
