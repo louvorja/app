@@ -4,7 +4,8 @@ export default {
     return url + path;
   },
   file(path) {
-    const url = import.meta.env.VITE_URL_FILES;
-    return url + path;
+    //const url = import.meta.env.VITE_URL_FILES;
+    //return url + path;
+    return path;
   },
 };
