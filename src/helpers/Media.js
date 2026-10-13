@@ -651,6 +651,8 @@ export default {
     let id = "__audio";
     if (!document.getElementById(id)) {
       el = document.createElement("audio");
+      // Mantém o cache de streaming compatível com o carregamento por XHR.
+      el.crossOrigin = "anonymous";
       el.setAttribute("id", id);
       el.setAttribute("preload", "auto");
       document.body.appendChild(el);
