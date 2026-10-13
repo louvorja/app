@@ -44,7 +44,7 @@ Variáveis obrigatórias:
 |---|---|
 | `VITE_URL_DATABASE` | URL base dos arquivos JSON do banco |
 | `VITE_URL_FILES` | URL base dos arquivos de mídia (imagens, áudios) |
-| `VITE_API_TOKEN` | Token de autenticação enviado no header `Api-Token` |
+| `VITE_API_TOKEN` | Token enviado no header `Api-Token` só para servidores próprios que o exijam; a API oficial (`louvorja.com.br`, `workers.dev`) é pública e não recebe o header, o que evita o pré-voo CORS |
 | `VITE_APP_MODE` | `development` ou `production` (controla logs, debug e detalhe dos erros) |
 
 ---
@@ -205,7 +205,7 @@ npm run dev (porta 5002)
      │       │   └─ se encontrado: retorna cache
      │       │
      │       └─ GET {VITE_URL_DATABASE}/config?{data}
-     │               header: Api-Token: {VITE_API_TOKEN}
+     │               header: Api-Token: {VITE_API_TOKEN}   (omitido para a API oficial)
      │               │
      │               └─ resposta JSON → salva no cache → retorna
      │
