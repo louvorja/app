@@ -1,0 +1,1 @@
+import{_ as e,o as n,c as o}from"./index-0v9HMl5i.js";const s={name:"LinkIndex"},t={style:{display:"none"}};function c(a,r,_,p,d,i){return n(),o("span",t)}const l=e(s,[["render",c]]);export{l as default};
