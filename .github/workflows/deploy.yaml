@@ -1,53 +1,85 @@
 name: deploy
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-dist
+  cancel-in-progress: true
+
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
     steps:
-      - name: checkout code
-        uses: actions/checkout@v3
-      - name: set up node.js
-        uses: actions/setup-node@v3
+      - name: Obter código
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          node-version: 22
-      - name: setup git auth
-        env:
-          email: ${{ secrets.EMAIL }}
-          username: ${{ secrets.USERNAME }}
-          access_token: ${{ secrets.ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper store
-          echo "https://${access_token}:x-oauth-basic@github.com" > ~/.git-credentials
-          git config --global user.email $email
-          git config --global user.name $username
-      - name: fetch CNAME from dist branch
-        run: |
-          git fetch origin dist:dist
-          git show dist:CNAME > CNAME || echo "CNAME not found, skipping"
-      - name: install dependencies
-        run: npm install
-      - name: build project
-        run: npm run build
+          persist-credentials: false
+      - name: Configurar Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Instalar dependências sem ganchos
+        run: npm ci --ignore-scripts --no-audit
+      - name: Gerar site
+        run: npm --ignore-scripts run build
         env:
           NODE_ENV: production
           VITE_BASE_URL: /
-      - name: copy CNAME to dist (if exists)
+      - name: Preparar arquivos de publicação
         run: |
           if [ -f CNAME ]; then
             cp CNAME dist/CNAME
           fi
-      - name: copy index.html to 404.html
-        run: |
           cp dist/index.html dist/404.html
-      - name: deploy to dist
+      - name: Enviar arquivos para o GitHub Pages
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: dist
+
+      - name: Publicar na branch dist
+        working-directory: dist
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          cd dist
-          git init
-          git checkout -b dist  # Cria a branch dist se não existir
-          git add -A
-          git commit -m "🚀 Deploy id ${GITHUB_RUN_ID}"
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git push -f origin dist  # Faz push forçado para a branch dist
+          git init --initial-branch=dist
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          git commit -m "Deploy ${GITHUB_SHA} (run ${GITHUB_RUN_ID})"
+          git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+
+          authorization=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::$authorization"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${GITHUB_SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $authorization"
+
+          current=$(git ls-remote --heads origin refs/heads/dist)
+          expected=${current%%[[:space:]]*}
+          git push --force-with-lease="refs/heads/dist:$expected" origin HEAD:refs/heads/dist
+
+  pages:
+    name: Publicar no GitHub Pages
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar artefato
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
